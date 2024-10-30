@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb", 
+            "request": "launch",
+            "name": "topohedral-linalg Unit Tests",
+            "cargo": {
+                "args": [
+                    "test", 
+                    "--lib",
+                    "--no-run",
+                    "--package=topohedral-linalg"
+                ], 
+                "filter": {
+                    "name": "topohedral_linalg",
+                    "kind": "lib",
+                }
+            },
+            "args": [], 
+            "cwd": "${workspaceFolder}", 
+            "sourceLanguages": ["rust"]
+        }
+    ]
+}
