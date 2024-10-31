@@ -11,11 +11,39 @@
 //}}}
 //--------------------------------------------------------------------------------------------------
 #![feature(generic_const_exprs)]
-
+#![feature(impl_trait_in_assoc_type)]
 
 mod expr;
 mod matrix;
 
-
-
+pub use expr::Field;    
+pub use expr::AddExpr;
 pub use matrix::SMatrix;
+pub use matrix::Expression;
+
+
+
+
+//-------------------------------------------------------------------------------------------------
+//{{{ mod: tests
+#[cfg(test)]
+mod tests
+{
+    use ctor::ctor;
+    use topohedral_tracing::*;
+    
+
+    #[ctor]
+    fn init_logger() {
+        init().unwrap();
+    }
+
+    #[test]
+    fn test_logging() 
+    {
+        info!("Logging is working!");
+    }
+
+
+}
+//}}}

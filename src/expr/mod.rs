@@ -12,7 +12,7 @@ use::std::ops::{Add, Sub, Mul, Div};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-pub trait Field: Sized + Add + Sub + Mul + Div  {
+pub trait Field: Sized + Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Div<Output = Self> {
     fn add(&self, other: &Self) -> Self;
     fn sub(&self, other: &Self) -> Self;
     fn div(&self, other: &Self) -> Self;
@@ -57,35 +57,16 @@ impl_field!(u128);
 
 
 
-
-
-pub trait Expression {
-    type Output;
-    fn eval(&self) -> Self::Output;  
+pub struct AddExpr<A, B> {
+    pub a: A,
+    pub b: B,
 }
 
-
-pub struct AddExpr<Lhs, Rhs> 
-where 
-    Lhs: Expression, Rhs: Expression
+impl<A, B> Add<B> for AddExpr<A, B>
 {
+    type Output = AddExpr<Self, B>;
 
-    lhs: Lhs,
-    rhs: Rhs,   
-}
-
-impl<Lhs, Rhs> Expression for AddExpr<Lhs, Rhs> 
-where 
-    Lhs: Expression, Rhs: Expression
-{
-    type Output = Lhs::Output;    
-
-    fn eval(&self) -> Self::Output {
-        let lhs = self.lhs.eval();
-        let rhs = self.rhs.eval();
-
+    fn add(self, rhs: B) -> Self::Output {
+        AddExpr { a: self, b: rhs }
     }
 }
-
-
-

@@ -3,4 +3,13 @@ name = "topohedral-linalg"
 version = "0.1.0"
 edition = "2021"
 
+
+[features]
+enable_trace = ["topohedral-tracing/enable_trace"]
+
 [dependencies]
+log = "0.4.21"
+topohedral-tracing = { path = "../topohedral-tracing" }
+
+[dev-dependencies]
+ctor = "0.2.8"
