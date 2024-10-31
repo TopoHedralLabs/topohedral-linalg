@@ -17,9 +17,9 @@ mod expr;
 mod matrix;
 
 pub use expr::Field;    
-pub use expr::AddExpr;
 pub use matrix::SMatrix;
 pub use matrix::Expression;
+pub use matrix::AddExpr;
 
 
 
