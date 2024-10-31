@@ -13,13 +13,12 @@
 #![feature(generic_const_exprs)]
 #![feature(impl_trait_in_assoc_type)]
 
-mod expr;
+mod common;
 mod matrix;
 
-pub use expr::Field;    
-pub use matrix::SMatrix;
-pub use matrix::Expression;
-pub use matrix::AddExpr;
+pub use common::Field;    
+pub use matrix::core::{SMatrix, Expression};
+pub use matrix::addop::AddExpr;
 
 
 

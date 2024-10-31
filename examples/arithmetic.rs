@@ -17,7 +17,7 @@ fn main() {
     let b = tln::SMatrix::<f64, 2, 2>::from_value(10.0);
     let c = tln::SMatrix::<f64, 2, 2>::from_value(100.0);
     let d = tln::SMatrix::<f64, 2, 2>::from_value(1000.0);
-    let e1 = ((a + b) + (c + d))
+    let e1 = ((a + b) + (c + d)).eval();
 
 
     //{{{ trace
