@@ -22,6 +22,19 @@ pub struct SMatrix<T, const N: usize, const M: usize>
     pub(crate) data: [T; N*M],
 }
 //}}}
+
+impl<T, const N: usize, const M: usize> IntoIterator for SMatrix<T, N, M>
+where
+    [(); N*M]:,
+    T: Field + Default + Copy + fmt::Display,
+{
+    type Item = T;
+    type IntoIter = std::array::IntoIter<T, {N*M}>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
+    }
+}
 //{{{ impl: Default for SMatrix
 impl<T, const N: usize, const M: usize> Default for SMatrix<T, N, M>    
     where [(); N*M]:, 
@@ -98,6 +111,16 @@ pub trait Expression<T, const N: usize, const M: usize>
     T: Field + Default + Copy + fmt::Display,
 {
     fn eval(&self) -> SMatrix<T, N, M>;  
+}
+
+impl<T, const N: usize, const M: usize> Expression<T, N, M> for SMatrix<T, N, M>    
+    where [(); N*M]:,
+    T: Field + Default + Copy + fmt::Display,
+{
+
+    fn eval(&self) -> SMatrix<T, N, M> {
+        self.clone()
+    }
 }
 
 

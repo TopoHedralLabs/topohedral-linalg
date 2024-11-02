@@ -15,6 +15,7 @@ use crate::common::*;
 
 pub mod core;
 pub mod addop;
+pub mod subop;
 
 
 
