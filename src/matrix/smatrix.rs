@@ -71,6 +71,20 @@ where
     }
 }
 //}}}
+//{{{ impl: IntoIterator for &a' SMatrix
+impl<'a, T, const N: usize, const M: usize> IntoIterator for &'a SMatrix<T, N, M>
+where
+    [(); N*M]:,
+    T: Field + Default + Copy + fmt::Display,
+{
+    type Item = &'a T;
+    type IntoIter = std::slice::Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.iter()
+    }
+}
+//}}}
 //{{{ impl: Default for SMatrix
 impl<T, const N: usize, const M: usize> Default for SMatrix<T, N, M>    
     where [(); N*M]:, 
@@ -160,6 +174,20 @@ impl<T, const N: usize, const M: usize> Evaluate<T, N, M> for SMatrix<T, N, M>
     }
 }
 //}}}
+//{{{ impl: IndexValue for &'a SMatrix
+impl<'a, T, const N: usize, const M: usize> IndexValue<usize> for &'a SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + fmt::Display + Clone,
+{
+    type Output = T;
+    fn index_value(&self, index: usize) -> Self::Output {
+        self.data[index]
+    }
+}
+//}}}
+
+
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
 #[cfg(test)]
