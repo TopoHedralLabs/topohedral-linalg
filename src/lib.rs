@@ -17,7 +17,7 @@ mod common;
 mod matrix;
 
 pub use common::Field;    
-pub use matrix::core::{SMatrix, Expression};
+pub use matrix::core::{SMatrix, Evaluate};
 pub use matrix::addop::AddExpr;
 
 

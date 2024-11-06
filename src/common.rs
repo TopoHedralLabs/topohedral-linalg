@@ -56,17 +56,8 @@ impl_field!(u64);
 impl_field!(u128);
 
 
+pub trait IndexValue<I> {
 
-// pub struct AddExpr<A, B> {
-//     pub a: A,
-//     pub b: B,
-// }
-
-// impl<A, B> Add<B> for AddExpr<A, B>
-// {
-//     type Output = AddExpr<Self, B>;
-
-//     fn add(self, rhs: B) -> Self::Output {
-//         AddExpr { a: self, b: rhs }
-//     }
-// }
+    type Output;
+    fn index_value(&self, index: usize) -> Self::Output;
+}

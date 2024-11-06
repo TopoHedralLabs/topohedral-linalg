@@ -27,11 +27,11 @@ where
 }
 
 
-impl<T, const N: usize, const M: usize, A, B> Expression<T, N, M>  for SubExpr<A, B, T, N, M>    
+impl<T, const N: usize, const M: usize, A, B> Evaluate<T, N, M>  for SubExpr<A, B, T, N, M>    
     where [(); N*M]:,
     T: Field + Default + Copy + fmt::Display,
-    A: Expression<T, N, M>,
-    B: Expression<T, N, M>,
+    A: Evaluate<T, N, M>,
+    B: Evaluate<T, N, M>,
 {
     fn eval(&self) -> SMatrix<T, N, M> {
         //{{{ trace
@@ -71,8 +71,8 @@ impl<T, const N: usize, const M: usize> Sub for SMatrix<T, N, M>
 impl<A, B, T, const N: usize, const M: usize> Sub<SMatrix<T, N, M>> for SubExpr<A, B, T, N, M>
     where [(); N*M]:,
     T: Field + Default + Copy + fmt::Display,
-    A: Expression<T, N, M>,
-    B: Expression<T, N, M>,
+    A: Evaluate<T, N, M>,
+    B: Evaluate<T, N, M>,
 {
     type Output = SubExpr<Self, SMatrix<T, N, M>, T, N, M>;  
 
@@ -89,8 +89,8 @@ impl<A, B, T, const N: usize, const M: usize> Sub<SubExpr<A, B, T, N, M>> for SM
 where
     [(); N*M]:, 
     T: Field + Default + Copy + fmt::Display,
-    A: Expression<T, N, M>,
-    B: Expression<T, N, M>,
+    A: Evaluate<T, N, M>,
+    B: Evaluate<T, N, M>,
 {
     type Output = SubExpr<Self, SubExpr<A, B, T, N, M>, T, N, M>;
 
@@ -107,10 +107,10 @@ impl<A, B, C, D, T, const N: usize, const M: usize> Sub<SubExpr<C, D, T, N, M>> 
 where
     [(); N*M]:, 
     T: Field + Default + Copy + fmt::Display,
-    A: Expression<T, N, M>,
-    B: Expression<T, N, M>,
-    C: Expression<T, N, M>,
-    D: Expression<T, N, M>,
+    A: Evaluate<T, N, M>,
+    B: Evaluate<T, N, M>,
+    C: Evaluate<T, N, M>,
+    D: Evaluate<T, N, M>,
 {
     type Output = SubExpr<Self, SubExpr<C, D, T, N, M>, T, N, M>;   
 
@@ -149,7 +149,7 @@ mod tests
         }
 
         //{{{ trace
-        trace!("\n{}", matrix7);
+        // trace!("\n{}", matrix7);
         //}}}
     }
   

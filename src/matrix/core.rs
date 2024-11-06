@@ -8,6 +8,7 @@ use crate::common::*;
 //}}}
 //{{{ std imports 
 use std::fmt;
+use std::ops::{Index, IndexMut};
 //}}}
 //{{{ dep imports 
 use topohedral_tracing::*;
@@ -18,10 +19,38 @@ use topohedral_tracing::*;
 #[derive(Clone)]
 pub struct SMatrix<T, const N: usize, const M: usize> 
     where [(); N*M]:, 
-    T: Field + Default + Copy + fmt::Display, {
+    T: Field + Default + Copy + fmt::Display, 
+{
     pub(crate) data: [T; N*M],
 }
 //}}}
+impl<T, const N: usize, const M: usize> Index<usize> for SMatrix<T, N, M>
+    where [(); N*M]:, 
+    T: Field + Default + Copy + fmt::Display, 
+{
+    type Output = T;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
+    }
+}
+impl<T, const N: usize, const M: usize> IndexMut<usize> for SMatrix<T, N, M>
+    where [(); N*M]:, 
+    T: Field + Default + Copy + fmt::Display, 
+{
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.data[index]
+    }
+}
+
+impl <T, const N: usize, const M: usize> IndexValue<usize> for SMatrix<T, N, M>
+    where [(); N*M]:,
+    T: Field + Default + Copy + fmt::Display,
+{
+    type Output = T;
+    fn index_value(&self, index: usize) -> Self::Output {
+        self.data[index]
+    }
+}
 
 impl<T, const N: usize, const M: usize> IntoIterator for SMatrix<T, N, M>
 where
@@ -106,14 +135,14 @@ where
 }
 //}}}
 
-pub trait Expression<T, const N: usize, const M: usize> 
+pub trait Evaluate<T, const N: usize, const M: usize> 
     where [(); N*M]:,
     T: Field + Default + Copy + fmt::Display,
 {
     fn eval(&self) -> SMatrix<T, N, M>;  
 }
 
-impl<T, const N: usize, const M: usize> Expression<T, N, M> for SMatrix<T, N, M>    
+impl<T, const N: usize, const M: usize> Evaluate<T, N, M> for SMatrix<T, N, M>    
     where [(); N*M]:,
     T: Field + Default + Copy + fmt::Display,
 {
@@ -122,6 +151,7 @@ impl<T, const N: usize, const M: usize> Expression<T, N, M> for SMatrix<T, N, M>
         self.clone()
     }
 }
+
 
 
 
