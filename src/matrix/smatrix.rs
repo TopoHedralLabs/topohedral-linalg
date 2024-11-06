@@ -160,19 +160,6 @@ impl<T, const N: usize, const M: usize> Evaluate<T, N, M> for SMatrix<T, N, M>
     }
 }
 //}}}
-//{{{ struct: AddExpr
-pub struct BinopExpr<A, B, T>
-where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy + fmt::Display + Clone,
-{
-    pub a: A,
-    pub b: B,
-    pub _marker: std::marker::PhantomData<T>,
-}
-//}}}
-
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
 #[cfg(test)]

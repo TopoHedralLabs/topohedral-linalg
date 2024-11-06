@@ -17,8 +17,8 @@ mod common;
 mod matrix;
 
 pub use common::Field;    
-pub use matrix::core::{SMatrix, Evaluate};
-pub use matrix::addop::BinopExpr;
+pub use matrix::smatrix::{SMatrix, Evaluate};
+// pub use matrix::addop::BinopExpr;
 
 
 

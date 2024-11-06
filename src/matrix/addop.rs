@@ -5,11 +5,12 @@
 
 //{{{ crate imports 
 use crate::common::*;
-use super::core::*;
+use super::smatrix::*;
+use super::binop::{AddOp, BinOp, BinopExpr};
 //}}}
 //{{{ std imports 
 use std::fmt;
-use std::ops::{Add, Index};
+use std::ops::Add;
 //}}}
 //{{{ dep imports 
 use topohedral_tracing::*;
@@ -17,47 +18,6 @@ use topohedral_tracing::*;
 //--------------------------------------------------------------------------------------------------
 
 
-//{{{ impl: IndexValue for BinopExpr
-impl<A, B, T> IndexValue<usize> for BinopExpr<A, B, T>
-where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy + fmt::Display + Clone,
-{
-    type Output = T;
-    fn index_value(&self, index: usize) -> Self::Output {
-        //{{{ trace
-        debug!("Calling BinopExpr::index_value with index = {}", index);
-        debug!("a.index_value(index) = {}", self.a.index_value(index)); 
-        debug!("b.index_value(index) = {}", self.b.index_value(index)); 
-        //}}}
-        self.a.index_value(index) + self.b.index_value(index)
-    }
-}
-//}}}
-//{{{ impl: Evaluate for BinopExpr
-impl <A, B, T, const N: usize, const M: usize> Evaluate<T, N, M>  for BinopExpr<A, B, T>
-where
-    [(); N * M]:,
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy + fmt::Display + Clone,
-{
-    fn eval(&self) -> SMatrix<T, N, M> {
-
-        //{{{ trace
-        debug!("Calling BinopExpr::eval()");
-        //}}}
-        let mut out = SMatrix::<T, N, M>::default();
-
-        for i in 0..N*M
-        {
-            out.data[i] = self.index_value(i);
-        }
-        out
-    }
-}
-//}}}
 //{{{ impl: IndexValue for &'a SMatrix
 impl<'a, T, const N: usize, const M: usize> IndexValue<usize> for &'a SMatrix<T, N, M>
 where
@@ -76,9 +36,10 @@ where
     [(); N * M]:,
     T: Field + Default + Copy + fmt::Display + Clone,
 {
-    type Output = BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T>;
+    type Output = BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, AddOp>;
 
-    fn add(self, rhs: Self) -> Self::Output {
+    fn add(self, rhs: Self) -> BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, AddOp>
+    {
         BinopExpr {
             a: self,
             b: rhs,
@@ -88,16 +49,17 @@ where
 }
 //}}}
 //{{{ impl: Add<&' SMatrix> for BinopExpr
-impl<'a, A, B, T, const N: usize, const M: usize> Add<&'a SMatrix<T, N, M>> for BinopExpr<A, B, T>
+impl<'a, A, B, T, const N: usize, const M: usize> Add<&'a SMatrix<T, N, M>> for BinopExpr<A, B, T, AddOp>
 where
     [(); N * M]:,
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
     T: Field + Default + Copy + fmt::Display + Clone,
 {
-    type Output = BinopExpr<Self, &'a SMatrix<T, N, M>, T>;
+    type Output = BinopExpr<Self, &'a SMatrix<T, N, M>, T, AddOp>;
 
-    fn add(self, rhs: &'a SMatrix<T, N, M>) -> Self::Output {
+    fn add(self, rhs: &'a SMatrix<T, N, M>) -> BinopExpr<Self, &'a SMatrix<T, N, M>, T, AddOp>
+    {
         BinopExpr {
             a: self,
             b: rhs,
@@ -107,16 +69,17 @@ where
 }
 //}}}
 //{{{ impl: Add<BinopExpr> for &'a SMatrix
-impl<'a, A, B, T, const N: usize, const M: usize> Add<BinopExpr<A, B, T>> for &'a SMatrix<T, N, M>
+impl<'a, A, B, T, const N: usize, const M: usize> Add<BinopExpr<A, B, T, AddOp>> for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
     T: Field + Default + Copy + fmt::Display + Clone,
 {
-    type Output = BinopExpr<Self, BinopExpr<A, B, T>, T>;
+    type Output = BinopExpr<Self, BinopExpr<A, B, T, AddOp>, T, AddOp>;
 
-    fn add(self, rhs: BinopExpr<A, B, T>) -> Self::Output {
+    fn add(self, rhs: BinopExpr<A, B, T, AddOp>) -> BinopExpr<Self, BinopExpr<A, B, T, AddOp>, T, AddOp>
+    {
         BinopExpr {
             a: self,
             b: rhs,
@@ -126,7 +89,7 @@ where
 }
 //}}}
 //{{{ impl: Add for BinopExpr
-impl<A, B, C, D, T> Add<BinopExpr<A, B, T>> for BinopExpr<C, D, T>
+impl<A, B, C, D, T> Add<BinopExpr<A, B, T, AddOp>> for BinopExpr<C, D, T, AddOp>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
@@ -134,9 +97,9 @@ where
     D: IndexValue<usize, Output = T>,
     T: Field + Default + Copy + fmt::Display + Clone,
 {
-    type Output = BinopExpr<BinopExpr<C, D, T>, BinopExpr<A, B,T>, T>;
+    type Output = BinopExpr<BinopExpr<C, D, T, AddOp>, BinopExpr<A, B,T, AddOp>, T, AddOp>;
 
-    fn add(self, rhs: BinopExpr<A, B, T>) -> Self::Output {
+    fn add(self, rhs: BinopExpr<A, B, T, AddOp>) ->  BinopExpr<BinopExpr<C, D, T, AddOp>, BinopExpr<A, B,T, AddOp>, T, AddOp> {
         BinopExpr {
             a: self,
             b: rhs,

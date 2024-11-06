@@ -13,9 +13,9 @@ use crate::common::*;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-pub mod core;
+pub mod smatrix;
+pub mod binop;
 pub mod addop;
-pub mod subop;
 
 
 
