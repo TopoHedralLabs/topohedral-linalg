@@ -9,40 +9,54 @@ use super::smatrix::{Evaluate, SMatrix};
 //}}}
 //{{{ std imports 
 use std::fmt;
-use std::ops::{Index, IndexMut};
+use std::ops::{Add, Sub, Mul, Div};
 //}}}
 //{{{ dep imports 
 use topohedral_tracing::*;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ struct AddOp
 pub struct AddOp; 
+//}}}
+//{{{ struct SubOp
 pub struct SubOp;
+//}}}
+//{{{ struct MulOp
 pub struct MulOp;
+//}}}
+//{{{ struct DivOp
 pub struct DivOp;
-
+//}}}
+//{{{ trait: BinOp
 pub trait BinOp {
     fn apply<T: Field>(a: T, b: T) -> T;
 }
-
+//}}}
+//{{{ impl BinOp for AddOp
 impl BinOp for AddOp {
     #[inline]
     fn apply<T: Field>(a: T, b: T) -> T { a + b }
 }
+//}}}
+//{{{ impl BinOp for SubOp
 impl BinOp for SubOp {
     #[inline]
     fn apply<T: Field>(a: T, b: T) -> T { a - b }
 }
+//}}}
+//{{{ impl BinOp for MulOp
 impl BinOp for MulOp {
     #[inline]
     fn apply<T: Field>(a: T, b: T) -> T { a * b }
 }
+//}}}
+//{{{ impl BInOp for DivOp
 impl BinOp for DivOp {
     #[inline]
     fn apply<T: Field>(a: T, b: T) -> T { a / b }
 }
-
-
+//}}}
 //{{{ struct: BinopExpr 
 pub struct BinopExpr<A, B, T, Op>
 where
@@ -99,3 +113,4 @@ where
     }
 }
 //}}}
+
