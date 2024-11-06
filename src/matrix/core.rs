@@ -15,6 +15,7 @@ use topohedral_tracing::*;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+
 //{{{ struct: SMatrix
 #[derive(Clone)]
 pub struct SMatrix<T, const N: usize, const M: usize> 
@@ -24,6 +25,7 @@ pub struct SMatrix<T, const N: usize, const M: usize>
     pub(crate) data: [T; N*M],
 }
 //}}}
+//{{{ impl: Index for SMatrix
 impl<T, const N: usize, const M: usize> Index<usize> for SMatrix<T, N, M>
     where [(); N*M]:, 
     T: Field + Default + Copy + fmt::Display, 
@@ -33,6 +35,8 @@ impl<T, const N: usize, const M: usize> Index<usize> for SMatrix<T, N, M>
         &self.data[index]
     }
 }
+//}}}
+//{{{ impl: IndexMut for SMatrix
 impl<T, const N: usize, const M: usize> IndexMut<usize> for SMatrix<T, N, M>
     where [(); N*M]:, 
     T: Field + Default + Copy + fmt::Display, 
@@ -41,7 +45,8 @@ impl<T, const N: usize, const M: usize> IndexMut<usize> for SMatrix<T, N, M>
         &mut self.data[index]
     }
 }
-
+//}}}
+//{{{ impl: IndexValue for SMatrix
 impl <T, const N: usize, const M: usize> IndexValue<usize> for SMatrix<T, N, M>
     where [(); N*M]:,
     T: Field + Default + Copy + fmt::Display,
@@ -51,7 +56,8 @@ impl <T, const N: usize, const M: usize> IndexValue<usize> for SMatrix<T, N, M>
         self.data[index]
     }
 }
-
+//}}}
+//{{{ impl: IntoIterator for SMatrix
 impl<T, const N: usize, const M: usize> IntoIterator for SMatrix<T, N, M>
 where
     [(); N*M]:,
@@ -64,6 +70,7 @@ where
         self.data.into_iter()
     }
 }
+//}}}
 //{{{ impl: Default for SMatrix
 impl<T, const N: usize, const M: usize> Default for SMatrix<T, N, M>    
     where [(); N*M]:, 
@@ -134,14 +141,15 @@ where
     }
 }
 //}}}
-
+//{{{ trait: Evaluate
 pub trait Evaluate<T, const N: usize, const M: usize> 
     where [(); N*M]:,
     T: Field + Default + Copy + fmt::Display,
 {
     fn eval(&self) -> SMatrix<T, N, M>;  
 }
-
+//}}}
+//{{{ impl: Evaluate for SMatrix
 impl<T, const N: usize, const M: usize> Evaluate<T, N, M> for SMatrix<T, N, M>    
     where [(); N*M]:,
     T: Field + Default + Copy + fmt::Display,
@@ -151,9 +159,19 @@ impl<T, const N: usize, const M: usize> Evaluate<T, N, M> for SMatrix<T, N, M>
         self.clone()
     }
 }
-
-
-
+//}}}
+//{{{ struct: AddExpr
+pub struct BinopExpr<A, B, T>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Default + Copy + fmt::Display + Clone,
+{
+    pub a: A,
+    pub b: B,
+    pub _marker: std::marker::PhantomData<T>,
+}
+//}}}
 
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests

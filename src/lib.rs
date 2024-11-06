@@ -18,7 +18,7 @@ mod matrix;
 
 pub use common::Field;    
 pub use matrix::core::{SMatrix, Evaluate};
-pub use matrix::addop::AddExpr;
+pub use matrix::addop::BinopExpr;
 
 
 
