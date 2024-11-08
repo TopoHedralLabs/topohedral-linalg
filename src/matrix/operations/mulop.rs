@@ -1,3 +1,5 @@
+
+
 //! Short Description of module
 //!
 //! Longer description of module
@@ -5,27 +7,27 @@
 
 //{{{ crate imports 
 use crate::common::*;
-use super::smatrix::*;
-use super::binop::{DivOp, BinopExpr};
+use super::super::smatrix::*;
+use super::common::{MulOp, BinopExpr};
 //}}}
 //{{{ std imports 
 use std::fmt;
-use std::ops::Div;
+use std::ops::Mul;
 //}}}
 //{{{ dep imports 
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 
-//{{{ impl: Div for &'a SMatrix
-impl<'a, T, const N: usize, const M: usize> Div for &'a SMatrix<T, N, M>
+//{{{ impl: Mul for &'a SMatrix
+impl<'a, T, const N: usize, const M: usize> Mul for &'a SMatrix<T, N, M>
 where 
     [(); N * M]:,
     T: Field + Default + Copy + fmt::Display + Clone,
 {
-    type Output = BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, DivOp>;
+    type Output = BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, MulOp>;
 
-    fn div(self, rhs: Self) -> BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, DivOp>
+    fn mul(self, rhs: Self) -> BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, MulOp>
     {
         BinopExpr {
             a: self,
@@ -35,17 +37,17 @@ where
     }
 }
 //}}}
-//{{{ impl: Div<&' SMatrix> for BinopExpr
-impl<'a, A, B, T, const N: usize, const M: usize> Div<&'a SMatrix<T, N, M>> for BinopExpr<A, B, T, DivOp>
+//{{{ impl: Mul<&' SMatrix> for BinopExpr
+impl<'a, A, B, T, const N: usize, const M: usize> Mul<&'a SMatrix<T, N, M>> for BinopExpr<A, B, T, MulOp>
 where
     [(); N * M]:,
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
     T: Field + Default + Copy + fmt::Display + Clone,
 {
-    type Output = BinopExpr<Self, &'a SMatrix<T, N, M>, T, DivOp>;
+    type Output = BinopExpr<Self, &'a SMatrix<T, N, M>, T, MulOp>;
 
-    fn div(self, rhs: &'a SMatrix<T, N, M>) -> BinopExpr<Self, &'a SMatrix<T, N, M>, T, DivOp>
+    fn mul(self, rhs: &'a SMatrix<T, N, M>) -> BinopExpr<Self, &'a SMatrix<T, N, M>, T, MulOp>
     {
         BinopExpr {
             a: self,
@@ -55,17 +57,17 @@ where
     }
 }
 //}}}
-//{{{ impl: Div<BinopExpr> for &'a SMatrix
-impl<'a, A, B, T, const N: usize, const M: usize> Div<BinopExpr<A, B, T, DivOp>> for &'a SMatrix<T, N, M>
+//{{{ impl: Mul<BinopExpr> for &'a SMatrix
+impl<'a, A, B, T, const N: usize, const M: usize> Mul<BinopExpr<A, B, T, MulOp>> for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
     T: Field + Default + Copy + fmt::Display + Clone,
 {
-    type Output = BinopExpr<Self, BinopExpr<A, B, T, DivOp>, T, DivOp>;
+    type Output = BinopExpr<Self, BinopExpr<A, B, T, MulOp>, T, MulOp>;
 
-    fn div(self, rhs: BinopExpr<A, B, T, DivOp>) -> BinopExpr<Self, BinopExpr<A, B, T, DivOp>, T, DivOp>
+    fn mul(self, rhs: BinopExpr<A, B, T, MulOp>) -> BinopExpr<Self, BinopExpr<A, B, T, MulOp>, T, MulOp>
     {
         BinopExpr {
             a: self,
@@ -75,8 +77,8 @@ where
     }
 }
 //}}}
-//{{{ impl: Div for BinopExpr
-impl<A, B, C, D, T> Div<BinopExpr<A, B, T, DivOp>> for BinopExpr<C, D, T, DivOp>
+//{{{ impl: Mul for BinopExpr
+impl<A, B, C, D, T> Mul<BinopExpr<A, B, T, MulOp>> for BinopExpr<C, D, T, MulOp>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
@@ -84,9 +86,9 @@ where
     D: IndexValue<usize, Output = T>,
     T: Field + Default + Copy + fmt::Display + Clone,
 {
-    type Output = BinopExpr<BinopExpr<C, D, T, DivOp>, BinopExpr<A, B,T, DivOp>, T, DivOp>;
+    type Output = BinopExpr<BinopExpr<C, D, T, MulOp>, BinopExpr<A, B,T, MulOp>, T, MulOp>;
 
-    fn div(self, rhs: BinopExpr<A, B, T, DivOp>) ->  BinopExpr<BinopExpr<C, D, T, DivOp>, BinopExpr<A, B,T, DivOp>, T, DivOp> {
+    fn mul(self, rhs: BinopExpr<A, B, T, MulOp>) ->  BinopExpr<BinopExpr<C, D, T, MulOp>, BinopExpr<A, B,T, MulOp>, T, MulOp> {
         BinopExpr {
             a: self,
             b: rhs,
@@ -107,8 +109,7 @@ mod tests
     use topohedral_tracing::*;
 
     #[test]
-    fn test_matrix_div() {
-
+    fn test_matrix_mul() {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(1.0);
         let matrix2 = SMatrix::<f64, 2, 2>::from_value(10.0);
         let matrix3 = SMatrix::<f64, 2, 2>::from_value(100.0);
@@ -116,9 +117,9 @@ mod tests
         let matrix5 = SMatrix::<f64, 2, 2>::from_value(10000.0);
         let matrix6 = SMatrix::<f64, 2, 2>::from_value(100000.0);
         let mut matrix7 = SMatrix::<f64, 2, 2>::default();
-        matrix7 = ((&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6).eval();
+        matrix7 = ((&matrix4 * &matrix5) * (&matrix1 * &matrix2 * &matrix3) * &matrix6).eval();
 
-        let exp_value: f64 = (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
+        let exp_value: f64 = (1000.0 * 10000.0) * (1.0 * 10.0 * 100.0) * 100000.0;
 
         for val in &matrix7 {
             assert_eq!(*val, exp_value);

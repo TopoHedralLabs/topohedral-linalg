@@ -14,11 +14,7 @@ use crate::common::*;
 //--------------------------------------------------------------------------------------------------
 
 pub mod smatrix;
-pub mod binop;
-pub mod addop;
-pub mod subop;
-pub mod mulop;
-pub mod divop;
+pub mod operations;
 
 
 

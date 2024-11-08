@@ -5,7 +5,7 @@
 
 //{{{ crate imports 
 use crate::common::*;
-use super::smatrix::{Evaluate, SMatrix};
+use super::super::smatrix::{Evaluate, SMatrix};
 //}}}
 //{{{ std imports 
 use std::fmt;
@@ -114,3 +114,68 @@ where
 }
 //}}}
 
+impl<A, B, Op1, C, D, Op2, T> Add<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    Op1: BinOp,
+    C: IndexValue<usize, Output = T>,
+    D: IndexValue<usize, Output = T>,
+    Op2: BinOp,
+    T: Field + Default + Copy + fmt::Display + Clone, 
+{
+    type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>;
+
+    fn add(self, rhs: BinopExpr<A, B, T, Op1>) ->  BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>
+    {
+        BinopExpr {
+            a: self,
+            b: rhs,
+            _marker: std::marker::PhantomData,
+        }
+    }
+}
+
+// impl<A, B, Op1, C, D, Op2, T> Add<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
+// where
+//     A: IndexValue<usize, Output = T>,
+//     B: IndexValue<usize, Output = T>,
+//     Op1: BinOp,
+//     C: IndexValue<usize, Output = T>,
+//     D: IndexValue<usize, Output = T>,
+//     Op2: BinOp,
+//     T: Field + Default + Copy + fmt::Display + Clone, 
+// {
+//     type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>;
+
+//     fn add(self, rhs: BinopExpr<A, B, T, Op1>) ->  BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>
+//     {
+//         BinopExpr {
+//             a: self,
+//             b: rhs,
+//             _marker: std::marker::PhantomData,
+//         }
+//     }
+// }
+
+
+//-------------------------------------------------------------------------------------------------
+//{{{ mod: tests
+#[cfg(test)]
+mod tests
+{
+  use super::*;
+
+
+  #[test]
+  fn test_add_sub()
+  {
+    let a = SMatrix::<f64, 2, 2>::from_value(1.0);
+    let b = SMatrix::<f64, 2, 2>::from_value(10.0);
+    let c = SMatrix::<f64, 2, 2>::from_value(100.0);
+    let d = SMatrix::<f64, 2, 2>::from_value(100.0);
+
+    // let e = (a + b) - (c - d);
+  }
+}
+//}}}
