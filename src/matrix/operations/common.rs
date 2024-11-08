@@ -136,29 +136,71 @@ where
     }
 }
 
-// impl<A, B, Op1, C, D, Op2, T> Add<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
-// where
-//     A: IndexValue<usize, Output = T>,
-//     B: IndexValue<usize, Output = T>,
-//     Op1: BinOp,
-//     C: IndexValue<usize, Output = T>,
-//     D: IndexValue<usize, Output = T>,
-//     Op2: BinOp,
-//     T: Field + Default + Copy + fmt::Display + Clone, 
-// {
-//     type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>;
+impl<A, B, Op1, C, D, Op2, T> Sub<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    Op1: BinOp,
+    C: IndexValue<usize, Output = T>,
+    D: IndexValue<usize, Output = T>,
+    Op2: BinOp,
+    T: Field + Default + Copy + fmt::Display + Clone, 
+{
+    type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, SubOp>;
 
-//     fn add(self, rhs: BinopExpr<A, B, T, Op1>) ->  BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>
-//     {
-//         BinopExpr {
-//             a: self,
-//             b: rhs,
-//             _marker: std::marker::PhantomData,
-//         }
-//     }
-// }
+    fn sub(self, rhs: BinopExpr<A, B, T, Op1>) ->  BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, SubOp>
+    {
+        BinopExpr {
+            a: self,
+            b: rhs,
+            _marker: std::marker::PhantomData,
+        }
+    }
+}
 
+impl<A, B, Op1, C, D, Op2, T> Mul<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    Op1: BinOp,
+    C: IndexValue<usize, Output = T>,
+    D: IndexValue<usize, Output = T>,
+    Op2: BinOp,
+    T: Field + Default + Copy + fmt::Display + Clone, 
+{
+    type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, MulOp>;
 
+    fn mul(self, rhs: BinopExpr<A, B, T, Op1>) ->  BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, MulOp>
+    {
+        BinopExpr {
+            a: self,
+            b: rhs,
+            _marker: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<A, B, Op1, C, D, Op2, T> Div<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    Op1: BinOp,
+    C: IndexValue<usize, Output = T>,
+    D: IndexValue<usize, Output = T>,
+    Op2: BinOp,
+    T: Field + Default + Copy + fmt::Display + Clone, 
+{
+    type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, DivOp>;
+
+    fn div(self, rhs: BinopExpr<A, B, T, Op1>) ->  BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, DivOp>
+    {
+        BinopExpr {
+            a: self,
+            b: rhs,
+            _marker: std::marker::PhantomData,
+        }
+    }
+}
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
 #[cfg(test)]

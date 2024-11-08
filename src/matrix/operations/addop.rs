@@ -74,26 +74,6 @@ where
     }
 }
 //}}}
-//{{{ impl: Add for BinopExpr
-// impl<A, B, C, D, T> Add<BinopExpr<A, B, T, AddOp>> for BinopExpr<C, D, T, AddOp>
-// where
-//     A: IndexValue<usize, Output = T>,
-//     B: IndexValue<usize, Output = T>,
-//     C: IndexValue<usize, Output = T>,
-//     D: IndexValue<usize, Output = T>,
-//     T: Field + Default + Copy + fmt::Display + Clone,
-// {
-//     type Output = BinopExpr<BinopExpr<C, D, T, AddOp>, BinopExpr<A, B,T, AddOp>, T, AddOp>;
-
-//     fn add(self, rhs: BinopExpr<A, B, T, AddOp>) ->  BinopExpr<BinopExpr<C, D, T, AddOp>, BinopExpr<A, B,T, AddOp>, T, AddOp> {
-//         BinopExpr {
-//             a: self,
-//             b: rhs,
-//             _marker: std::marker::PhantomData,
-//         }
-//     }
-// }
-//}}}
 
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests

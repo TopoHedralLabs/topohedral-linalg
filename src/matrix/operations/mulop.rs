@@ -77,26 +77,6 @@ where
     }
 }
 //}}}
-//{{{ impl: Mul for BinopExpr
-impl<A, B, C, D, T> Mul<BinopExpr<A, B, T, MulOp>> for BinopExpr<C, D, T, MulOp>
-where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    C: IndexValue<usize, Output = T>,
-    D: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy + fmt::Display + Clone,
-{
-    type Output = BinopExpr<BinopExpr<C, D, T, MulOp>, BinopExpr<A, B,T, MulOp>, T, MulOp>;
-
-    fn mul(self, rhs: BinopExpr<A, B, T, MulOp>) ->  BinopExpr<BinopExpr<C, D, T, MulOp>, BinopExpr<A, B,T, MulOp>, T, MulOp> {
-        BinopExpr {
-            a: self,
-            b: rhs,
-            _marker: std::marker::PhantomData,
-        }
-    }
-}
-//}}}
 
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
