@@ -7,7 +7,7 @@
 //{{{ crate imports 
 use crate::common::*;
 use super::super::smatrix::*;
-use super::common::{SubOp, BinopExpr};
+use super::common::{BinOp, BinopExpr, SubOp};
 //}}}
 //{{{ std imports 
 use std::fmt;
@@ -37,12 +37,13 @@ where
 }
 //}}}
 //{{{ impl: Sub<&' SMatrix> for BinopExpr
-impl<'a, A, B, T, const N: usize, const M: usize> Sub<&'a SMatrix<T, N, M>> for BinopExpr<A, B, T, SubOp>
+impl<'a, A, B, T, Op, const N: usize, const M: usize> Sub<&'a SMatrix<T, N, M>> for BinopExpr<A, B, T, Op>
 where
-    [(); N * M]:,
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
     T: Field + Default + Copy + fmt::Display + Clone,
+    Op: BinOp,
+    [(); N * M]:,
 {
     type Output = BinopExpr<Self, &'a SMatrix<T, N, M>, T, SubOp>;
 
@@ -57,16 +58,17 @@ where
 }
 //}}}
 //{{{ impl: Sub<BinopExpr> for &'a SMatrix
-impl<'a, A, B, T, const N: usize, const M: usize> Sub<BinopExpr<A, B, T, SubOp>> for &'a SMatrix<T, N, M>
+impl<'a, A, B, T, Op, const N: usize, const M: usize> Sub<BinopExpr<A, B, T, Op>> for &'a SMatrix<T, N, M>
 where
-    [(); N * M]:,
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
     T: Field + Default + Copy + fmt::Display + Clone,
+    Op: BinOp,
+    [(); N * M]:,
 {
-    type Output = BinopExpr<Self, BinopExpr<A, B, T, SubOp>, T, SubOp>;
+    type Output = BinopExpr<Self, BinopExpr<A, B, T, Op>, T, SubOp>;
 
-    fn sub(self, rhs: BinopExpr<A, B, T, SubOp>) -> BinopExpr<Self, BinopExpr<A, B, T, SubOp>, T, SubOp>
+    fn sub(self, rhs: BinopExpr<A, B, T, Op>) -> BinopExpr<Self, BinopExpr<A, B, T, Op>, T, SubOp>
     {
         BinopExpr {
             a: self,

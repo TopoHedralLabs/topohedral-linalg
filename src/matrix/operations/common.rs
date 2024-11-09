@@ -113,7 +113,6 @@ where
     }
 }
 //}}}
-
 impl<A, B, Op1, C, D, Op2, T> Add<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
 where
     A: IndexValue<usize, Output = T>,
@@ -201,23 +200,3 @@ where
         }
     }
 }
-//-------------------------------------------------------------------------------------------------
-//{{{ mod: tests
-#[cfg(test)]
-mod tests
-{
-  use super::*;
-
-
-  #[test]
-  fn test_add_sub()
-  {
-    let a = SMatrix::<f64, 2, 2>::from_value(1.0);
-    let b = SMatrix::<f64, 2, 2>::from_value(10.0);
-    let c = SMatrix::<f64, 2, 2>::from_value(100.0);
-    let d = SMatrix::<f64, 2, 2>::from_value(100.0);
-
-    // let e = (a + b) - (c - d);
-  }
-}
-//}}}
