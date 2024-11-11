@@ -42,9 +42,23 @@ macro_rules! impl_field {
                 self * other
             }
         }
+
+        impl IndexValue<usize> for $type {
+            type Output = Self;
+
+            #[inline]
+            fn index_value(&self, index: usize) -> Self::Output {
+                *self
+            }
+        }
     };
 }
 
+pub trait IndexValue<I> {
+
+    type Output;
+    fn index_value(&self, index: usize) -> Self::Output;
+}
 
 impl_field!(f32);
 impl_field!(f64);
@@ -60,8 +74,3 @@ impl_field!(u64);
 impl_field!(u128);
 
 
-pub trait IndexValue<I> {
-
-    type Output;
-    fn index_value(&self, index: usize) -> Self::Output;
-}
