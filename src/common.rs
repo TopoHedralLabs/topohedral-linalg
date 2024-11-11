@@ -22,18 +22,22 @@ pub trait Field: Sized + Add<Output = Self> + Sub<Output = Self> + Mul<Output = 
 macro_rules! impl_field {
     ($type:ty) => {
         impl Field for $type {
+            #[inline]
             fn add(&self, other: &Self) -> Self {
                 self + other
             }
             
+            #[inline]
             fn sub(&self, other: &Self) -> Self {
                 self - other
             }
             
+            #[inline]
             fn div(&self, other: &Self) -> Self {
                 self / other
             }
             
+            #[inline]
             fn mul(&self, other: &Self) -> Self {
                 self * other
             }
