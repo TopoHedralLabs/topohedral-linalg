@@ -16,6 +16,21 @@ use std::ops::Add;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+impl<'a, T, const N: usize, const M: usize> Add<T> for &'a SMatrix<T, N, M>
+where 
+    [(); N * M]:,
+    T: Field + Default + Copy + fmt::Display + Clone + IndexValue<usize, Output = T>,
+{
+    type Output = BinopExpr<&'a SMatrix<T, N, M>, T, T, AddOp>;
+
+    fn add(self, rhs: T) -> Self::Output {
+        BinopExpr {
+            a: self,
+            b: rhs,
+            _marker: std::marker::PhantomData,
+        }
+    }
+}
 //{{{ impl: Add for &'a SMatrix
 impl<'a, T, const N: usize, const M: usize> Add for &'a SMatrix<T, N, M>
 where 
@@ -96,12 +111,13 @@ mod tests
         let matrix4 = SMatrix::<i32, 2, 2>::from_value(1000);
         let matrix5 = SMatrix::<i32, 2, 2>::from_value(10000);
         let matrix6 = SMatrix::<i32, 2, 2>::from_value(100000);
-        let mut matrix7 = SMatrix::<i32, 2, 2>::default();
-        matrix7 = ((&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6).eval();
+        let matrix7 = SMatrix::<i32, 2, 2>::from_value(1000000);
+        let mut matrix8 = SMatrix::<i32, 2, 2>::default();
+        matrix8 = (&matrix7 + (&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6).eval();
 
 
-        let exp_value: i32 = (1000 + 10000) + (1 + 10 + 100) + 100000;
-        for val in &matrix7 {
+        let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
+        for val in &matrix8 {
             assert_eq!(*val, exp_value);
         }
     }

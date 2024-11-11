@@ -97,12 +97,13 @@ mod tests
         let matrix4 = SMatrix::<f64, 2, 2>::from_value(1000.0);
         let matrix5 = SMatrix::<f64, 2, 2>::from_value(10000.0);
         let matrix6 = SMatrix::<f64, 2, 2>::from_value(100000.0);
-        let mut matrix7 = SMatrix::<f64, 2, 2>::default();
-        matrix7 = ((&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6).eval();
+        let matrix7 = SMatrix::<f64, 2, 2>::from_value(1000000.0);
+        let mut matrix8 = SMatrix::<f64, 2, 2>::default();
+        matrix8 = (&matrix7 / (&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6).eval();
 
-        let exp_value: f64 = (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
+        let exp_value: f64 = 1000000.0 / (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
 
-        for val in &matrix7 {
+        for val in &matrix8 {
             assert_eq!(*val, exp_value);
         }
     }
