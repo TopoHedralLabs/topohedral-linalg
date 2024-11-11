@@ -113,6 +113,7 @@ where
     }
 }
 //}}}
+//{{{ impl: Add for BinopExpr
 impl<A, B, Op1, C, D, Op2, T> Add<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
 where
     A: IndexValue<usize, Output = T>,
@@ -134,7 +135,8 @@ where
         }
     }
 }
-
+//}}}
+//{{{ impl: Sub for BinopExpr
 impl<A, B, Op1, C, D, Op2, T> Sub<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
 where
     A: IndexValue<usize, Output = T>,
@@ -156,7 +158,8 @@ where
         }
     }
 }
-
+//}}}
+//{{{ impl: Mul for BinopExpr
 impl<A, B, Op1, C, D, Op2, T> Mul<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
 where
     A: IndexValue<usize, Output = T>,
@@ -178,7 +181,8 @@ where
         }
     }
 }
-
+//}}}
+//{{{ impl: Div for BinopExpr
 impl<A, B, Op1, C, D, Op2, T> Div<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
 where
     A: IndexValue<usize, Output = T>,
@@ -200,3 +204,4 @@ where
         }
     }
 }
+//}}}
