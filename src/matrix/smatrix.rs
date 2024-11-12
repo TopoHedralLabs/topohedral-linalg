@@ -9,9 +9,11 @@ use crate::common::*;
 //{{{ std imports 
 use std::fmt;
 use std::ops::{Index, IndexMut};
+use rand::distributions::uniform::{SampleBorrow, SampleUniform};
 //}}}
 //{{{ dep imports 
 use topohedral_tracing::*;
+use rand::distributions::{Distribution, Uniform};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -101,7 +103,7 @@ impl<T, const N: usize, const M: usize> Default for SMatrix<T, N, M>
 //{{{ impl: SMatrix
 impl <T, const N: usize, const M: usize> SMatrix<T, N, M>
     where [(); N*M]:,
-    T: Field + Default + Copy + fmt::Display, 
+    T: Field + Default + Copy + fmt::Display + SampleUniform + Sized, 
 {
     pub fn from_value(value: T) -> Self {
 
@@ -127,6 +129,20 @@ impl <T, const N: usize, const M: usize> SMatrix<T, N, M>
         }
         out
     }   
+
+    pub fn from_uniform_random(low: T, high: T) -> Self {
+        //{{{ trace
+        info!("Initializing SMatrix<T, N, M> from uniform random distribution");
+        //}}}
+        let mut out = Self::default();
+
+        let range = Uniform::<T>::new(low, high);
+        let mut rng = rand::thread_rng();
+        for i in 0..N*M {
+            out.data[i] = range.sample(&mut rng);
+        }
+        out
+    }
 }
 //}}}
 //{{{ impl fmt::Display for SMatrix 
@@ -213,6 +229,11 @@ mod tests
         let matrix = SMatrix::<i32, 2, 2>::from_slice(&[1, 10, 
                                                         100, 1000]);
         assert_eq!(matrix.data, [1, 100, 10, 1000]);  
+    }
+
+    #[test]
+    fn test_matrix_from_uniform_random() {
+        let matrix = SMatrix::<f64, 2, 2>::from_uniform_random(-1100.0, 100.1);
     }
 }
 //}}}
