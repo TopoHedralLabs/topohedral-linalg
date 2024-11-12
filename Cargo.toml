@@ -8,9 +8,12 @@ edition = "2021"
 enable_trace = ["topohedral-tracing/enable_trace"]
 
 [dependencies]
+blas = "0.22.0"
 log = "0.4.21"
 rand = "0.8.5"
 topohedral-tracing = { path = "../topohedral-tracing" }
 
 [dev-dependencies]
+criterion = "0.5.1"
 ctor = "0.2.8"
+
