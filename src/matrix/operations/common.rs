@@ -6,6 +6,7 @@
 //{{{ crate imports 
 use crate::common::*;
 use super::super::smatrix::{Evaluate, SMatrix};
+use crate::apply_for_all_types;
 //}}}
 //{{{ std imports 
 use std::fmt;
@@ -204,4 +205,169 @@ where
         }
     }
 }
+//}}}
+//{{{ impl: Add<T> for BinopExpr
+impl<A, B, T, Op> Add<T> for BinopExpr<A, B, T, Op>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Default + Copy + fmt::Display + Clone + IndexValue<usize, Output = T>,
+    Op: BinOp,
+{
+    type Output = BinopExpr<Self, T, T, AddOp>;
+
+    fn add(self, rhs: T) -> Self::Output {
+        BinopExpr {
+            a: self,
+            b: rhs,
+            _marker: std::marker::PhantomData,
+        }
+    }
+}
+//}}}
+//{{{ impl: Add<BinopExpr> for $type
+macro_rules! impl_add_binop_expr {
+    ($type:ty) => {
+        impl<A, B, Op> Add<BinopExpr<A, B, $type, Op>> for $type
+        where
+            A: IndexValue<usize, Output = $type>,
+            B: IndexValue<usize, Output = $type>,
+            Op: BinOp,
+        {
+            type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, AddOp>;
+            fn add(self, rhs: BinopExpr<A, B, $type, Op>) -> Self::Output {
+                BinopExpr {
+                    a: self,
+                    b: rhs,
+                    _marker: std::marker::PhantomData,
+                }
+        }
+    }
+    };
+}
+apply_for_all_types!(impl_add_binop_expr);
+//}}}
+//{{{ impl: Sub<T> for BinopExpr
+impl<A, B, T, Op> Sub<T> for BinopExpr<A, B, T, Op>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Default + Copy + fmt::Display + Clone + IndexValue<usize, Output = T>,
+    Op: BinOp,
+{
+    type Output = BinopExpr<Self, T, T, SubOp>;
+
+    fn sub(self, rhs: T) -> Self::Output {
+        BinopExpr {
+            a: self,
+            b: rhs,
+            _marker: std::marker::PhantomData,
+        }
+    }
+}
+//}}}
+//{{{ impl: Sub<BinopExpr> for $type
+macro_rules! impl_sub_binop_expr {
+    ($type:ty) => {
+        impl<A, B, Op> Sub<BinopExpr<A, B, $type, Op>> for $type
+        where
+            A: IndexValue<usize, Output = $type>,
+            B: IndexValue<usize, Output = $type>,
+            Op: BinOp,
+        {
+            type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, SubOp>;
+            fn sub(self, rhs: BinopExpr<A, B, $type, Op>) -> Self::Output {
+                BinopExpr {
+                    a: self,
+                    b: rhs,
+                    _marker: std::marker::PhantomData,
+                }
+        }
+    }
+    };
+}
+apply_for_all_types!(impl_sub_binop_expr);
+//}}}
+
+//{{{ impl: Mul<T> for BinopExpr
+impl<A, B, T, Op> Mul<T> for BinopExpr<A, B, T, Op>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Default + Copy + fmt::Display + Clone + IndexValue<usize, Output = T>,
+    Op: BinOp,
+{
+    type Output = BinopExpr<Self, T, T, MulOp>;
+
+    fn mul(self, rhs: T) -> Self::Output {
+        BinopExpr {
+            a: self,
+            b: rhs,
+            _marker: std::marker::PhantomData,
+        }
+    }
+}
+//}}}
+//{{{ impl: Mul<BinopExpr> for $type
+macro_rules! impl_mul_binop_expr {
+    ($type:ty) => {
+        impl<A, B, Op> Mul<BinopExpr<A, B, $type, Op>> for $type
+        where
+            A: IndexValue<usize, Output = $type>,
+            B: IndexValue<usize, Output = $type>,
+            Op: BinOp,
+        {
+            type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, MulOp>;
+            fn mul(self, rhs: BinopExpr<A, B, $type, Op>) -> Self::Output {
+                BinopExpr {
+                    a: self,
+                    b: rhs,
+                    _marker: std::marker::PhantomData,
+                }
+        }
+    }
+    };
+}
+apply_for_all_types!(impl_mul_binop_expr);
+//}}}
+//{{{ impl: Div<T> for BinopExpr
+impl<A, B, T, Op> Div<T> for BinopExpr<A, B, T, Op>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Default + Copy + fmt::Display + Clone + IndexValue<usize, Output = T>,
+    Op: BinOp,
+{
+    type Output = BinopExpr<Self, T, T, DivOp>;
+
+    fn div(self, rhs: T) -> Self::Output {
+        BinopExpr {
+            a: self,
+            b: rhs,
+            _marker: std::marker::PhantomData,
+        }
+    }
+}
+//}}}
+//{{{ impl: Div<BinopExpr> for $type
+macro_rules! impl_div_binop_expr {
+    ($type:ty) => {
+        impl<A, B, Op> Div<BinopExpr<A, B, $type, Op>> for $type
+        where
+            A: IndexValue<usize, Output = $type>,
+            B: IndexValue<usize, Output = $type>,
+            Op: BinOp,
+        {
+            type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, DivOp>;
+            fn div(self, rhs: BinopExpr<A, B, $type, Op>) -> Self::Output {
+                BinopExpr {
+                    a: self,
+                    b: rhs,
+                    _marker: std::marker::PhantomData,
+                }
+        }
+    }
+    };
+}
+apply_for_all_types!(impl_div_binop_expr);
 //}}}

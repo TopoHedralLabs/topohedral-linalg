@@ -7,6 +7,7 @@
 use crate::common::*;
 use super::super::smatrix::*;
 use super::common::{AddOp, BinopExpr, BinOp};
+use crate::apply_for_all_types;
 //}}}
 //{{{ std imports 
 use std::fmt;
@@ -16,6 +17,7 @@ use std::ops::Add;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: Add<T> for SMatrix
 impl<'a, T, const N: usize, const M: usize> Add<T> for &'a SMatrix<T, N, M>
 where 
     [(); N * M]:,
@@ -31,6 +33,28 @@ where
         }
     }
 }
+//}}}
+//{{{ impl: Add<Smatrix> for $type
+macro_rules! impl_smatrix_add {
+    ($type:ty) => {
+        impl<'a, const N: usize, const M: usize> Add<&'a SMatrix<$type, N, M>> for $type
+        where 
+            [(); N * M]:,
+        {
+            type Output = BinopExpr<$type, &'a SMatrix<$type, N, M>, $type, AddOp>;
+
+            fn add(self, rhs: &'a SMatrix<$type, N, M>) -> Self::Output {
+                BinopExpr {
+                    a: self,
+                    b: rhs,
+                    _marker: std::marker::PhantomData,
+                }
+            }
+        }
+    };
+}
+apply_for_all_types!(impl_smatrix_add); 
+//}}}
 //{{{ impl: Add for &'a SMatrix
 impl<'a, T, const N: usize, const M: usize> Add for &'a SMatrix<T, N, M>
 where 
@@ -104,7 +128,7 @@ mod tests
     use topohedral_tracing::*;
 
     #[test]
-    fn test_matrix_add() {
+    fn test_add_matrix() {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(1);
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(10);
         let matrix3 = SMatrix::<i32, 2, 2>::from_value(100);
@@ -119,6 +143,22 @@ mod tests
         let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
         for val in &matrix8 {
             assert_eq!(*val, exp_value);
+        }
+    }
+
+    #[test]
+    fn test_add_scalar() {
+
+        let matrix1 = SMatrix::<i32, 2, 2>::from_value(10);
+        let matrix2 = SMatrix::<i32, 2, 2>::from_value(100);
+
+        let mut matrix4 = SMatrix::<i32, 2, 2>::default();
+        matrix4 = (4i32 + (2i32 + &matrix1) + (&matrix2 + 3i32) + 5i32).eval();
+
+        let exp_val = 4 + (2 + 10) + (100 + 3) + 5;
+
+        for val in &matrix4 {
+            assert_eq!(*val, exp_val);
         }
     }
   

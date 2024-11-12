@@ -12,13 +12,42 @@ use::std::ops::{Add, Sub, Mul, Div};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ trait: Field
 pub trait Field: Sized + Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Div<Output = Self> {
     fn add(&self, other: &Self) -> Self;
     fn sub(&self, other: &Self) -> Self;
     fn div(&self, other: &Self) -> Self;
     fn mul(&self, other: &Self) -> Self;
 }
+//}}}
+//{{{ trait: IndexValue
+pub trait IndexValue<I> {
 
+    type Output;
+    fn index_value(&self, index: usize) -> Self::Output;
+}
+//}}}
+//{{{ macro: apply_for_all_types
+#[macro_export]
+macro_rules! apply_for_all_types {
+    ($macro:ident) => {
+        $macro!(f32);
+        $macro!(f64);
+        $macro!(i8);
+        $macro!(i16);
+        $macro!(i32);
+        $macro!(i64);
+        $macro!(i128);
+        $macro!(u8);
+        $macro!(u16);
+        $macro!(u32);
+        $macro!(u64);
+        $macro!(u128);
+    }
+
+}
+//}}}
+//{{{ macro: impl_field
 macro_rules! impl_field {
     ($type:ty) => {
         impl Field for $type {
@@ -53,24 +82,9 @@ macro_rules! impl_field {
         }
     };
 }
-
-pub trait IndexValue<I> {
-
-    type Output;
-    fn index_value(&self, index: usize) -> Self::Output;
-}
-
-impl_field!(f32);
-impl_field!(f64);
-impl_field!(i8);
-impl_field!(i16);
-impl_field!(i32);
-impl_field!(i64);
-impl_field!(i128);
-impl_field!(u8);
-impl_field!(u16);
-impl_field!(u32);
-impl_field!(u64);
-impl_field!(u128);
+//}}}
+//{{{ collection: impl_field implementations
+apply_for_all_types!(impl_field);
+//}}}
 
 
