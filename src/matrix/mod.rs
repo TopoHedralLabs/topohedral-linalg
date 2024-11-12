@@ -14,7 +14,7 @@ use crate::common::*;
 //--------------------------------------------------------------------------------------------------
 
 pub mod smatrix;
-pub mod operations;
+pub mod elementwise_op;
 
 
 
