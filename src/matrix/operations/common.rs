@@ -288,7 +288,6 @@ macro_rules! impl_sub_binop_expr {
 }
 apply_for_all_types!(impl_sub_binop_expr);
 //}}}
-
 //{{{ impl: Mul<T> for BinopExpr
 impl<A, B, T, Op> Mul<T> for BinopExpr<A, B, T, Op>
 where
