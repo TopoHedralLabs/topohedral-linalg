@@ -16,4 +16,8 @@ topohedral-tracing = { path = "../topohedral-tracing" }
 [dev-dependencies]
 criterion = "0.5.1"
 ctor = "0.2.8"
+nalgebra = {version = "0.33.2", features = ["rand"]}
 
+[[bench]]
+name = "elementwise"
+harness = false
