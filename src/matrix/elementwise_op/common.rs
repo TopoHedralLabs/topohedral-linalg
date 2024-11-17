@@ -80,6 +80,7 @@ where
     Op: BinOp,
 {
     type Output = T;
+    #[inline]
     fn index_value(&self, index: usize) -> Self::Output {
         //{{{ trace
         debug!("Calling BinopExpr::index_value with index = {}", index);
@@ -127,6 +128,7 @@ where
 {
     type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>;
 
+    #[inline]
     fn add(self, rhs: BinopExpr<A, B, T, Op1>) ->  BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>
     {
         BinopExpr {
@@ -150,6 +152,7 @@ where
 {
     type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, SubOp>;
 
+    #[inline]
     fn sub(self, rhs: BinopExpr<A, B, T, Op1>) ->  BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, SubOp>
     {
         BinopExpr {
@@ -173,6 +176,7 @@ where
 {
     type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, MulOp>;
 
+    #[inline]
     fn mul(self, rhs: BinopExpr<A, B, T, Op1>) ->  BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, MulOp>
     {
         BinopExpr {
@@ -196,6 +200,7 @@ where
 {
     type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, DivOp>;
 
+    #[inline]
     fn div(self, rhs: BinopExpr<A, B, T, Op1>) ->  BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, DivOp>
     {
         BinopExpr {
@@ -216,6 +221,7 @@ where
 {
     type Output = BinopExpr<Self, T, T, AddOp>;
 
+    #[inline]
     fn add(self, rhs: T) -> Self::Output {
         BinopExpr {
             a: self,
@@ -235,6 +241,8 @@ macro_rules! impl_add_binop_expr {
             Op: BinOp,
         {
             type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, AddOp>;
+
+            #[inline]
             fn add(self, rhs: BinopExpr<A, B, $type, Op>) -> Self::Output {
                 BinopExpr {
                     a: self,
@@ -257,6 +265,7 @@ where
 {
     type Output = BinopExpr<Self, T, T, SubOp>;
 
+    #[inline]
     fn sub(self, rhs: T) -> Self::Output {
         BinopExpr {
             a: self,
@@ -276,6 +285,8 @@ macro_rules! impl_sub_binop_expr {
             Op: BinOp,
         {
             type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, SubOp>;
+
+            #[inline]
             fn sub(self, rhs: BinopExpr<A, B, $type, Op>) -> Self::Output {
                 BinopExpr {
                     a: self,
@@ -298,6 +309,7 @@ where
 {
     type Output = BinopExpr<Self, T, T, MulOp>;
 
+    #[inline]
     fn mul(self, rhs: T) -> Self::Output {
         BinopExpr {
             a: self,
@@ -317,6 +329,8 @@ macro_rules! impl_mul_binop_expr {
             Op: BinOp,
         {
             type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, MulOp>;
+
+            #[inline]
             fn mul(self, rhs: BinopExpr<A, B, $type, Op>) -> Self::Output {
                 BinopExpr {
                     a: self,
@@ -339,6 +353,7 @@ where
 {
     type Output = BinopExpr<Self, T, T, DivOp>;
 
+    #[inline]
     fn div(self, rhs: T) -> Self::Output {
         BinopExpr {
             a: self,
@@ -358,6 +373,8 @@ macro_rules! impl_div_binop_expr {
             Op: BinOp,
         {
             type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, DivOp>;
+
+            #[inline]
             fn div(self, rhs: BinopExpr<A, B, $type, Op>) -> Self::Output {
                 BinopExpr {
                     a: self,

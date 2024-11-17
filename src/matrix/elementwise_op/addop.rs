@@ -25,6 +25,7 @@ where
 {
     type Output = BinopExpr<&'a SMatrix<T, N, M>, T, T, AddOp>;
 
+    #[inline]
     fn add(self, rhs: T) -> Self::Output {
         BinopExpr {
             a: self,
@@ -43,6 +44,7 @@ macro_rules! impl_smatrix_add {
         {
             type Output = BinopExpr<$type, &'a SMatrix<$type, N, M>, $type, AddOp>;
 
+            #[inline]
             fn add(self, rhs: &'a SMatrix<$type, N, M>) -> Self::Output {
                 BinopExpr {
                     a: self,
@@ -63,6 +65,7 @@ where
 {
     type Output = BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, AddOp>;
 
+    #[inline]
     fn add(self, rhs: Self) -> BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, AddOp>
     {
         BinopExpr {
@@ -85,6 +88,7 @@ where
 {
     type Output = BinopExpr<Self, &'a SMatrix<T, N, M>, T, AddOp>;
 
+    #[inline]
     fn add(self, rhs: &'a SMatrix<T, N, M>) -> BinopExpr<Self, &'a SMatrix<T, N, M>, T, AddOp>
     {
         BinopExpr {
@@ -106,6 +110,7 @@ where
 {
     type Output = BinopExpr<Self, BinopExpr<A, B, T, Op>, T, AddOp>;
 
+    #[inline]
     fn add(self, rhs: BinopExpr<A, B, T, Op>) -> BinopExpr<Self, BinopExpr<A, B, T, Op>, T, AddOp>
     {
         BinopExpr {

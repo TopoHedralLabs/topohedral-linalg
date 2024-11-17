@@ -54,6 +54,8 @@ impl <T, const N: usize, const M: usize> IndexValue<usize> for SMatrix<T, N, M>
     T: Field + Default + Copy + fmt::Display,
 {
     type Output = T;
+
+    #[inline]
     fn index_value(&self, index: usize) -> Self::Output {
         self.data[index]
     }
@@ -197,6 +199,8 @@ where
     T: Field + Default + Copy + fmt::Display + Clone,
 {
     type Output = T;
+
+    #[inline]
     fn index_value(&self, index: usize) -> Self::Output {
         self.data[index]
     }
