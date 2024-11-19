@@ -15,6 +15,7 @@ use crate::common::*;
 
 pub mod smatrix;
 pub mod elementwise_op;
+pub mod matrix_op;
 
 
 
