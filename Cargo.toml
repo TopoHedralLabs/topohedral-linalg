@@ -8,15 +8,20 @@ edition = "2021"
 enable_trace = ["topohedral-tracing/enable_trace"]
 
 [dependencies]
-blas = "0.22.0"
 log = "0.4.21"
 rand = "0.8.5"
 topohedral-tracing = { path = "../topohedral-tracing" }
+cblas = "0.4.0"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+blas-src = {version = "0.10.0", features = ["accelerate"]}
+
 
 [dev-dependencies]
 criterion = "0.5.1"
 ctor = "0.2.8"
 nalgebra = {version = "0.33.2", features = ["rand"]}
+
 
 [[bench]]
 name = "elementwise"
