@@ -102,10 +102,12 @@ macro_rules! add_benches {
 add_benches!(10, topohedral_linalg_10, nalgebra_10, array_10);
 add_benches!(20, topohedral_linalg_20, nalgebra_20, array_20);
 add_benches!(30, topohedral_linalg_30, nalgebra_30, array_30);
+add_benches!(40, topohedral_linalg_40, nalgebra_40, array_40);
 criterion_group!(benches, 
     topohedral_linalg_10, nalgebra_10, array_10,
     topohedral_linalg_20, nalgebra_20, array_20,
-    topohedral_linalg_30, nalgebra_30, array_30
+    topohedral_linalg_30, nalgebra_30, array_30, 
+    topohedral_linalg_40, nalgebra_40, array_40 
 );
 criterion_main!(benches);
 
