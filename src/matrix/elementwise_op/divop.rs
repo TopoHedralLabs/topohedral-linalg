@@ -19,6 +19,7 @@ use std::ops::Div;
 
 
 //{{{ impl: Div<T> for SMatrix
+#[doc(hidden)] 
 impl<'a, T, const N: usize, const M: usize> Div<T> for &'a SMatrix<T, N, M>
 where 
     [(); N * M]:,
@@ -38,6 +39,8 @@ where
 //{{{ impl: Div<Smatrix> for $type
 macro_rules! impl_smatrix_div {
     ($type:ty) => {
+
+        #[doc(hidden)] 
         impl<'a, const N: usize, const M: usize> Div<&'a SMatrix<$type, N, M>> for $type
         where 
             [(); N * M]:,
