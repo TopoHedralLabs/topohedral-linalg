@@ -17,6 +17,8 @@ use std::fmt;
 //{{{ trait: Gemm
 pub trait Gemm: Copy {
     fn gemm(
+        tr1: cblas::Transpose,
+        tr2: cblas::Transpose,
         m: i32,
         n: i32,
         k: i32,
@@ -35,6 +37,8 @@ pub trait Gemm: Copy {
 impl Gemm for f64 {
     #[inline]
     fn gemm(
+        tr1: cblas::Transpose,
+        tr2: cblas::Transpose,
         m: i32,
         n: i32,
         k: i32,
@@ -50,8 +54,8 @@ impl Gemm for f64 {
         unsafe {
             cblas::dgemm(
                 cblas::Layout::ColumnMajor,
-                cblas::Transpose::None,
-                cblas::Transpose::None,
+                tr1, 
+                tr2,
                 m,
                 n,
                 k,
@@ -72,6 +76,8 @@ impl Gemm for f64 {
 impl Gemm for f32 {
     #[inline]
     fn gemm(
+        tr1: cblas::Transpose,
+        tr2: cblas::Transpose,
         m: i32,
         n: i32,
         k: i32,
@@ -87,8 +93,8 @@ impl Gemm for f32 {
         unsafe {
             cblas::sgemm(
                 cblas::Layout::ColumnMajor,
-                cblas::Transpose::None,
-                cblas::Transpose::None,
+                tr1, 
+                tr2,
                 m,
                 n,
                 k,
@@ -111,6 +117,8 @@ macro_rules! impl_naive_gemm {
         impl Gemm for $t {
             #[inline]
             fn gemm(
+                tr1: cblas::Transpose,
+                tr2: cblas::Transpose,
                 m: i32,
                 n: i32,
                 k: i32,
@@ -123,6 +131,7 @@ macro_rules! impl_naive_gemm {
                 c: &mut [Self],
                 ldc: i32,
             ) {
+
                 let get_a = |i, j| a[i as usize + (j as usize * lda as usize)];
 
                 let get_b = |i, j| b[i as usize + (j as usize * ldb as usize)];
@@ -146,6 +155,7 @@ apply_for_all_integer_types!(impl_naive_gemm);
 //{{{ trait: Gemv
 pub trait Gemv: Copy {
     fn gemv(
+        tr: cblas::Transpose,
         m: i32,
         k: i32,
         alpha: Self,
@@ -163,6 +173,7 @@ pub trait Gemv: Copy {
 impl Gemv for f64 {
     #[inline]
     fn gemv(
+        tr: cblas::Transpose,   
         m: i32,
         k: i32,
         alpha: Self,
@@ -176,8 +187,8 @@ impl Gemv for f64 {
     ) {
         unsafe {
             cblas::dgemv(
-                cblas::Layout::ColumnMajor,
-                cblas::Transpose::None,
+                cblas::Layout::RowMajor,
+                tr,
                 m,
                 k,
                 alpha,
@@ -197,6 +208,7 @@ impl Gemv for f64 {
 impl Gemv for f32 {
     #[inline]
     fn gemv(
+        tr: cblas::Transpose,   
         m: i32,
         k: i32,
         alpha: Self,
@@ -211,7 +223,7 @@ impl Gemv for f32 {
         unsafe {
             cblas::sgemv(
                 cblas::Layout::ColumnMajor,
-                cblas::Transpose::None,
+                tr,
                 m,
                 k,
                 alpha,
@@ -233,6 +245,7 @@ macro_rules! impl_naive_gemv {
         impl Gemv for $t {
             #[inline]
             fn gemv(
+                tr: cblas::Transpose,
                 m: i32,
                 k: i32,
                 alpha: Self,
@@ -277,10 +290,12 @@ where
     type Output = SMatrix<T, M, N>;
 
     fn matmul(self, rhs: &'a SMatrix<T, K, N>) -> Self::Output {
+
         let mut result = SMatrix::<T, M, N>::default();
 
         if N == 1 {
             T::gemv(
+                cblas::Transpose::None,
                 M as i32,
                 K as i32,
                 T::one(),
@@ -294,8 +309,9 @@ where
             );
         } else if M == 1 {
             T::gemv(
-                N as i32,
+                cblas::Transpose::Ordinary,
                 K as i32,
+                N as i32,
                 T::one(),
                 &rhs.data,
                 K as i32,
@@ -307,6 +323,8 @@ where
             );
         } else {
             T::gemm(
+                cblas::Transpose::None, // transa: transpose left matrix
+                cblas::Transpose::None, // transb: transpose right matrix
                 M as i32,         // m: rows of result/left matrix
                 N as i32,         // n: columns of result/right matrix
                 K as i32,         // k: columns of left/rows of right
@@ -344,7 +362,7 @@ mod tests {
     }
 
     #[test]
-    fn test_matmul_f64_vector() {
+    fn test_matmul_f64_col_vector() {
         let a = SMatrix::<f64, 2, 3>::from_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
         let b = SMatrix::<f64, 3, 1>::from_slice(&[1.0, 2.0, 3.0]);
         let expected = SMatrix::<f64, 2, 1>::from_slice(&[14.0, 32.0]);
@@ -354,9 +372,19 @@ mod tests {
 
     #[test]
     fn test_matmul_f32_general() {
-        let a = SMatrix::<f32, 2, 2>::from_slice(&[1.0, 2.0, 3.0, 4.0]);
-        let b = SMatrix::<f32, 2, 2>::from_slice(&[5.0, 6.0, 7.0, 8.0]);
-        let expected = SMatrix::<f32, 2, 2>::from_slice(&[19.0, 22.0, 43.0, 50.0]);
+        let a = SMatrix::<f32, 2, 3>::from_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+        let b = SMatrix::<f32, 3, 2>::from_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+        let expected = SMatrix::<f32, 2, 2>::from_slice(&[22.0, 28.0, 49.0, 64.0]);
+        let result = (&a).matmul(&b);
+        assert_eq!(result.data, expected.data);
+    }
+
+
+    #[test]
+    fn test_matmul_f32_col_vector() {
+        let a = SMatrix::<f32, 2, 3>::from_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+        let b = SMatrix::<f32, 3, 1>::from_slice(&[1.0, 2.0, 3.0]);
+        let expected = SMatrix::<f32, 2, 1>::from_slice(&[14.0, 32.0]);
         let result = (&a).matmul(&b);
         assert_eq!(result.data, expected.data);
     }
