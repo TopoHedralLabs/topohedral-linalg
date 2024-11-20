@@ -18,47 +18,57 @@ use topohedral_tracing::*;
 //--------------------------------------------------------------------------------------------------
 
 //{{{ struct AddOp
+#[doc(hidden)]
 pub struct AddOp; 
 //}}}
 //{{{ struct SubOp
+#[doc(hidden)]
 pub struct SubOp;
 //}}}
 //{{{ struct MulOp
+#[doc(hidden)]
 pub struct MulOp;
 //}}}
 //{{{ struct DivOp
+#[doc(hidden)]
 pub struct DivOp;
 //}}}
 //{{{ trait: BinOp
+#[doc(hidden)]
 pub trait BinOp {
     fn apply<T: Field>(a: T, b: T) -> T;
 }
 //}}}
 //{{{ impl BinOp for AddOp
+#[doc(hidden)]
 impl BinOp for AddOp {
     #[inline]
     fn apply<T: Field>(a: T, b: T) -> T { a + b }
 }
 //}}}
 //{{{ impl BinOp for SubOp
+#[doc(hidden)]
 impl BinOp for SubOp {
     #[inline]
     fn apply<T: Field>(a: T, b: T) -> T { a - b }
 }
 //}}}
 //{{{ impl BinOp for MulOp
+#[doc(hidden)]
 impl BinOp for MulOp {
     #[inline]
     fn apply<T: Field>(a: T, b: T) -> T { a * b }
 }
 //}}}
 //{{{ impl BInOp for DivOp
+#[doc(hidden)]
 impl BinOp for DivOp {
     #[inline]
     fn apply<T: Field>(a: T, b: T) -> T { a / b }
 }
 //}}}
 //{{{ struct: BinopExpr 
+#[doc(hidden)]
 pub struct BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
@@ -72,6 +82,7 @@ where
 }
 //}}}
 //{{{ impl: IndexValue for BinopExpr
+#[doc(hidden)]
 impl<A, B, T, Op> IndexValue<usize> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
@@ -92,6 +103,7 @@ where
 }
 //}}}
 //{{{ impl: Evaluate for BinopExpr
+#[doc(hidden)]
 impl <A, B, T, const N: usize, const M: usize, Op> Evaluate<T, N, M>  for BinopExpr<A, B, T, Op>
 where
     [(); N * M]:,
@@ -116,6 +128,7 @@ where
 }
 //}}}
 //{{{ impl: Add for BinopExpr
+#[doc(hidden)]
 impl<A, B, Op1, C, D, Op2, T> Add<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
 where
     A: IndexValue<usize, Output = T>,
@@ -140,6 +153,7 @@ where
 }
 //}}}
 //{{{ impl: Sub for BinopExpr
+#[doc(hidden)]
 impl<A, B, Op1, C, D, Op2, T> Sub<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
 where
     A: IndexValue<usize, Output = T>,
@@ -164,6 +178,7 @@ where
 }
 //}}}
 //{{{ impl: Mul for BinopExpr
+#[doc(hidden)]
 impl<A, B, Op1, C, D, Op2, T> Mul<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
 where
     A: IndexValue<usize, Output = T>,
@@ -188,6 +203,7 @@ where
 }
 //}}}
 //{{{ impl: Div for BinopExpr
+#[doc(hidden)]
 impl<A, B, Op1, C, D, Op2, T> Div<BinopExpr<A, B, T, Op1>> for BinopExpr<C, D, T, Op2>
 where
     A: IndexValue<usize, Output = T>,
@@ -212,6 +228,7 @@ where
 }
 //}}}
 //{{{ impl: Add<T> for BinopExpr
+#[doc(hidden)]
 impl<A, B, T, Op> Add<T> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
@@ -234,6 +251,7 @@ where
 //{{{ impl: Add<BinopExpr> for $type
 macro_rules! impl_add_binop_expr {
     ($type:ty) => {
+        #[doc(hidden)]
         impl<A, B, Op> Add<BinopExpr<A, B, $type, Op>> for $type
         where
             A: IndexValue<usize, Output = $type>,
@@ -256,6 +274,7 @@ macro_rules! impl_add_binop_expr {
 apply_for_all_types!(impl_add_binop_expr);
 //}}}
 //{{{ impl: Sub<T> for BinopExpr
+#[doc(hidden)]
 impl<A, B, T, Op> Sub<T> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
@@ -278,6 +297,7 @@ where
 //{{{ impl: Sub<BinopExpr> for $type
 macro_rules! impl_sub_binop_expr {
     ($type:ty) => {
+        #[doc(hidden)]
         impl<A, B, Op> Sub<BinopExpr<A, B, $type, Op>> for $type
         where
             A: IndexValue<usize, Output = $type>,
@@ -300,6 +320,7 @@ macro_rules! impl_sub_binop_expr {
 apply_for_all_types!(impl_sub_binop_expr);
 //}}}
 //{{{ impl: Mul<T> for BinopExpr
+#[doc(hidden)]
 impl<A, B, T, Op> Mul<T> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
@@ -322,6 +343,7 @@ where
 //{{{ impl: Mul<BinopExpr> for $type
 macro_rules! impl_mul_binop_expr {
     ($type:ty) => {
+        #[doc(hidden)]
         impl<A, B, Op> Mul<BinopExpr<A, B, $type, Op>> for $type
         where
             A: IndexValue<usize, Output = $type>,
@@ -344,6 +366,7 @@ macro_rules! impl_mul_binop_expr {
 apply_for_all_types!(impl_mul_binop_expr);
 //}}}
 //{{{ impl: Div<T> for BinopExpr
+#[doc(hidden)]
 impl<A, B, T, Op> Div<T> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
@@ -366,6 +389,7 @@ where
 //{{{ impl: Div<BinopExpr> for $type
 macro_rules! impl_div_binop_expr {
     ($type:ty) => {
+        #[doc(hidden)]
         impl<A, B, Op> Div<BinopExpr<A, B, $type, Op>> for $type
         where
             A: IndexValue<usize, Output = $type>,
