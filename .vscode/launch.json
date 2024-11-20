@@ -4,21 +4,21 @@
         {
             "type": "lldb", 
             "request": "launch",
-            "name": "topohedral-optimisation Unit Tests",
+            "name": "topohedral-linalg Unit Tests",
             "cargo": {
                 "args": [
                     "test", 
                     "--lib",
                     "--no-run",
-                    "--package=topohedral-optimisation"
+                    "--package=topohedral-linalg"
                 ], 
                 "filter": {
-                    "name": "topohedral-optimisation",
+                    "name": "topohedral_linalg",
                     "kind": "lib",
                 }
             },
             "args": [], 
-            "cwd": "${workspaceFolder}/topohedral-optimisation", 
+            "cwd": "${workspaceFolder}", 
             "sourceLanguages": ["rust"]
         }
     ]
