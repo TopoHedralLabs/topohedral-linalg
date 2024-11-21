@@ -180,7 +180,6 @@ where
             .max()
             .unwrap_or(0);
 
-        writeln!(f, "")?;
         for j in 0..M {
             write!(f, "|")?;
             for i in 0..N {
@@ -212,7 +211,7 @@ impl<T, const N: usize, const M: usize> Evaluate<T, N, M> for SMatrix<T, N, M>
 }
 //}}}
 //{{{ impl: IndexValue for &'a SMatrix
-impl<'a, T, const N: usize, const M: usize> IndexValue<usize> for &'a SMatrix<T, N, M>
+impl<T, const N: usize, const M: usize> IndexValue<usize> for &SMatrix<T, N, M>
 where
     [(); N * M]:,
     T: Field + Default + Copy + fmt::Display + Clone,

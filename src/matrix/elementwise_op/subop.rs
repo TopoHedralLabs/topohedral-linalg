@@ -100,7 +100,7 @@ where
 }
 //}}}
 //{{{ impl: Sub<BinopExpr> for &'a SMatrix
-impl<'a, A, B, T, Op, const N: usize, const M: usize> Sub<BinopExpr<A, B, T, Op>> for &'a SMatrix<T, N, M>
+impl<A, B, T, Op, const N: usize, const M: usize> Sub<BinopExpr<A, B, T, Op>> for &SMatrix<T, N, M>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,

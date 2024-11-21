@@ -166,7 +166,7 @@ macro_rules! impl_naive_gemm {
                     for j in 0..n {
                         let mut sum = Self::default();
                         for l in 0..k {
-                            sum = sum + get_a(i, l) * get_b(l, j);
+                            sum += get_a(i, l) * get_b(l, j);
                         }
                         let idx = i as usize + (j as usize * ldc as usize);
                         c[idx] = alpha * sum + beta * c[idx];
@@ -311,7 +311,7 @@ macro_rules! impl_naive_gemv {
                         for i in 0..m {
                             let mut sum = Self::default();
                             for j in 0..k {
-                                sum = sum + get_a(i, j) * x[(j * incx) as usize];
+                                sum += get_a(i, j) * x[(j * incx) as usize];
                             }
                             y[(i * incy) as usize] = alpha * sum + beta * y[(i * incy) as usize];
                         }
@@ -320,7 +320,7 @@ macro_rules! impl_naive_gemv {
                         for i in 0..m {
                             let mut sum = Self::default();
                             for j in 0..k {
-                                sum = sum + get_a(j, i) * x[(j * incx) as usize];
+                                sum += get_a(j, i) * x[(j * incx) as usize];
                             }
                             y[(i * incy) as usize] = alpha * sum + beta * y[(i * incy) as usize];
                         }
