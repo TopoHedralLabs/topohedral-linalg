@@ -15,7 +15,34 @@ use std::fmt;
 //--------------------------------------------------------------------------------------------------
 
 //{{{ trait: Gemm
+/// Trait which signifies matrices of type can perform a general matrix multiplication (GEMM)
+/// operation.
 pub trait Gemm: Copy {
+    /// Performs a general matrix multiplication (GEMM) operation.
+    ///
+    /// This function computes the matrix-matrix product of two matrices `a` and `b`
+    /// and adds the result to the matrix `c`, using the formula:
+    ///
+    /// $$
+    /// \mathbf{C} = \alpha * op(\mathbf{A}) * op(\mathbf{B}) + \beta * \mathbf{C}
+    /// $$
+    ///
+    /// where `op(x)` is either `x` or `x^T`, depending on the values of `tr1` and `tr2`.
+    ///
+    /// The function takes the following parameters:
+    /// - `tr1`: the transpose operation to apply to matrix `a`
+    /// - `tr2`: the transpose operation to apply to matrix `b`
+    /// - `m`: the number of rows of the resulting matrix `c`
+    /// - `n`: the number of columns of the resulting matrix `c`
+    /// - `k`: the number of columns of matrix `a` (or rows of matrix `b`)
+    /// - `alpha`: the scalar factor applied to the product of `a` and `b`
+    /// - `a`: the first input matrix
+    /// - `lda`: the leading dimension of matrix `a`
+    /// - `b`: the second input matrix
+    /// - `ldb`: the leading dimension of matrix `b`
+    /// - `beta`: the scalar factor applied to matrix `c`
+    /// - `c`: the output matrix
+    /// - `ldc`: the leading dimension of matrix `c`
     fn gemm(
         tr1: cblas::Transpose,
         tr2: cblas::Transpose,
@@ -54,7 +81,7 @@ impl Gemm for f64 {
         unsafe {
             cblas::dgemm(
                 cblas::Layout::ColumnMajor,
-                tr1, 
+                tr1,
                 tr2,
                 m,
                 n,
@@ -93,7 +120,7 @@ impl Gemm for f32 {
         unsafe {
             cblas::sgemm(
                 cblas::Layout::ColumnMajor,
-                tr1, 
+                tr1,
                 tr2,
                 m,
                 n,
@@ -131,7 +158,6 @@ macro_rules! impl_naive_gemm {
                 c: &mut [Self],
                 ldc: i32,
             ) {
-
                 let get_a = |i, j| a[i as usize + (j as usize * lda as usize)];
 
                 let get_b = |i, j| b[i as usize + (j as usize * ldb as usize)];
@@ -153,7 +179,28 @@ macro_rules! impl_naive_gemm {
 apply_for_all_integer_types!(impl_naive_gemm);
 //}}}
 //{{{ trait: Gemv
+/// Trait which signifies matrices of type can perform a general matrix-vector multiplication (GEMV)
+/// operation.
 pub trait Gemv: Copy {
+    /// Performs a general matrix-vector multiplication (GEMV) operation.
+    ///
+    /// This function computes the matrix-vector product:
+    ///
+    /// $$
+    /// y = alpha * op(A) * x + beta * y
+    /// $$
+    ///
+    /// where:
+    /// - `op(A)` is the operation applied to the matrix `A`, which can be normal (no transpose), transpose, or conjugate transpose.
+    /// - `m` is the number of rows of the matrix `A`.
+    /// - `k` is the number of columns of the matrix `A`.
+    /// - `alpha` and `beta` are scalar values.
+    /// - `a` is the input matrix `A`.
+    /// - `lda` is the leading dimension of the matrix `A`.
+    /// - `x` is the input vector.
+    /// - `incx` is the increment for the elements of `x`.
+    /// - `y` is the output vector.
+    /// - `incy` is the increment for the elements of `y`.
     fn gemv(
         tr: cblas::Transpose,
         m: i32,
@@ -173,7 +220,7 @@ pub trait Gemv: Copy {
 impl Gemv for f64 {
     #[inline]
     fn gemv(
-        tr: cblas::Transpose,   
+        tr: cblas::Transpose,
         m: i32,
         k: i32,
         alpha: Self,
@@ -187,7 +234,7 @@ impl Gemv for f64 {
     ) {
         unsafe {
             cblas::dgemv(
-                cblas::Layout::RowMajor,
+                cblas::Layout::ColumnMajor,
                 tr,
                 m,
                 k,
@@ -208,7 +255,7 @@ impl Gemv for f64 {
 impl Gemv for f32 {
     #[inline]
     fn gemv(
-        tr: cblas::Transpose,   
+        tr: cblas::Transpose,
         m: i32,
         k: i32,
         alpha: Self,
@@ -259,12 +306,26 @@ macro_rules! impl_naive_gemv {
             ) {
                 let get_a = |i, j| a[i as usize + (j as usize * lda as usize)];
 
-                for i in 0..m {
-                    let mut sum = Self::default();
-                    for j in 0..k {
-                        sum = sum + get_a(i, j) * x[(j * incx) as usize];
+                match tr {
+                    cblas::Transpose::None => {
+                        for i in 0..m {
+                            let mut sum = Self::default();
+                            for j in 0..k {
+                                sum = sum + get_a(i, j) * x[(j * incx) as usize];
+                            }
+                            y[(i * incy) as usize] = alpha * sum + beta * y[(i * incy) as usize];
+                        }
                     }
-                    y[(i * incy) as usize] = alpha * sum + beta * y[(i * incy) as usize];
+                    cblas::Transpose::Ordinary => {
+                        for i in 0..m {
+                            let mut sum = Self::default();
+                            for j in 0..k {
+                                sum = sum + get_a(j, i) * x[(j * incx) as usize];
+                            }
+                            y[(i * incy) as usize] = alpha * sum + beta * y[(i * incy) as usize];
+                        }
+                    }
+                    _ => {} // Handle other transpose cases if needed
                 }
             }
         }
@@ -273,8 +334,12 @@ macro_rules! impl_naive_gemv {
 apply_for_all_integer_types!(impl_naive_gemv);
 //}}}
 //{{{ trait: MatMul
+/// Trait which signifies matrices of type can perform a matrix multiplication operation.
+/// This will ultimately call gemm or gemv depending on the size of the matrices.
 pub trait MatMul<Rhs = Self> {
     type Output;
+
+    /// Performs a matrix multiplication operation.
     fn matmul(self, rhs: Rhs) -> Self::Output;
 }
 //}}}
@@ -290,7 +355,6 @@ where
     type Output = SMatrix<T, M, N>;
 
     fn matmul(self, rhs: &'a SMatrix<T, K, N>) -> Self::Output {
-
         let mut result = SMatrix::<T, M, N>::default();
 
         if N == 1 {
@@ -325,17 +389,17 @@ where
             T::gemm(
                 cblas::Transpose::None, // transa: transpose left matrix
                 cblas::Transpose::None, // transb: transpose right matrix
-                M as i32,         // m: rows of result/left matrix
-                N as i32,         // n: columns of result/right matrix
-                K as i32,         // k: columns of left/rows of right
-                T::one(),         // alpha: scaling factor for multiplication
-                &self.data,       // a: left matrix data
-                M as i32,         // lda: leading dimension of left matrix
-                &rhs.data,        // b: right matrix data
-                K as i32,         // ldb: leading dimension of right matrix
-                T::zero(),        // beta: scaling factor for result matrix
-                &mut result.data, // c: result matrix data
-                M as i32,         // ldc: leading dimension of result matrix
+                M as i32,               // m: rows of result/left matrix
+                N as i32,               // n: columns of result/right matrix
+                K as i32,               // k: columns of left/rows of right
+                T::one(),               // alpha: scaling factor for multiplication
+                &self.data,             // a: left matrix data
+                M as i32,               // lda: leading dimension of left matrix
+                &rhs.data,              // b: right matrix data
+                K as i32,               // ldb: leading dimension of right matrix
+                T::zero(),              // beta: scaling factor for result matrix
+                &mut result.data,       // c: result matrix data
+                M as i32,               // ldc: leading dimension of result matrix
             );
         }
 
@@ -378,7 +442,6 @@ mod tests {
         let result = (&a).matmul(&b);
         assert_eq!(result.data, expected.data);
     }
-
 
     #[test]
     fn test_matmul_f32_col_vector() {
