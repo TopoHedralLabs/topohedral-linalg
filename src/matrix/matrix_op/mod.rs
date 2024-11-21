@@ -1,17 +1,18 @@
 //! This module contains the matrix operations.
 //!
 //! Operations include:
-//! 
+//!
 //! - Matrix multiplication [[`matmul`]]
 //! - Matrix decomposition
 //! - Linear system solver  
+
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 
