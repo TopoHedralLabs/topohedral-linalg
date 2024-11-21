@@ -414,7 +414,7 @@ where
 mod tests {
 
     use super::*;
-    use crate::matrix::smatrix::*;
+    
 
     #[test]
     fn test_matmul_f64_general() {

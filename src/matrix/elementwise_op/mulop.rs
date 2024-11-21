@@ -130,7 +130,7 @@ mod tests
 
     use super::*;   
 
-    use topohedral_tracing::*;
+    
 
     #[test]
     fn test_mul_matrix() {

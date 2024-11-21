@@ -23,7 +23,7 @@ pub mod subop;
 #[cfg(test)]
 mod tests
 {
-  use super::{addop, divop, mulop,subop, common};
+  
   use super::super::smatrix::{SMatrix, Evaluate};
 
 

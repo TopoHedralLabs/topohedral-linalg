@@ -132,7 +132,7 @@ mod tests
 
     use super::*;   
 
-    use topohedral_tracing::*;
+    
 
     #[test]
     fn test_add_matrix() {

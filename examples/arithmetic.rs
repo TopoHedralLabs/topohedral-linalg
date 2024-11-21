@@ -1,8 +1,6 @@
 
 #![feature(generic_const_exprs)]
 
-use topohedral_linalg::Evaluate;
-use topohedral_linalg as tln;
 use topohedral_tracing::*;
 
 

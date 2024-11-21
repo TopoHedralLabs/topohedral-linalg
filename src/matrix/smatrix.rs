@@ -9,7 +9,7 @@ use crate::common::*;
 //{{{ std imports 
 use std::fmt;
 use std::ops::{Index, IndexMut};
-use rand::distributions::uniform::{SampleBorrow, SampleUniform};
+use rand::distributions::uniform::SampleUniform;
 //}}}
 //{{{ dep imports 
 use topohedral_tracing::*;
