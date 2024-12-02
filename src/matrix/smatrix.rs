@@ -16,8 +16,9 @@ use std::ops::{Index, IndexMut};
 //}}}
 //{{{ dep imports
 use rand::distributions::{Distribution, Uniform};
+use serde::ser::{Serialize, SerializeStruct, Serializer};
+// use serde::de::{Deserialize, Deserializer}
 use topohedral_tracing::*;
-use serde::{Serialize, Deserialize};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -53,6 +54,28 @@ where
     pub(crate) ncols: usize,
 }
 //}}}
+impl<T, const N: usize, const M: usize> Serialize for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + fmt::Display + Serialize,
+    [T; N * M]: Serialize,
+{
+    fn serialize<S>(
+        &self,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("SMatrix", 3)?;
+        state.serialize_field("data", &self.data)?;
+        state.serialize_field("nrows", &self.nrows)?;
+        state.serialize_field("ncols", &self.ncols)?;
+        state.end()
+    }
+}
+
+
 //{{{ collection: Index Pair Indexing
 //{{{ impl: Index<(usize, usize)> for SMatrix
 impl<T, const N: usize, const M: usize> Index<(usize, usize)> for SMatrix<T, N, M>
@@ -103,7 +126,6 @@ where
         index: usize,
     ) -> &Self::Output
     {
-
         &self.data[index]
     }
 }
@@ -120,7 +142,6 @@ where
         index: usize,
     ) -> &mut Self::Output
     {
-
         &mut self.data[index]
     }
 }
@@ -141,7 +162,6 @@ where
         index: usize,
     ) -> Self::Output
     {
-
         self.data[index]
     }
 }
@@ -157,17 +177,10 @@ where
 {
     type Item = T;
 
-    type IntoIter = std::array::IntoIter<
-        T,
-        {
-
-            N * M
-        },
-    >;
+    type IntoIter = std::array::IntoIter<T, { N * M }>;
 
     fn into_iter(self) -> Self::IntoIter
     {
-
         self.data.into_iter()
     }
 }
@@ -186,7 +199,6 @@ where
 
     fn into_iter(self) -> Self::IntoIter
     {
-
         self.data.iter()
     }
 }
@@ -200,10 +212,9 @@ where
 {
     fn default() -> Self
     {
-
         Self {
             data: [T::default(); N * M],
-            nrows: N, 
+            nrows: N,
             ncols: M,
         }
     }
@@ -221,7 +232,6 @@ where
         f: &mut fmt::Formatter<'_>,
     ) -> fmt::Result
     {
-
         let max_width = self
             .data
             .iter()
@@ -231,12 +241,10 @@ where
 
         for j in 0..M
         {
-
             write!(f, "|")?;
 
             for i in 0..N
             {
-
                 write!(f, " {:>width$}", self.data[i * M + j], width = max_width)?;
             }
 
@@ -267,7 +275,6 @@ where
 {
     fn eval(&self) -> SMatrix<T, N, M>
     {
-
         self.clone()
     }
 }
@@ -288,7 +295,6 @@ where
         index: usize,
     ) -> Self::Output
     {
-
         self.data[index]
     }
 }
@@ -304,14 +310,13 @@ where
     //{{{ fun: from_value
     pub fn from_value(value: T) -> Self
     {
-
         //{{{ trace
         info!("Initializing SMatrix<T, N, M> from value {}", value);
 
         //}}}
         Self {
             data: [value; N * M],
-            nrows: N, 
+            nrows: N,
             ncols: M,
         }
     }
@@ -319,7 +324,6 @@ where
     //{{{ fun: from_slice
     pub fn from_slice(slice: &[T]) -> Self
     {
-
         assert_eq!(slice.len(), N * M);
 
         //{{{ trace
@@ -330,10 +334,8 @@ where
 
         for j in 0..M
         {
-
             for i in 0..N
             {
-
                 out.data[j * N + i] = slice[i * M + j];
             }
         }
@@ -347,7 +349,6 @@ where
         high: T,
     ) -> Self
     {
-
         //{{{ trace
         info!("Initializing SMatrix<T, N, M> from uniform random distribution");
 
@@ -360,7 +361,6 @@ where
 
         for i in 0..N * M
         {
-
             out.data[i] = range.sample(&mut rng);
         }
 
@@ -368,18 +368,19 @@ where
     }
     //}}}
     //{{{ fun: identity
-    pub fn identity() -> Self 
+    pub fn identity() -> Self
     {
         //{{{ trace
         info!("Initialising identity matrix");
         //}}}
-        
+
         let mut out = Self::default();
         let n = N;
         let m = M;
         let l = n.min(N);
 
-        for i in 0..l {
+        for i in 0..l
+        {
             out[(i, i)] = T::one()
         }
         out
@@ -391,7 +392,6 @@ where
     {
         idx.0 + idx.1 * N
     }
-
 }
 
 //}}}
@@ -405,11 +405,10 @@ mod tests
 
     use super::*;
 
-    #[test]
 
+    #[test]
     fn test_matrix_default()
     {
-
         let matrix = SMatrix::<i32, 2, 2>::default();
 
         assert_eq!(matrix.data, [0, 0, 0, 0]);
@@ -419,7 +418,6 @@ mod tests
 
     fn test_matrix_from_val()
     {
-
         let matrix = SMatrix::<i32, 2, 2>::from_value(10);
 
         assert_eq!(matrix.data, [10, 10, 10, 10]);
@@ -429,7 +427,6 @@ mod tests
 
     fn test_matrix_from_slice()
     {
-
         let matrix = SMatrix::<i32, 2, 2>::from_slice(&[1, 10, 100, 1000]);
 
         assert_eq!(matrix.data, [1, 100, 10, 1000]);
@@ -439,8 +436,30 @@ mod tests
 
     fn test_matrix_from_uniform_random()
     {
-
         let matrix = SMatrix::<f64, 2, 2>::from_uniform_random(-1100.0, 100.1);
+    }
+
+    #[test]
+    fn test_serialization()
+    {
+        // setup
+        // let orig_dir = std::env::current_dir().unwrap();
+        // let tmp_dir = orig_dir.join("tmp");
+        // std::fs::create_dir_all(&tmp_dir).unwrap();
+        // std::env::set_current_dir(&tmp_dir).unwrap();
+
+
+        let matrix = SMatrix::<i32, 2, 2>::from_slice(&[1, 10, 100, 1000]);
+        let matrix_json = serde_json::to_string_pretty(&matrix).unwrap();
+
+        println!("{}", matrix_json);
+
+
+        // std::fs::write(path, contents)
+
+        // teardown
+        // std::env::set_current_dir(orig_dir).unwrap();
+        // std::fs::remove_dir_all(&tmp_dir).unwrap();  
     }
 }
 
