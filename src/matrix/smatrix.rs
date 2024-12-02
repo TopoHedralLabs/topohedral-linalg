@@ -17,7 +17,8 @@ use std::ops::{Index, IndexMut};
 //{{{ dep imports
 use rand::distributions::{Distribution, Uniform};
 use serde::ser::{Serialize, SerializeStruct, Serializer};
-// use serde::de::{Deserialize, Deserializer}
+use serde::de::{self, Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
+use std::marker::PhantomData;
 use topohedral_tracing::*;
 //}}}
 //--------------------------------------------------------------------------------------------------
@@ -54,6 +55,8 @@ where
     pub(crate) ncols: usize,
 }
 //}}}
+//{{{ collection: Serialization/Deserializaton 
+//{{{ impl Serialize for SMatrix
 impl<T, const N: usize, const M: usize> Serialize for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -74,8 +77,111 @@ where
         state.end()
     }
 }
+//}}}
+//{{{ impl Deserialize for SMatrix
 
+impl<'de, T, const N: usize, const M: usize> Deserialize<'de> for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + fmt::Display + Deserialize<'de>,
+    [T; N * M]: Deserialize<'de>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        enum DeField { Data, Nrows, Ncols }
 
+        struct SMatrixVisitor<T, const N: usize, const M: usize>(PhantomData<T>);
+
+        impl<'de, T, const N: usize, const M: usize> Visitor<'de> for SMatrixVisitor<T, N, M>
+        where
+            [(); N * M]:,
+            T: Field + Default + Copy + fmt::Display + Deserialize<'de>,
+            [T; N * M]: Deserialize<'de>,
+        {
+            type Value = SMatrix<T, N, M>;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("struct SMatrix")
+            }
+
+            fn visit_map<V>(self, mut map: V) -> Result<SMatrix<T, N, M>, V::Error>
+            where
+                V: MapAccess<'de>,
+            {
+                let mut data: Option<[T; N * M]> = None;
+                let mut nrows: Option<usize> = None;
+                let mut ncols: Option<usize> = None;
+
+                while let Some(key) = map.next_key()? {
+                    match key {
+                        DeField::Data => {
+                            if data.is_some() {
+                                return Err(de::Error::duplicate_field("data"));
+                            }
+                            data = Some(map.next_value()?);
+                        }
+                        DeField::Nrows => {
+                            if nrows.is_some() {
+                                return Err(de::Error::duplicate_field("nrows"));
+                            }
+                            nrows = Some(map.next_value()?);
+                        }
+                        DeField::Ncols => {
+                            if ncols.is_some() {
+                                return Err(de::Error::duplicate_field("ncols"));
+                            }
+                            ncols = Some(map.next_value()?);
+                        }
+                    }
+                }
+
+                let data = data.ok_or_else(|| de::Error::missing_field("data"))?;
+                let nrows = nrows.ok_or_else(|| de::Error::missing_field("nrows"))?;
+                let ncols = ncols.ok_or_else(|| de::Error::missing_field("ncols"))?;
+
+                Ok(SMatrix { data, nrows, ncols })
+            }
+        }
+
+        impl<'de> Deserialize<'de> for DeField {
+            fn deserialize<D>(deserializer: D) -> Result<DeField, D::Error>
+            where
+                D: Deserializer<'de>,
+            {
+                struct FieldVisitor;
+
+                impl<'de> Visitor<'de> for FieldVisitor {
+                    type Value = DeField;
+
+                    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                        formatter.write_str("`data` or `nrows` or `ncols`")
+                    }
+
+                    fn visit_str<E>(self, value: &str) -> Result<DeField, E>
+                    where
+                        E: de::Error,
+                    {
+                        match value {
+                            "data" => Ok(DeField::Data),
+                            "nrows" => Ok(DeField::Nrows),
+                            "ncols" => Ok(DeField::Ncols),
+                            _ => Err(de::Error::unknown_field(value, FIELDS)),
+                        }
+                    }
+                }
+
+                deserializer.deserialize_identifier(FieldVisitor)
+            }
+        }
+
+        const FIELDS: &[&str] = &["data", "nrows", "ncols"];
+        deserializer.deserialize_struct("SMatrix", FIELDS, SMatrixVisitor(PhantomData))
+    }
+}
+//}}}
+//}}}
 //{{{ collection: Index Pair Indexing
 //{{{ impl: Index<(usize, usize)> for SMatrix
 impl<T, const N: usize, const M: usize> Index<(usize, usize)> for SMatrix<T, N, M>
@@ -187,7 +293,6 @@ where
 
 //}}}
 //{{{ impl: IntoIterator for &a' SMatrix
-//}}}
 impl<'a, T, const N: usize, const M: usize> IntoIterator for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -202,8 +307,9 @@ where
         self.data.iter()
     }
 }
-
 //}}}
+//}}}
+//{{{ collection: Miscellataneous
 //{{{ impl: Default for SMatrix
 impl<T, const N: usize, const M: usize> Default for SMatrix<T, N, M>
 where
@@ -255,6 +361,7 @@ where
     }
 }
 
+//}}}
 //}}}
 //{{{ collecton: Evaluation to SMatrix
 //{{{ trait: Evaluate
@@ -386,12 +493,34 @@ where
         out
     }
     //}}}
-
+    //{{{ fun: ones
+    fn ones() -> Self
+    {
+        //{{{ trace
+        info!("Initialising ones matrix");
+        //}}}
+        let mut out = Self::from_value(T::one());
+        out
+    }
+    //}}}
+    //{{{ fun: zeros
+    fn zeros() -> Self
+    {
+        //{{{ trace
+        info!("Initialising zeros matrix");
+        //}}}
+        let mut out = Self::from_value(T::zero());
+        out
+    }
+    //..............................................................................
+    //}}}
+    //{{{ fun: lin_index
     #[inline]
     fn lin_index(idx: (usize, usize)) -> usize
     {
         idx.0 + idx.1 * N
     }
+    //}}}
 }
 
 //}}}
@@ -440,26 +569,15 @@ mod tests
     }
 
     #[test]
-    fn test_serialization()
+    fn test_serde()
     {
-        // setup
-        // let orig_dir = std::env::current_dir().unwrap();
-        // let tmp_dir = orig_dir.join("tmp");
-        // std::fs::create_dir_all(&tmp_dir).unwrap();
-        // std::env::set_current_dir(&tmp_dir).unwrap();
-
-
         let matrix = SMatrix::<i32, 2, 2>::from_slice(&[1, 10, 100, 1000]);
         let matrix_json = serde_json::to_string_pretty(&matrix).unwrap();
+        let matrix2: SMatrix<i32, 2, 2> = serde_json::from_str(&matrix_json).unwrap();
 
-        println!("{}", matrix_json);
-
-
-        // std::fs::write(path, contents)
-
-        // teardown
-        // std::env::set_current_dir(orig_dir).unwrap();
-        // std::fs::remove_dir_all(&tmp_dir).unwrap();  
+        for i in 0..4 {
+            assert_eq!(matrix.data[i], matrix2.data[i]);
+        }
     }
 }
 
