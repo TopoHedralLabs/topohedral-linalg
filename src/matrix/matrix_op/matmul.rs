@@ -672,6 +672,8 @@ mod tests
 
         assert_eq!(result.data, expected.data);
     }
+
+    // struct TestData1
 }
 
 //}}}

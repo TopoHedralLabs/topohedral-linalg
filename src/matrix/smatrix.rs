@@ -17,7 +17,7 @@ use std::ops::{Index, IndexMut};
 //{{{ dep imports
 use rand::distributions::{Distribution, Uniform};
 use topohedral_tracing::*;
-
+use serde::{Serialize, Deserialize};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -42,7 +42,6 @@ use topohedral_tracing::*;
 /// ```
 /// In memory
 #[derive(Clone)]
-
 pub struct SMatrix<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
@@ -50,10 +49,48 @@ where
 {
     /// The data of the matrix, stored in column-major order.
     pub(crate) data: [T; N * M],
+    pub(crate) nrows: usize,
+    pub(crate) ncols: usize,
 }
-
 //}}}
-//{{{ impl: Index for SMatrix
+//{{{ collection: Index Pair Indexing
+//{{{ impl: Index<(usize, usize)> for SMatrix
+impl<T, const N: usize, const M: usize> Index<(usize, usize)> for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + fmt::Display + SampleUniform + One + Zero,
+{
+    type Output = T;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        let lin_idx = Self::lin_index(index);
+        &self.data[lin_idx]
+    }
+}
+//}}}
+//{{{ impl: IndexMut<(usize, usize)> for SMatrix
+//}}}
+impl<T, const N: usize, const M: usize> IndexMut<(usize, usize)> for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + fmt::Display + SampleUniform + One + Zero,
+{
+    fn index_mut(
+        &mut self,
+        index: (usize, usize),
+    ) -> &mut Self::Output
+    {
+        let lin_idx = Self::lin_index(index);
+        &mut self.data[lin_idx]
+    }
+}
+//}}}
+//{{{ collection: Single integer indexing
+//{{{ impl: Index<usize> for SMatrix
 impl<T, const N: usize, const M: usize> Index<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -72,7 +109,7 @@ where
 }
 
 //}}}
-//{{{ impl: IndexMut for SMatrix
+//{{{ impl: IndexMut<usize> for SMatrix
 impl<T, const N: usize, const M: usize> IndexMut<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -89,7 +126,7 @@ where
 }
 
 //}}}
-//{{{ impl: IndexValue for SMatrix
+//{{{ impl: IndexValue<usize> for SMatrix
 impl<T, const N: usize, const M: usize> IndexValue<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -110,6 +147,8 @@ where
 }
 
 //}}}
+//}}}
+//{{{ collection: into iterator conversion
 //{{{ impl: IntoIterator for SMatrix
 impl<T, const N: usize, const M: usize> IntoIterator for SMatrix<T, N, M>
 where
@@ -135,6 +174,7 @@ where
 
 //}}}
 //{{{ impl: IntoIterator for &a' SMatrix
+//}}}
 impl<'a, T, const N: usize, const M: usize> IntoIterator for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -163,76 +203,9 @@ where
 
         Self {
             data: [T::default(); N * M],
+            nrows: N, 
+            ncols: M,
         }
-    }
-}
-
-//}}}
-//{{{ impl: SMatrix
-impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
-where
-    [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display + SampleUniform + Sized,
-{
-    pub fn from_value(value: T) -> Self
-    {
-
-        //{{{ trace
-        info!("Initializing SMatrix<T, N, M> from value {}", value);
-
-        //}}}
-        Self {
-            data: [value; N * M],
-        }
-    }
-
-    pub fn from_slice(slice: &[T]) -> Self
-    {
-
-        assert_eq!(slice.len(), N * M);
-
-        //{{{ trace
-        info!("Initializing SMatrix<T, N, M> from slice");
-
-        //}}}
-        let mut out = Self::default();
-
-        for j in 0..M
-        {
-
-            for i in 0..N
-            {
-
-                out.data[j * N + i] = slice[i * M + j];
-            }
-        }
-
-        out
-    }
-
-    pub fn from_uniform_random(
-        low: T,
-        high: T,
-    ) -> Self
-    {
-
-        //{{{ trace
-        info!("Initializing SMatrix<T, N, M> from uniform random distribution");
-
-        //}}}
-        let mut out = Self::default();
-
-        let range = Uniform::<T>::new(low, high);
-
-        let mut rng = rand::thread_rng();
-
-        for i in 0..N * M
-        {
-
-            out.data[i] = range.sample(&mut rng);
-        }
-
-        out
     }
 }
 
@@ -275,6 +248,7 @@ where
 }
 
 //}}}
+//{{{ collecton: Evaluation to SMatrix
 //{{{ trait: Evaluate
 pub trait Evaluate<T, const N: usize, const M: usize>
 where
@@ -320,7 +294,107 @@ where
 }
 
 //}}}
+//}}}
+//{{{ impl: SMatrix
+impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + fmt::Display + SampleUniform + Sized + One + Zero,
+{
+    //{{{ fun: from_value
+    pub fn from_value(value: T) -> Self
+    {
 
+        //{{{ trace
+        info!("Initializing SMatrix<T, N, M> from value {}", value);
+
+        //}}}
+        Self {
+            data: [value; N * M],
+            nrows: N, 
+            ncols: M,
+        }
+    }
+    //}}}
+    //{{{ fun: from_slice
+    pub fn from_slice(slice: &[T]) -> Self
+    {
+
+        assert_eq!(slice.len(), N * M);
+
+        //{{{ trace
+        info!("Initializing SMatrix<T, N, M> from slice");
+
+        //}}}
+        let mut out = Self::default();
+
+        for j in 0..M
+        {
+
+            for i in 0..N
+            {
+
+                out.data[j * N + i] = slice[i * M + j];
+            }
+        }
+
+        out
+    }
+    //}}}
+    //{{{ fun: from_uniform_random
+    pub fn from_uniform_random(
+        low: T,
+        high: T,
+    ) -> Self
+    {
+
+        //{{{ trace
+        info!("Initializing SMatrix<T, N, M> from uniform random distribution");
+
+        //}}}
+        let mut out = Self::default();
+
+        let range = Uniform::<T>::new(low, high);
+
+        let mut rng = rand::thread_rng();
+
+        for i in 0..N * M
+        {
+
+            out.data[i] = range.sample(&mut rng);
+        }
+
+        out
+    }
+    //}}}
+    //{{{ fun: identity
+    pub fn identity() -> Self 
+    {
+        //{{{ trace
+        info!("Initialising identity matrix");
+        //}}}
+        
+        let mut out = Self::default();
+        let n = N;
+        let m = M;
+        let l = n.min(N);
+
+        for i in 0..l {
+            out[(i, i)] = T::one()
+        }
+        out
+    }
+    //}}}
+
+    #[inline]
+    fn lin_index(idx: (usize, usize)) -> usize
+    {
+        idx.0 + idx.1 * N
+    }
+
+}
+
+//}}}
 
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
