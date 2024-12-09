@@ -15,6 +15,7 @@ cblas = "0.4.0"
 lapack = "0.19.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+thiserror = "2.0.4"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 blas-src = {version = "0.10.0", features = ["accelerate"]}
@@ -25,6 +26,7 @@ lapack-src = {version = "0.10.0", features = ["accelerate"]}
 criterion = "0.5.1"
 ctor = "0.2.8"
 nalgebra = {version = "0.33.2", features = ["rand"]}
+approx = "0.5.1"
 
 
 [[bench]]
