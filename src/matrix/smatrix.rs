@@ -38,11 +38,10 @@ use topohedral_tracing::*;
 /// 4 5 6
 /// 7 8 9
 /// ```
-/// will be stored as:
+/// will be stored in memory as:
 /// ```ignore
 /// 1 4 7 2 5 9 3 6 9
 /// ```
-/// In memory
 #[derive(Clone)]
 pub struct SMatrix<T, const N: usize, const M: usize>
 where
@@ -415,6 +414,10 @@ where
     T: Field + Default + Copy + fmt::Display + SampleUniform + Sized + One + Zero,
 {
     //{{{ fun: from_value
+    /// Creates a new `SMatrix` with all elements initialized to the given `value`.
+    ///
+    /// This is a convenience constructor that initializes an `SMatrix` with a constant value.
+    /// The resulting matrix will have dimensions `N x M`.
     pub fn from_value(value: T) -> Self
     {
         //{{{ trace
@@ -428,14 +431,35 @@ where
         }
     }
     //}}}
-    //{{{ fun: from_slice
-    pub fn from_slice(slice: &[T]) -> Self
+    //{{{ fun: from_slice_rpow
+    /// Creates a new `SMatrix` from a slice of `T`.
+    ///
+    /// The length of the slice must be equal to `N * M`, where `N` and `M` are the
+    /// dimensions of the matrix. The elements of the slice are supplied in row-major order so 
+    /// that statmmemnts like:
+    /// ```ignore
+    /// SMatrix::from_slice(&[1, 2, 3, 
+    ///                       4, 5, 6]);   
+    /// ```
+    /// will result in a 2x3 matrix with the values:
+    /// 
+    /// $$
+    /// \begin{bmatrix}
+    /// 1 & 2 & 3 \\\\
+    /// 4 & 5 & 6
+    /// \end{bmatrix}
+    /// $$
+    /// but stored in column-major order.
+    /// 
+    /// # Panics
+    ///
+    /// This function will panic if the length of the slice is not equal to `N * M`.
+    pub fn from_slice_row(slice: &[T]) -> Self
     {
         assert_eq!(slice.len(), N * M);
 
         //{{{ trace
         info!("Initializing SMatrix<T, N, M> from slice");
-
         //}}}
         let mut out = Self::default();
 
@@ -451,6 +475,10 @@ where
     }
     //}}}
     //{{{ fun: from_uniform_random
+    /// Creates a new `SMatrix` with elements initialized to random values within the given range.
+    ///
+    /// The `low` and `high` parameters specify the inclusive range of the random values.
+    /// The matrix is initialized using a uniform random distribution.
     pub fn from_uniform_random(
         low: T,
         high: T,
@@ -475,6 +503,10 @@ where
     }
     //}}}
     //{{{ fun: identity
+    /// Creates a new `SMatrix` initialized as the identity matrix.
+    ///
+    /// The identity matrix is a square matrix with 1s on the main diagonal and 0s elsewhere.
+    /// The dimensions of the identity matrix are determined by the generic parameters `N` and `M`.
     pub fn identity() -> Self
     {
         //{{{ trace
@@ -494,6 +526,9 @@ where
     }
     //}}}
     //{{{ fun: ones
+    /// Creates a new `SMatrix` initialized with all elements set to 1.
+    ///
+    /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
     fn ones() -> Self
     {
         //{{{ trace
@@ -504,6 +539,9 @@ where
     }
     //}}}
     //{{{ fun: zeros
+    /// Creates a new `SMatrix` initialized with all elements set to 0.
+    ///
+    /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
     fn zeros() -> Self
     {
         //{{{ trace
@@ -512,7 +550,6 @@ where
         let mut out = Self::from_value(T::zero());
         out
     }
-    //..............................................................................
     //}}}
     //{{{ fun: lin_index
     #[inline]
@@ -556,7 +593,7 @@ mod tests
 
     fn test_matrix_from_slice()
     {
-        let matrix = SMatrix::<i32, 2, 2>::from_slice(&[1, 10, 100, 1000]);
+        let matrix = SMatrix::<i32, 2, 2>::from_slice_row(&[1, 10, 100, 1000]);
 
         assert_eq!(matrix.data, [1, 100, 10, 1000]);
     }
@@ -569,9 +606,20 @@ mod tests
     }
 
     #[test]
+    fn test_matrix_indexing() {
+
+        let matrix = SMatrix::<i32, 2, 2>::from_slice_row(&[1, 10, 100, 1000]);
+        assert_eq!(matrix[(0, 0)], 1);
+        assert_eq!(matrix[(0, 1)], 10);
+        assert_eq!(matrix[(1, 0)], 100);
+        assert_eq!(matrix[(1, 1)], 1000);
+
+    }
+
+    #[test]
     fn test_serde()
     {
-        let matrix = SMatrix::<i32, 2, 2>::from_slice(&[1, 10, 100, 1000]);
+        let matrix = SMatrix::<i32, 2, 2>::from_slice_row(&[1, 10, 100, 1000]);
         let matrix_json = serde_json::to_string_pretty(&matrix).unwrap();
         let matrix2: SMatrix<i32, 2, 2> = serde_json::from_str(&matrix_json).unwrap();
 
@@ -579,6 +627,8 @@ mod tests
             assert_eq!(matrix.data[i], matrix2.data[i]);
         }
     }
+
+
 }
 
 //}}}
