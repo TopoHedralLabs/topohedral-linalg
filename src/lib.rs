@@ -18,6 +18,7 @@ mod matrix;
 
 pub use common::Field;
 pub use matrix::smatrix::{Evaluate, SMatrix};
+pub use matrix::matrix_op::lu::{LUError, SLU};
 
 // pub use matrix::addop::BinopExpr;
 
