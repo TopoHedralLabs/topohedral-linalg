@@ -16,8 +16,8 @@ use std::ops::{Index, IndexMut};
 //}}}
 //{{{ dep imports
 use rand::distributions::{Distribution, Uniform};
-use serde::ser::{Serialize, SerializeStruct, Serializer};
 use serde::de::{self, Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
+use serde::ser::{Serialize, SerializeStruct, Serializer};
 use std::marker::PhantomData;
 use topohedral_tracing::*;
 //}}}
@@ -46,7 +46,7 @@ use topohedral_tracing::*;
 pub struct SMatrix<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Default + Copy,
 {
     /// The data of the matrix, stored in column-major order.
     pub(crate) data: [T; N * M],
@@ -54,7 +54,7 @@ where
     pub(crate) ncols: usize,
 }
 //}}}
-//{{{ collection: Serialization/Deserializaton 
+//{{{ collection: Serialization/Deserializaton
 //{{{ impl Serialize for SMatrix
 impl<T, const N: usize, const M: usize> Serialize for SMatrix<T, N, M>
 where
@@ -89,7 +89,12 @@ where
     where
         D: Deserializer<'de>,
     {
-        enum DeField { Data, Nrows, Ncols }
+        enum DeField
+        {
+            Data,
+            Nrows,
+            Ncols,
+        }
 
         struct SMatrixVisitor<T, const N: usize, const M: usize>(PhantomData<T>);
 
@@ -101,11 +106,18 @@ where
         {
             type Value = SMatrix<T, N, M>;
 
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            fn expecting(
+                &self,
+                formatter: &mut fmt::Formatter,
+            ) -> fmt::Result
+            {
                 formatter.write_str("struct SMatrix")
             }
 
-            fn visit_map<V>(self, mut map: V) -> Result<SMatrix<T, N, M>, V::Error>
+            fn visit_map<V>(
+                self,
+                mut map: V,
+            ) -> Result<SMatrix<T, N, M>, V::Error>
             where
                 V: MapAccess<'de>,
             {
@@ -113,22 +125,30 @@ where
                 let mut nrows: Option<usize> = None;
                 let mut ncols: Option<usize> = None;
 
-                while let Some(key) = map.next_key()? {
-                    match key {
-                        DeField::Data => {
-                            if data.is_some() {
+                while let Some(key) = map.next_key()?
+                {
+                    match key
+                    {
+                        DeField::Data =>
+                        {
+                            if data.is_some()
+                            {
                                 return Err(de::Error::duplicate_field("data"));
                             }
                             data = Some(map.next_value()?);
                         }
-                        DeField::Nrows => {
-                            if nrows.is_some() {
+                        DeField::Nrows =>
+                        {
+                            if nrows.is_some()
+                            {
                                 return Err(de::Error::duplicate_field("nrows"));
                             }
                             nrows = Some(map.next_value()?);
                         }
-                        DeField::Ncols => {
-                            if ncols.is_some() {
+                        DeField::Ncols =>
+                        {
+                            if ncols.is_some()
+                            {
                                 return Err(de::Error::duplicate_field("ncols"));
                             }
                             ncols = Some(map.next_value()?);
@@ -144,25 +164,35 @@ where
             }
         }
 
-        impl<'de> Deserialize<'de> for DeField {
+        impl<'de> Deserialize<'de> for DeField
+        {
             fn deserialize<D>(deserializer: D) -> Result<DeField, D::Error>
             where
                 D: Deserializer<'de>,
             {
                 struct FieldVisitor;
 
-                impl<'de> Visitor<'de> for FieldVisitor {
+                impl<'de> Visitor<'de> for FieldVisitor
+                {
                     type Value = DeField;
 
-                    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                    fn expecting(
+                        &self,
+                        formatter: &mut fmt::Formatter,
+                    ) -> fmt::Result
+                    {
                         formatter.write_str("`data` or `nrows` or `ncols`")
                     }
 
-                    fn visit_str<E>(self, value: &str) -> Result<DeField, E>
+                    fn visit_str<E>(
+                        self,
+                        value: &str,
+                    ) -> Result<DeField, E>
                     where
                         E: de::Error,
                     {
-                        match value {
+                        match value
+                        {
                             "data" => Ok(DeField::Data),
                             "nrows" => Ok(DeField::Nrows),
                             "ncols" => Ok(DeField::Ncols),
@@ -186,7 +216,7 @@ where
 impl<T, const N: usize, const M: usize> Index<(usize, usize)> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Default + Copy,
 {
     type Output = T;
 
@@ -204,7 +234,7 @@ where
 impl<T, const N: usize, const M: usize> IndexMut<(usize, usize)> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Default + Copy,
 {
     fn index_mut(
         &mut self,
@@ -313,7 +343,7 @@ where
 impl<T, const N: usize, const M: usize> Default for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Default + Copy,
 {
     fn default() -> Self
     {
@@ -344,15 +374,12 @@ where
             .max()
             .unwrap_or(0);
 
-        for j in 0..M
-        {
+        for i in 0..N {
+
             write!(f, "|")?;
-
-            for i in 0..N
-            {
-                write!(f, " {:>width$}", self.data[i * M + j], width = max_width)?;
+            for j in 0..M {
+                write!(f, " {:>width$}", self[(i, j)], width = max_width)?;
             }
-
             writeln!(f, " |")?;
         }
 
@@ -367,7 +394,7 @@ where
 pub trait Evaluate<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Default + Copy,
 {
     fn eval(&self) -> SMatrix<T, N, M>;
 }
@@ -411,7 +438,7 @@ where
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Default + Copy,
 {
     //{{{ fun: from_value
     /// Creates a new `SMatrix` with all elements initialized to the given `value`.
@@ -431,14 +458,14 @@ where
     /// Creates a new `SMatrix` from a slice of `T`.
     ///
     /// The length of the slice must be equal to `N * M`, where `N` and `M` are the
-    /// dimensions of the matrix. The elements of the slice are supplied in row-major order so 
+    /// dimensions of the matrix. The elements of the slice are supplied in row-major order so
     /// that statmmemnts like:
     /// ```ignore
-    /// SMatrix::from_slice(&[1, 2, 3, 
+    /// SMatrix::from_slice(&[1, 2, 3,
     ///                       4, 5, 6]);   
     /// ```
     /// will result in a 2x3 matrix with the values:
-    /// 
+    ///
     /// $$
     /// \begin{bmatrix}
     /// 1 & 2 & 3 \\\\
@@ -446,7 +473,7 @@ where
     /// \end{bmatrix}
     /// $$
     /// but stored in column-major order.
-    /// 
+    ///
     /// # Panics
     ///
     /// This function will panic if the length of the slice is not equal to `N * M`.
@@ -472,8 +499,11 @@ where
     ///
     /// The `low` and `high` parameters specify the inclusive range of the random values.
     /// The matrix is initialized using a uniform random distribution.
-    pub fn from_uniform_random( low: T, high: T,) -> Self
-    where 
+    pub fn from_uniform_random(
+        low: T,
+        high: T,
+    ) -> Self
+    where
         T: SampleUniform,
     {
         let mut out = Self::default();
@@ -496,8 +526,8 @@ where
     /// The identity matrix is a square matrix with 1s on the main diagonal and 0s elsewhere.
     /// The dimensions of the identity matrix are determined by the generic parameters `N` and `M`.
     pub fn identity() -> Self
-    where 
-        T: One
+    where
+        T: One,
     {
         let mut out = Self::default();
         let l = N.min(M);
@@ -513,8 +543,8 @@ where
     ///
     /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
     fn ones() -> Self
-    where 
-        T: One
+    where
+        T: One,
     {
         let out = Self::from_value(T::one());
         out
@@ -525,8 +555,8 @@ where
     ///
     /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
     fn zeros() -> Self
-    where 
-        T: Zero
+    where
+        T: Zero,
     {
         let out = Self::from_value(T::zero());
         out
@@ -534,12 +564,15 @@ where
     //}}}
     //{{{ fun: transpose
     /// Transposes the matrix, returning a new matrix with the rows and columns swapped.
-    pub fn transpose(&self) -> Self
+    pub fn transpose(&self) -> SMatrix<T, M, N>
+    where
+        [(); M * N]:,
     {
-        let mut out = Self::default();
-        for i in 0..N
+        let mut out = SMatrix::<T, M, N>::default();
+
+        for i in 0..M
         {
-            for j in 0..M
+            for j in 0..N
             {
                 out[(i, j)] = self[(j, i)];
             }
@@ -547,14 +580,16 @@ where
         out
     }
     //}}}
-
 }
 
 //}}}
 
 //{{{ fun: lin_index
 #[inline]
-fn lin_index(idx: (usize, usize), N: usize) -> usize
+fn lin_index(
+    idx: (usize, usize),
+    N: usize,
+) -> usize
 {
     idx.0 + idx.1 * N
 }
@@ -603,14 +638,13 @@ mod tests
     }
 
     #[test]
-    fn test_matrix_indexing() {
-
+    fn test_matrix_indexing()
+    {
         let matrix = SMatrix::<i32, 2, 2>::from_slice_row(&[1, 10, 100, 1000]);
         assert_eq!(matrix[(0, 0)], 1);
         assert_eq!(matrix[(0, 1)], 10);
         assert_eq!(matrix[(1, 0)], 100);
         assert_eq!(matrix[(1, 1)], 1000);
-
     }
 
     #[test]
@@ -620,12 +654,24 @@ mod tests
         let matrix_json = serde_json::to_string_pretty(&matrix).unwrap();
         let matrix2: SMatrix<i32, 2, 2> = serde_json::from_str(&matrix_json).unwrap();
 
-        for i in 0..4 {
+        for i in 0..4
+        {
             assert_eq!(matrix.data[i], matrix2.data[i]);
         }
     }
 
-
+    #[test]
+    fn test_matrix_transpose()
+    {
+        let matrix = SMatrix::<i32, 2, 3>::from_slice_row(&[1, 2, 3, 4, 5, 6]);
+        let transposed = matrix.transpose();
+        assert_eq!(transposed[(0, 0)], 1);
+        assert_eq!(transposed[(0, 1)], 4);
+        assert_eq!(transposed[(1, 0)], 2);
+        assert_eq!(transposed[(1, 1)], 5);
+        assert_eq!(transposed[(2, 0)], 3);
+        assert_eq!(transposed[(2, 1)], 6);
+    }
 }
 
 //}}}
