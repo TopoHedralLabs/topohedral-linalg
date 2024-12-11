@@ -46,7 +46,7 @@ use topohedral_tracing::*;
 pub struct SMatrix<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     /// The data of the matrix, stored in column-major order.
     pub(crate) data: [T; N * M],
@@ -186,7 +186,7 @@ where
 impl<T, const N: usize, const M: usize> Index<(usize, usize)> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display + SampleUniform + One + Zero,
+    T: Field + Default + Copy
 {
     type Output = T;
 
@@ -195,27 +195,27 @@ where
         index: (usize, usize),
     ) -> &Self::Output
     {
-        let lin_idx = Self::lin_index(index);
+        let lin_idx = lin_index(index, N);
         &self.data[lin_idx]
     }
 }
 //}}}
 //{{{ impl: IndexMut<(usize, usize)> for SMatrix
-//}}}
 impl<T, const N: usize, const M: usize> IndexMut<(usize, usize)> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display + SampleUniform + One + Zero,
+    T: Field + Default + Copy
 {
     fn index_mut(
         &mut self,
         index: (usize, usize),
     ) -> &mut Self::Output
     {
-        let lin_idx = Self::lin_index(index);
+        let lin_idx = lin_index(index, N);
         &mut self.data[lin_idx]
     }
 }
+//}}}
 //}}}
 //{{{ collection: Single integer indexing
 //{{{ impl: Index<usize> for SMatrix
@@ -313,7 +313,7 @@ where
 impl<T, const N: usize, const M: usize> Default for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     fn default() -> Self
     {
@@ -367,7 +367,7 @@ where
 pub trait Evaluate<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     fn eval(&self) -> SMatrix<T, N, M>;
 }
@@ -411,7 +411,7 @@ where
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display + SampleUniform + Sized + One + Zero,
+    T: Field + Default + Copy
 {
     //{{{ fun: from_value
     /// Creates a new `SMatrix` with all elements initialized to the given `value`.
@@ -420,10 +420,6 @@ where
     /// The resulting matrix will have dimensions `N x M`.
     pub fn from_value(value: T) -> Self
     {
-        //{{{ trace
-        info!("Initializing SMatrix<T, N, M> from value {}", value);
-
-        //}}}
         Self {
             data: [value; N * M],
             nrows: N,
@@ -458,9 +454,6 @@ where
     {
         assert_eq!(slice.len(), N * M);
 
-        //{{{ trace
-        info!("Initializing SMatrix<T, N, M> from slice");
-        //}}}
         let mut out = Self::default();
 
         for j in 0..M
@@ -479,15 +472,10 @@ where
     ///
     /// The `low` and `high` parameters specify the inclusive range of the random values.
     /// The matrix is initialized using a uniform random distribution.
-    pub fn from_uniform_random(
-        low: T,
-        high: T,
-    ) -> Self
+    pub fn from_uniform_random( low: T, high: T,) -> Self
+    where 
+        T: SampleUniform,
     {
-        //{{{ trace
-        info!("Initializing SMatrix<T, N, M> from uniform random distribution");
-
-        //}}}
         let mut out = Self::default();
 
         let range = Uniform::<T>::new(low, high);
@@ -508,16 +496,11 @@ where
     /// The identity matrix is a square matrix with 1s on the main diagonal and 0s elsewhere.
     /// The dimensions of the identity matrix are determined by the generic parameters `N` and `M`.
     pub fn identity() -> Self
+    where 
+        T: One
     {
-        //{{{ trace
-        info!("Initialising identity matrix");
-        //}}}
-
         let mut out = Self::default();
-        let n = N;
-        let m = M;
-        let l = n.min(N);
-
+        let l = N.min(M);
         for i in 0..l
         {
             out[(i, i)] = T::one()
@@ -530,11 +513,10 @@ where
     ///
     /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
     fn ones() -> Self
+    where 
+        T: One
     {
-        //{{{ trace
-        info!("Initialising ones matrix");
-        //}}}
-        let mut out = Self::from_value(T::one());
+        let out = Self::from_value(T::one());
         out
     }
     //}}}
@@ -543,25 +525,40 @@ where
     ///
     /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
     fn zeros() -> Self
+    where 
+        T: Zero
     {
-        //{{{ trace
-        info!("Initialising zeros matrix");
-        //}}}
-        let mut out = Self::from_value(T::zero());
+        let out = Self::from_value(T::zero());
         out
     }
     //}}}
-    //{{{ fun: lin_index
-    #[inline]
-    fn lin_index(idx: (usize, usize)) -> usize
+    //{{{ fun: transpose
+    /// Transposes the matrix, returning a new matrix with the rows and columns swapped.
+    pub fn transpose(&self) -> Self
     {
-        idx.0 + idx.1 * N
+        let mut out = Self::default();
+        for i in 0..N
+        {
+            for j in 0..M
+            {
+                out[(i, j)] = self[(j, i)];
+            }
+        }
+        out
     }
     //}}}
+
 }
 
 //}}}
 
+//{{{ fun: lin_index
+#[inline]
+fn lin_index(idx: (usize, usize), N: usize) -> usize
+{
+    idx.0 + idx.1 * N
+}
+//}}}
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
 #[cfg(test)]
