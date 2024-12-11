@@ -174,7 +174,7 @@ mod tests
 {
     use super::SMatrix;
 
-    use approx::{assert_relative_eq};
+    use approx::assert_relative_eq;
 
 
     #[test]
