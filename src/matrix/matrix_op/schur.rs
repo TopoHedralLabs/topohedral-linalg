@@ -1,6 +1,5 @@
-//! Short Description of module
+//! Provides Schur decomposition of a matrix.
 //!
-//! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports 
@@ -18,10 +17,8 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum SchurError {
-    #[error("Error in Schur, argument {0} is invalid")]
-    InvalidArgument(i32),
-    #[error("Error in Schur decomposition failed")]
-    DecompositionFailed,
+    #[error("Error in Schur, exited with code {0}")]
+    LapackError(i32),
 }
 
 pub struct SSchur<T, const N: usize, const M: usize>
@@ -167,7 +164,7 @@ where
         );
 
         if info != 0 {
-            return Err(SchurError::DecompositionFailed);
+            return Err(SchurError::LapackError(info));
         }
 
         Ok(SSchur { q: vs, t: a })

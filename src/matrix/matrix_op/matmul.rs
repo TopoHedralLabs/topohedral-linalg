@@ -408,15 +408,12 @@ apply_for_all_integer_types!(impl_naive_gemv);
 
 //}}}
 //{{{ trait: MatMul
-/// Trait which signifies matrices of type can perform a matrix multiplication operation.
-/// This will ultimately call gemm or gemv depending on the size of the matrices.
-
+/// Trait which provides the matrix multiplication operation `matmul`.
 pub trait MatMul<Rhs = Self>
 {
     type Output;
 
     /// Performs a matrix multiplication operation.
-
     fn matmul(
         self,
         rhs: Rhs,

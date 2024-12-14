@@ -1,6 +1,5 @@
-//! Short Description of module
+//! Provides QR decomposition of a matrix.
 //!
-//! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports 
@@ -21,8 +20,8 @@ use thiserror::Error;
 pub enum QRError {
     #[error("Error in QR, argument {0} is invalid")]
     InvalidArgument(i32),
-    #[error("Error in QR decomposition failed")]
-    DecompositionFailed,
+    #[error("Error in QR decomposition, exited with code {0}")]
+    LapackError(i32),
 }
 //}}}
 //{{{ struct: SQR
@@ -177,7 +176,7 @@ where
         );
         
         if info != 0 {
-            return Err(QRError::DecompositionFailed);
+            return Err(QRError::LapackError(info));
         }
         
         // Extract R matrix (upper triangular part)
@@ -201,7 +200,7 @@ where
         );
         
         if info != 0 {
-            return Err(QRError::DecompositionFailed);
+            return Err(QRError::LapackError(info));
         }
         
         let q = a;
@@ -214,8 +213,8 @@ where
 //{{{ mod: tests
 #[cfg(test)]
 mod tests {
-    use crate::matrix::matrix_op::matmul::MatMul;
 
+    use crate::matrix::matrix_op::matmul::MatMul;
     use super::*;
     use approx::{assert_relative_eq, assert_abs_diff_eq};
 

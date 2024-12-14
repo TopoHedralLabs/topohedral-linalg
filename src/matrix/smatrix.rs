@@ -6,20 +6,17 @@
 
 //{{{ crate imports
 use crate::common::*;
-
 //}}}
 //{{{ std imports
 use rand::distributions::uniform::SampleUniform;
 use std::fmt;
 use std::ops::{Index, IndexMut};
-
 //}}}
 //{{{ dep imports
 use rand::distributions::{Distribution, Uniform};
-use serde::de::{self, Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
+use serde::de::{self, Deserialize, Deserializer, MapAccess, Visitor};
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 use std::marker::PhantomData;
-use topohedral_tracing::*;
 //}}}
 //--------------------------------------------------------------------------------------------------
 

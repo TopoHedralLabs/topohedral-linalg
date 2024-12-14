@@ -1,4 +1,4 @@
-//! Short Description of module
+//! Provides LU decomposition of a matrix.
 //!
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
@@ -18,6 +18,12 @@ use thiserror::Error;
 //--------------------------------------------------------------------------------------------------
 
 //{{{ enum: LUError
+/// Errors that can occur during LU decomposition.
+///
+/// The `LUError` enum represents the different types of errors that can occur during the LU decomposition
+/// of a matrix. The `InvalidArgument` variant indicates that one of the arguments passed to the LU
+/// decomposition function was invalid, while the `DiagonalZero` variant indicates that the diagonal
+/// element of the matrix became zero during the decomposition, which is not allowed.
 #[derive(Error, Debug)]
 pub enum LUError {
     #[error("Error in LU, argument {0} is invalid")]
@@ -44,7 +50,7 @@ where
 //}}}
 //{{{ trait: Getrf
 /// Trait for types that support LU factorization.
-pub trait Getrf: Copy
+trait Getrf: Copy
 {
     /// Performs LU factorization of a general M-by-N matrix A using partial pivoting
     /// with row interchanges.
@@ -104,6 +110,7 @@ impl Getrf for f32
 }
 //}}}
 //{{{ impl SMatrix<T, N, M> 
+#[allow(private_bounds)]
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,

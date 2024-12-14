@@ -21,3 +21,4 @@ pub mod matmul;
 pub mod lu;
 pub mod qr;
 pub mod schur;
+pub mod solve;
