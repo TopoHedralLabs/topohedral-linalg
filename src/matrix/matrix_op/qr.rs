@@ -6,6 +6,7 @@
 //{{{ crate imports 
 use crate::matrix::smatrix::*;
 use crate::common::*;
+use super::common::AsI32;
 //}}}
 //{{{ std imports 
 use std::fmt;
@@ -22,21 +23,6 @@ pub enum QRError {
     InvalidArgument(i32),
     #[error("Error in QR decomposition failed")]
     DecompositionFailed,
-}
-//}}}
-//{{{ trait: AsI32
-trait AsI32 {
-    fn as_i32(&self) -> i32;
-}
-impl AsI32 for f32 {
-    fn as_i32(&self) -> i32 {
-        *self as i32
-    }
-}
-impl AsI32 for f64 {
-    fn as_i32(&self) -> i32 {
-        *self as i32
-    }
 }
 //}}}
 //{{{ struct: SQR
@@ -231,7 +217,7 @@ mod tests {
     use crate::matrix::matrix_op::matmul::MatMul;
 
     use super::*;
-    use approx::assert_relative_eq;
+    use approx::{assert_relative_eq, assert_abs_diff_eq};
 
     #[test]
     fn test_qr_decomposition() {
