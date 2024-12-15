@@ -1,7 +1,5 @@
-//! Short Description of module
+//! Collection of crate-wide types, traits and definitions.
 //!
-//! Longer description of module
-
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -38,7 +36,6 @@ pub trait Field:
         other: &Self,
     ) -> Self;
 }
-
 //}}}
 //{{{ trait: IndexValue
 pub trait IndexValue<I>
@@ -54,7 +51,6 @@ pub trait IndexValue<I>
 //}}}
 //{{{ macro: apply_for_all_types
 #[macro_export]
-
 macro_rules! apply_for_all_types {
     ($macro:ident) => {
         $macro!(f32);
@@ -185,11 +181,13 @@ macro_rules! impl_field {
 apply_for_all_types!(impl_field);
 
 //}}}
+//{{{ trait: Zero
 pub trait Zero
 {
     fn zero() -> Self;
 }
-
+//}}}
+//{{{ collectoin: impl_zero implementations
 impl Zero for f32
 {
     fn zero() -> Self
@@ -222,11 +220,14 @@ macro_rules! impl_zero {
 }
 
 apply_for_all_integer_types!(impl_zero);
-
+//}}}
+//{{{ trait: One
 pub trait One
 {
     fn one() -> Self;
 }
+//}}}
+//{{{ collection: impl_one implementations
 
 impl One for f32
 {
@@ -260,3 +261,7 @@ macro_rules! impl_zero {
 }
 
 apply_for_all_integer_types!(impl_zero);
+//}}}
+//{{{ collection: re-exports
+pub use num_complex::{Complex64, Complex32};
+//}}}
