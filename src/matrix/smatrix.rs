@@ -437,6 +437,7 @@ where
     [(); N * M]:,
     T: Field + Default + Copy,
 {
+    //{{{ collection: constructors
     //{{{ fun: from_value
     /// Creates a new `SMatrix` with all elements initialized to the given `value`.
     ///
@@ -451,7 +452,7 @@ where
         }
     }
     //}}}
-    //{{{ fun: from_slice_rpow
+    //{{{ fun: from_slice_row
     /// Creates a new `SMatrix` from a slice of `T`.
     ///
     /// The length of the slice must be equal to `N * M`, where `N` and `M` are the
@@ -488,6 +489,15 @@ where
             }
         }
 
+        out
+    }
+    //}}}
+    //{{{ fun: from_slice_col   
+    pub fn from_slice_col(slice: &[T]) -> Self
+    {
+        assert_eq!(slice.len(), N * M);
+        let mut out = Self::default();
+        out.data.copy_from_slice(slice);    
         out
     }
     //}}}
@@ -559,6 +569,15 @@ where
         out
     }
     //}}}
+    //}}}
+    //{{{ collection: converters
+    //{{{ fun: as_slice
+    fn as_slice(&self) -> &[T; N * M]
+    {
+        &self.data
+    }
+    //..............................................................................
+    //}}}
     //{{{ fun: transpose
     /// Transposes the matrix, returning a new matrix with the rows and columns swapped.
     pub fn transpose(&self) -> SMatrix<T, M, N>
@@ -576,11 +595,11 @@ where
         }
         out
     }
+    //}}}   
     //}}}
 }
 
 //}}}
-
 //{{{ fun: lin_index
 #[inline]
 fn lin_index(
@@ -591,6 +610,8 @@ fn lin_index(
     idx.0 + idx.1 * N
 }
 //}}}
+
+
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
 #[cfg(test)]
