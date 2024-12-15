@@ -3,7 +3,11 @@
 //! Operations include:
 //!
 //! - Matrix multiplication [[`matmul`]]
-//! - Matrix decomposition
+//! - Matrix decomposition 
+//!     - LU decomposition [[`lu`]]
+//!     - QR decompositoin [[`qr`]]
+//!     - Schur decomposition [[`schur`]]
+//!     - Eigenvalue decomposition [[`eig`]]
 //! - Linear system solver  
 
 //--------------------------------------------------------------------------------------------------
@@ -22,3 +26,4 @@ pub mod lu;
 pub mod qr;
 pub mod schur;
 pub mod solve;
+pub mod eig;
