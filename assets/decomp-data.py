@@ -1,6 +1,18 @@
 import numpy as np
 import scipy as sci
 
+def test_eig():
+
+    m1 = np.array([
+            [1.0, 5.0, 0.0],
+            [2.0, 4.0, -1.0],
+            [0.0, 2.0, 3.0]
+    ])
+
+    eig_out = sci.linalg.eig(a = m1, left = True, right = True)
+    print(eig_out[0])
+    print(eig_out[1])
+    print(eig_out[2])
 
 def test_non_diagonal_dominant():
 
@@ -30,7 +42,8 @@ def test_diagonal_dominant():
 def main():
 
     # test_non_diagonal_dominant()
-    test_diagonal_dominant()
+    # test_diagonal_dominant()
+    test_eig()
 
     # for m in range(30):
     #     for n in range(30):
