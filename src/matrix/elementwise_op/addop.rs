@@ -1,7 +1,6 @@
-//! Short Description of module
+//! This module implements the element-wise addition operation for the `SMatrix` type.
 //!
-//! Longer description of module
-
+//! 
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -22,7 +21,6 @@ use std::ops::Add;
 
 //{{{ impl: Add<T> for SMatrix
 #[doc(hidden)]
-
 impl<'a, T, const N: usize, const M: usize> Add<T> for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -37,7 +35,6 @@ where
         rhs: T,
     ) -> Self::Output
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -65,7 +62,6 @@ macro_rules! impl_smatrix_add {
                 rhs: &'a SMatrix<$type, N, M>,
             ) -> Self::Output
             {
-
                 BinopExpr {
                     a: self,
                     b: rhs,
@@ -94,7 +90,6 @@ where
         rhs: Self,
     ) -> BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, AddOp>
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -123,7 +118,6 @@ where
         rhs: &'a SMatrix<T, N, M>,
     ) -> BinopExpr<Self, &'a SMatrix<T, N, M>, T, AddOp>
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -151,7 +145,6 @@ where
         rhs: BinopExpr<A, B, T, Op>,
     ) -> BinopExpr<Self, BinopExpr<A, B, T, Op>, T, AddOp>
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -176,7 +169,6 @@ mod tests
 
     fn test_add_matrix()
     {
-
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(1);
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(10);
@@ -201,7 +193,6 @@ mod tests
 
         for val in &matrix8
         {
-
             assert_eq!(*val, exp_value);
         }
     }
@@ -210,7 +201,6 @@ mod tests
 
     fn test_add_scalar()
     {
-
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(10);
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(100);
@@ -223,7 +213,6 @@ mod tests
 
         for val in &matrix4
         {
-
             assert_eq!(*val, exp_val);
         }
     }
