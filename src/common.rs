@@ -263,5 +263,5 @@ macro_rules! impl_zero {
 apply_for_all_integer_types!(impl_zero);
 //}}}
 //{{{ collection: re-exports
-pub use num_complex::{Complex64, Complex32};
+pub use num_complex::{Complex, Complex64, Complex32};
 //}}}

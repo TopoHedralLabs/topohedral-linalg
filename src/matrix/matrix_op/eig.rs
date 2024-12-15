@@ -23,15 +23,23 @@ pub enum EigError {
     LapackError(i32),
 }
 
+/// Represents the eigenvalue decomposition of a square matrix of size `N`.
+/// 
+/// The eigenvalue decomposition of a matrix `A` is a factorization of the form `A = PDP^-1`,
+/// where `P` is the matrix of right eigenvectors, `D` is the diagonal matrix of eigenvalues,
+/// and `P^-1` is the matrix of left eigenvectors.
+///
+/// This struct contains the left and right eigenvectors, as well as the eigenvalues, of the
+/// decomposition.
+#[derive(Debug)]
 pub struct SEig<T, const N: usize>
 where
     [(); N * N]:,
     T: Field + Default + Copy + fmt::Display,
 {
-    pub left_eigvecs: SMatrix<T, N, N>,    // Left eigenvectors
-    pub right_eigvecs: SMatrix<T, N, N>,    // Right eigenvectors
-    pub eigvals_real: [T; N],
-    pub eigvals_imag: [T; N],
+    pub left_eigvecs: SMatrix<T, N, N>,   
+    pub right_eigvecs: SMatrix<T, N, N>,
+    pub eigvals: [Complex<T>; N],
 }
 
 trait Geev: Copy {
@@ -190,7 +198,9 @@ where
             return Err(EigError::LapackError(info));
         }
 
-        Ok(SEig { left_eigvecs: vl, right_eigvecs: vr, eigvals_real: wr, eigvals_imag: wi })    
+        let eigvals: [Complex<T>; N] = std::array::from_fn(|i| Complex::new(wr[i], wi[i]));
+
+        Ok(SEig { left_eigvecs: vl, right_eigvecs: vr, eigvals: eigvals })    
     }
 }
 
@@ -208,9 +218,29 @@ mod tests {
         ]);
 
         let eig = a.eig().unwrap();
-
         // Known eigenvalues for this matrix
-        let expected_eigenvalues = vec![5.37228, 2.31386, 0.31386];
+        let expected_eigenvalues = vec![Complex64::new(-0.8595233886152194, 0.0), 
+                                        Complex64::new(5.433664629783286, 0.0), 
+                                        Complex64::new(3.42585875883193, 0.0)];
+
+        for i in 0..3 {
+            assert_relative_eq!(eig.eigvals[i].re, expected_eigenvalues[i].re, epsilon=1e-10);
+            assert_relative_eq!(eig.eigvals[i].im, expected_eigenvalues[i].im, epsilon=1e-10);
+        }
+
+
+        // Known left eigenvectors for this matrix
+        let expected_left_eigenvecotors = SMatrix::<f64, 3, 3>::from_slice_row(&[
+            -0.7212203345550064,  -0.3850687990747861,  -0.3073880480179293,  
+            0.6705630402249634, -0.8536329572455033,  -0.3728399943222721,  
+            0.1737424476304467,  0.3507603088768719,  0.8755015285934659, 
+        ]);
+
+        for i in 0..3 {
+            for j in 0..3 {
+                assert_relative_eq!(eig.left_eigvecs[(i, j)], expected_left_eigenvecotors[(i, j)], epsilon=1e-10);
+            }
+        }
         
     }
 }

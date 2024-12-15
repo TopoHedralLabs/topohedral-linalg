@@ -3,13 +3,13 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
-use crate::common::*;
+//{{{ crate imports
 use super::smatrix::*;
+use crate::common::*;
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -17,16 +17,16 @@ use super::smatrix::*;
 /// A statically-sized column vector type.
 type SCVector<T, const N: usize> = SMatrix<T, N, 1>;
 //}}}
-//{{{ impl: SCVector
-impl<T, const N: usize> SCVector<T, N> 
-where 
-    [(); N * 1]:, 
+//{{{ impl: SCector
+impl<T, const N: usize> SCVector<T, N>
+where
+    [(); N * 1]:,
     T: Field + Default + Copy,
 {
     /// Creates a new vector from an array
-    pub fn from_slice(data: &[T; N]) -> Self 
+    pub fn from_slice(data: &[T; N]) -> Self
     where
-        T: Copy + Default
+        T: Copy + Default,
     {
         let mut out = Self::default();
         out.data.copy_from_slice(data);
@@ -34,13 +34,12 @@ where
     }
 
     /// Returns the number of elements in the vector
-    pub fn len(&self) -> usize {
+    pub fn len(&self) -> usize
+    {
         N
     }
-
 }
 //}}}
-
 
 
 //-------------------------------------------------------------------------------------------------
@@ -48,7 +47,7 @@ where
 #[cfg(test)]
 mod tests
 {
-    
+
     use super::*;
 
 
@@ -57,9 +56,36 @@ mod tests
     {
         let a = SCVector::<f64, 3>::from_slice(&[1.0, 2.0, 3.0]);
         let b = SCVector::<f64, 3>::from_slice(&[1.0, 2.0, 3.0]);
-        let c: SCVector::<f64, 3> = (&a + &b).eval();
+        let c: SCVector<f64, 3> = (&a + &b).eval();
+    }
+    #[test]
+    fn test_svector_sub()
+    {
+        let a = SCVector::<f64, 3>::from_slice(&[5.0, 7.0, 9.0]);
+        let b = SCVector::<f64, 3>::from_slice(&[1.0, 2.0, 3.0]);
+        let c: SCVector<f64, 3> = (&a - &b).eval();
 
+        assert_eq!(c.as_slice(), &[4.0, 5.0, 6.0]);
     }
 
+    #[test]
+    fn test_svector_mul()
+    {
+        let a = SCVector::<f64, 3>::from_slice(&[2.0, 3.0, 4.0]);
+        let b = SCVector::<f64, 3>::from_slice(&[3.0, 4.0, 5.0]);
+        let c: SCVector<f64, 3> = (&a * &b).eval();
+
+        assert_eq!(c.as_slice(), &[6.0, 12.0, 20.0]);
+    }
+
+    #[test]
+    fn test_svector_div()
+    {
+        let a = SCVector::<f64, 3>::from_slice(&[6.0, 15.0, 24.0]);
+        let b = SCVector::<f64, 3>::from_slice(&[2.0, 3.0, 4.0]);
+        let c: SCVector<f64, 3> = (&a / &b).eval();
+
+        assert_eq!(c.as_slice(), &[3.0, 5.0, 6.0]);
+    }
 }
 //}}}

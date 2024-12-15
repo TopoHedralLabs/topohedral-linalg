@@ -39,7 +39,7 @@ use std::marker::PhantomData;
 /// ```ignore
 /// 1 4 7 2 5 9 3 6 9
 /// ```
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SMatrix<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
@@ -572,7 +572,7 @@ where
     //}}}
     //{{{ collection: converters
     //{{{ fun: as_slice
-    fn as_slice(&self) -> &[T; N * M]
+    pub fn as_slice(&self) -> &[T; N * M]
     {
         &self.data
     }

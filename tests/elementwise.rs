@@ -1,6 +1,8 @@
 #![feature(generic_const_exprs)]
 #![feature(impl_trait_in_assoc_type)]
 
+
+use approx::assert_relative_eq;
 use topohedral_linalg::{Evaluate, SMatrix};
 
 #[test]
@@ -22,5 +24,7 @@ pub fn elementwise_matrix()
 
     let g: SMatrix<f64, 10, 10> = (&f * (&a + &b) - (&c / &d) + &e).eval();
 
-    println!("{}", g)
+    for val in g {
+        assert_relative_eq!(val, 1109999.9, max_relative=1e-10);
+    }
 }
