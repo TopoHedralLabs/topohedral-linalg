@@ -1,7 +1,11 @@
-//! This module implements all of the supported matrix operations.
+//! This module implements all of the supported element-wise matrix operations.
 //!
-//! Longer description of module
-
+//! Operations include:
+//! 
+//! - Addition [`addop`]
+//! - Subtraction [`subop`]
+//! - Multiplication [`mulop`]
+//! - Division [`divop`]
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -12,11 +16,11 @@
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-pub mod addop;
-pub mod common;
-pub mod divop;
-pub mod mulop;
-pub mod subop;
+mod common;
+mod addop;
+mod divop;
+mod mulop;
+mod subop;
 
 
 //-------------------------------------------------------------------------------------------------
