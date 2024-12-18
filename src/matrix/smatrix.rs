@@ -249,7 +249,7 @@ where
 impl<T, const N: usize, const M: usize> Index<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     type Output = T;
 
@@ -549,7 +549,7 @@ where
     /// Creates a new `SMatrix` initialized with all elements set to 1.
     ///
     /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
-    fn ones() -> Self
+    pub fn ones() -> Self
     where
         T: One,
     {
@@ -561,7 +561,7 @@ where
     /// Creates a new `SMatrix` initialized with all elements set to 0.
     ///
     /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
-    fn zeros() -> Self
+    pub fn zeros() -> Self
     where
         T: Zero,
     {
