@@ -15,7 +15,11 @@ use crate::common::*;
 
 //{{{ type: SCVector
 /// A statically-sized column vector type.
-type SCVector<T, const N: usize> = SMatrix<T, N, 1>;
+pub type SCVector<T, const N: usize> = SMatrix<T, N, 1>;
+//}}}
+//{{{ type: SRVector
+/// A statically-sized row vector type. 
+pub type SRVector<T, const N: usize> = SMatrix<T, 1, N>;
 //}}}
 //{{{ impl: SCector
 impl<T, const N: usize> SCVector<T, N>
@@ -30,6 +34,21 @@ where
     {
         let mut out = Self::default();
         out.data.copy_from_slice(data);
+        out
+    }
+
+    pub fn norm(&self) -> T 
+    where 
+        T: Zero
+    {
+
+        let mut out = T::zero();
+
+        for i in 0..N {
+            out += self[i] * self[i]
+        }
+
+        // out = T::sq
         out
     }
 
