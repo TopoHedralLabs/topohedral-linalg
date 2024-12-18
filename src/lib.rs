@@ -18,9 +18,11 @@ mod matrix;
 
 pub use common::Field;
 pub use matrix::smatrix::{Evaluate, SMatrix};
+pub use matrix::svector::{SCVector};
 pub use matrix::matrix_op::lu::{LUError, SLU};
 pub use matrix::matrix_op::qr::{QRError, SQR};
 pub use matrix::matrix_op::schur::{SchurError, SSchur};
+pub use matrix::matrix_op::eig::{EigError, SEig};
 
 // pub use matrix::addop::BinopExpr;
 
