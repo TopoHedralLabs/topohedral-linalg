@@ -215,7 +215,7 @@ where
     
     T: Field + Default + Copy,
 {
-    fn eval(&self) -> DMatrix<T>;
+    fn evald(&self) -> DMatrix<T>;
 }
 
 //}}}
@@ -225,7 +225,7 @@ where
     
     T: Field + Default + Copy + fmt::Display,
 {
-    fn eval(&self) -> DMatrix<T>
+    fn evald(&self) -> DMatrix<T>
     {
         self.clone()
     }
