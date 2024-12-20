@@ -138,6 +138,8 @@ where
 {
     pub a: A,
     pub b: B,
+    pub nrows: usize,
+    pub ncols: usize,
     pub _marker: std::marker::PhantomData<(T, Op)>,
 }
 
@@ -185,7 +187,7 @@ where
     T: Field + Default + Copy + fmt::Display + Clone,
     Op: BinOp,
 {
-    fn eval(&self) -> SMatrix<T, N, M>
+    fn evals(&self) -> SMatrix<T, N, M>
     {
         //{{{ trace
         debug!("Calling BinopExpr::eval()");
@@ -203,31 +205,30 @@ where
 
 //}}}
 //{{{ impl: EvaluateDMatrix for BinopExpr
-// #[doc(hidden)
-// impl<A, B, T, Op> EvaluateDMatrix<T> for BinopExpr<A, B, T, Op>
-// where
-//     A: IndexValue<usize, Output = T>,
-//     B: IndexValue<usize, Output = T>,
-//     T: Field + Default + Copy + fmt::Display + Clone,
-//     Op: BinOp,
-// {
-//     fn eval(&self) -> DMatrix<T>
-//     {
-//         //{{{ trace
-//         debug!("Calling BinopExpr::eval()");
+#[doc(hidden)]
+impl<A, B, T, Op> EvaluateDMatrix<T> for BinopExpr<A, B, T, Op>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Default + Copy + fmt::Display + Clone + Zero,
+    Op: BinOp,
+{
+    fn evald(&self) -> DMatrix<T>
+    {
+        //{{{ trace
+        debug!("Calling BinopExpr::eval()");
 
-//         //}}}
-//         let mut out = DMatrix::<T>::default();
+        //}}}
+        let mut out = DMatrix::<T>::zeros(self.nrows, self.ncols);
 
-//         for i in 0..N * M
-//         {
-//             out.data[i] = self.index_value(i);
-//         }
+        for i in 0..self.nrows * self.ncols
+        {
+            out.data[i] = self.index_value(i);
+        }
 
-//         out
-//     }
-// }
-
+        out
+    }
+}
 //}}}
 //{{{ impl: Add for BinopExpr
 #[doc(hidden)]
@@ -251,9 +252,13 @@ where
         rhs: BinopExpr<A, B, T, Op1>,
     ) -> BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>
     {
+        let nr = self.nrows;
+        let nc = self.ncols;    
         BinopExpr {
             a: self,
             b: rhs,
+            nrows: nr,
+            ncols: nc,
             _marker: std::marker::PhantomData,
         }
     }
@@ -282,9 +287,15 @@ where
         rhs: BinopExpr<A, B, T, Op1>,
     ) -> BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, SubOp>
     {
+        debug_assert!(self.nrows == rhs.nrows);
+        debug_assert!(self.ncols == rhs.ncols);
+        let nr = self.nrows;
+        let nc = self.ncols;
         BinopExpr {
             a: self,
             b: rhs,
+            nrows: nr,
+            ncols: nc,
             _marker: std::marker::PhantomData,
         }
     }
@@ -313,9 +324,15 @@ where
         rhs: BinopExpr<A, B, T, Op1>,
     ) -> BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, MulOp>
     {
+        debug_assert!(self.nrows == rhs.nrows);
+        debug_assert!(self.ncols == rhs.ncols);
+        let nr = self.nrows;
+        let nc = self.ncols;
         BinopExpr {
             a: self,
             b: rhs,
+            nrows: nr,
+            ncols: nc,
             _marker: std::marker::PhantomData,
         }
     }
@@ -344,9 +361,16 @@ where
         rhs: BinopExpr<A, B, T, Op1>,
     ) -> BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, DivOp>
     {
+
+        debug_assert!(self.nrows == rhs.nrows);
+        debug_assert!(self.ncols == rhs.ncols);
+        let nr = self.nrows;
+        let nc = self.ncols;
         BinopExpr {
             a: self,
             b: rhs,
+            nrows: nr,
+            ncols: nc,
             _marker: std::marker::PhantomData,
         }
     }
@@ -355,7 +379,6 @@ where
 //}}}
 //{{{ impl: Add<T> for BinopExpr
 #[doc(hidden)]
-
 impl<A, B, T, Op> Add<T> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
@@ -372,9 +395,13 @@ where
         rhs: T,
     ) -> Self::Output
     {
+        let nr = self.nrows;
+        let nc = self.ncols;
         BinopExpr {
             a: self,
             b: rhs,
+            nrows: nr,
+            ncols: nc,
             _marker: std::marker::PhantomData,
         }
     }
@@ -401,9 +428,13 @@ macro_rules! impl_add_binop_expr {
                 rhs: BinopExpr<A, B, $type, Op>,
             ) -> Self::Output
             {
+                let nr = rhs.nrows;
+                let nc = rhs.ncols;
                 BinopExpr {
                     a: self,
                     b: rhs,
+                    nrows: nr,
+                    ncols: nc,
                     _marker: std::marker::PhantomData,
                 }
             }
@@ -433,9 +464,13 @@ where
         rhs: T,
     ) -> Self::Output
     {
+        let nr = self.nrows;
+        let nc = self.ncols;
         BinopExpr {
             a: self,
             b: rhs,
+            nrows: nr,
+            ncols: nc,
             _marker: std::marker::PhantomData,
         }
     }
@@ -462,9 +497,13 @@ macro_rules! impl_sub_binop_expr {
                 rhs: BinopExpr<A, B, $type, Op>,
             ) -> Self::Output
             {
+                let nr = rhs.nrows;
+                let nc = rhs.ncols;
                 BinopExpr {
                     a: self,
                     b: rhs,
+                    nrows: nr,
+                    ncols: nc,
                     _marker: std::marker::PhantomData,
                 }
             }
@@ -494,9 +533,13 @@ where
         rhs: T,
     ) -> Self::Output
     {
+        let nr = self.nrows;
+        let nc = self.ncols;
         BinopExpr {
             a: self,
             b: rhs,
+            nrows: nr,
+            ncols: nc,
             _marker: std::marker::PhantomData,
         }
     }
@@ -523,9 +566,13 @@ macro_rules! impl_mul_binop_expr {
                 rhs: BinopExpr<A, B, $type, Op>,
             ) -> Self::Output
             {
+                let nr = rhs.nrows;
+                let nc = rhs.ncols;
                 BinopExpr {
                     a: self,
                     b: rhs,
+                    nrows: nr,
+                    ncols: nc,
                     _marker: std::marker::PhantomData,
                 }
             }
@@ -555,9 +602,13 @@ where
         rhs: T,
     ) -> Self::Output
     {
+        let nr = self.nrows;
+        let nc = self.ncols;
         BinopExpr {
             a: self,
             b: rhs,
+            nrows: nr,
+            ncols: nc,
             _marker: std::marker::PhantomData,
         }
     }
@@ -584,9 +635,13 @@ macro_rules! impl_div_binop_expr {
                 rhs: BinopExpr<A, B, $type, Op>,
             ) -> Self::Output
             {
+                let nr = rhs.nrows;
+                let nc = rhs.ncols;
                 BinopExpr {
                     a: self,
                     b: rhs,
+                    nrows: nr,
+                    ncols: nc,
                     _marker: std::marker::PhantomData,
                 }
             }
