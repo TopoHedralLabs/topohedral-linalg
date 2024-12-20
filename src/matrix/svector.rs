@@ -75,14 +75,14 @@ mod tests
     {
         let a = SCVector::<f64, 3>::from_slice(&[1.0, 2.0, 3.0]);
         let b = SCVector::<f64, 3>::from_slice(&[1.0, 2.0, 3.0]);
-        let c: SCVector<f64, 3> = (&a + &b).eval();
+        let c: SCVector<f64, 3> = (&a + &b).evals();
     }
     #[test]
     fn test_svector_sub()
     {
         let a = SCVector::<f64, 3>::from_slice(&[5.0, 7.0, 9.0]);
         let b = SCVector::<f64, 3>::from_slice(&[1.0, 2.0, 3.0]);
-        let c: SCVector<f64, 3> = (&a - &b).eval();
+        let c: SCVector<f64, 3> = (&a - &b).evals();
 
         assert_eq!(c.as_slice(), &[4.0, 5.0, 6.0]);
     }
@@ -92,7 +92,7 @@ mod tests
     {
         let a = SCVector::<f64, 3>::from_slice(&[2.0, 3.0, 4.0]);
         let b = SCVector::<f64, 3>::from_slice(&[3.0, 4.0, 5.0]);
-        let c: SCVector<f64, 3> = (&a * &b).eval();
+        let c: SCVector<f64, 3> = (&a * &b).evals();
 
         assert_eq!(c.as_slice(), &[6.0, 12.0, 20.0]);
     }
@@ -102,7 +102,7 @@ mod tests
     {
         let a = SCVector::<f64, 3>::from_slice(&[6.0, 15.0, 24.0]);
         let b = SCVector::<f64, 3>::from_slice(&[2.0, 3.0, 4.0]);
-        let c: SCVector<f64, 3> = (&a / &b).eval();
+        let c: SCVector<f64, 3> = (&a / &b).evals();
 
         assert_eq!(c.as_slice(), &[3.0, 5.0, 6.0]);
     }
