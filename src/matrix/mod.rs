@@ -17,3 +17,4 @@ mod elementwise_op;
 pub mod matrix_op;
 pub mod smatrix;
 pub mod svector;
+pub mod dmatrix;

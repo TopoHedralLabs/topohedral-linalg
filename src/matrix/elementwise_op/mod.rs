@@ -31,7 +31,7 @@ mod negop;
 mod tests
 {
 
-    use super::super::smatrix::{Evaluate, SMatrix};
+    use super::super::smatrix::{EvaluateSMatrix, SMatrix};
 
 
     #[test]

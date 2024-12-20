@@ -387,8 +387,8 @@ where
 //}}}
 //}}}
 //{{{ collecton: Evaluation to SMatrix
-//{{{ trait: Evaluate
-pub trait Evaluate<T, const N: usize, const M: usize>
+//{{{ trait: EvaluateSMatrix
+pub trait EvaluateSMatrix<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
     T: Field + Default + Copy,
@@ -398,7 +398,7 @@ where
 
 //}}}
 //{{{ impl: Evaluate for SMatrix
-impl<T, const N: usize, const M: usize> Evaluate<T, N, M> for SMatrix<T, N, M>
+impl<T, const N: usize, const M: usize> EvaluateSMatrix<T, N, M> for SMatrix<T, N, M>
 where
     [(); N * M]:,
     T: Field + Default + Copy + fmt::Display,

@@ -3,7 +3,7 @@
 
 
 use approx::assert_relative_eq;
-use topohedral_linalg::{Evaluate, SMatrix};
+use topohedral_linalg::{EvaluateSMatrix, SMatrix};
 
 #[test]
 

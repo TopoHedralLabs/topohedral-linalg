@@ -5,7 +5,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::super::smatrix::{Evaluate, SMatrix};
+use super::super::dmatrix::{DMatrix, EvaluateDMatrix};
+use super::super::smatrix::{EvaluateSMatrix, SMatrix};
 use crate::apply_for_all_types;
 use crate::common::*;
 
@@ -69,7 +70,6 @@ impl BinOp for AddOp
         b: T,
     ) -> T
     {
-
         a + b
     }
 }
@@ -87,7 +87,6 @@ impl BinOp for SubOp
         b: T,
     ) -> T
     {
-
         a - b
     }
 }
@@ -105,7 +104,6 @@ impl BinOp for MulOp
         b: T,
     ) -> T
     {
-
         a * b
     }
 }
@@ -123,7 +121,6 @@ impl BinOp for DivOp
         b: T,
     ) -> T
     {
-
         a / b
     }
 }
@@ -164,7 +161,6 @@ where
         index: usize,
     ) -> Self::Output
     {
-
         //{{{ trace
         debug!("Calling BinopExpr::index_value with index = {}", index);
 
@@ -178,10 +174,10 @@ where
 }
 
 //}}}
-//{{{ impl: Evaluate for BinopExpr
+//{{{ impl: EvaluateSMatrix for BinopExpr
 #[doc(hidden)]
-
-impl<A, B, T, const N: usize, const M: usize, Op> Evaluate<T, N, M> for BinopExpr<A, B, T, Op>
+impl<A, B, T, const N: usize, const M: usize, Op> EvaluateSMatrix<T, N, M>
+    for BinopExpr<A, B, T, Op>
 where
     [(); N * M]:,
     A: IndexValue<usize, Output = T>,
@@ -191,22 +187,46 @@ where
 {
     fn eval(&self) -> SMatrix<T, N, M>
     {
-
         //{{{ trace
         debug!("Calling BinopExpr::eval()");
-
         //}}}
         let mut out = SMatrix::<T, N, M>::default();
 
         for i in 0..N * M
         {
-
             out.data[i] = self.index_value(i);
         }
 
         out
     }
 }
+
+//}}}
+//{{{ impl: EvaluateDMatrix for BinopExpr
+// #[doc(hidden)
+// impl<A, B, T, Op> EvaluateDMatrix<T> for BinopExpr<A, B, T, Op>
+// where
+//     A: IndexValue<usize, Output = T>,
+//     B: IndexValue<usize, Output = T>,
+//     T: Field + Default + Copy + fmt::Display + Clone,
+//     Op: BinOp,
+// {
+//     fn eval(&self) -> DMatrix<T>
+//     {
+//         //{{{ trace
+//         debug!("Calling BinopExpr::eval()");
+
+//         //}}}
+//         let mut out = DMatrix::<T>::default();
+
+//         for i in 0..N * M
+//         {
+//             out.data[i] = self.index_value(i);
+//         }
+
+//         out
+//     }
+// }
 
 //}}}
 //{{{ impl: Add for BinopExpr
@@ -231,7 +251,6 @@ where
         rhs: BinopExpr<A, B, T, Op1>,
     ) -> BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -263,7 +282,6 @@ where
         rhs: BinopExpr<A, B, T, Op1>,
     ) -> BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, SubOp>
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -295,7 +313,6 @@ where
         rhs: BinopExpr<A, B, T, Op1>,
     ) -> BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, MulOp>
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -327,7 +344,6 @@ where
         rhs: BinopExpr<A, B, T, Op1>,
     ) -> BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, DivOp>
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -356,7 +372,6 @@ where
         rhs: T,
     ) -> Self::Output
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -386,7 +401,6 @@ macro_rules! impl_add_binop_expr {
                 rhs: BinopExpr<A, B, $type, Op>,
             ) -> Self::Output
             {
-
                 BinopExpr {
                     a: self,
                     b: rhs,
@@ -419,7 +433,6 @@ where
         rhs: T,
     ) -> Self::Output
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -449,7 +462,6 @@ macro_rules! impl_sub_binop_expr {
                 rhs: BinopExpr<A, B, $type, Op>,
             ) -> Self::Output
             {
-
                 BinopExpr {
                     a: self,
                     b: rhs,
@@ -482,7 +494,6 @@ where
         rhs: T,
     ) -> Self::Output
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -512,7 +523,6 @@ macro_rules! impl_mul_binop_expr {
                 rhs: BinopExpr<A, B, $type, Op>,
             ) -> Self::Output
             {
-
                 BinopExpr {
                     a: self,
                     b: rhs,
@@ -545,7 +555,6 @@ where
         rhs: T,
     ) -> Self::Output
     {
-
         BinopExpr {
             a: self,
             b: rhs,
@@ -575,7 +584,6 @@ macro_rules! impl_div_binop_expr {
                 rhs: BinopExpr<A, B, $type, Op>,
             ) -> Self::Output
             {
-
                 BinopExpr {
                     a: self,
                     b: rhs,

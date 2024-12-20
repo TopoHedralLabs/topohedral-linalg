@@ -17,7 +17,7 @@ mod common;
 mod matrix;
 
 pub use common::Field;
-pub use matrix::smatrix::{Evaluate, SMatrix};
+pub use matrix::smatrix::{EvaluateSMatrix, SMatrix};
 pub use matrix::svector::{SCVector};
 pub use matrix::matrix_op::lu::{LUError, SLU};
 pub use matrix::matrix_op::qr::{QRError, SQR};
