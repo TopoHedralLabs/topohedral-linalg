@@ -22,7 +22,7 @@ pub fn elementwise_matrix()
 
     let f = SMatrix::<f64, 10, 10>::from_value(100000.0);
 
-    let g: SMatrix<f64, 10, 10> = (&f * (&a + &b) - (&c / &d) + &e).eval();
+    let g: SMatrix<f64, 10, 10> = (&f * (&a + &b) - (&c / &d) + &e).evals();
 
     for val in g {
         assert_relative_eq!(val, 1109999.9, max_relative=1e-10);
