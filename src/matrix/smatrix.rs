@@ -393,7 +393,7 @@ where
     [(); N * M]:,
     T: Field + Default + Copy,
 {
-    fn eval(&self) -> SMatrix<T, N, M>;
+    fn evals(&self) -> SMatrix<T, N, M>;
 }
 
 //}}}
@@ -403,7 +403,7 @@ where
     [(); N * M]:,
     T: Field + Default + Copy + fmt::Display,
 {
-    fn eval(&self) -> SMatrix<T, N, M>
+    fn evals(&self) -> SMatrix<T, N, M>
     {
         self.clone()
     }
