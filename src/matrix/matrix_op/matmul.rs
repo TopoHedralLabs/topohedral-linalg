@@ -21,7 +21,7 @@ use std::fmt;
 /// Trait which signifies matrices of type can perform a general matrix multiplication (GEMM)
 /// operation.
 
-pub trait Gemm: Copy
+trait Gemm: Copy
 {
     /// Performs a general matrix multiplication (GEMM) operation.
     ///

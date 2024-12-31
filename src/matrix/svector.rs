@@ -52,6 +52,18 @@ where
         out
     }
 
+
+    pub fn dot(&self, other: &Self) -> T
+    where
+    T: Field + Zero
+    {
+        let mut out = T::zero();
+        for i in 0..N {
+            out += self[i] * other[i]
+        }
+        out
+    }
+
     /// Returns the number of elements in the vector
     pub fn len(&self) -> usize
     {

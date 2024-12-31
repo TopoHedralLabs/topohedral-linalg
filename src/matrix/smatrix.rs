@@ -39,7 +39,7 @@ use std::marker::PhantomData;
 /// ```ignore
 /// 1 4 7 2 5 9 3 6 9
 /// ```
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct SMatrix<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
@@ -571,6 +571,15 @@ where
     //}}}
     //}}}
     //{{{ collection: converters
+    //{{{ fun: copy_from
+    pub fn copy_from(&mut self, other: &Self)
+    {
+        debug_assert!(self.nrows == other.nrows);
+        debug_assert!(self.ncols == other.ncols);
+        self.data.copy_from_slice(&other.data);
+    }
+    //..............................................................................
+    //}}}
     //{{{ fun: as_slice
     pub fn as_slice(&self) -> &[T; N * M]
     {
@@ -689,6 +698,15 @@ mod tests
         assert_eq!(transposed[(1, 1)], 5);
         assert_eq!(transposed[(2, 0)], 3);
         assert_eq!(transposed[(2, 1)], 6);
+    }
+
+    #[test]
+    fn test_copy_from() 
+    {
+        let mut matrix = SMatrix::<i32, 2, 2>::default();
+        let matrix2 = SMatrix::<i32, 2, 2>::from_slice_row(&[1, 2, 3, 4]);
+        matrix.copy_from(&matrix2);
+        assert_eq!(matrix.data, [1, 3, 2, 4]);
     }
 }
 
