@@ -6,7 +6,6 @@ use approx::assert_relative_eq;
 use topohedral_linalg::{EvaluateSMatrix, SMatrix};
 
 #[test]
-
 pub fn elementwise_matrix()
 {
 
