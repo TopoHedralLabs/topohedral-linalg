@@ -6,7 +6,8 @@ use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 //{{{ crate imports
 //}}}
 //{{{ std imports
-use ::std::ops::{Add, Div, Mul, Sub};
+use ::std::ops::{Add, Div, Mul, Sub, Index, Neg, IndexMut};
+use std::cmp::PartialEq;
 
 //}}}
 //{{{ dep imports
@@ -16,7 +17,7 @@ use ::std::ops::{Add, Div, Mul, Sub};
 //{{{ trait: Field
 pub trait Field:
     Sized + Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Div<Output = Self>
-    + AddAssign + SubAssign + MulAssign + DivAssign {}
+    + AddAssign + SubAssign + MulAssign + DivAssign + Neg + PartialEq {}
 //}}}
 //{{{ trait: IndexValue
 pub trait IndexValue<I>
@@ -47,23 +48,12 @@ macro_rules! apply_for_all_types {
         $macro!(i64);
 
         $macro!(i128);
-
-        $macro!(u8);
-
-        $macro!(u16);
-
-        $macro!(u32);
-
-        $macro!(u64);
-
-        $macro!(u128);
     };
 }
 
 //}}}
 //{{{ macro: apply_for_all_integer_types
 #[macro_export]
-
 macro_rules! apply_for_all_integer_types {
     ($macro:ident) => {
         $macro!(i8);
@@ -76,15 +66,6 @@ macro_rules! apply_for_all_integer_types {
 
         $macro!(i128);
 
-        $macro!(u8);
-
-        $macro!(u16);
-
-        $macro!(u32);
-
-        $macro!(u64);
-
-        $macro!(u128);
     };
 }
 
@@ -106,7 +87,6 @@ macro_rules! impl_field {
                 index: usize,
             ) -> Self::Output
             {
-
                 *self
             }
         }
@@ -116,7 +96,6 @@ macro_rules! impl_field {
 //}}}
 //{{{ collection: impl_field implementations
 apply_for_all_types!(impl_field);
-
 //}}}
 //{{{ trait: Zero
 pub trait Zero
@@ -202,3 +181,46 @@ apply_for_all_integer_types!(impl_zero);
 //{{{ collection: re-exports
 pub use num_complex::{Complex, Complex64, Complex32};
 //}}}
+
+trait VectorOps: Index<usize, Output = Self::T> + IndexMut<usize,Output = Self::T> + Sized + Clone {
+
+    type T: Field + Zero + One + Copy + Default; 
+
+    /// Computes the norm (magnitude) of the vector.
+    ///
+    /// # Returns
+    ///
+    /// The norm of the vector as a value of type `Self::T`.
+    ///
+    fn norm(&self) -> Self::T {
+
+        let mut out = Self::T::zero();
+
+        for i in 0..self.len() {
+            out += self[i] * self[i]
+        }
+
+        // out = T::sq
+        out
+    }
+    fn dot(&self, other: &Self) -> Self::T {
+        let mut out = Self::T::zero();
+        for i in 0..self.len() {
+            out += self[i] * other[i]
+        }
+        out
+    }
+    fn normalize(&self) -> Self {
+        let norm = self.norm();
+        let mut out = self.clone();
+        if norm != Self::T::zero() {
+            for i in 0..self.len() {
+                out[i] /= norm;
+            }
+        }
+        out
+    }
+    fn cross(&self, other: &Self) -> Self;
+    fn len(&self) -> usize;
+    fn angle(&self, other: &Self) -> Self::T; 
+}

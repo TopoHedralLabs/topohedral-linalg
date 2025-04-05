@@ -595,11 +595,11 @@ mod tests
     fn test_matmul_u64()
     {
 
-        let a = SMatrix::<u64, 2, 2>::from_slice_row(&[1, 2, 3, 4]);
+        let a = SMatrix::<i64, 2, 2>::from_slice_row(&[1, 2, 3, 4]);
 
-        let b = SMatrix::<u64, 2, 1>::from_slice_row(&[5, 6]);
+        let b = SMatrix::<i64, 2, 1>::from_slice_row(&[5, 6]);
 
-        let expected = SMatrix::<u64, 2, 1>::from_slice_row(&[17, 39]);
+        let expected = SMatrix::<i64, 2, 1>::from_slice_row(&[17, 39]);
 
         let result = (&a).matmul(&b);
 
@@ -659,11 +659,11 @@ mod tests
     fn test_matmul_u64_row_vector()
     {
 
-        let a = SMatrix::<u64, 1, 3>::from_slice_row(&[1, 2, 3]);
+        let a = SMatrix::<i64, 1, 3>::from_slice_row(&[1, 2, 3]);
 
-        let b = SMatrix::<u64, 3, 1>::from_slice_row(&[4, 5, 6]);
+        let b = SMatrix::<i64, 3, 1>::from_slice_row(&[4, 5, 6]);
 
-        let expected = SMatrix::<u64, 1, 1>::from_slice_row(&[32]);
+        let expected = SMatrix::<i64, 1, 1>::from_slice_row(&[32]);
 
         let result = (&a).matmul(&b);
 
