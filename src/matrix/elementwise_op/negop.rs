@@ -25,7 +25,7 @@ where
     type Output = SMatrix<T, N, M>;
 
     fn neg(self) -> Self {
-        let mut result = SMatrix::<T, N, M>::zeros();
+        let mut result = SMatrix::<T, N, M>::zero();
         for i in 0..N*M {
             result.data[i] = -self.data[i];
         }   

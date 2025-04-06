@@ -267,7 +267,7 @@ where
 impl<T, const N: usize, const M: usize> IndexMut<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     fn index_mut(
         &mut self,
@@ -283,7 +283,7 @@ where
 impl<T, const N: usize, const M: usize> IndexValue<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     type Output = T;
 
@@ -305,7 +305,7 @@ where
 impl<T, const N: usize, const M: usize> IntoIterator for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     type Item = T;
 
@@ -401,7 +401,7 @@ where
 impl<T, const N: usize, const M: usize> EvaluateSMatrix<T, N, M> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     fn evals(&self) -> SMatrix<T, N, M>
     {
@@ -414,7 +414,7 @@ where
 impl<T, const N: usize, const M: usize> IndexValue<usize> for &SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display + Clone,
+    T: Field + Default + Copy
 {
     type Output = T;
 
@@ -545,30 +545,6 @@ where
         out
     }
     //}}}
-    //{{{ fun: ones
-    /// Creates a new `SMatrix` initialized with all elements set to 1.
-    ///
-    /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
-    pub fn ones() -> Self
-    where
-        T: One,
-    {
-        let out = Self::from_value(T::one());
-        out
-    }
-    //}}}
-    //{{{ fun: zeros
-    /// Creates a new `SMatrix` initialized with all elements set to 0.
-    ///
-    /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
-    pub fn zeros() -> Self
-    where
-        T: Zero,
-    {
-        let out = Self::from_value(T::zero());
-        out
-    }
-    //}}}
     //}}}
     //{{{ collection: converters
     //{{{ fun: copy_from
@@ -609,6 +585,28 @@ where
 }
 
 //}}}
+impl<T, const N: usize, const M: usize> Zero for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + Zero,
+{
+    fn zero() -> Self
+    {
+        let out = Self::from_value(T::zero());
+        out
+    }
+}
+impl<T, const N: usize, const M: usize> One for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + One,
+{
+    fn one() -> Self
+    {
+        let out = Self::from_value(T::one());
+        out
+    }
+}
 //{{{ fun: lin_index
 #[inline]
 fn lin_index(
