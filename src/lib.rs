@@ -15,17 +15,17 @@
 
 mod common;
 mod matrix;
+mod vector;
 
 pub use common::Field;
 pub use matrix::smatrix::{EvaluateSMatrix, SMatrix};
 pub use matrix::dmatrix::{EvaluateDMatrix, DMatrix};
-pub use matrix::svector::{SCVector};
 pub use matrix::matrix_op::matmul::MatMul;
 pub use matrix::matrix_op::lu::{LUError, SLU};
 pub use matrix::matrix_op::qr::{QRError, SQR};
 pub use matrix::matrix_op::schur::{SchurError, SSchur};
 pub use matrix::matrix_op::eig::{EigError, SEig};
-
+pub use vector::scvector::{SCVector};
 // pub use matrix::addop::BinopExpr;
 
 
