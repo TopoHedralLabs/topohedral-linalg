@@ -1,7 +1,7 @@
 #![feature(generic_const_exprs)]
 #![feature(impl_trait_in_assoc_type)]
 
-
+//{{{ mod: smatrix_tests
 mod smatrix_tests
 {
     use topohedral_linalg::{SMatrix, EvaluateSMatrix};
@@ -241,8 +241,8 @@ mod smatrix_tests
     }
     //}}}
 }
-
-
+//}}}
+//{{{ mod: dmatrix_tests
 mod dmatrix_tests 
 {
     use topohedral_linalg::{DMatrix, EvaluateDMatrix};
@@ -432,3 +432,4 @@ mod dmatrix_tests
     }
     //}}}
 }
+//}}}
