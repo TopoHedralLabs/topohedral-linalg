@@ -585,6 +585,7 @@ where
 }
 
 //}}}
+//{{{ impl: Zero for SMatrix
 impl<T, const N: usize, const M: usize> Zero for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -596,6 +597,8 @@ where
         out
     }
 }
+//}}}
+//{{{ impl: One for SMatrix
 impl<T, const N: usize, const M: usize> One for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -607,6 +610,7 @@ where
         out
     }
 }
+//}}}
 //{{{ fun: lin_index
 #[inline]
 fn lin_index(
