@@ -281,8 +281,7 @@ where
     /// dimensions of the matrix. The elements of the slice are supplied in row-major order so
     /// that statmmemnts like:
     /// ```ignore
-    /// DMatrix::from_slice(&[1, 2, 3,
-    ///                       4, 5, 6]);   
+    /// DMatrix::from_slice(2, 3, &[1, 2, 3, 4, 5, 6]);   
     /// ```
     /// will result in a 2x3 matrix with the values:
     ///
