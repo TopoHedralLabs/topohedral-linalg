@@ -459,8 +459,7 @@ where
     /// dimensions of the matrix. The elements of the slice are supplied in row-major order so
     /// that statmmemnts like:
     /// ```ignore
-    /// SMatrix::from_slice(&[1, 2, 3,
-    ///                       4, 5, 6]);   
+    /// SMatrix::<2, 3>::from_slice(&[1, 2, 3, 4, 5, 6]);   
     /// ```
     /// will result in a 2x3 matrix with the values:
     ///
@@ -493,7 +492,29 @@ where
     }
     //}}}
     //{{{ fun: from_slice_col   
-    pub fn from_slice_col(slice: &[T]) -> Self
+    /// Creates a new `SMatrix` from a slice of `T`.
+    ///
+    /// The length of the slice must be equal to `N * M`, where `N` and `M` are the
+    /// dimensions of the matrix. The elements of the slice are supplied in column-major order so
+    /// that statmmemnts like:
+    /// ```ignore
+    /// SMatrix::from_slice(&[1, 2, 3,
+    ///                       4, 5, 6]);   
+    /// ```
+    /// will result in a 2x3 matrix with the values:
+    ///
+    /// $$
+    /// \begin{bmatrix}
+    /// 1 & 2 & 3 \\\\
+    /// 4 & 5 & 6
+    /// \end{bmatrix}
+    /// $$
+    /// but stored in column-major order.
+    ///
+    /// # Panics
+    ///
+    /// This function will panic if the length of the slice is not equal to `N * M`.
+    pub fn from_slice(slice: &[T]) -> Self
     {
         assert_eq!(slice.len(), N * M);
         let mut out = Self::default();
