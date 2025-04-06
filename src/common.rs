@@ -182,9 +182,33 @@ apply_for_all_integer_types!(impl_zero);
 pub use num_complex::{Complex, Complex64, Complex32};
 //}}}
 
-trait VectorOps: Index<usize, Output = Self::T> + IndexMut<usize,Output = Self::T> + Sized + Clone {
 
-    type T: Field + Zero + One + Copy + Default; 
+pub trait Float {
+    fn acos(self) -> Self;
+    fn clamp(self, min: Self, max: Self) -> Self;
+}
+impl Float for f32 {
+    fn acos(self) -> Self {
+        self.acos()
+    }
+    fn clamp(self, min: Self, max: Self) -> Self {
+        f32::clamp(self, min, max)
+    }
+}
+impl Float for f64 {
+    fn acos(self) -> Self {
+        self.acos()
+    }
+    fn clamp(self, min: Self, max: Self) -> Self {
+        f64::clamp(self, min, max)
+    }
+}
+
+pub trait VectorOps: Index<usize, Output = Self::ScalarType> + IndexMut<usize,Output = Self::ScalarType> + Sized + Clone  + Zero{
+
+    type ScalarType: Field + Zero + One + Copy + Default; 
+
+    fn len(&self) -> usize;
 
     /// Computes the norm (magnitude) of the vector.
     ///
@@ -192,35 +216,64 @@ trait VectorOps: Index<usize, Output = Self::T> + IndexMut<usize,Output = Self::
     ///
     /// The norm of the vector as a value of type `Self::T`.
     ///
-    fn norm(&self) -> Self::T {
+    fn norm(&self) -> Self::ScalarType {
 
-        let mut out = Self::T::zero();
+        let mut out = Self::ScalarType::zero();
 
         for i in 0..self.len() {
             out += self[i] * self[i]
         }
-
-        // out = T::sq
         out
     }
-    fn dot(&self, other: &Self) -> Self::T {
-        let mut out = Self::T::zero();
+
+    fn dot(&self, other: &Self) -> Self::ScalarType {
+        let mut out = Self::ScalarType::zero();
         for i in 0..self.len() {
             out += self[i] * other[i]
         }
         out
     }
+
     fn normalize(&self) -> Self {
         let norm = self.norm();
         let mut out = self.clone();
-        if norm != Self::T::zero() {
+        if norm != Self::ScalarType::zero() {
             for i in 0..self.len() {
                 out[i] /= norm;
             }
         }
         out
     }
-    fn cross(&self, other: &Self) -> Self;
-    fn len(&self) -> usize;
-    fn angle(&self, other: &Self) -> Self::T; 
+    fn cross(&self, other: &Self) -> Self {
+
+        if self.len() != 3 {
+            panic!("Cross product is only defined for 2D and 3D vectors");
+        }
+
+        let mut out = Self::zero();
+        out[0] = self[1] * other[2] - self[2] * other[1];
+        out[1] = self[2] * other[0] - self[0] * other[2];
+        out[2] = self[0] * other[1] - self[1] * other[0];
+        out
+    }
+}
+
+pub trait FloatVectorOps : VectorOps
+where
+    Self::ScalarType: Float,
+{
+
+    fn angle(&self, other: &Self) -> Self::ScalarType {
+
+        let a = self.normalize();
+        let b = other.normalize();
+        let dot = self.dot(other);
+        let norm_self = self.norm();
+        let norm_other = other.norm();
+        if norm_self == Self::ScalarType::zero() || norm_other == Self::ScalarType::zero() {
+            return Self::ScalarType::zero();
+        }
+        let cos_theta = dot / (norm_self * norm_other);
+        cos_theta.acos()
+    }
 }

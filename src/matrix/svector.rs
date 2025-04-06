@@ -3,6 +3,8 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
+use core::panic;
+
 //{{{ crate imports
 use super::smatrix::*;
 use crate::common::*;
@@ -36,41 +38,31 @@ where
         out.data.copy_from_slice(data);
         out
     }
-
-    pub fn norm(&self) -> T 
-    where 
-        T: Zero
-    {
-
-        let mut out = T::zero();
-
-        for i in 0..N {
-            out += self[i] * self[i]
-        }
-
-        // out = T::sq
-        out
-    }
+}
+//}}}
 
 
-    pub fn dot(&self, other: &Self) -> T
-    where
-    T: Field + Zero
-    {
-        let mut out = T::zero();
-        for i in 0..N {
-            out += self[i] * other[i]
-        }
-        out
-    }
+impl <T, const N: usize> VectorOps for SCVector<T, N>
+where
+    [(); N * 1]:,
+    T: Field + Default + Copy + One + Zero,
+{
+
+    type ScalarType = T;
 
     /// Returns the number of elements in the vector
-    pub fn len(&self) -> usize
+    fn len(&self) -> usize
     {
         N
     }
 }
-//}}}
+
+impl<T, const N: usize> FloatVectorOps for SCVector<T, N>
+where
+    [(); N * 1]:,
+    T: Field + Default + Copy + One + Zero + Float,
+{}
+
 
 
 //-------------------------------------------------------------------------------------------------
