@@ -7,11 +7,10 @@
 
 //{{{ crate imports 
 use crate::common::{Field, Zero, One, Float};
-use crate::matrix::smatrix::{EvaluateSMatrix, SMatrix};
+use crate::matrix::smatrix::SMatrix;
 use super::common::{VectorOps, FloatVectorOps, Assert, IsTrue};
 //}}}
 //{{{ std imports 
-use std::ops::{Deref, DerefMut, Index, IndexMut};
 //}}}
 //{{{ dep imports 
 //}}}
