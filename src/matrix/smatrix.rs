@@ -491,7 +491,7 @@ where
         out
     }
     //}}}
-    //{{{ fun: from_slice_col   
+    //{{{ fun: from_slice
     /// Creates a new `SMatrix` from a slice of `T`.
     ///
     /// The length of the slice must be equal to `N * M`, where `N` and `M` are the
