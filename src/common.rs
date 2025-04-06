@@ -17,7 +17,7 @@ use std::cmp::PartialEq;
 //{{{ trait: Field
 pub trait Field:
     Sized + Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Div<Output = Self>
-    + AddAssign + SubAssign + MulAssign + DivAssign + Neg + PartialEq {}
+    + AddAssign + SubAssign + MulAssign + DivAssign + Neg + PartialEq{}
 //}}}
 //{{{ trait: IndexValue
 pub trait IndexValue<I>
@@ -84,7 +84,7 @@ macro_rules! impl_field {
 
             fn index_value(
                 &self,
-                index: usize,
+                _index: usize,
             ) -> Self::Output
             {
                 *self
