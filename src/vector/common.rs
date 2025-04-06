@@ -70,20 +70,18 @@ pub trait VectorOps: Index<usize, Output = Self::ScalarType> + IndexMut<usize,Ou
 
 pub trait FloatVectorOps : VectorOps
 where
-    Self::ScalarType: Float,
+    Self::ScalarType: Float + Zero + One + Copy + Default
 {
 
     fn angle(&self, other: &Self) -> Self::ScalarType {
 
+        if self.norm() < Self::ScalarType::small() || other.norm() < Self::ScalarType::small() {
+            panic!("Cannot compute angle with zero vector");
+        }
+
         let a = self.normalize();
         let b = other.normalize();
-        let dot = self.dot(other);
-        let norm_self = self.norm();
-        let norm_other = other.norm();
-        if norm_self == Self::ScalarType::zero() || norm_other == Self::ScalarType::zero() {
-            return Self::ScalarType::zero();
-        }
-        let cos_theta = dot / (norm_self * norm_other);
-        cos_theta.acos()
+        let dot = (a.dot(&b)).clamp(-Self::ScalarType::one(), Self::ScalarType::one());
+        dot.acos()
     }
 }
