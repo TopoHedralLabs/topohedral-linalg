@@ -1,4 +1,3 @@
-
 //! Short Description of module
 //!
 //! Longer description of module
@@ -18,8 +17,43 @@ use std::ops::{Deref, DerefMut, Index, IndexMut};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-pub type SRVector<T, const N: usize> = SMatrix<T, 1, N>;
+pub type SCVector<T, const N: usize> = SMatrix<T, N, 1>;
 
+impl<T, const N: usize> SCVector<T, N>
+where
+    [();  N * 1]:,
+    T: Field + Default + Copy + std::fmt::Display + Clone,
+    Assert<{N > 1}>: IsTrue,
+{
+    pub fn len() -> usize
+    {
+        N
+    }
+}
+
+impl<T, const N: usize>  VectorOps for SCVector<T, N>
+where
+    [(); N * 1]:,
+    T: Field + Default + Copy + Clone + Zero + One,
+    Assert<{N > 1}>: IsTrue,
+{
+
+    type ScalarType = T;
+
+    fn len(&self) -> usize
+    {
+        N
+    }
+}
+
+impl<T, const N: usize> FloatVectorOps for SCVector<T, N> 
+where
+    [(); N * 1]:,
+    T: Float + Default + Copy + Clone + Zero + One,
+    Assert<{N > 1}>: IsTrue,
+{}
+
+pub type SRVector<T, const N: usize> = SMatrix<T, 1, N>;
 
 impl<T, const N: usize>  VectorOps for SRVector<T, N>
 where

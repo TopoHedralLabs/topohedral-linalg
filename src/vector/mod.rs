@@ -12,5 +12,5 @@
 //--------------------------------------------------------------------------------------------------
 
 mod common;
-pub mod scvector;
-pub mod srvector;
+pub mod svector;
+pub mod dvector;
