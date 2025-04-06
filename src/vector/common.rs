@@ -13,6 +13,9 @@ use core::ops::{Index, IndexMut};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+pub struct Assert<const check: bool>;
+pub trait IsTrue{}
+impl IsTrue for Assert<true>{}
 
 pub trait VectorOps: Index<usize, Output = Self::ScalarType> + IndexMut<usize,Output = Self::ScalarType> + Sized + Clone  + Zero{
 

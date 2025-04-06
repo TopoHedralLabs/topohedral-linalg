@@ -26,6 +26,7 @@ pub use matrix::matrix_op::qr::{QRError, SQR};
 pub use matrix::matrix_op::schur::{SchurError, SSchur};
 pub use matrix::matrix_op::eig::{EigError, SEig};
 pub use vector::scvector::{SCVector};
+pub use vector::srvector::{SRVector};
 // pub use matrix::addop::BinopExpr;
 
 
