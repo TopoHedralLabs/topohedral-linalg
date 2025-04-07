@@ -25,21 +25,32 @@ where
     T: Field + Default + Copy + Clone,
 {
 
+    
+    fn zeros(nelem: usize) -> Self 
+    where 
+        T: Zero,
+    {
+        Self { data: vec![T::zero(); nelem], nrows: 1, ncols: nelem}
+    }
+    
+    fn ones(nelem: usize) -> Self 
+    where 
+        T: One,
+    {
+        Self { data: vec![T::one(); nelem], nrows: 1, ncols: nelem}
+    }
+    
     fn from_value(num_elements: usize, value: T) -> Self
     {
         Self { data: vec![value; num_elements], nrows: 1, ncols: num_elements}
     }
-    
-    fn zeros(nelem: usize) -> Self {
-        todo!()
-    }
-    
-    fn ones(nelem: usize) -> Self {
-        todo!()
-    }
-    
+
     fn from_slice(values: &[T]) -> Self {
-        todo!()
+        Self {
+            data: values.to_vec(),
+            nrows: 1,
+            ncols: values.len(),
+        }
     }
 }
 

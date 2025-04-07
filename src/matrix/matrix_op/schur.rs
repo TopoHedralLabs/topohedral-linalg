@@ -174,12 +174,12 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::matrix::matrix_op::matmul::MatMul;
+    use crate::{matrix::matrix_op::matmul::MatMul, SMatrixConstructors};
     use approx::assert_relative_eq;
 
     #[test]
     fn test_schur_decomposition() {
-        let a = SMatrix::<f64, 3, 3>::from_slice_row(&[
+        let a = SMatrix::<f64, 3, 3>::from_row_slice(&[
             1.0, 2.0, 3.0,
             4.0, 5.0, 6.0,
             7.0, 8.0, 9.0,

@@ -15,13 +15,13 @@ use crate::common::{Field, Float, One, Zero};
 
 pub trait SMatrixConstructors<T, const N: usize, const M: usize>
 where
-    T: Field + Zero + One + Copy + Default,
+    T: Field + Copy + Default,
 {
     /// Creates a new matrix with the given dimensions and initializes all elements to zero.
-    fn zeros() -> Self;
+    fn zeros() -> Self where T: Zero;
 
     /// Creates a new matrix with the given dimensions and initializes all elements to one.
-    fn ones() -> Self;
+    fn ones() -> Self where T: One;
 
     /// Creates a new matrix with the given dimensions and initializes all elements to the specified value.
     fn from_value(value: T) -> Self;

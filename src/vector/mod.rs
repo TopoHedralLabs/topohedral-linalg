@@ -12,5 +12,7 @@
 //--------------------------------------------------------------------------------------------------
 
 mod common;
+
+pub use common::{DVectorConstructors, SVectorConstructors};
 pub mod svector;
 pub mod dvector;

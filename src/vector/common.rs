@@ -38,13 +38,13 @@ where
 pub trait DVectorConstructors<T>
 {
     /// Creates a new vector with the given dimensions and initializes all elements to zero.
-    fn zeros(nelem: usize) -> Self;
+    fn zeros(nelem: usize) -> Self where T: Zero;
 
     /// Creates a new vector with the given dimensions and initializes all elements to one.
-    fn ones(nelem: usize) -> Self;
+    fn ones(nelem: usize) -> Self where T: One;
 
     /// Creates a new vector with the given dimensions and initializes all elements to the specified value.
-    fn from_value(nelem: usize, value: f64) -> Self;
+    fn from_value(nelem: usize, value: T) -> Self;
 
     /// Creates a new vector from a slice of values.
     fn from_slice(values: &[T]) -> Self;

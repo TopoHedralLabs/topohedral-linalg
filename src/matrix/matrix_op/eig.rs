@@ -209,9 +209,11 @@ mod tests {
     use super::*;
     use approx::assert_relative_eq;
 
+    use super::super::super::common::{SMatrixConstructors, DMatrixConstructors};
+
     #[test]
     fn test_eigenvalue_decomposition() {
-        let a = SMatrix::<f64, 3, 3>::from_slice_row(&[
+        let a = SMatrix::<f64, 3, 3>::from_row_slice(&[
             1.0, 5.0, 0.0,
             2.0, 4.0, -1.0,
             0.0, 2.0, 3.0,
@@ -230,7 +232,7 @@ mod tests {
 
 
         // Known left eigenvectors for this matrix
-        let expected_left_eigenvecotors = SMatrix::<f64, 3, 3>::from_slice_row(&[
+        let expected_left_eigenvecotors = SMatrix::<f64, 3, 3>::from_row_slice(&[
             -0.7212203345550064,  -0.3850687990747861,  -0.3073880480179293,  
             0.6705630402249634, -0.8536329572455033,  -0.3728399943222721,  
             0.1737424476304467,  0.3507603088768719,  0.8755015285934659, 

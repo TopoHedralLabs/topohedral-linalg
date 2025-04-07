@@ -26,6 +26,7 @@ pub use matrix::matrix_op::lu::{LUError, SLU};
 pub use matrix::matrix_op::qr::{QRError, SQR};
 pub use matrix::matrix_op::schur::{SchurError, SSchur};
 pub use matrix::matrix_op::eig::{EigError, SEig};
+pub use vector::{DVectorConstructors, SVectorConstructors};
 pub use vector::svector::{SCVector, SRVector};
 pub use vector::dvector::{DCVector, DRVector};
 

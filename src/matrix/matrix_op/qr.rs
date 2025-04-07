@@ -214,13 +214,13 @@ where
 #[cfg(test)]
 mod tests {
 
-    use crate::matrix::matrix_op::matmul::MatMul;
+    use crate::{matrix::matrix_op::matmul::MatMul, SMatrixConstructors};
     use super::*;
     use approx::{assert_relative_eq, assert_abs_diff_eq};
 
     #[test]
     fn test_qr_decomposition() {
-        let a = SMatrix::<f64, 3, 3>::from_slice_row(&[
+        let a = SMatrix::<f64, 3, 3>::from_row_slice(&[
             12.0, -51.0, 4.0,
             6.0, 167.0, -68.0,
             -4.0, 24.0, -41.0,

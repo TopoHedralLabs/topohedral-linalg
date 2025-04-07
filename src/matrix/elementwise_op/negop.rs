@@ -4,7 +4,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports 
+
 use crate::common::*;
+use super::super::common::{DMatrixConstructors, SMatrixConstructors};
 use crate::matrix::smatrix::SMatrix;
 use crate::matrix::dmatrix::DMatrix;
 //}}}
@@ -53,27 +55,5 @@ where
 #[cfg(test)]
 mod tests
 {
-    use super::*;
-
-    #[test]
-    fn test_neg_smatrix() {
-
-        let a  = SMatrix::<i32, 2, 2>::from_slice_row(&[ 1, 2, 3, 4]);
-        let b = -a.clone(); 
-
-        for i in 0..4 {
-            assert_eq!(b[i], -a[i]);
-        }
-    }
-    #[test]
-    fn test_neg_dmatrix() {
-
-        let a  = DMatrix::<i32>::from_slice_row(2,2, &[ 1, 2, 3, 4]);
-        let b = -a.clone(); 
-
-        for i in 0..4 {
-            assert_eq!(b[i], -a[i]);
-        }
-    }
 }
 //}}}

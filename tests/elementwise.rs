@@ -4,7 +4,7 @@
 //{{{ mod: smatrix_tests
 mod smatrix_tests
 {
-    use topohedral_linalg::{SMatrix, EvaluateSMatrix};
+    use topohedral_linalg::{SMatrix, EvaluateSMatrix, SMatrixConstructors};
     use approx::assert_relative_eq;
 
     //{{{ collection: mixed tests
@@ -232,7 +232,7 @@ mod smatrix_tests
     #[test]
     fn test_neg() {
 
-        let a  = SMatrix::<i32, 2, 2>::from_slice_row(&[ 1, 2, 3, 4]);
+        let a  = SMatrix::<i32, 2, 2>::from_row_slice(&[ 1, 2, 3, 4]);
         let b = -a.clone(); 
 
         for i in 0..4 {
@@ -245,7 +245,7 @@ mod smatrix_tests
 //{{{ mod: dmatrix_tests
 mod dmatrix_tests 
 {
-    use topohedral_linalg::{DMatrix, EvaluateDMatrix};
+    use topohedral_linalg::{DMatrix, EvaluateDMatrix, DMatrixConstructors};
 
     //{{{ collection: addition tests
     #[test]
@@ -422,7 +422,7 @@ mod dmatrix_tests
     #[test]
     fn test_neg() {
 
-        let a  = DMatrix::<i32>::from_slice_row(2, 2, &[ 1, 2, 3, 4]);
+        let a  = DMatrix::<i32>::from_row_slice(2, 2, &[ 1, 2, 3, 4]);
         let b = -a.clone(); 
 
         for i in 0..4 {
@@ -436,7 +436,7 @@ mod dmatrix_tests
 mod scvector_tests 
 {
 
-    use topohedral_linalg::{SCVector, EvaluateSMatrix};
+    use topohedral_linalg::{SCVector, EvaluateSMatrix, SMatrixConstructors};
     use approx::assert_relative_eq;
 
     #[test]
@@ -697,13 +697,14 @@ mod scvector_tests
 //{{{ mod: dcvector_tests
 mod dvector_tests 
 {
-    use topohedral_linalg::{DRVector, EvaluateDMatrix};
+    use topohedral_linalg::{DRVector, EvaluateDMatrix, DVectorConstructors};
+    use approx::assert_relative_eq;
 
     #[test]
     fn test1() {
-        let a = DRVector::<i32>::from_value(10, 1);
-        let b = DRVector::<i32>::from_value(10, 2);
-        let c = DRVector::<i32>::from_value(10, 3);
+        let a = DRVector::<i32>::from_value(10, 1i32);
+        let b = DRVector::<i32>::from_value(10, 2i32);
+        let c = DRVector::<i32>::from_value(10, 3i32);
 
         let d: DRVector::<i32> = (&a + &b + &c).evald();
 
@@ -924,7 +925,7 @@ mod dvector_tests
     //{{{ collection: negation tests
     #[test]
     fn test_neg() {
-        let a = DRVector::<i32>::from_slice(4, &[1, 2, 3, 4]);
+        let a = DRVector::<i32>::from_slice(&[1i32, 2i32, 3i32, 4i32]);
         let b = -a.clone();
 
         for i in 0..4 {
