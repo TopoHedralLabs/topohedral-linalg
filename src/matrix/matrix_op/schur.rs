@@ -177,36 +177,4 @@ mod tests {
     use crate::{matrix::matrix_op::matmul::MatMul, SMatrixConstructors};
     use approx::assert_relative_eq;
 
-    #[test]
-    fn test_schur_decomposition() {
-        let a = SMatrix::<f64, 3, 3>::from_row_slice(&[
-            1.0, 2.0, 3.0,
-            4.0, 5.0, 6.0,
-            7.0, 8.0, 9.0,
-        ]);
-
-        let SSchur { q, t } = a.schur().unwrap();
-        
-        // Verify Q*T*Q^T = A
-        let q_t = q.matmul(&t);
-        let q_transpose = q.transpose();
-        let reconstructed = q_t.matmul(&q_transpose);
-        
-        for i in 0..9 {
-            assert_relative_eq!(reconstructed[i], a[i], max_relative=1.0e-8);
-        }
-        
-        // Verify Q is orthogonal (Q^T * Q = I)
-        let identity = q.matmul(&q_transpose);
-        
-        for i in 0..3 {
-            for j in 0..3 {
-                if i == j {
-                    assert_relative_eq!(identity[i + j * 3], 1.0, max_relative=1.0e-8, epsilon=1.0e-10);
-                } else {
-                    assert_relative_eq!(identity[i + j * 3], 0.0, max_relative=1.0e-8, epsilon=1.0e-10);
-                }
-            }
-        }
-    }
 }

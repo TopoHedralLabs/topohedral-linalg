@@ -17,7 +17,7 @@ mod common;
 mod matrix;
 mod vector;
 
-pub use common::Field;
+pub use common::{Field, Complex};
 pub use matrix::{DMatrixConstructors, SMatrixConstructors};
 pub use matrix::smatrix::{EvaluateSMatrix, SMatrix};
 pub use matrix::dmatrix::{EvaluateDMatrix, DMatrix};

@@ -183,7 +183,7 @@ macro_rules! impl_zero {
 apply_for_all_integer_types!(impl_zero);
 //}}}
 //{{{ collection: re-exports
-pub use num_complex::{Complex, Complex32, Complex64};
+pub use num_complex::Complex;
 //}}}
 
 pub trait Float: Field

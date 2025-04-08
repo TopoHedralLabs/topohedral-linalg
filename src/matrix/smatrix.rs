@@ -612,6 +612,16 @@ where
     }
     //}}}   
     //}}}
+    //{{{ fun: iter
+    pub fn iter(&self) -> std::slice::Iter<'_, T>{
+        return self.data.iter();
+    }
+    //}}}
+    //{{{ fun: iter_mut
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T>{
+        return self.data.iter_mut();
+    }
+    //}}}
 }
 
 //}}}
