@@ -1,22 +1,18 @@
 //! Short Description of module
 //!
 //! Longer description of module
-
 //--------------------------------------------------------------------------------------------------
 
-
-//{{{ crate imports
+//{{{ crate imports 
 //}}}
-//{{{ std imports
+//{{{ std imports 
 //}}}
-//{{{ dep imports
+//{{{ dep imports 
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 mod common;
-mod elementwise_op;
 
-pub use common::{DMatrixConstructors, SMatrixConstructors};
-pub mod matrix_op;
-pub mod smatrix;
-pub mod dmatrix;
+pub use common::{DVectorConstructors, SVectorConstructors};
+pub mod svector;
+pub mod dvector;

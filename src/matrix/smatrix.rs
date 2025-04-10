@@ -6,6 +6,7 @@
 
 //{{{ crate imports
 use crate::common::*;
+use super::common::SMatrixConstructors;
 //}}}
 //{{{ std imports
 use rand::distributions::uniform::SampleUniform;
@@ -267,7 +268,7 @@ where
 impl<T, const N: usize, const M: usize> IndexMut<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     fn index_mut(
         &mut self,
@@ -283,7 +284,7 @@ where
 impl<T, const N: usize, const M: usize> IndexValue<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     type Output = T;
 
@@ -305,7 +306,7 @@ where
 impl<T, const N: usize, const M: usize> IntoIterator for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     type Item = T;
 
@@ -401,7 +402,7 @@ where
 impl<T, const N: usize, const M: usize> EvaluateSMatrix<T, N, M> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy
 {
     fn evals(&self) -> SMatrix<T, N, M>
     {
@@ -414,7 +415,7 @@ where
 impl<T, const N: usize, const M: usize> IndexValue<usize> for &SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display + Clone,
+    T: Field + Default + Copy
 {
     type Output = T;
 
@@ -431,19 +432,34 @@ where
 
 //}}}
 //}}}
-//{{{ impl: SMatrix
-impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
+impl<T, const N: usize, const M: usize> SMatrixConstructors<T, N, M> for SMatrix<T, N, M>
 where
     [(); N * M]:,
     T: Field + Default + Copy,
 {
-    //{{{ collection: constructors
-    //{{{ fun: from_value
-    /// Creates a new `SMatrix` with all elements initialized to the given `value`.
-    ///
-    /// This is a convenience constructor that initializes an `SMatrix` with a constant value.
-    /// The resulting matrix will have dimensions `N x M`.
-    pub fn from_value(value: T) -> Self
+    fn zeros() -> Self
+    where
+        T: Zero,
+    {
+        Self {
+            data: [T::zero(); N * M],
+            nrows: N,
+            ncols: M,
+        }
+    }
+
+    fn ones() -> Self
+    where
+        T: One,
+    {
+        Self {
+            data: [T::one(); N * M],
+            nrows: N,
+            ncols: M,
+        }
+    }
+
+    fn from_value(value: T) -> Self
     {
         Self {
             data: [value; N * M],
@@ -451,12 +467,44 @@ where
             ncols: M,
         }
     }
-    //}}}
-    //{{{ fun: from_slice_row
+
+    fn from_row_slice(slice: &[T]) -> Self
+    {
+        assert_eq!(slice.len(), N * M);
+
+        let mut out = Self::default();
+
+        for j in 0..M
+        {
+            for i in 0..N
+            {
+                out.data[j * N + i] = slice[i * M + j];
+            }
+        }
+
+        out
+    }
+
+    fn from_col_slice(slice: &[T]) -> Self
+    {
+        assert_eq!(slice.len(), N * M);
+        let mut out = Self::default();
+        out.data.copy_from_slice(slice);    
+        out
+    }
+}
+//{{{ impl: SMatrix
+impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy,
+{
+    //{{{ collection: constructors
+    //{{{ fun: from_slice
     /// Creates a new `SMatrix` from a slice of `T`.
     ///
     /// The length of the slice must be equal to `N * M`, where `N` and `M` are the
-    /// dimensions of the matrix. The elements of the slice are supplied in row-major order so
+    /// dimensions of the matrix. The elements of the slice are supplied in column-major order so
     /// that statmmemnts like:
     /// ```ignore
     /// SMatrix::from_slice(&[1, 2, 3,
@@ -475,25 +523,7 @@ where
     /// # Panics
     ///
     /// This function will panic if the length of the slice is not equal to `N * M`.
-    pub fn from_slice_row(slice: &[T]) -> Self
-    {
-        assert_eq!(slice.len(), N * M);
-
-        let mut out = Self::default();
-
-        for j in 0..M
-        {
-            for i in 0..N
-            {
-                out.data[j * N + i] = slice[i * M + j];
-            }
-        }
-
-        out
-    }
-    //}}}
-    //{{{ fun: from_slice_col   
-    pub fn from_slice_col(slice: &[T]) -> Self
+    pub fn from_slice(slice: &[T]) -> Self
     {
         assert_eq!(slice.len(), N * M);
         let mut out = Self::default();
@@ -545,30 +575,6 @@ where
         out
     }
     //}}}
-    //{{{ fun: ones
-    /// Creates a new `SMatrix` initialized with all elements set to 1.
-    ///
-    /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
-    pub fn ones() -> Self
-    where
-        T: One,
-    {
-        let out = Self::from_value(T::one());
-        out
-    }
-    //}}}
-    //{{{ fun: zeros
-    /// Creates a new `SMatrix` initialized with all elements set to 0.
-    ///
-    /// The dimensions of the matrix are determined by the generic parameters `N` and `M`.
-    pub fn zeros() -> Self
-    where
-        T: Zero,
-    {
-        let out = Self::from_value(T::zero());
-        out
-    }
-    //}}}
     //}}}
     //{{{ collection: converters
     //{{{ fun: copy_from
@@ -606,8 +612,44 @@ where
     }
     //}}}   
     //}}}
+    //{{{ fun: iter
+    pub fn iter(&self) -> std::slice::Iter<'_, T>{
+        return self.data.iter();
+    }
+    //}}}
+    //{{{ fun: iter_mut
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T>{
+        return self.data.iter_mut();
+    }
+    //}}}
 }
 
+//}}}
+//{{{ impl: Zero for SMatrix
+impl<T, const N: usize, const M: usize> Zero for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + Zero,
+{
+    fn zero() -> Self
+    {
+        let out = Self::from_value(T::zero());
+        out
+    }
+}
+//}}}
+//{{{ impl: One for SMatrix
+impl<T, const N: usize, const M: usize> One for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + One,
+{
+    fn one() -> Self
+    {
+        let out = Self::from_value(T::one());
+        out
+    }
+}
 //}}}
 //{{{ fun: lin_index
 #[inline]
@@ -624,90 +666,7 @@ fn lin_index(
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
 #[cfg(test)]
+mod tests {
 
-mod tests
-{
-
-    use super::*;
-
-
-    #[test]
-    fn test_matrix_default()
-    {
-        let matrix = SMatrix::<i32, 2, 2>::default();
-
-        assert_eq!(matrix.data, [0, 0, 0, 0]);
-    }
-
-    #[test]
-
-    fn test_matrix_from_val()
-    {
-        let matrix = SMatrix::<i32, 2, 2>::from_value(10);
-
-        assert_eq!(matrix.data, [10, 10, 10, 10]);
-    }
-
-    #[test]
-
-    fn test_matrix_from_slice()
-    {
-        let matrix = SMatrix::<i32, 2, 2>::from_slice_row(&[1, 10, 100, 1000]);
-
-        assert_eq!(matrix.data, [1, 100, 10, 1000]);
-    }
-
-    #[test]
-
-    fn test_matrix_from_uniform_random()
-    {
-        let matrix = SMatrix::<f64, 2, 2>::from_uniform_random(-1100.0, 100.1);
-    }
-
-    #[test]
-    fn test_matrix_indexing()
-    {
-        let matrix = SMatrix::<i32, 2, 2>::from_slice_row(&[1, 10, 100, 1000]);
-        assert_eq!(matrix[(0, 0)], 1);
-        assert_eq!(matrix[(0, 1)], 10);
-        assert_eq!(matrix[(1, 0)], 100);
-        assert_eq!(matrix[(1, 1)], 1000);
-    }
-
-    #[test]
-    fn test_serde()
-    {
-        let matrix = SMatrix::<i32, 2, 2>::from_slice_row(&[1, 10, 100, 1000]);
-        let matrix_json = serde_json::to_string_pretty(&matrix).unwrap();
-        let matrix2: SMatrix<i32, 2, 2> = serde_json::from_str(&matrix_json).unwrap();
-
-        for i in 0..4
-        {
-            assert_eq!(matrix.data[i], matrix2.data[i]);
-        }
-    }
-
-    #[test]
-    fn test_matrix_transpose()
-    {
-        let matrix = SMatrix::<i32, 2, 3>::from_slice_row(&[1, 2, 3, 4, 5, 6]);
-        let transposed = matrix.transpose();
-        assert_eq!(transposed[(0, 0)], 1);
-        assert_eq!(transposed[(0, 1)], 4);
-        assert_eq!(transposed[(1, 0)], 2);
-        assert_eq!(transposed[(1, 1)], 5);
-        assert_eq!(transposed[(2, 0)], 3);
-        assert_eq!(transposed[(2, 1)], 6);
-    }
-
-    #[test]
-    fn test_copy_from() 
-    {
-        let mut matrix = SMatrix::<i32, 2, 2>::default();
-        let matrix2 = SMatrix::<i32, 2, 2>::from_slice_row(&[1, 2, 3, 4]);
-        matrix.copy_from(&matrix2);
-        assert_eq!(matrix.data, [1, 3, 2, 4]);
-    }
 }
-
 //}}}

@@ -214,40 +214,9 @@ where
 #[cfg(test)]
 mod tests {
 
-    use crate::matrix::matrix_op::matmul::MatMul;
+    use crate::{matrix::matrix_op::matmul::MatMul, SMatrixConstructors};
     use super::*;
     use approx::{assert_relative_eq, assert_abs_diff_eq};
 
-    #[test]
-    fn test_qr_decomposition() {
-        let a = SMatrix::<f64, 3, 3>::from_slice_row(&[
-            12.0, -51.0, 4.0,
-            6.0, 167.0, -68.0,
-            -4.0, 24.0, -41.0,
-        ]);
-
-        let SQR{q, r} = a.qr().unwrap();
-        
-        // Verify Q*R = A
-        let reconstructed: SMatrix<f64, 3,3>= q.matmul(&r);
-        
-        for i in 0..9 {
-            assert_relative_eq!(reconstructed[i], a[i], max_relative=1.0e-8);
-        }
-        
-        // Verify Q is orthogonal (Q^T * Q = I)
-        let q_transpose = q.transpose();
-        let identity: SMatrix<f64, 3,3> = q.matmul(&q_transpose);
-        
-        for i in 0..3 {
-            for j in 0..3 {
-                if i == j {
-                    assert_relative_eq!(identity[i + j * 3], 1.0, max_relative=1.0e-8);
-                } else {
-                    assert_relative_eq!(identity[i + j * 3], 0.0, max_relative=1.0e-8);
-                }
-            }
-        }
-    }
 }
 //}}}

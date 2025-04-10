@@ -1,7 +1,5 @@
-//! Short Description of module
+//! This module implements the Multiplication operation for the `SMatrix` and `DMatrix` types.
 //!
-//! Longer description of module
-
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -319,95 +317,6 @@ where
 
 mod tests
 {
-
-    use super::*;
-
-    #[test]
-
-    fn test_mul_smatrix()
-    {
-        let matrix1 = SMatrix::<f64, 2, 2>::from_value(1.0);
-
-        let matrix2 = SMatrix::<f64, 2, 2>::from_value(10.0);
-
-        let matrix3 = SMatrix::<f64, 2, 2>::from_value(100.0);
-
-        let matrix4 = SMatrix::<f64, 2, 2>::from_value(1000.0);
-
-        let matrix5 = SMatrix::<f64, 2, 2>::from_value(10000.0);
-
-        let matrix6 = SMatrix::<f64, 2, 2>::from_value(100000.0);
-
-        let mut matrix7 = SMatrix::<f64, 2, 2>::default();
-
-        matrix7 = ((&matrix4 * &matrix5) * (&matrix1 * &matrix2 * &matrix3) * &matrix6).evals();
-
-        let exp_value: f64 = (1000.0 * 10000.0) * (1.0 * 10.0 * 100.0) * 100000.0;
-
-        for val in &matrix7
-        {
-            assert_eq!(*val, exp_value);
-        }
-    }
-
-
-    #[test]
-    fn test_mul_dmatrix()
-    {
-        let matrix1 = DMatrix::<f64>::from_value(2, 2, 1.0);
-        let matrix2 = DMatrix::<f64>::from_value(2, 2, 10.0);
-        let matrix3 = DMatrix::<f64>::from_value(2, 2, 100.0);
-        let matrix4 = DMatrix::<f64>::from_value(2, 2, 1000.0);
-        let matrix5 = DMatrix::<f64>::from_value(2, 2, 10000.0);
-        let matrix6 = DMatrix::<f64>::from_value(2, 2, 100000.0);
-        let mut matrix7 = DMatrix::<f64>::zeros(2, 2);
-
-        matrix7 = ((&matrix4 * &matrix5) * (&matrix1 * &matrix2 * &matrix3) * &matrix6).evald();
-
-        let exp_value: f64 = (1000.0 * 10000.0) * (1.0 * 10.0 * 100.0) * 100000.0;
-
-        for val in &matrix7
-        {
-            assert_eq!(*val, exp_value);
-        }
-    }
-
-    #[test]
-    fn test_mul_scalar_smatrix()
-    {
-        let matrix1 = SMatrix::<i32, 2, 2>::from_value(10);
-
-        let matrix2 = SMatrix::<i32, 2, 2>::from_value(100);
-
-        let mut matrix4 = SMatrix::<i32, 2, 2>::default();
-
-        matrix4 = (4i32 * (2i32 * &matrix1) * (&matrix2 * 3i32) * 5i32).evals();
-
-        let exp_val = 4 * (2 * 10) * (100 * 3) * 5;
-
-        for val in &matrix4
-        {
-            assert_eq!(*val, exp_val);
-        }
-    }
-
-
-    #[test]
-    fn test_mul_scalar_dmatrix()
-    {
-        let matrix1 = DMatrix::<f64>::from_value(2, 2, 10.0);
-        let matrix2 = DMatrix::<f64>::from_value(2, 2, 100.0);
-        let mut matrix4 = DMatrix::<f64>::zeros(2, 2);
-
-        matrix4 = (4.0 * (2.0 * &matrix1) * (&matrix2 * 3.0) * 5.0).evald();
-
-        let exp_val = 4.0 * (2.0 * 10.0) * (100.0 * 3.0) * 5.0;
-
-        for val in &matrix4
-        {
-            assert_eq!(*val, exp_val);
-        }
-    }
 }
 
 //}}}

@@ -5,6 +5,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
+use super::super::common::DMatrixConstructors;
 use super::super::dmatrix::{DMatrix, EvaluateDMatrix};
 use super::super::smatrix::{EvaluateSMatrix, SMatrix};
 use crate::apply_for_all_types;

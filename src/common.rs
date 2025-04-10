@@ -2,11 +2,12 @@
 //!
 //--------------------------------------------------------------------------------------------------
 
-use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
+use std::{ops::{AddAssign, DivAssign, MulAssign, SubAssign}, process::Output};
 //{{{ crate imports
 //}}}
 //{{{ std imports
-use ::std::ops::{Add, Div, Mul, Sub};
+use ::std::ops::{Add, Div, Index, IndexMut, Mul, Neg, Sub};
+use std::cmp::PartialEq;
 
 //}}}
 //{{{ dep imports
@@ -15,8 +16,20 @@ use ::std::ops::{Add, Div, Mul, Sub};
 
 //{{{ trait: Field
 pub trait Field:
-    Sized + Add<Output = Self> + Sub<Output = Self> + Mul<Output = Self> + Div<Output = Self>
-    + AddAssign + SubAssign + MulAssign + DivAssign {}
+    Sized
+    + Add<Output = Self>
+    + Sub<Output = Self>
+    + Mul<Output = Self>
+    + Div<Output = Self>
+    + AddAssign
+    + SubAssign
+    + MulAssign
+    + DivAssign
+    + Neg<Output = Self>
+    + PartialOrd
+    + PartialEq
+{
+}
 //}}}
 //{{{ trait: IndexValue
 pub trait IndexValue<I>
@@ -47,23 +60,12 @@ macro_rules! apply_for_all_types {
         $macro!(i64);
 
         $macro!(i128);
-
-        $macro!(u8);
-
-        $macro!(u16);
-
-        $macro!(u32);
-
-        $macro!(u64);
-
-        $macro!(u128);
     };
 }
 
 //}}}
 //{{{ macro: apply_for_all_integer_types
 #[macro_export]
-
 macro_rules! apply_for_all_integer_types {
     ($macro:ident) => {
         $macro!(i8);
@@ -75,16 +77,6 @@ macro_rules! apply_for_all_integer_types {
         $macro!(i64);
 
         $macro!(i128);
-
-        $macro!(u8);
-
-        $macro!(u16);
-
-        $macro!(u32);
-
-        $macro!(u64);
-
-        $macro!(u128);
     };
 }
 
@@ -92,8 +84,7 @@ macro_rules! apply_for_all_integer_types {
 //{{{ macro: impl_field
 macro_rules! impl_field {
     ($type:ty) => {
-        impl Field for $type
-        {}
+        impl Field for $type {}
 
         impl IndexValue<usize> for $type
         {
@@ -103,10 +94,9 @@ macro_rules! impl_field {
 
             fn index_value(
                 &self,
-                index: usize,
+                _index: usize,
             ) -> Self::Output
             {
-
                 *self
             }
         }
@@ -116,7 +106,6 @@ macro_rules! impl_field {
 //}}}
 //{{{ collection: impl_field implementations
 apply_for_all_types!(impl_field);
-
 //}}}
 //{{{ trait: Zero
 pub trait Zero
@@ -129,7 +118,6 @@ impl Zero for f32
 {
     fn zero() -> Self
     {
-
         0.0
     }
 }
@@ -138,7 +126,6 @@ impl Zero for f64
 {
     fn zero() -> Self
     {
-
         0.0
     }
 }
@@ -149,7 +136,6 @@ macro_rules! impl_zero {
         {
             fn zero() -> Self
             {
-
                 0
             }
         }
@@ -170,7 +156,6 @@ impl One for f32
 {
     fn one() -> Self
     {
-
         1.0
     }
 }
@@ -179,7 +164,6 @@ impl One for f64
 {
     fn one() -> Self
     {
-
         1.0
     }
 }
@@ -190,7 +174,6 @@ macro_rules! impl_zero {
         {
             fn one() -> Self
             {
-
                 1
             }
         }
@@ -200,5 +183,54 @@ macro_rules! impl_zero {
 apply_for_all_integer_types!(impl_zero);
 //}}}
 //{{{ collection: re-exports
-pub use num_complex::{Complex, Complex64, Complex32};
+pub use num_complex::Complex;
 //}}}
+
+pub trait Float: Field
+{
+    fn acos(self) -> Self;
+    fn clamp(
+        self,
+        min: Self,
+        max: Self,
+    ) -> Self;
+    fn small() -> Self;
+}
+impl Float for f32
+{
+    fn acos(self) -> Self
+    {
+        self.acos()
+    }
+    fn clamp(
+        self,
+        min: Self,
+        max: Self,
+    ) -> Self
+    {
+        f32::clamp(self, min, max)
+    }
+    fn small() -> Self
+    {
+        f32::EPSILON
+    }
+}
+impl Float for f64
+{
+    fn acos(self) -> Self
+    {
+        self.acos()
+    }
+    fn clamp(
+        self,
+        min: Self,
+        max: Self,
+    ) -> Self
+    {
+        f64::clamp(self, min, max)
+    }
+    fn small() -> Self
+    {
+        f64::EPSILON
+    }
+}
