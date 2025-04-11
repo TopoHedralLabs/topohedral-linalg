@@ -12,10 +12,12 @@ use crate::common::Field;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+// binary operations
 mod addop;
 mod mulop;
 mod divop;
 mod subop;
+// everything else
 mod construction;
 mod indexing;
 mod io;

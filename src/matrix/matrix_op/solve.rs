@@ -105,9 +105,4 @@ where
 
 #[cfg(test)]
 mod tests {
-
-    use crate::{matrix::matrix_op::matmul::MatMul, SMatrixConstructors};
-    use super::*;
-    use approx::assert_relative_eq;
-
 }

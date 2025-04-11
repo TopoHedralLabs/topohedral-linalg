@@ -6,9 +6,9 @@
 use core::panic;
 
 //{{{ crate imports 
-use crate::common::{Field, Zero, One, Float};
+use super::common::DVectorConstructors;
+use crate::common::{Field, Zero, One, Float ,VectorOps, FloatVectorOps};
 use crate::matrix::dmatrix::DMatrix;
-use super::common::{VectorOps, FloatVectorOps, DVectorConstructors};
 //}}}
 //{{{ std imports 
 //}}}

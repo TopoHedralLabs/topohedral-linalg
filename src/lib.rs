@@ -13,6 +13,7 @@
 #![feature(generic_const_exprs)]
 #![feature(impl_trait_in_assoc_type)]
 
+mod blaslapack; 
 mod expression;
 mod smatrix;
 
