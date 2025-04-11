@@ -13,9 +13,14 @@
 #![feature(generic_const_exprs)]
 #![feature(impl_trait_in_assoc_type)]
 
+mod expression;
+mod smatrix;
+
+
 mod common;
 mod matrix;
 mod vector;
+
 
 pub use common::{Field, Complex};
 pub use matrix::{DMatrixConstructors, SMatrixConstructors};
