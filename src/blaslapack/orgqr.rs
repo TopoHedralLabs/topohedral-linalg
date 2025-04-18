@@ -12,7 +12,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ trait: Orqr
-pub trait Orqr: Copy {
+pub trait Orgqr: Copy {
     
     fn orgqr(
         m: i32,
@@ -27,7 +27,7 @@ pub trait Orqr: Copy {
 }
 //}}}
 //{{{ impl: Orqr for f64
-impl Orqr for f64 {
+impl Orgqr for f64 {
 
     #[inline]
     fn orgqr(
@@ -49,7 +49,7 @@ impl Orqr for f64 {
 }
 //}}}
 //{{{ impl: Orqr for f32
-impl Orqr for f32 {
+impl Orgqr for f32 {
 
     #[inline]
     fn orgqr(

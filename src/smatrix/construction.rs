@@ -18,10 +18,10 @@ use rand::distributions::{Distribution, Uniform, uniform::SampleUniform};
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy,
+    T: Field + Copy,
 {
     //{{{ fun: zeros
-    fn zeros() -> Self
+    pub fn zeros() -> Self
     where
         T: Zero,
     {
@@ -33,7 +33,7 @@ where
     }
     //}}}
     //{{{ fun: ones
-    fn ones() -> Self
+    pub fn ones() -> Self
     where
         T: One,
     {
@@ -45,7 +45,7 @@ where
     }
     //}}}
     //{{{ fun: from_value
-    fn from_value(value: T) -> Self
+    pub fn from_value(value: T) -> Self
     {
         Self {
             data: [value; N * M],
@@ -55,7 +55,7 @@ where
     }
     //}}}
     //{{{ fun: from_row_slice
-    fn from_row_slice(slice: &[T]) -> Self
+    pub fn from_row_slice(slice: &[T]) -> Self
     where T: Zero
     {
         assert_eq!(slice.len(), N * M);
@@ -74,7 +74,7 @@ where
     }
     //}}}
     //{{{ fun: from_col_slice 
-    fn from_col_slice(slice: &[T]) -> Self
+    pub fn from_col_slice(slice: &[T]) -> Self
     where T: Zero
     {
         assert_eq!(slice.len(), N * M);
@@ -125,13 +125,13 @@ where
     /// The dimensions of the identity matrix are determined by the generic parameters `N` and `M`.
     pub fn identity() -> Self
     where
-        T: One + Zero,
+        T: Field + One + Zero,
     {
         let mut out = Self::zeros();
         let l = N.min(M);
         for i in 0..l
         {
-            out[(i, i)] = T::one()
+            out.data[i + i * N] = T::one()
         }
         out
     }

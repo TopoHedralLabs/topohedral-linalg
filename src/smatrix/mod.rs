@@ -13,15 +13,22 @@ use crate::common::Field;
 //--------------------------------------------------------------------------------------------------
 
 // binary operations
-mod addop;
-mod mulop;
-mod divop;
-mod subop;
+pub mod addop;
+pub mod mulop;
+pub mod divop;
+pub mod subop;
+// matrix operations
+pub mod eig;
+pub mod lu;
+pub mod matmul;
+pub mod qr;
+pub mod schur;
+pub mod solve;
 // everything else
-mod construction;
-mod indexing;
-mod io;
-mod iteration;
+pub mod construction;
+pub mod indexing;
+pub mod io;
+pub mod iteration;
 
 //{{{ struct: SMatrix
 /// A fixed-size $N \times M$ matrix type that stores its elements in a static, contiguous array.
@@ -45,7 +52,7 @@ mod iteration;
 pub struct SMatrix<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
-    T: Field + Default + Copy,
+    T: Field + Copy,
 {
     /// The data of the matrix, stored in column-major order.
     pub(crate) data: [T; N * M],

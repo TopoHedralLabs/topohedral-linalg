@@ -21,7 +21,7 @@ use std::ops::{Index, IndexMut};
 impl<T, const N: usize, const M: usize> Index<(usize, usize)> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy,
+    T: Field + Copy,
 {
     type Output = T;
 
@@ -39,7 +39,7 @@ where
 impl<T, const N: usize, const M: usize> IndexMut<(usize, usize)> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy,
+    T: Field + Copy,
 {
     fn index_mut(
         &mut self,
@@ -57,7 +57,7 @@ where
 impl<T, const N: usize, const M: usize> Index<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Copy
 {
     type Output = T;
 
@@ -75,7 +75,7 @@ where
 impl<T, const N: usize, const M: usize> IndexMut<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Copy
 {
     fn index_mut(
         &mut self,
@@ -91,7 +91,7 @@ where
 impl<T, const N: usize, const M: usize> IndexValue<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Copy
 {
     type Output = T;
 
@@ -111,7 +111,7 @@ where
 impl<T, const N: usize, const M: usize> IndexValue<usize> for &SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Copy
 {
     type Output = T;
 
@@ -132,9 +132,9 @@ where
 #[inline]
 fn lin_index(
     idx: (usize, usize),
-    N: usize,
+    n: usize,
 ) -> usize
 {
-    idx.0 + idx.1 * N
+    idx.0 + idx.1 * n
 }
 //}}}

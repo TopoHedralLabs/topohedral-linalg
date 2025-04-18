@@ -13,9 +13,10 @@
 
 pub mod common;
 pub mod geev;
+pub mod gesv;
 pub mod gees;
 pub mod gemm;
 pub mod gemv;
 pub mod geqrf;
 pub mod getrf;
-pub mod orqr;
+pub mod orgqr;
