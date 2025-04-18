@@ -13,7 +13,7 @@
 
 //{{{ trait: Getrf
 /// Trait for types that support LU factorization.
-trait Getrf: Copy
+pub trait Getrf: Copy
 {
     /// Performs LU factorization of a general M-by-N matrix A using partial pivoting
     /// with row interchanges.

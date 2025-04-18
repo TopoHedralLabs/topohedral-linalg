@@ -16,7 +16,7 @@ use crate::apply_for_all_integer_types;
 /// Trait which signifies matrices of type can perform a general matrix multiplication (GEMM)
 /// operation.
 
-trait Gemm: Copy
+pub trait Gemm: Copy
 {
     /// Performs a general matrix multiplication (GEMM) operation.
     ///
