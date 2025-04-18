@@ -8,7 +8,7 @@
 //{{{ crate imports 
 use crate::common::{Field, Zero, One, Float, VectorOps, FloatVectorOps};
 use crate::matrix::smatrix::SMatrix;
-use super::common::{Assert, IsTrue};
+use crate::common::{Assert, IsTrue};
 //}}}
 //{{{ std imports 
 //}}}

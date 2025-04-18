@@ -22,7 +22,7 @@ use std::fmt;
 impl<'a, T, const N: usize, const M: usize> Add<T> for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + Clone + IndexValue<usize, Output = T>,
+    T: Field + Copy + IndexValue<usize, Output = T>,
 {
     type Output = BinopExpr<&'a SMatrix<T, N, M>, T, T, AddOp>;
 

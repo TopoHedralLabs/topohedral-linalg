@@ -78,18 +78,11 @@ where
     where T: Zero
     {
         assert_eq!(slice.len(), N * M);
-
-        let mut out = Self::zeros();
-
-        for j in 0..M
-        {
-            for i in 0..N
-            {
-                out.data[i * M + j] = slice[j * N + i];
-            }
+        Self {
+            data: slice.try_into().unwrap(),
+            nrows: N,
+            ncols: M,
         }
-
-        out
     }
     //}}}
     //{{{ fun: from_uniform_random

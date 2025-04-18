@@ -40,11 +40,12 @@ pub enum Error {
 pub struct Return<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Copy
 {
     pub l: SMatrix<T, N, M>,
     pub u: SMatrix<T, N, M>,
     pub p: SMatrix<T, N, M>,
+    pub num_swaps: usize,
 }
 //}}}
 //{{{ impl SMatrix<T, N, M> 
@@ -52,7 +53,7 @@ where
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: One + Zero + Getrf + Field + Default + Copy
+    T: One + Zero + Getrf + Field + Copy
 {
     pub fn lu(&self) -> Result<Return<T, N, M>, Error>
     {
@@ -95,6 +96,7 @@ where
         //}}}
         //{{{ com: Create permutation matrix from ipiv
         let mut p = SMatrix::<T, N, M>::identity();
+        let mut num_swaps = 0;
         for (k, &pivot) in ipiv.iter().enumerate()
         {
             let pivot = (pivot - 1) as usize;
@@ -103,11 +105,12 @@ where
                 for j in 0..M
                 {
                     p.data.swap(k + j * N, pivot + j * N);
+                    num_swaps += 1;
                 }
             }
         }
         //}}}
-        Ok(Return{ l, u, p })
+        Ok(Return{ l, u, p, num_swaps})
     }
 }
 //}}}

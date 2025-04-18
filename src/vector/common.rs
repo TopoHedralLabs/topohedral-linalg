@@ -13,9 +13,6 @@ use core::ops::{Index, IndexMut};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-pub struct Assert<const check: bool>;
-pub trait IsTrue {}
-impl IsTrue for Assert<true> {}
 
 
 pub trait SVectorConstructors<T, const N: usize>

@@ -2,12 +2,13 @@
 //!
 //--------------------------------------------------------------------------------------------------
 
-use std::{ops::{AddAssign, DivAssign, MulAssign, SubAssign}, process::Output};
 //{{{ crate imports
+use crate::blaslapack::getrf::Getrf;
 //}}}
 //{{{ std imports
 use ::std::ops::{Add, Div, Index, IndexMut, Mul, Neg, Sub};
 use std::cmp::PartialEq;
+use std::{ops::{AddAssign, DivAssign, MulAssign, SubAssign}};
 
 //}}}
 //{{{ dep imports
@@ -184,6 +185,7 @@ apply_for_all_integer_types!(impl_zero);
 //}}}
 //{{{ collection: re-exports
 pub use num_complex::Complex;
+use num_complex::ComplexFloat;
 //}}}
 
 pub trait Float: Field
@@ -195,6 +197,7 @@ pub trait Float: Field
         max: Self,
     ) -> Self;
     fn small() -> Self;
+    fn powi(self, exp: i32) -> Self;
 }
 impl Float for f32
 {
@@ -214,6 +217,9 @@ impl Float for f32
     {
         f32::EPSILON
     }
+    fn powi(self, exp: i32) -> Self {
+        self.powi(exp)
+    }
 }
 impl Float for f64
 {
@@ -232,6 +238,9 @@ impl Float for f64
     fn small() -> Self
     {
         f64::EPSILON
+    }
+    fn powi(self, exp: i32) -> Self {
+        self.powi(exp)
     }
 }
 
@@ -328,12 +337,16 @@ where
 pub trait MatrixOps 
 where
     Self: Sized,
-    Self::ScalarType: Field + Zero + One + Copy + Default,
 {
-    type ScalarType: Field + Zero + One + Copy + Default;
+    type ScalarType: Field + Zero + One + Copy;
+    type TransposeType;
 
     fn size() -> (usize, usize);
-    fn transpose(&self) -> Self;
-    fn determinant(&self) -> Self::ScalarType;
+    fn transpose(&self) -> Self::TransposeType;
+    fn determinant(&self) -> Self::ScalarType where Self::ScalarType: Getrf + Float;
     fn trace(&self) -> Self::ScalarType;
 }
+
+pub struct Assert<const check: bool>;
+pub trait IsTrue {}
+impl IsTrue for Assert<true> {}

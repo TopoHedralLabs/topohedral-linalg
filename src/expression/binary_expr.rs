@@ -126,7 +126,7 @@ pub struct BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy + Clone,
+    T: Field + Copy,
     Op: BinOp,
 {
     pub a: A,
@@ -144,7 +144,7 @@ impl<A, B, T, Op> IndexValue<usize> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy + Clone,
+    T: Field + Copy,
     Op: BinOp,
 {
     type Output = T;
@@ -172,7 +172,7 @@ where
     C: IndexValue<usize, Output = T>,
     D: IndexValue<usize, Output = T>,
     Op2: BinOp,
-    T: Field + Default + Copy + Clone,
+    T: Field + Copy,
 {
     type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>;
 
@@ -207,7 +207,7 @@ where
     C: IndexValue<usize, Output = T>,
     D: IndexValue<usize, Output = T>,
     Op2: BinOp,
-    T: Field + Default + Copy + Clone,
+    T: Field + Copy,
 {
     type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, SubOp>;
 
@@ -244,7 +244,7 @@ where
     C: IndexValue<usize, Output = T>,
     D: IndexValue<usize, Output = T>,
     Op2: BinOp,
-    T: Field + Default + Copy + Clone,
+    T: Field + Copy,
 {
     type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, MulOp>;
 
@@ -281,7 +281,7 @@ where
     C: IndexValue<usize, Output = T>,
     D: IndexValue<usize, Output = T>,
     Op2: BinOp,
-    T: Field + Default + Copy + Clone,
+    T: Field + Copy,
 {
     type Output = BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, DivOp>;
 
@@ -314,7 +314,7 @@ impl<A, B, T, Op> Add<T> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy + Clone + IndexValue<usize, Output = T>,
+    T: Field + Copy + IndexValue<usize, Output = T>,
     Op: BinOp,
 {
     type Output = BinopExpr<Self, T, T, AddOp>;
@@ -383,7 +383,7 @@ impl<A, B, T, Op> Sub<T> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy + Clone + IndexValue<usize, Output = T>,
+    T: Field + Copy + IndexValue<usize, Output = T>,
     Op: BinOp,
 {
     type Output = BinopExpr<Self, T, T, SubOp>;
@@ -452,7 +452,7 @@ impl<A, B, T, Op> Mul<T> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy + Clone + IndexValue<usize, Output = T>,
+    T: Field + Copy + IndexValue<usize, Output = T>,
     Op: BinOp,
 {
     type Output = BinopExpr<Self, T, T, MulOp>;
@@ -521,7 +521,7 @@ impl<A, B, T, Op> Div<T> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy + Clone + IndexValue<usize, Output = T>,
+    T: Field + Copy + IndexValue<usize, Output = T>,
     Op: BinOp,
 {
     type Output = BinopExpr<Self, T, T, DivOp>;
