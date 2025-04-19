@@ -2,7 +2,7 @@
 #![feature(impl_trait_in_assoc_type)]
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use topohedral_linalg::{EvaluateSMatrix, SMatrix};
+use topohedral_linalg::smatrix::*;
 
 use nalgebra::SMatrix as NASMatrix;
 
