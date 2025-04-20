@@ -1,6 +1,5 @@
-//! Short Description of module
+//! This module contains functions for constructing SMatrix objects.
 //!
-//! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports 
@@ -10,7 +9,6 @@ use super::SMatrix;
 //{{{ std imports 
 //}}}
 //{{{ dep imports 
-
 use rand::distributions::{Distribution, Uniform, uniform::SampleUniform};
 //}}}
 //--------------------------------------------------------------------------------------------------
@@ -55,6 +53,7 @@ where
     }
     //}}}
     //{{{ fun: from_row_slice
+    /// Takes N*M element array in row-major order and creates a new SMatrix
     pub fn from_row_slice(slice: &[T]) -> Self
     where T: Zero
     {
@@ -74,6 +73,7 @@ where
     }
     //}}}
     //{{{ fun: from_col_slice 
+    /// Takes N*M element array in column-major order and creates a new SMatrix
     pub fn from_col_slice(slice: &[T]) -> Self
     where T: Zero
     {
