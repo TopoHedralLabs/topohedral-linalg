@@ -19,7 +19,7 @@ mod common;
 mod expression;
 //}}}
 //{{{ collection: public API
-pub use common::{Field, Complex, Float, Zero, One, IndexValue, MatrixOps};
+pub use common::{Complex, MatrixOps};
 pub mod smatrix;
 pub mod dmatrix;
 //}}}
