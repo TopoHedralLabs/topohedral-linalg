@@ -18,6 +18,11 @@ use serde::{Deserialize, Serialize};
 
 // binary operations
 mod addop;
+mod divop;
+mod mulop;
+mod subop;
+// unary operations
+mod negop;
 // everything else 
 mod construction;
 mod indexing;

@@ -19,6 +19,7 @@ where
     T: Field + Copy,
 {
     //{{{ fun: zeros
+    /// Creates a new `DMatrix` initialized with zeros.
     pub fn zeros(
         nrows: usize,
         ncols: usize,
@@ -34,6 +35,7 @@ where
     }
     //}}}
     //{{{ fun: ones
+    /// Creates a new `DMatrix` initialized with ones.
     pub fn ones(
         nrows: usize,
         ncols: usize,
@@ -49,6 +51,7 @@ where
     }
     //}}}
     //{{{ fun: from_value
+    /// Creates a new `DMatrix` initialized with the given value.
     pub fn from_value(
         value: T,
         nrows: usize,
@@ -63,6 +66,7 @@ where
     }
     //}}}
     //{{{ fun: from_row_slice
+    /// Creates a new `DMatrix` from a slice of values in row-major order.
     pub fn from_col_slice(
         slice: &[T],
         nrows: usize,
@@ -72,9 +76,32 @@ where
         T: Zero,
     {
         assert_eq!(slice.len(), nrows * ncols);
-
+        Self {
+            data: slice.to_vec(),
+            nrows,
+            ncols,
+        }
+    }
+    //}}}
+    //{{{ fun: from_col_slice
+    /// Creates a new `DMatrix` from a slice of values in column-major order.
+    pub fn from_row_slice(
+        slice: &[T],
+        nrows: usize,
+        ncols: usize,
+    ) -> Self
+    where
+        T: Zero,
+    {
+        assert_eq!(slice.len(), nrows * ncols);
         let mut out = Self::zeros(nrows, ncols);
-        out.data.copy_from_slice(slice);
+        for i in 0..nrows
+        {
+            for j in 0..ncols
+            {
+                out[(i, j)] = slice[i * ncols + j];
+            }
+        }
         out
     }
     //}}}
@@ -103,10 +130,9 @@ where
     }
     //}}}
     //{{{ fun: identity
-    /// Creates a new `SMatrix` initialized as the identity matrix.
+    /// Creates a new `DMatrix` initialized as the identity matrix.
     ///
     /// The identity matrix is a square matrix with 1s on the main diagonal and 0s elsewhere.
-    /// The dimensions of the identity matrix are determined by the generic parameters `N` and `M`.
     pub fn identity(nrows: usize, ncols: usize) -> Self
     where
         T: Field + One + Zero,

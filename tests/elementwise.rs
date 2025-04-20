@@ -296,140 +296,139 @@ mod dmatrix_tests
         }
     }
     //}}}
-//     //{{{ collection: division tests
-//     #[test]
-//     fn test_div()
-//     {
-//         let matrix1 = DMatrix::<f64>::from_value(2, 2, 1.0);
-//         let matrix2 = DMatrix::<f64>::from_value(2, 2, 10.0);
-//         let matrix3 = DMatrix::<f64>::from_value(2, 2, 100.0);
-//         let matrix4 = DMatrix::<f64>::from_value(2, 2, 1000.0);
-//         let matrix5 = DMatrix::<f64>::from_value(2, 2, 10000.0);
-//         let matrix6 = DMatrix::<f64>::from_value(2, 2, 100000.0);
-//         let matrix7 = DMatrix::<f64>::from_value(2, 2, 1000000.0);
-//         let mut matrix8 = DMatrix::<f64>::zeros(2, 2);
+    //{{{ collection: division tests
+    #[test]
+    fn test_div()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(1.0, 2, 2);
+        let matrix2 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let matrix3 = DMatrix::<f64>::from_value(100.0, 2, 2);
+        let matrix4 = DMatrix::<f64>::from_value(1000.0, 2, 2);
+        let matrix5 = DMatrix::<f64>::from_value(10000.0, 2, 2);
+        let matrix6 = DMatrix::<f64>::from_value(100000.0, 2, 2);
+        let matrix7 = DMatrix::<f64>::from_value(1000000.0, 2, 2);
+        let mut matrix8 = DMatrix::<f64>::zeros(2, 2);
 
-//         matrix8 = (&matrix7 / (&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6)
-//             .evald();
+        matrix8 = (&matrix7 / (&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6)
+            .evald();
 
-//         let exp_value: f64 = 1000000.0 / (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
+        let exp_value: f64 = 1000000.0 / (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
 
-//         for val in &matrix8
-//         {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
+        for val in &matrix8
+        {
+            assert_eq!(*val, exp_value);
+        }
+    }
 
-//     #[test]
-//     fn test_div_scalar()
-//     {
-//         let matrix1 = DMatrix::<f64>::from_value(2, 2, 10.0);
-//         let matrix2 = DMatrix::<f64>::from_value(2, 2, 100.0);
-//         let mut matrix4 = DMatrix::<f64>::zeros(2, 2);
+    #[test]
+    fn test_div_scalar()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
+        let mut matrix4 = DMatrix::<f64>::zeros(2, 2);
 
-//         matrix4 = (4.0 / (2.0 / &matrix1) / (&matrix2 / 3.0) / 5.0).evald();
+        matrix4 = (4.0 / (2.0 / &matrix1) / (&matrix2 / 3.0) / 5.0).evald();
 
-//         let exp_val = 4.0 / (2.0 / 10.0) / (100.0 / 3.0) / 5.0;
+        let exp_val = 4.0 / (2.0 / 10.0) / (100.0 / 3.0) / 5.0;
 
-//         for val in &matrix4
-//         {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: subtraction tests
+        for val in &matrix4
+        {
+            assert_eq!(*val, exp_val);
+        }
+    }
+    //}}}
+    //{{{ collection: subtraction tests
 
-//     #[test]
-//     fn test_sub()
-//     {
-//         let matrix1 = DMatrix::<f64>::from_value(2, 2, 1.0);
-//         let matrix2 = DMatrix::<f64>::from_value(2, 2, 10.0);
-//         let matrix3 = DMatrix::<f64>::from_value(2, 2, 100.0);
-//         let matrix4 = DMatrix::<f64>::from_value(2, 2, 1000.0);
-//         let matrix5 = DMatrix::<f64>::from_value(2, 2, 10000.0);
-//         let matrix6 = DMatrix::<f64>::from_value(2, 2, 100000.0);
-//         let mut matrix7 = DMatrix::<f64>::zeros(2, 2);
+    #[test]
+    fn test_sub()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(1.0, 2, 2);
+        let matrix2 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let matrix3 = DMatrix::<f64>::from_value(100.0, 2, 2);
+        let matrix4 = DMatrix::<f64>::from_value(1000.0, 2, 2);
+        let matrix5 = DMatrix::<f64>::from_value(10000.0, 2, 2);
+        let matrix6 = DMatrix::<f64>::from_value(100000.0, 2, 2);
+        let mut matrix7 = DMatrix::<f64>::zeros(2, 2);
 
-//         matrix7 = ((&matrix4 - &matrix5) - (&matrix1 - &matrix2 - &matrix3) - &matrix6).evald();
+        matrix7 = ((&matrix4 - &matrix5) - (&matrix1 - &matrix2 - &matrix3) - &matrix6).evald();
 
-//         let exp_value: f64 = (1000.0 - 10000.0) - (1.0 - 10.0 - 100.0) - 100000.0;
+        let exp_value: f64 = (1000.0 - 10000.0) - (1.0 - 10.0 - 100.0) - 100000.0;
 
-//         for val in &matrix7
-//         {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
+        for val in &matrix7
+        {
+            assert_eq!(*val, exp_value);
+        }
+    }
 
 
 
-//     #[test]
-//     fn test_sub_scalar()
-//     {
-//         let matrix1 = DMatrix::<f64>::from_value(2, 2, 10.0);
-//         let matrix2 = DMatrix::<f64>::from_value(2, 2, 100.0);
-//         let mut matrix4 = DMatrix::<f64>::zeros(2, 2);
+    #[test]
+    fn test_sub_scalar()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
+        let mut matrix4 = DMatrix::<f64>::zeros(2, 2);
 
-//         matrix4 = (4.0 - (2.0 - &matrix1) - (&matrix2 - 3.0) - 5.0).evald();
+        matrix4 = (4.0 - (2.0 - &matrix1) - (&matrix2 - 3.0) - 5.0).evald();
 
-//         let exp_val = 4.0 - (2.0 - 10.0) - (100.0 - 3.0) - 5.0;
+        let exp_val = 4.0 - (2.0 - 10.0) - (100.0 - 3.0) - 5.0;
 
-//         for val in &matrix4
-//         {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: multiplication tests
-//     #[test]
-//     fn test_mul()
-//     {
-//         let matrix1 = DMatrix::<f64>::from_value(2, 2, 1.0);
-//         let matrix2 = DMatrix::<f64>::from_value(2, 2, 10.0);
-//         let matrix3 = DMatrix::<f64>::from_value(2, 2, 100.0);
-//         let matrix4 = DMatrix::<f64>::from_value(2, 2, 1000.0);
-//         let matrix5 = DMatrix::<f64>::from_value(2, 2, 10000.0);
-//         let matrix6 = DMatrix::<f64>::from_value(2, 2, 100000.0);
-//         let mut matrix7 = DMatrix::<f64>::zeros(2, 2);
+        for val in &matrix4
+        {
+            assert_eq!(*val, exp_val);
+        }
+    }
+    //}}}
+    //{{{ collection: multiplication tests
+    #[test]
+    fn test_mul()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(1.0, 2, 2);
+        let matrix2 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let matrix3 = DMatrix::<f64>::from_value(100.0, 2, 2);
+        let matrix4 = DMatrix::<f64>::from_value(1000.0, 2, 2);
+        let matrix5 = DMatrix::<f64>::from_value(10000.0, 2, 2);
+        let matrix6 = DMatrix::<f64>::from_value(100000.0, 2, 2);
+        let mut matrix7 = DMatrix::<f64>::zeros(2, 2);
 
-//         matrix7 = ((&matrix4 * &matrix5) * (&matrix1 * &matrix2 * &matrix3) * &matrix6).evald();
+        matrix7 = ((&matrix4 * &matrix5) * (&matrix1 * &matrix2 * &matrix3) * &matrix6).evald();
 
-//         let exp_value: f64 = (1000.0 * 10000.0) * (1.0 * 10.0 * 100.0) * 100000.0;
+        let exp_value: f64 = (1000.0 * 10000.0) * (1.0 * 10.0 * 100.0) * 100000.0;
 
-//         for val in &matrix7
-//         {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
+        for val in &matrix7
+        {
+            assert_eq!(*val, exp_value);
+        }
+    }
 
-//     #[test]
-//     fn test_mul_scalar()
-//     {
-//         let matrix1 = DMatrix::<f64>::from_value(2, 2, 10.0);
-//         let matrix2 = DMatrix::<f64>::from_value(2, 2, 100.0);
-//         let mut matrix4 = DMatrix::<f64>::zeros(2, 2);
+    #[test]
+    fn test_mul_scalar()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
+        let mut matrix4 = DMatrix::<f64>::zeros(2, 2);
 
-//         matrix4 = (4.0 * (2.0 * &matrix1) * (&matrix2 * 3.0) * 5.0).evald();
+        matrix4 = (4.0 * (2.0 * &matrix1) * (&matrix2 * 3.0) * 5.0).evald();
 
-//         let exp_val = 4.0 * (2.0 * 10.0) * (100.0 * 3.0) * 5.0;
+        let exp_val = 4.0 * (2.0 * 10.0) * (100.0 * 3.0) * 5.0;
 
-//         for val in &matrix4
-//         {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: negation tests
-//     #[test]
-//     fn test_neg() {
+        for val in &matrix4
+        {
+            assert_eq!(*val, exp_val);
+        }
+    }
+    //}}}
+    //{{{ collection: negation tests
+    #[test]
+    fn test_neg() {
 
-//         let a  = DMatrix::<i32>::from_row_slice(2, 2, &[ 1, 2, 3, 4]);
-//         let b = -a.clone(); 
-
-//         for i in 0..4 {
-//             assert_eq!(b[i], -a[i]);
-//         }
-//     }
-//     //}}}
+        let a  = DMatrix::<i32>::from_col_slice( &[ 1, 2, 3, 4], 2, 2);
+        let b = -a.clone(); 
+        for i in 0..4 {
+            assert_eq!(b[i], -a[i]);
+        }
+    }
+    //}}}
 }
 //}}}
 //{{{ mod: scvector_tests
