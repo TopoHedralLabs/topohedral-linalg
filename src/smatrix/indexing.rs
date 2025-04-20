@@ -1,6 +1,5 @@
-//! Short Description of module
+//! This module contains functions for indexing SMatrix objects.
 //!
-//! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports 
