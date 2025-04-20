@@ -243,59 +243,59 @@ mod smatrix_tests
 }
 //}}}
 //{{{ mod: dmatrix_tests
-// mod dmatrix_tests 
-// {
-//     use topohedral_linalg::{DMatrix, EvaluateDMatrix, DMatrixConstructors};
+mod dmatrix_tests 
+{
+    use topohedral_linalg::dmatrix::{DMatrix, EvaluateDMatrix};
 
-//     //{{{ collection: addition tests
-//     #[test]
-//     fn test_add()
-//     {
-//         let matrix1 = DMatrix::<i32>::from_value(2, 2, 1);
+    //{{{ collection: addition tests
+    #[test]
+    fn test_add()
+    {
+        let matrix1 = DMatrix::<i32>::from_value(1, 2, 2);
 
-//         let matrix2 = DMatrix::<i32>::from_value(2, 2, 10);
+        let matrix2 = DMatrix::<i32>::from_value(10, 2, 2);
 
-//         let matrix3 = DMatrix::<i32>::from_value(2, 2, 100);
+        let matrix3 = DMatrix::<i32>::from_value(100, 2, 2);
 
-//         let matrix4 = DMatrix::<i32>::from_value(2, 2, 1000);
+        let matrix4 = DMatrix::<i32>::from_value(1000, 2, 2);
 
-//         let matrix5 = DMatrix::<i32>::from_value(2, 2, 10000);
+        let matrix5 = DMatrix::<i32>::from_value(10000, 2, 2);
 
-//         let matrix6 = DMatrix::<i32>::from_value(2, 2, 100000);
+        let matrix6 = DMatrix::<i32>::from_value(100000, 2, 2);
 
-//         let matrix7 = DMatrix::<i32>::from_value(2, 2, 1000000);
+        let matrix7 = DMatrix::<i32>::from_value(1000000, 2, 2);
 
-//         let mut matrix8 = DMatrix::<i32>::zeros(2, 2);
+        let mut matrix8 = DMatrix::<i32>::zeros(2, 2);
 
-//         matrix8 = (&matrix7 + (&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6)
-//             .evald();
+        matrix8 = (&matrix7 + (&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6)
+            .evald();
 
-//         let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
+        let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
 
-//         for val in &matrix8
-//         {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
-//     #[test]
-//     fn test_add_scalar()
-//     {
-//         let matrix1 = DMatrix::<i32>::from_value(2, 2, 10);
+        for val in &matrix8
+        {
+            assert_eq!(*val, exp_value);
+        }
+    }
+    #[test]
+    fn test_add_scalar()
+    {
+        let matrix1 = DMatrix::<i32>::from_value(10, 2, 2);
 
-//         let matrix2 = DMatrix::<i32>::from_value(2, 2, 100);
+        let matrix2 = DMatrix::<i32>::from_value(100, 2, 2);
 
-//         let mut matrix4 = DMatrix::<i32>::zeros(2, 2);
+        let mut matrix4 = DMatrix::<i32>::zeros(2, 2);
 
-//         matrix4 = (4i32 + (2i32 + &matrix1) + (&matrix2 + 3i32) + 5i32).evald();
+        matrix4 = (4i32 + (2i32 + &matrix1) + (&matrix2 + 3i32) + 5i32).evald();
 
-//         let exp_val = 4 + (2 + 10) + (100 + 3) + 5;
+        let exp_val = 4 + (2 + 10) + (100 + 3) + 5;
 
-//         for val in &matrix4
-//         {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
+        for val in &matrix4
+        {
+            assert_eq!(*val, exp_val);
+        }
+    }
+    //}}}
 //     //{{{ collection: division tests
 //     #[test]
 //     fn test_div()
@@ -430,7 +430,7 @@ mod smatrix_tests
 //         }
 //     }
 //     //}}}
-// }
+}
 //}}}
 //{{{ mod: scvector_tests
 // mod scvector_tests 
