@@ -1,6 +1,5 @@
-//! Short Description of module
+//! This module contains functions for iterating over SMatrix objects.
 //!
-//! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports 
@@ -18,7 +17,7 @@ use crate::common::Field;
 impl<T, const N: usize, const M: usize> IntoIterator for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Copy
 {
     type Item = T;
 
@@ -35,7 +34,7 @@ where
 impl<'a, T, const N: usize, const M: usize> IntoIterator for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Copy
 {
     type Item = &'a T;
 
@@ -51,7 +50,7 @@ where
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy,
+    T: Field + Copy,
 {
     //{{{ fun: iter
     pub fn iter(&self) -> std::slice::Iter<'_, T>{
