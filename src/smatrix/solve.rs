@@ -6,6 +6,7 @@
 //{{{ crate imports 
 use super::SMatrix;
 use crate::common::{Field, One, Zero};
+use crate::blaslapack::gesv;
 use crate::blaslapack::gesv::Gesv;
 use crate::blaslapack::common::AsI32;
 //}}}
@@ -19,10 +20,8 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("Error in Solve, argument {0} is invalid")]
-    InvalidArgument(i32),
-    #[error("Error in Solve, matrix is singular")]
-    SingularMatrix(i32),
+    #[error("Error in solve(), exited with error:\n{0}")]
+    GetrfError(#[from] gesv::Error),
 }
 
 #[allow(private_bounds)]
@@ -35,8 +34,7 @@ where
         let mut a = self.clone();
         let mut x = b.clone();
         let mut ipiv = vec![0; N];
-
-        let info = T::gesv(
+        T::gesv(
             N as i32,
             M as i32,
             &mut a.data,
@@ -44,12 +42,7 @@ where
             &mut ipiv,
             &mut x.data,
             N as i32,
-        );
-
-        match info {
-            0 => Ok(x),
-            i if i < 0 => Err(Error::InvalidArgument(i)),
-            i => Err(Error::SingularMatrix(i)),
-        }
+        )?;
+        Ok(x)
     }
 }

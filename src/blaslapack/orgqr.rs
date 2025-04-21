@@ -8,8 +8,15 @@
 //{{{ std imports 
 //}}}
 //{{{ dep imports 
+use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
+
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("Error in orgqr, exited with code {0}")]
+    LapackError(i32),
+}
 
 //{{{ trait: Orqr
 pub trait Orgqr: Copy {
@@ -23,7 +30,7 @@ pub trait Orgqr: Copy {
         tau: &[Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> i32;
+    ) -> Result<(), Error>;
 }
 //}}}
 //{{{ impl: Orqr for f64
@@ -39,12 +46,15 @@ impl Orgqr for f64 {
         tau: &[Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> i32 {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::dorgqr(m, n, k, a, lda, tau, work, lwork, &mut info);
         }
-        info
+        if info != 0 {
+            return Err(Error::LapackError(info));
+        }
+        Ok(())
     }
 }
 //}}}
@@ -61,12 +71,15 @@ impl Orgqr for f32 {
         tau: &[Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> i32 {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::sorgqr(m, n, k, a, lda, tau, work, lwork, &mut info);
         }
-        info
+        if info != 0 {
+            return Err(Error::LapackError(info));
+        }
+        Ok(())
     }
 }
 //}}}

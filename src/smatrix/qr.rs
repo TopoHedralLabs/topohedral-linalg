@@ -5,8 +5,10 @@
 
 //{{{ crate imports 
 use crate::common::{Field, One, Zero};
+use crate::blaslapack::geqrf;
 use crate::blaslapack::geqrf::Geqrf;
 use crate::blaslapack::orgqr::Orgqr;
+use crate::blaslapack::orgqr;
 use crate::blaslapack::common::AsI32;
 use crate::smatrix::SMatrix;
 //}}}
@@ -18,13 +20,13 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-//{{{ enum: QRError
+//{{{ enum: Error
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("Error in QR, argument {0} is invalid")]
-    InvalidArgument(i32),
-    #[error("Error in QR decomposition, exited with code {0}")]
-    LapackError(i32),
+    #[error("Error in qr(), exited with error:\n{0}")]
+    GetrfError(#[from] geqrf::Error),
+    #[error("Error in qr(), exited with error:\n{0}")]
+    OrgqrError(#[from] orgqr::Error),
 }
 //}}}
 //{{{ struct: Return
@@ -51,7 +53,7 @@ where
         
         // Query optimal workspace
         let mut work = vec![T::zero(); 1];
-        let info = T::geqrf(
+        T::geqrf(
             N as i32,
             M as i32,
             &mut a.data,
@@ -59,16 +61,12 @@ where
             &mut tau,
             &mut work,
             -1,
-        );
-        
-        if info != 0 {
-            return Err(Error::InvalidArgument(info));
-        }
+        )?;
         
         // Perform QR factorization
         let lwork = work[0].as_i32();
         let mut work = vec![T::zero(); lwork as usize];
-        let info = T::geqrf(
+        T::geqrf(
             N as i32,
             M as i32,
             &mut a.data,
@@ -76,11 +74,7 @@ where
             &mut tau,
             &mut work,
             lwork,
-        );
-        
-        if info != 0 {
-            return Err(Error::LapackError(info));
-        }
+        )?;
         
         // Extract R matrix (upper triangular part)
         let mut r = SMatrix::<T, N, M>::zeros();
@@ -91,7 +85,7 @@ where
         }
         
         // Generate Q matrix
-        let info = T::orgqr(
+        T::orgqr(
             N as i32,
             N.min(M) as i32,
             k as i32,
@@ -100,14 +94,8 @@ where
             &tau,
             &mut work,
             lwork,
-        );
-        
-        if info != 0 {
-            return Err(Error::LapackError(info));
-        }
-        
+        )?;
         let q = a;
-        
         Ok(Return { q, r })
     }
 }

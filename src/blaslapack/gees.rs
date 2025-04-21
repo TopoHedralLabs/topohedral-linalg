@@ -8,8 +8,15 @@
 //{{{ std imports 
 //}}}
 //{{{ dep imports 
+use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
+
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("Error in gees, exited with code {0}")]
+    LapackError(i32),
+}
 
 pub trait Gees: Copy {
     fn gees(
@@ -26,7 +33,7 @@ pub trait Gees: Copy {
         work: &mut [Self],
         lwork: i32,
         bwork: &mut [i32],
-    ) -> i32;
+    ) -> Result<(), Error>;
 }
 
 impl Gees for f64 {
@@ -46,7 +53,7 @@ impl Gees for f64 {
         lwork: i32,
         bwork: &mut [i32],
 
-    ) -> i32 {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::dgees(
@@ -67,7 +74,10 @@ impl Gees for f64 {
                 &mut info,
             );
         }
-        info
+        if info != 0 {
+            return Err(Error::LapackError(info));
+        }
+        Ok(())
     }
 }
 
@@ -87,7 +97,7 @@ impl Gees for f32 {
         work: &mut [Self],
         lwork: i32,
         bwork: &mut [i32],
-    ) -> i32 {
+    ) ->  Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::sgees(
@@ -108,6 +118,9 @@ impl Gees for f32 {
                 &mut info,
             );
         }
-        info
+        if info != 0 {
+            return Err(Error::LapackError(info));
+        }
+        Ok(())
     }
 }

@@ -6,6 +6,7 @@
 //{{{ crate imports 
 use super::SMatrix;
 use crate::blaslapack::getrf::Getrf;
+use crate::blaslapack::getrf;
 use crate::blaslapack::common::AsI32;
 use crate::common::{One, Zero, Field, Complex};
 //}}}
@@ -24,11 +25,10 @@ use thiserror::Error;
 /// decomposition function was invalid, while the `DiagonalZero` variant indicates that the diagonal
 /// element of the matrix became zero during the decomposition, which is not allowed.
 #[derive(Error, Debug)]
-pub enum Error {
-    #[error("Error in LU, argument {0} is invalid")]
-    InvalidArgument(i32), 
-    #[error("Error in LU, diagonal element is zero")]
-    DiagonalZero,
+pub enum Error
+{
+    #[error("Error in lu(), exited with error:\n{0}")]
+    GetrfError(#[from] getrf::Error),
 }
 //}}}
 //{{{ sturct: Return
@@ -60,15 +60,7 @@ where
         //{{{ com: call getrf and check for errors
         let mut a = self.clone();
         let mut ipiv = vec![0; N.min(M)];
-        let info = T::getrf(N as i32, M as i32, &mut a.data, N as i32, &mut ipiv);
-        if info > 0
-        {
-            return Err(Error::InvalidArgument(info));
-        }
-        else if info < 0 
-        {
-            return Err(Error::DiagonalZero);
-        }
+        T::getrf(N as i32, M as i32, &mut a.data, N as i32, &mut ipiv)?;
         //}}}
         //{{{ com:  Extract L and U matrices from the factorized matrix
         let mut l = SMatrix::<T, N, M>::zeros();

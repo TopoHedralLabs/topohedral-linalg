@@ -8,9 +8,15 @@
 //{{{ std imports 
 //}}}
 //{{{ dep imports 
+use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("Error in gesv, exited with code {0}")]
+    LapackError(i32),
+}
 
 pub trait Gesv: Copy {
     fn gesv(
@@ -21,7 +27,7 @@ pub trait Gesv: Copy {
         ipiv: &mut [i32],
         b: &mut [Self],
         ldb: i32,
-    ) -> i32;
+    ) -> Result<(), Error>;
 }
 
 impl Gesv for f64 {
@@ -34,12 +40,15 @@ impl Gesv for f64 {
         ipiv: &mut [i32],
         b: &mut [Self],
         ldb: i32,
-    ) -> i32 {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::dgesv(n, nrhs, a, lda, ipiv, b, ldb, &mut info);
         }
-        info
+        if info != 0 {
+            return Err(Error::LapackError(info));
+        }
+        Ok(())
     }
 }
 
@@ -53,11 +62,14 @@ impl Gesv for f32 {
         ipiv: &mut [i32],
         b: &mut [Self],
         ldb: i32,
-    ) -> i32 {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::sgesv(n, nrhs, a, lda, ipiv, b, ldb, &mut info);
         }
-        info
+        if info != 0 {
+            return Err(Error::LapackError(info));
+        }
+        Ok(())
     }
 }
