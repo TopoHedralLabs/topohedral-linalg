@@ -23,7 +23,7 @@ pub enum Error
     GeevError(#[from] geev::Error),
 }
 
-//{{{ struct: EigResult
+//{{{ struct: Return 
 /// Represents the eigenvalue decomposition of a square matrix of size `N`.
 ///
 /// The eigenvalue decomposition of a matrix `A` is a factorization of the form `A = PDP^-1`,

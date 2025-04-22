@@ -3,16 +3,16 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
-use super::SMatrix;
+//{{{ crate imports
+use super::DMatrix;
 use crate::blaslapack::getrf::Getrf;
 use crate::blaslapack::getrf;
 use crate::blaslapack::common::AsI32;
 use crate::common::{One, Zero, Field, Complex};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
@@ -31,46 +31,47 @@ pub enum Error
     GetrfError(#[from] getrf::Error),
 }
 //}}}
-//{{{ sturct: Return
+//{{{ struct: Return
 /// Represents the LU decomposition of a matrix.
 ///
 /// The LU decomposition is a factorization of a matrix into the product of a lower triangular matrix
 /// and an upper triangular matrix. This struct stores the L, U, and permutation matrices resulting
 /// from the LU decomposition.
-pub struct Return<T, const N: usize, const M: usize>
+#[derive(Debug)]
+pub struct Return<T>
 where
-    [(); N * M]:,
-    T: Field + Copy
+    T: Field + Copy,
 {
-    pub l: SMatrix<T, N, M>,
-    pub u: SMatrix<T, N, M>,
-    pub p: SMatrix<T, N, M>,
+    pub l: DMatrix<T>,
+    pub u: DMatrix<T>,
+    pub p: DMatrix<T>,
     pub num_swaps: usize,
 }
 //}}}
-//{{{ impl SMatrix<T, N, M> 
+//{{{ impl DMatrix<T>
 #[allow(private_bounds)]
-impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
+impl<T> DMatrix<T>
 where
-    [(); N * M]:,
-    T: One + Zero + Getrf + Field + Copy
+    T: One + Zero + Getrf + Field + Copy + AsI32,
 {
-    pub fn lu(&self) -> Result<Return<T, N, M>, Error>
+    pub fn lu(&self) -> Result<Return<T>, Error>
     {
+        let n = self.nrows;
+        let m = self.ncols;
+
         //{{{ com: call getrf and check for errors
         let mut a = self.clone();
-        let mut ipiv = vec![0; N.min(M)];
-        T::getrf(N as i32, M as i32, &mut a.data, N as i32, &mut ipiv)?;
+        let mut ipiv = vec![0; n.min(m)];
+        T::getrf(n as i32, m as i32, &mut a.data, n as i32, &mut ipiv)?;
         //}}}
-        //{{{ com:  Extract L and U matrices from the factorized matrix
-        let mut l = SMatrix::<T, N, M>::zeros();
-        let mut u = SMatrix::<T, N, M>::zeros();
+        //{{{ com: Extract L and U matrices from the factorized matrix
+        let mut l = DMatrix::<T>::zeros(n, m);
+        let mut u = DMatrix::<T>::zeros(n, m);
 
-        for i in 0..N
+        for i in 0..n
         {
-            for j in 0..M
+            for j in 0..m
             {
-
                 if i > j
                 {
                     l[(i, j)] = a[(i, j)];
@@ -88,22 +89,22 @@ where
         }
         //}}}
         //{{{ com: Create permutation matrix from ipiv
-        let mut p = SMatrix::<T, N, M>::identity();
+        let mut p = DMatrix::<T>::identity(n, m);
         let mut num_swaps = 0;
         for (k, &pivot) in ipiv.iter().enumerate()
         {
             let pivot = (pivot - 1) as usize;
             if k != pivot
             {
-                for j in 0..M
+                for j in 0..m
                 {
-                    p.data.swap(k + j * N, pivot + j * N);
+                    p.data.swap(k + j * n, pivot + j * n);
                     num_swaps += 1;
                 }
             }
         }
         //}}}
-        Ok(Return{ l, u, p, num_swaps})
+        Ok(Return { l, u, p, num_swaps })
     }
 }
 //}}}

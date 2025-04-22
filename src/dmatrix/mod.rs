@@ -17,16 +17,24 @@ use serde::{Deserialize, Serialize};
 
 
 // binary operations
-mod addop;
-mod divop;
-mod mulop;
-mod subop;
+pub mod addop;
+pub mod divop;
+pub mod mulop;
+pub mod subop;
 // unary operations
-mod negop;
+pub mod negop;
+// matrix operations
+pub mod eig;
+pub mod lu;
+pub mod matmul;
+pub use matmul::MatMul;
+pub mod qr;
+pub mod schur;
+pub mod solve;
 // everything else 
-mod construction;
-mod indexing;
-mod iteration;
+pub mod construction;
+pub mod indexing;
+pub mod iteration;
 
 //{{{ struct: DMatrix
 /// A dynamic-size $N \times M$ matrix type that stores its elements in a dynamic, contiguous array.
