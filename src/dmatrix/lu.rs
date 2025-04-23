@@ -52,7 +52,7 @@ where
 #[allow(private_bounds)]
 impl<T> DMatrix<T>
 where
-    T: One + Zero + Getrf + Field + Copy + AsI32,
+    T: One + Zero + Getrf + Field + Copy,
 {
     pub fn lu(&self) -> Result<Return<T>, Error>
     {

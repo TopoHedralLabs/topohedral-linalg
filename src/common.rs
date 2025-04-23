@@ -341,7 +341,7 @@ where
     type ScalarType: Field + Zero + One + Copy;
     type TransposeType;
 
-    fn size() -> (usize, usize);
+    fn size(&self) -> (usize, usize);
     fn transpose(&self) -> Self::TransposeType;
     fn determinant(&self) -> Self::ScalarType where Self::ScalarType: Getrf + Float;
     fn trace(&self) -> Self::ScalarType;

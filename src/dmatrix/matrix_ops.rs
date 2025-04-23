@@ -6,7 +6,7 @@
 //{{{ crate imports 
 use crate::common::{MatrixOps, Field, Float, One, Zero};
 use crate::blaslapack::getrf::Getrf;
-use super::SMatrix;
+use super::DMatrix;
 use super::lu;
 //}}}
 //{{{ std imports 
@@ -15,25 +15,23 @@ use super::lu;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-impl<T, const N: usize, const M: usize> MatrixOps for SMatrix<T, N, M>
+impl<T> MatrixOps for DMatrix<T>
 where
-    [(); N * M]:,
-    [(); M * N]:,
     T: Field + Zero + One + Copy,
 {
     type ScalarType = T;
-    type TransposeType = SMatrix<T, M, N>;
+    type TransposeType = DMatrix<T>;
 
     fn size(&self) -> (usize, usize) {
-        (N, M)
+        (self.nrows, self.ncols)
     }
 
     fn transpose(&self) -> Self::TransposeType {
 
-        let mut transposed = SMatrix::<T, M, N>::zeros();
+        let mut transposed = DMatrix::<T>::zeros(self.ncols, self.nrows);
 
-        for i in 0..N {
-            for j in 0..M {
+        for i in 0..self.nrows {
+            for j in 0..self.ncols {
                 transposed[(j, i)] = self[(i, j)];
             }
         }
@@ -45,17 +43,17 @@ where
     where 
         Self::ScalarType: Getrf + Float,
     {
-        if N != M {
+        if self.nrows != self.ncols {
             panic!("Determinant is only defined for square matrices");
         }
-        let lu::Return {l, u, p, num_swaps} = self.lu().unwrap();
+        let lu::Return {l: _, u, p: _, num_swaps} = self.lu().unwrap();
         (-Self::ScalarType::one()).powi(num_swaps as i32) * u.trace()
     }
 
     fn trace(&self) -> Self::ScalarType {
 
         let mut out = Self::ScalarType::one();
-        for i in 0..N {
+        for i in 0..self.nrows {
             out *= self[(i, i)];
         }
         out

@@ -2,53 +2,52 @@
 #![feature(impl_trait_in_assoc_type)]
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use topohedral_linalg::smatrix::*;
+
+use topohedral_linalg::smatrix;
+use topohedral_linalg::smatrix::EvaluateSMatrix;
 
 use nalgebra::SMatrix as NASMatrix;
 
 use rand::prelude::*;
 
-
-//{{{ collection: SMatrix benches 
-macro_rules! add_benches {
+//{{{ collection: SMatrix benches
+macro_rules! add_benches_smatrix {
     ($dim: expr, $name1: ident, $name2: ident, $name3: ident) => {
         pub fn $name1(crit: &mut Criterion)
         {
+            let a = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let a = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let b = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let b = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let c = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let c = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let d = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let d = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let e = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let e = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let f = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let f = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let g = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let g = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let h = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let h = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let i = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let i = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            crit.bench_function(
+                format!("topohedral-linalg_smatrix{}", $dim).as_str(),
+                |be| {
+                    be.iter(|| {
+                        let j: smatrix::SMatrix<f64, $dim, $dim> =
+                            (&a + &b + &c + &d + &e + &f + &g + &h + &i).evals();
 
-            crit.bench_function(format!("topohedral-linalg_smatrix{}", $dim).as_str(), |be| {
-
-                be.iter(|| {
-
-                    let j: SMatrix<f64, $dim, $dim> =
-                        (&a + &b + &c + &d + &e + &f + &g + &h + &i).evals();
-
-                    black_box(j);
-                })
-            });
+                        black_box(j);
+                    })
+                },
+            );
         }
-
 
         pub fn $name2(crit: &mut Criterion)
         {
-
             let range = rand::distributions::Uniform::<f64>::new(0.0, 10.0);
 
             let mut rng = rand::thread_rng();
@@ -72,9 +71,7 @@ macro_rules! add_benches {
             let i = NASMatrix::<f64, $dim, $dim>::from_distribution(&range, &mut rng);
 
             crit.bench_function(format!("nalgebra_smatrix_smatrix{}", $dim).as_str(), |be| {
-
                 be.iter(|| {
-
                     let j = (&a + &b + &c + &d + &e + &f + &g + &h + &i);
 
                     black_box(j);
@@ -82,10 +79,8 @@ macro_rules! add_benches {
             });
         }
 
-
         pub fn $name3(crit: &mut Criterion)
         {
-
             let range = rand::distributions::Uniform::<f64>::new(0.0, 10.0);
 
             let mut rng = rand::thread_rng();
@@ -110,7 +105,6 @@ macro_rules! add_benches {
 
             for ii in 0..$dim * $dim
             {
-
                 a[ii] = range.sample(&mut rng);
 
                 b[ii] = range.sample(&mut rng);
@@ -131,14 +125,11 @@ macro_rules! add_benches {
             }
 
             crit.bench_function(format!("array_{}", $dim).as_str(), |be| {
-
                 be.iter(|| {
-
                     let mut j = [0.0f64; $dim * $dim];
 
                     for ii in 0..($dim * $dim)
                     {
-
                         j[ii] =
                             a[ii] + b[ii] + c[ii] + d[ii] + e[ii] + f[ii] + g[ii] + h[ii] + i[ii];
                     }
@@ -150,17 +141,36 @@ macro_rules! add_benches {
     };
 }
 
+add_benches_smatrix!(
+    10,
+    topohedral_linalg_smatrix_10,
+    nalgebra_smatrix_10,
+    array_10
+);
 
-add_benches!(10, topohedral_linalg_smatrix_10, nalgebra_smatrix_10, array_10);
+add_benches_smatrix!(
+    20,
+    topohedral_linalg_smatrix_20,
+    nalgebra_smatrix_20,
+    array_20
+);
 
-add_benches!(20, topohedral_linalg_smatrix_20, nalgebra_smatrix_20, array_20);
+add_benches_smatrix!(
+    30,
+    topohedral_linalg_smatrix_30,
+    nalgebra_smatrix_30,
+    array_30
+);
 
-add_benches!(30, topohedral_linalg_smatrix_30, nalgebra_smatrix_30, array_30);
-
-add_benches!(40, topohedral_linalg_smatrix_40, nalgebra_smatrix_40, array_40);
+add_benches_smatrix!(
+    40,
+    topohedral_linalg_smatrix_40,
+    nalgebra_smatrix_40,
+    array_40
+);
 
 criterion_group!(
-    benches,
+    benches_smatrix,
     topohedral_linalg_smatrix_10,
     nalgebra_smatrix_10,
     array_10,
@@ -174,7 +184,6 @@ criterion_group!(
     nalgebra_smatrix_40,
     array_40
 );
-
-criterion_main!(benches);
 //}}}
 
+criterion_main!(benches_smatrix);

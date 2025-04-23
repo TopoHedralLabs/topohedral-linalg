@@ -28,6 +28,7 @@ pub mod eig;
 pub mod lu;
 pub mod matmul;
 pub use matmul::MatMul;
+pub mod matrix_ops;
 pub mod qr;
 pub mod schur;
 pub mod solve;

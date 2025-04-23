@@ -24,7 +24,10 @@ ctor = "0.2.8"
 nalgebra = {version = "0.33.2", features = ["rand"]}
 approx = "0.5.1"
 
+[[bench]]
+name = "dmatrix_addop"
+harness = false
 
 [[bench]]
-name = "elementwise"
+name = "smatrix_addop"
 harness = false
