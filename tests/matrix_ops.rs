@@ -5,8 +5,8 @@ mod smatrix_tests
 {
 
     use approx::assert_relative_eq;
-    use topohedral_linalg::{MatrixOps, Complex};
     use topohedral_linalg::smatrix::*;
+    use topohedral_linalg::{Complex, MatrixOps};
 
     //{{{ collection: eig tests
     #[test]
@@ -436,39 +436,34 @@ mod smatrix_tests
     //}}}
     //{{{ collection: solve
     #[test]
-    fn test_solve() {
-
-        let a = SMatrix::<f64, 3, 3>::from_row_slice(&[
-            3.0, -1.0, 2.0,
-            1.0, 2.0, 0.0,
-            4.0, 0.0, 6.0,
-        ]);
+    fn test_solve()
+    {
+        let a =
+            SMatrix::<f64, 3, 3>::from_row_slice(&[3.0, -1.0, 2.0, 1.0, 2.0, 0.0, 4.0, 0.0, 6.0]);
 
         let b = SMatrix::<f64, 3, 3>::from_row_slice(&[
-            7.0, -7.0, 2.0,
-            1.0, 2.0, 3.0,
-            22.0, -10.0, 3.0,
+            7.0, -7.0, 2.0, 1.0, 2.0, 3.0, 22.0, -10.0, 3.0,
         ]);
 
         let x = a.solve(&b).unwrap();
 
         // Verify A * X = B
         let computed_b = a.matmul(&x);
-        
-        for i in 0..9 {
-            assert_relative_eq!(computed_b[i], b[i], max_relative=1.0e-8);
+
+        for i in 0..9
+        {
+            assert_relative_eq!(computed_b[i], b[i], max_relative = 1.0e-8);
         }
     }
     //}}}
 }
 
-
 mod dmatrix_tests
 {
 
     use approx::assert_relative_eq;
-    use topohedral_linalg::{MatrixOps, Complex};
     use topohedral_linalg::dmatrix::*;
+    use topohedral_linalg::{Complex, MatrixOps};
 
     //{{{ collection: eig tests
     #[test]
@@ -500,17 +495,21 @@ mod dmatrix_tests
         }
 
         // Known left eigenvectors for this matrix
-        let expected_left_eigenvecotors = DMatrix::<f64>::from_row_slice(&[
-            -0.7212203345550064,
-            -0.3850687990747861,
-            -0.3073880480179293,
-            0.6705630402249634,
-            -0.8536329572455033,
-            -0.3728399943222721,
-            0.1737424476304467,
-            0.3507603088768719,
-            0.8755015285934659,
-        ], 3, 3);
+        let expected_left_eigenvecotors = DMatrix::<f64>::from_row_slice(
+            &[
+                -0.7212203345550064,
+                -0.3850687990747861,
+                -0.3073880480179293,
+                0.6705630402249634,
+                -0.8536329572455033,
+                -0.3728399943222721,
+                0.1737424476304467,
+                0.3507603088768719,
+                0.8755015285934659,
+            ],
+            3,
+            3,
+        );
 
         for i in 0..3
         {
@@ -529,38 +528,50 @@ mod dmatrix_tests
     #[test]
     fn test_lu_non_diagonal_dominant()
     {
-        let a = DMatrix::<f64>::from_row_slice(&[
-            1.0, 2000.0, 3000.0, 5000.0, 10.0, -8900.0, -10000.0, 9008.0, 0.0,
-        ], 3, 3);
+        let a = DMatrix::<f64>::from_row_slice(
+            &[
+                1.0, 2000.0, 3000.0, 5000.0, 10.0, -8900.0, -10000.0, 9008.0, 0.0,
+            ],
+            3,
+            3,
+        );
 
         let lu_ret = a.lu().unwrap();
 
         let exp_p =
             DMatrix::<f64>::from_row_slice(&[0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0], 3, 3);
 
-        let exp_l = DMatrix::<f64>::from_row_slice(&[
-            1.00000000e+00,
-            0.00000000e+00,
-            0.00000000e+00,
-            -5.00000000e-01,
-            1.00000000e+00,
-            0.00000000e+00,
-            -1.00000000e-04,
-            4.43265574e-01,
-            1.00000000e+00,
-        ], 3, 3);
+        let exp_l = DMatrix::<f64>::from_row_slice(
+            &[
+                1.00000000e+00,
+                0.00000000e+00,
+                0.00000000e+00,
+                -5.00000000e-01,
+                1.00000000e+00,
+                0.00000000e+00,
+                -1.00000000e-04,
+                4.43265574e-01,
+                1.00000000e+00,
+            ],
+            3,
+            3,
+        );
 
-        let exp_u = DMatrix::<f64>::from_row_slice(&[
-            -10000.0,
-            9008.0,
-            0.0,
-            0.0,
-            4514.0,
-            -8900.0,
-            0.0,
-            0.0,
-            6945.06360656,
-        ], 3, 3);
+        let exp_u = DMatrix::<f64>::from_row_slice(
+            &[
+                -10000.0,
+                9008.0,
+                0.0,
+                0.0,
+                4514.0,
+                -8900.0,
+                0.0,
+                0.0,
+                6945.06360656,
+            ],
+            3,
+            3,
+        );
 
         for i in 0..9
         {
@@ -573,10 +584,14 @@ mod dmatrix_tests
     #[test]
     fn test_lu_diagonal_dominant()
     {
-        let a = DMatrix::<f64>::from_row_slice(&[
-            100000.0, 10.0, 56.0, 10.0, -69.0, 1.56e6, 3.0, -9.0, 0.0, 0.0, -5.6e-5, -700.0, 890.0,
-            0.0, -7899.0, 8.0e5,
-        ], 4, 4);
+        let a = DMatrix::<f64>::from_row_slice(
+            &[
+                100000.0, 10.0, 56.0, 10.0, -69.0, 1.56e6, 3.0, -9.0, 0.0, 0.0, -5.6e-5, -700.0,
+                890.0, 0.0, -7899.0, 8.0e5,
+            ],
+            4,
+            4,
+        );
 
         let lu_ret = a.lu().unwrap();
 
@@ -584,43 +599,51 @@ mod dmatrix_tests
             1., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 1., 0., 0., 1., 0.,
         ];
 
-        let exp_l = DMatrix::<f64>::from_row_slice(&[
-            1.00000000e+00,
-            0.00000000e+00,
-            0.00000000e+00,
-            0.00000000e+00,
-            -6.90000000e-04,
-            1.00000000e+00,
-            0.00000000e+00,
-            0.00000000e+00,
-            8.90000000e-03,
-            -5.70512818e-08,
-            1.00000000e+00,
-            0.00000000e+00,
-            0.00000000e+00,
-            0.00000000e+00,
-            7.08905771e-09,
-            1.00000000e+00,
-        ], 4, 4);
+        let exp_l = DMatrix::<f64>::from_row_slice(
+            &[
+                1.00000000e+00,
+                0.00000000e+00,
+                0.00000000e+00,
+                0.00000000e+00,
+                -6.90000000e-04,
+                1.00000000e+00,
+                0.00000000e+00,
+                0.00000000e+00,
+                8.90000000e-03,
+                -5.70512818e-08,
+                1.00000000e+00,
+                0.00000000e+00,
+                0.00000000e+00,
+                0.00000000e+00,
+                7.08905771e-09,
+                1.00000000e+00,
+            ],
+            4,
+            4,
+        );
 
-        let exp_u = DMatrix::<f64>::from_row_slice(&[
-            1.00000000e+05,
-            1.00000000e+01,
-            5.60000000e+01,
-            1.00000000e+01,
-            0.00000000e+00,
-            1.56000001e+06,
-            3.03864000e+00,
-            -8.99310000e+00,
-            0.00000000e+00,
-            0.00000000e+00,
-            -7.89949840e+03,
-            7.99999911e+05,
-            0.00000000e+00,
-            0.00000000e+00,
-            0.00000000e+00,
-            -7.00005671e+02,
-        ], 4, 4);
+        let exp_u = DMatrix::<f64>::from_row_slice(
+            &[
+                1.00000000e+05,
+                1.00000000e+01,
+                5.60000000e+01,
+                1.00000000e+01,
+                0.00000000e+00,
+                1.56000001e+06,
+                3.03864000e+00,
+                -8.99310000e+00,
+                0.00000000e+00,
+                0.00000000e+00,
+                -7.89949840e+03,
+                7.99999911e+05,
+                0.00000000e+00,
+                0.00000000e+00,
+                0.00000000e+00,
+                -7.00005671e+02,
+            ],
+            4,
+            4,
+        );
 
         for i in 0..16
         {
@@ -802,117 +825,118 @@ mod dmatrix_tests
         }
     }
     //}}}
-    // //{{{ collectoin: qr
-    // #[test]
-    // fn test_qr_decomposition()
-    // {
-    //     let a = SMatrix::<f64, 3, 3>::from_row_slice(&[
-    //         12.0, -51.0, 4.0, 6.0, 167.0, -68.0, -4.0, 24.0, -41.0,
-    //     ]);
+    //{{{ collectoin: qr
+    #[test]
+    fn test_qr_decomposition()
+    {
+        let a = DMatrix::<f64>::from_row_slice(
+            &[12.0, -51.0, 4.0, 6.0, 167.0, -68.0, -4.0, 24.0, -41.0],
+            3,
+            3,
+        );
 
-    //     let qr::Return { q, r } = a.qr().unwrap();
+        let qr::Return { q, r } = a.qr().unwrap();
 
-    //     // Verify Q*R = A
-    //     let reconstructed: SMatrix<f64, 3, 3> = q.matmul(&r);
+        // Verify Q*R = A
+        let reconstructed: DMatrix<f64> = q.matmul(&r);
 
-    //     for i in 0..9
-    //     {
-    //         assert_relative_eq!(reconstructed[i], a[i], max_relative = 1.0e-8);
-    //     }
+        for i in 0..9
+        {
+            assert_relative_eq!(reconstructed[i], a[i], max_relative = 1.0e-8);
+        }
 
-    //     // Verify Q is orthogonal (Q^T * Q = I)
-    //     let q_transpose = q.transpose();
-    //     let identity: SMatrix<f64, 3, 3> = q.matmul(&q_transpose);
+        // Verify Q is orthogonal (Q^T * Q = I)
+        let q_transpose = q.transpose();
+        let identity: DMatrix<f64> = q.matmul(&q_transpose);
 
-    //     for i in 0..3
-    //     {
-    //         for j in 0..3
-    //         {
-    //             if i == j
-    //             {
-    //                 assert_relative_eq!(identity[i + j * 3], 1.0, max_relative = 1.0e-8);
-    //             }
-    //             else
-    //             {
-    //                 assert_relative_eq!(identity[i + j * 3], 0.0, max_relative = 1.0e-8);
-    //             }
-    //         }
-    //     }
-    // }
-    // //}}}
-    // //{{{ collection: schur
-    // #[test]
-    // fn test_schur_decomposition()
-    // {
-    //     let a =
-    //         SMatrix::<f64, 3, 3>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]);
+        for i in 0..3
+        {
+            for j in 0..3
+            {
+                if i == j
+                {
+                    assert_relative_eq!(identity[i + j * 3], 1.0, max_relative = 1.0e-8);
+                }
+                else
+                {
+                    assert_relative_eq!(identity[i + j * 3], 0.0, max_relative = 1.0e-8);
+                }
+            }
+        }
+    }
+    //}}}
+    //{{{ collection: schur
+    #[test]
+    fn test_schur_decomposition()
+    {
+        let a =
+            DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], 3, 3);
 
-    //     let schur::Return { q, t } = a.schur().unwrap();
+        let schur::Return { q, t } = a.schur().unwrap();
 
-    //     // Verify Q*T*Q^T = A
-    //     let q_t = q.matmul(&t);
-    //     let q_transpose = q.transpose();
-    //     let reconstructed = q_t.matmul(&q_transpose);
+        // Verify Q*T*Q^T = A
+        let q_t = q.matmul(&t);
+        let q_transpose = q.transpose();
+        let reconstructed = q_t.matmul(&q_transpose);
 
-    //     for i in 0..9
-    //     {
-    //         assert_relative_eq!(reconstructed[i], a[i], max_relative = 1.0e-8);
-    //     }
+        for i in 0..9
+        {
+            assert_relative_eq!(reconstructed[i], a[i], max_relative = 1.0e-8);
+        }
 
-    //     // Verify Q is orthogonal (Q^T * Q = I)
-    //     let identity = q.matmul(&q_transpose);
+        // Verify Q is orthogonal (Q^T * Q = I)
+        let identity = q.matmul(&q_transpose);
 
-    //     for i in 0..3
-    //     {
-    //         for j in 0..3
-    //         {
-    //             if i == j
-    //             {
-    //                 assert_relative_eq!(
-    //                     identity[i + j * 3],
-    //                     1.0,
-    //                     max_relative = 1.0e-8,
-    //                     epsilon = 1.0e-10
-    //                 );
-    //             }
-    //             else
-    //             {
-    //                 assert_relative_eq!(
-    //                     identity[i + j * 3],
-    //                     0.0,
-    //                     max_relative = 1.0e-8,
-    //                     epsilon = 1.0e-10
-    //                 );
-    //             }
-    //         }
-    //     }
-    // }
-    // //}}}
-    // //{{{ collection: solve
-    // #[test]
-    // fn test_solve() {
+        for i in 0..3
+        {
+            for j in 0..3
+            {
+                if i == j
+                {
+                    assert_relative_eq!(
+                        identity[i + j * 3],
+                        1.0,
+                        max_relative = 1.0e-8,
+                        epsilon = 1.0e-10
+                    );
+                }
+                else
+                {
+                    assert_relative_eq!(
+                        identity[i + j * 3],
+                        0.0,
+                        max_relative = 1.0e-8,
+                        epsilon = 1.0e-10
+                    );
+                }
+            }
+        }
+    }
+    //}}}
+    //{{{ collection: solve
+    #[test]
+    fn test_solve() {
 
-    //     let a = SMatrix::<f64, 3, 3>::from_row_slice(&[
-    //         3.0, -1.0, 2.0,
-    //         1.0, 2.0, 0.0,
-    //         4.0, 0.0, 6.0,
-    //     ]);
+        let a = DMatrix::<f64>::from_row_slice(&[
+            3.0, -1.0, 2.0,
+            1.0, 2.0, 0.0,
+            4.0, 0.0, 6.0,
+        ], 3, 3);
 
-    //     let b = SMatrix::<f64, 3, 3>::from_row_slice(&[
-    //         7.0, -7.0, 2.0,
-    //         1.0, 2.0, 3.0,
-    //         22.0, -10.0, 3.0,
-    //     ]);
+        let b = DMatrix::<f64>::from_row_slice(&[
+            7.0, -7.0, 2.0,
+            1.0, 2.0, 3.0,
+            22.0, -10.0, 3.0,
+        ], 3, 3);
 
-    //     let x = a.solve(&b).unwrap();
+        let x = a.solve(&b).unwrap();
 
-    //     // Verify A * X = B
-    //     let computed_b = a.matmul(&x);
-        
-    //     for i in 0..9 {
-    //         assert_relative_eq!(computed_b[i], b[i], max_relative=1.0e-8);
-    //     }
-    // }
-    // //}}}
+        // Verify A * X = B
+        let computed_b = a.matmul(&x);
 
+        for i in 0..9 {
+            assert_relative_eq!(computed_b[i], b[i], max_relative=1.0e-8);
+        }
+    }
+    //}}}
 }

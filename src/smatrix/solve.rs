@@ -21,14 +21,14 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("Error in solve(), exited with error:\n{0}")]
-    GetrfError(#[from] gesv::Error),
+    GesvError(#[from] gesv::Error),
 }
 
 #[allow(private_bounds)]
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: One + Zero + Gesv + Field + Default + Copy + fmt::Display + AsI32,
+    T: Gesv + Field
 {
     pub fn solve(&self, b: &SMatrix<T, N, M>) -> Result<SMatrix<T, N, M>, Error> {
         let mut a = self.clone();

@@ -51,7 +51,8 @@ macro_rules! add_benches_dmatrix {
                     be.iter(|| {
                         let j: dmatrix::DMatrix<f64> =
                             (&a + &b + &c + &d + &e + &f + &g + &h + &i).evald();
-
+                        
+                        let tmp = j[(0, 0)];
                         black_box(j);
                     })
                 },
@@ -85,7 +86,8 @@ macro_rules! add_benches_dmatrix {
             crit.bench_function(format!("nalgebra_dmatrix{}", $dim).as_str(), |be| {
                 be.iter(|| {
                     let j = (&a + &b + &c + &d + &e + &f + &g + &h + &i);
-
+                    let tmp = j[(0, 0)];
+                    black_box(tmp);
                     black_box(j);
                 })
             });

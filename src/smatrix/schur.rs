@@ -21,7 +21,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("Error in schur(), exited with error:\n{0}")]
-    GetrfError(#[from] gees::Error),
+    GeesError(#[from] gees::Error),
 }
 
 pub struct Return<T, const N: usize, const M: usize>
@@ -38,7 +38,7 @@ impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * 5]:,
     [(); N * M]:,
-    T: One + Zero + Gees + Field + Default + Copy + AsI32,
+    T: One + Zero + Gees + Field + Default + Copy
 {
     pub fn schur(&self) -> Result<Return<T, N, M>, Error> {
         let mut a = self.clone();
