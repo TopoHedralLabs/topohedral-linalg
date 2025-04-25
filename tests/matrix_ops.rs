@@ -26,16 +26,8 @@ mod smatrix_tests
 
         for (i, item) in expected_eigenvalues.iter().enumerate()
         {
-            assert_relative_eq!(
-                eig.eigvals[i].re,
-                item.re,
-                epsilon = 1e-10
-            );
-            assert_relative_eq!(
-                eig.eigvals[i].im,
-                item.im,
-                epsilon = 1e-10
-            );
+            assert_relative_eq!(eig.eigvals[i].re, item.re, epsilon = 1e-10);
+            assert_relative_eq!(eig.eigvals[i].im, item.im, epsilon = 1e-10);
         }
 
         // Known left eigenvectors for this matrix
@@ -483,17 +475,9 @@ mod dmatrix_tests
 
         for (i, val) in expected_eigenvalues.iter().enumerate()
         {
-            assert_relative_eq!(
-                eig.eigvals[i].re,
-                val.re,
-                epsilon = 1e-10
-            );
-            assert_relative_eq!(
-                eig.eigvals[i].im,
-                val.im,
-                epsilon = 1e-10
-            );
-        } 
+            assert_relative_eq!(eig.eigvals[i].re, val.re, epsilon = 1e-10);
+            assert_relative_eq!(eig.eigvals[i].im, val.im, epsilon = 1e-10);
+        }
 
         // Known left eigenvectors for this matrix
         let expected_left_eigenvecotors = DMatrix::<f64>::from_row_slice(
