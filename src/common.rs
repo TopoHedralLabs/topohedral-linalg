@@ -253,7 +253,6 @@ impl Float for f64
     }
 }
 
-
 pub trait MatrixOps
 where
     Self: Sized,
@@ -268,4 +267,3 @@ where
         Self::ScalarType: Getrf + Float;
     fn trace(&self) -> Self::ScalarType;
 }
-

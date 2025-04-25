@@ -74,7 +74,6 @@ impl Gees for f64
 
 impl Gees for f32
 {
-
     #[inline]
     fn gees(
         jobvs: u8,
