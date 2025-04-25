@@ -188,7 +188,7 @@ where
         let max_width = self
             .data
             .iter()
-            .map(|x| format!("{}", x).len())
+            .map(|x| format!("{x}").len())
             .max()
             .unwrap_or(0);
 
