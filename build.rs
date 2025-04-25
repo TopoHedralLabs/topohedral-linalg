@@ -16,5 +16,5 @@ fn main()
 
     // Print a message for debugging purposes
     let target = env::var("TARGET").unwrap();
-    println!("cargo:warning=Building for target: {}", target);
+    println!("cargo:warning=Building for target: {target}");
 }

@@ -11,9 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dtolnay/rust-toolchain@stable
+      - name: Install OpenBLAS
+        run: |
+          sudo apt update
+          sudo apt install -y libopenblas-dev
+
+      - uses: dtolnay/rust-toolchain@nightly
         with: 
-          toolchain: stable
+          toolchain: nightly
           components: rustfmt, clippy 
 
       - name: Cache Cargo registry
