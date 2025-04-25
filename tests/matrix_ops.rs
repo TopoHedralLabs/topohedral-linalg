@@ -24,18 +24,10 @@ mod smatrix_tests
             Complex::<f64>::new(3.42585875883193, 0.0),
         ];
 
-        for i in 0..3
+        for (i, item) in expected_eigenvalues.iter().enumerate()
         {
-            assert_relative_eq!(
-                eig.eigvals[i].re,
-                expected_eigenvalues[i].re,
-                epsilon = 1e-10
-            );
-            assert_relative_eq!(
-                eig.eigvals[i].im,
-                expected_eigenvalues[i].im,
-                epsilon = 1e-10
-            );
+            assert_relative_eq!(eig.eigvals[i].re, item.re, epsilon = 1e-10);
+            assert_relative_eq!(eig.eigvals[i].im, item.im, epsilon = 1e-10);
         }
 
         // Known left eigenvectors for this matrix
@@ -481,18 +473,10 @@ mod dmatrix_tests
             Complex::<f64>::new(3.42585875883193, 0.0),
         ];
 
-        for i in 0..3
+        for (i, val) in expected_eigenvalues.iter().enumerate()
         {
-            assert_relative_eq!(
-                eig.eigvals[i].re,
-                expected_eigenvalues[i].re,
-                epsilon = 1e-10
-            );
-            assert_relative_eq!(
-                eig.eigvals[i].im,
-                expected_eigenvalues[i].im,
-                epsilon = 1e-10
-            );
+            assert_relative_eq!(eig.eigvals[i].re, val.re, epsilon = 1e-10);
+            assert_relative_eq!(eig.eigvals[i].im, val.im, epsilon = 1e-10);
         }
 
         // Known left eigenvectors for this matrix
