@@ -19,6 +19,7 @@ pub enum Error
     LapackError(i32),
 }
 
+#[allow(clippy::too_many_arguments)]
 pub trait Gees: Copy
 {
     fn gees(
@@ -73,6 +74,7 @@ impl Gees for f64
 
 impl Gees for f32
 {
+
     #[inline]
     fn gees(
         jobvs: u8,

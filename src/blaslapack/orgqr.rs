@@ -20,6 +20,7 @@ pub enum Error
 }
 
 //{{{ trait: Orqr
+#[allow(clippy::too_many_arguments)]
 pub trait Orgqr: Copy
 {
     fn orgqr(

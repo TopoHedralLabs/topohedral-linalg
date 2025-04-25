@@ -1,4 +1,5 @@
 #![feature(generic_const_exprs)]
+#![allow(incomplete_features)]
 #![feature(impl_trait_in_assoc_type)]
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
@@ -50,8 +51,6 @@ macro_rules! add_benches_dmatrix {
                     be.iter(|| {
                         let j: dmatrix::DMatrix<f64> =
                             (&a + &b + &c + &d + &e + &f + &g + &h + &i).evald();
-
-                        let tmp = j[(0, 0)];
                         black_box(j);
                     })
                 },

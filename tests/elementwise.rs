@@ -1,4 +1,5 @@
 #![feature(generic_const_exprs)]
+#![allow(incomplete_features)]
 #![feature(impl_trait_in_assoc_type)]
 
 //{{{ mod: smatrix_tests
@@ -57,9 +58,7 @@ mod smatrix_tests
 
         let matrix7 = SMatrix::<i32, 2, 2>::from_value(1000000);
 
-        let mut matrix8 = SMatrix::<i32, 2, 2>::zeros();
-
-        matrix8 = (&matrix7 + (&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6)
+        let matrix8: SMatrix::<i32, 2, 2> = (&matrix7 + (&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6)
             .evals();
 
         let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
@@ -77,9 +76,7 @@ mod smatrix_tests
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(100);
 
-        let mut matrix4 = SMatrix::<i32, 2, 2>::zeros();
-
-        matrix4 = (4i32 + (2i32 + &matrix1) + (&matrix2 + 3i32) + 5i32).evals();
+        let matrix4: SMatrix::<i32, 2, 2> = (4i32 + (2i32 + &matrix1) + (&matrix2 + 3i32) + 5i32).evals();
 
         let exp_val = 4 + (2 + 10) + (100 + 3) + 5;
 
@@ -107,10 +104,7 @@ mod smatrix_tests
 
         let matrix7 = SMatrix::<f64, 2, 2>::from_value(1000000.0);
 
-        let mut matrix8 = SMatrix::<f64, 2, 2>::zeros();
-
-        matrix8 = (&matrix7 / (&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6)
-            .evals();
+        let matrix8: SMatrix::<f64, 2, 2> = (&matrix7 / (&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6) .evals();
 
         let exp_value: f64 = 1000000.0 / (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
 
@@ -127,9 +121,14 @@ mod smatrix_tests
 
         let matrix2 = SMatrix::<f64, 2, 2>::from_value(100.0);
 
-        let mut matrix4 = SMatrix::<f64, 2, 2>::zeros();
+        let matrix4: SMatrix::<f64, 2, 2> = (4.0 / (2.0 / &matrix1) / (&matrix2 / 3.0) / 5.0).evals();
 
-        matrix4 = (4.0 / (2.0 / &matrix1) / (&matrix2 / 3.0) / 5.0).evals();
+        let exp_val = 4.0 / (2.0 / 10.0) / (100.0 / 3.0) / 5.0;
+
+        for val in &matrix4
+        {
+            assert_eq!(*val, exp_val);
+        }
     }
     //}}}
     //{{{ collection: subtraction tests
@@ -149,9 +148,7 @@ mod smatrix_tests
 
         let matrix6 = SMatrix::<i32, 2, 2>::from_value(100000);
 
-        let mut matrix7 = SMatrix::<i32, 2, 2>::zeros();
-
-        matrix7 = ((&matrix4 - &matrix5) - (&matrix1 - &matrix2 - &matrix3) - &matrix6).evals();
+        let matrix7: SMatrix::<i32, 2, 2> = ((&matrix4 - &matrix5) - (&matrix1 - &matrix2 - &matrix3) - &matrix6).evals();
 
         let exp_value: i32 = (1000 - 10000) - (1 - 10 - 100) - 100000;
 
@@ -168,9 +165,7 @@ mod smatrix_tests
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(100);
 
-        let mut matrix4 = SMatrix::<i32, 2, 2>::zeros();
-
-        matrix4 = (4i32 - (2i32 - &matrix1) - (&matrix2 - 3i32) - 5i32).evals();
+        let matrix4: SMatrix::<i32, 2, 2> = (4i32 - (2i32 - &matrix1) - (&matrix2 - 3i32) - 5i32).evals();
 
         let exp_val = 4 - (2 - 10) - (100 - 3) - 5;
 
@@ -196,9 +191,7 @@ mod smatrix_tests
 
         let matrix6 = SMatrix::<f64, 2, 2>::from_value(100000.0);
 
-        let mut matrix7 = SMatrix::<f64, 2, 2>::zeros();
-
-        matrix7 = ((&matrix4 * &matrix5) * (&matrix1 * &matrix2 * &matrix3) * &matrix6).evals();
+        let matrix7: SMatrix::<f64, 2, 2> = ((&matrix4 * &matrix5) * (&matrix1 * &matrix2 * &matrix3) * &matrix6).evals();
 
         let exp_value: f64 = (1000.0 * 10000.0) * (1.0 * 10.0 * 100.0) * 100000.0;
 
@@ -215,9 +208,7 @@ mod smatrix_tests
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(100);
 
-        let mut matrix4 = SMatrix::<i32, 2, 2>::zeros();
-
-        matrix4 = (4i32 * (2i32 * &matrix1) * (&matrix2 * 3i32) * 5i32).evals();
+        let matrix4:  SMatrix::<i32, 2, 2> =  (4i32 * (2i32 * &matrix1) * (&matrix2 * 3i32) * 5i32).evals();
 
         let exp_val = 4 * (2 * 10) * (100 * 3) * 5;
 
@@ -265,9 +256,7 @@ mod dmatrix_tests
 
         let matrix7 = DMatrix::<i32>::from_value(1000000, 2, 2);
 
-        let mut matrix8 = DMatrix::<i32>::zeros(2, 2);
-
-        matrix8 = (&matrix7 + (&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6)
+        let matrix8: DMatrix::<i32> = (&matrix7 + (&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6)
             .evald();
 
         let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
@@ -284,9 +273,7 @@ mod dmatrix_tests
 
         let matrix2 = DMatrix::<i32>::from_value(100, 2, 2);
 
-        let mut matrix4 = DMatrix::<i32>::zeros(2, 2);
-
-        matrix4 = (4i32 + (2i32 + &matrix1) + (&matrix2 + 3i32) + 5i32).evald();
+        let matrix4: DMatrix::<i32> = (4 + (2 + &matrix1) + (&matrix2 + 3) + 5).evald();
 
         let exp_val = 4 + (2 + 10) + (100 + 3) + 5;
 
@@ -307,9 +294,8 @@ mod dmatrix_tests
         let matrix5 = DMatrix::<f64>::from_value(10000.0, 2, 2);
         let matrix6 = DMatrix::<f64>::from_value(100000.0, 2, 2);
         let matrix7 = DMatrix::<f64>::from_value(1000000.0, 2, 2);
-        let mut matrix8 = DMatrix::<f64>::zeros(2, 2);
 
-        matrix8 = (&matrix7 / (&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6)
+        let matrix8: DMatrix::<f64> = (&matrix7 / (&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6)
             .evald();
 
         let exp_value: f64 = 1000000.0 / (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
@@ -325,9 +311,7 @@ mod dmatrix_tests
     {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
-        let mut matrix4 = DMatrix::<f64>::zeros(2, 2);
-
-        matrix4 = (4.0 / (2.0 / &matrix1) / (&matrix2 / 3.0) / 5.0).evald();
+        let matrix4:  DMatrix::<f64> = (4.0 / (2.0 / &matrix1) / (&matrix2 / 3.0) / 5.0).evald();
 
         let exp_val = 4.0 / (2.0 / 10.0) / (100.0 / 3.0) / 5.0;
 
@@ -348,9 +332,7 @@ mod dmatrix_tests
         let matrix4 = DMatrix::<f64>::from_value(1000.0, 2, 2);
         let matrix5 = DMatrix::<f64>::from_value(10000.0, 2, 2);
         let matrix6 = DMatrix::<f64>::from_value(100000.0, 2, 2);
-        let mut matrix7 = DMatrix::<f64>::zeros(2, 2);
-
-        matrix7 = ((&matrix4 - &matrix5) - (&matrix1 - &matrix2 - &matrix3) - &matrix6).evald();
+        let matrix7: DMatrix::<f64> = ((&matrix4 - &matrix5) - (&matrix1 - &matrix2 - &matrix3) - &matrix6).evald();
 
         let exp_value: f64 = (1000.0 - 10000.0) - (1.0 - 10.0 - 100.0) - 100000.0;
 
@@ -365,9 +347,7 @@ mod dmatrix_tests
     {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
-        let mut matrix4 = DMatrix::<f64>::zeros(2, 2);
-
-        matrix4 = (4.0 - (2.0 - &matrix1) - (&matrix2 - 3.0) - 5.0).evald();
+        let matrix4: DMatrix<f64> = (4.0 - (2.0 - &matrix1) - (&matrix2 - 3.0) - 5.0).evald();
 
         let exp_val = 4.0 - (2.0 - 10.0) - (100.0 - 3.0) - 5.0;
 
@@ -387,9 +367,7 @@ mod dmatrix_tests
         let matrix4 = DMatrix::<f64>::from_value(1000.0, 2, 2);
         let matrix5 = DMatrix::<f64>::from_value(10000.0, 2, 2);
         let matrix6 = DMatrix::<f64>::from_value(100000.0, 2, 2);
-        let mut matrix7 = DMatrix::<f64>::zeros(2, 2);
-
-        matrix7 = ((&matrix4 * &matrix5) * (&matrix1 * &matrix2 * &matrix3) * &matrix6).evald();
+        let matrix7: DMatrix<f64> = ((&matrix4 * &matrix5) * (&matrix1 * &matrix2 * &matrix3) * &matrix6).evald();
 
         let exp_value: f64 = (1000.0 * 10000.0) * (1.0 * 10.0 * 100.0) * 100000.0;
 
@@ -404,9 +382,7 @@ mod dmatrix_tests
     {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
-        let mut matrix4 = DMatrix::<f64>::zeros(2, 2);
-
-        matrix4 = (4.0 * (2.0 * &matrix1) * (&matrix2 * 3.0) * 5.0).evald();
+        let matrix4: DMatrix<f64> = (4.0 * (2.0 * &matrix1) * (&matrix2 * 3.0) * 5.0).evald();
 
         let exp_val = 4.0 * (2.0 * 10.0) * (100.0 * 3.0) * 5.0;
 

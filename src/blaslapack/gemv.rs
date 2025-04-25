@@ -15,6 +15,7 @@ use crate::apply_for_all_integer_types;
 //{{{ trait: Gemv
 /// Trait which signifies matrices of type can perform a general matrix-vector multiplication (GEMV)
 /// operation.
+#[allow(clippy::too_many_arguments)]
 pub trait Gemv: Copy
 {
     /// Performs a general matrix-vector multiplication (GEMV) operation.
@@ -36,7 +37,6 @@ pub trait Gemv: Copy
     /// - `incx` is the increment for the elements of `x`.
     /// - `y` is the output vector.
     /// - `incy` is the increment for the elements of `y`.
-
     fn gemv(
         tr: cblas::Transpose,
         m: i32,

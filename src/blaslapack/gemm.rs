@@ -15,6 +15,7 @@ use crate::apply_for_all_integer_types;
 //{{{ trait: Gemm
 /// Trait which signifies matrices of type can perform a general matrix multiplication (GEMM)
 /// operation.
+#[allow(clippy::too_many_arguments)]
 pub trait Gemm: Copy
 {
     /// Performs a general matrix multiplication (GEMM) operation.
@@ -42,7 +43,6 @@ pub trait Gemm: Copy
     /// - `beta`: the scalar factor applied to matrix `c`
     /// - `c`: the output matrix
     /// - `ldc`: the leading dimension of matrix `c`
-
     fn gemm(
         tr1: cblas::Transpose,
         tr2: cblas::Transpose,
@@ -152,8 +152,8 @@ macro_rules! impl_naive_gemm {
         {
             #[inline]
             fn gemm(
-                tr1: cblas::Transpose,
-                tr2: cblas::Transpose,
+                _tr1: cblas::Transpose,
+                _tr2: cblas::Transpose,
                 m: i32,
                 n: i32,
                 k: i32,

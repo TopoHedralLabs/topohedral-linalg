@@ -51,7 +51,7 @@ where
         {
             panic!("Determinant is only defined for square matrices");
         }
-        let lu::Return { l, u, p, num_swaps } = self.lu().unwrap();
+        let lu::Return { l: _, u, p: _, num_swaps } = self.lu().unwrap();
         (-Self::ScalarType::one()).powi(num_swaps as i32) * u.trace()
     }
 

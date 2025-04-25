@@ -19,6 +19,7 @@ pub enum Error
     LapackError(i32),
 }
 
+#[allow(clippy::too_many_arguments)]
 pub trait Geev: Copy
 {
     fn geev(
