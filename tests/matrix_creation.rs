@@ -1,16 +1,17 @@
 #![feature(generic_const_exprs)]
+#![allow(incomplete_features)]
 #![feature(impl_trait_in_assoc_type)]
 
 //{{{  mod: smatrix_tests
 mod smatrix_tests
 {
-
+    use topohedral_linalg::smatrix::*;
     use topohedral_linalg::*;
 
     #[test]
     fn test_default()
     {
-        let matrix = SMatrix::<i32, 2, 2>::default();
+        let matrix = SMatrix::<i32, 2, 2>::zeros();
 
         for val in &matrix
         {
@@ -105,9 +106,9 @@ mod smatrix_tests
     #[test]
     fn test_copy_from()
     {
-        let mut matrix = SMatrix::<i32, 2, 2>::default();
+        let mut matrix = SMatrix::<i32, 2, 2>::zeros();
         let matrix2 = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
-        matrix.copy_from(&matrix2);
+        matrix.clone_from(&matrix2);
 
         for (val1, val2) in matrix.iter().zip(matrix2.iter())
         {
@@ -120,7 +121,8 @@ mod smatrix_tests
 mod dmatrix_tests
 {
 
-    use topohedral_linalg::{DMatrix, DMatrixConstructors};
+    use topohedral_linalg::dmatrix::DMatrix;
+    use topohedral_linalg::MatrixOps;
 
     #[test]
     fn test_matrix_zeros()
@@ -137,7 +139,7 @@ mod dmatrix_tests
 
     fn test_matrix_from_val()
     {
-        let matrix = DMatrix::<i32>::from_value(1, 4, 10);
+        let matrix = DMatrix::<i32>::from_value(10, 1, 4);
 
         for val in &matrix
         {
@@ -149,20 +151,19 @@ mod dmatrix_tests
 
     fn test_matrix_from_slice()
     {
-        let matrix = DMatrix::<i32>::from_row_slice(2, 2, &[1, 10, 100, 1000]);
+        let matrix = DMatrix::<i32>::from_row_slice(&[1, 10, 100, 1000], 2, 2);
 
         for (res, exp) in matrix.iter().zip([1, 100, 10, 1000].iter())
         {
             assert_eq!(*res, *exp);
         }
-
     }
 
     #[test]
 
     fn test_matrix_from_uniform_random()
     {
-        let matrix = DMatrix::<f64>::from_uniform_random(4, 4, -1100.0, 100.1);
+        let matrix = DMatrix::<f64>::from_uniform_random(-1100.0, 100.1, 4, 4);
         for val in &matrix
         {
             assert!(*val >= -1100.0 && *val <= 100.1);
@@ -172,7 +173,7 @@ mod dmatrix_tests
     #[test]
     fn test_matrix_indexing()
     {
-        let matrix = DMatrix::<i32>::from_row_slice(2, 2, &[1, 10, 100, 1000]);
+        let matrix = DMatrix::<i32>::from_row_slice(&[1, 10, 100, 1000], 2, 2);
         assert_eq!(matrix[(0, 0)], 1);
         assert_eq!(matrix[(0, 1)], 10);
         assert_eq!(matrix[(1, 0)], 100);
@@ -182,7 +183,7 @@ mod dmatrix_tests
     #[test]
     fn test_serde()
     {
-        let matrix = DMatrix::<i32>::from_row_slice(2, 2, &[1, 10, 100, 1000]);
+        let matrix = DMatrix::<i32>::from_row_slice(&[1, 10, 100, 1000], 2, 2);
         let matrix_json = serde_json::to_string_pretty(&matrix).unwrap();
         let matrix2: DMatrix<i32> = serde_json::from_str(&matrix_json).unwrap();
 
@@ -195,10 +196,10 @@ mod dmatrix_tests
     #[test]
     fn test_matrix_transpose()
     {
-        let matrix = DMatrix::<i32>::from_row_slice(2, 3, &[1, 2, 3, 4, 5, 6]);
+        let matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6], 2, 3);
         let transposed = matrix.transpose();
         assert_eq!(transposed[(0, 0)], 1);
-        assert_eq!(transposed[(0, 1)], 3);
+        assert_eq!(transposed[(0, 1)], 4);
         assert_eq!(transposed[(1, 0)], 2);
         assert_eq!(transposed[(1, 1)], 5);
         assert_eq!(transposed[(2, 0)], 3);
