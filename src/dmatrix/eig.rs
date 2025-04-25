@@ -61,8 +61,8 @@ where
         // Query optimal workspace
         let mut work = vec![T::zero(); 1];
         T::geev(
-            b'V' as u8,
-            b'V' as u8,
+            b'V',
+            b'V',
             n as i32,
             &mut a.data,
             n as i32,
@@ -80,8 +80,8 @@ where
         let lwork = work[0].as_i32();
         let mut work = vec![T::zero(); lwork as usize];
         T::geev(
-            b'V' as u8,
-            b'V' as u8,
+            b'V',
+            b'V',
             n as i32,
             &mut a.data,
             n as i32,
@@ -105,7 +105,7 @@ where
         Ok(Return {
             left_eigvecs: vl,
             right_eigvecs: vr,
-            eigvals: eigvals,
+            eigvals,
         })
     }
 }

@@ -83,7 +83,7 @@ where
 {
     fn evals(&self) -> SMatrix<T, N, M>
     {
-        self.clone()
+        *self
     }
 }
 

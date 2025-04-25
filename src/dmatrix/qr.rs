@@ -13,7 +13,6 @@ use crate::blaslapack::orgqr::Orgqr;
 use crate::common::{Field, One, Zero};
 //}}}
 //{{{ std imports
-use std::ops::{Index, IndexMut};
 //}}}
 //{{{ dep imports
 use thiserror::Error;

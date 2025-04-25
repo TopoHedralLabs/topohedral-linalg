@@ -232,7 +232,7 @@ mod smatrix_tests
     fn test_neg()
     {
         let a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
-        let b = -a.clone();
+        let b = -a;
 
         for i in 0..4
         {

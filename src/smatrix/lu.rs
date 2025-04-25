@@ -5,10 +5,9 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::blaslapack::common::AsI32;
 use crate::blaslapack::getrf;
 use crate::blaslapack::getrf::Getrf;
-use crate::common::{Complex, Field, One, Zero};
+use crate::common::{Field, One, Zero};
 //}}}
 //{{{ std imports
 //}}}
@@ -58,7 +57,7 @@ where
     pub fn lu(&self) -> Result<Return<T, N, M>, Error>
     {
         //{{{ com: call getrf and check for errors
-        let mut a = self.clone();
+        let mut a = *self;
         let mut ipiv = vec![0; N.min(M)];
         T::getrf(N as i32, M as i32, &mut a.data, N as i32, &mut ipiv)?;
         //}}}

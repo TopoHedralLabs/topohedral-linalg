@@ -13,7 +13,6 @@ use crate::common::{Field, One, Zero};
 use crate::smatrix::SMatrix;
 //}}}
 //{{{ std imports
-use std::ops::{Index, IndexMut};
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -49,7 +48,7 @@ where
 {
     pub fn qr(&self) -> Result<Return<T, N, M>, Error>
     {
-        let mut a = self.clone();
+        let mut a = *self;
         let k = N.min(M);
         let mut tau = vec![T::zero(); k];
 

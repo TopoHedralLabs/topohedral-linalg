@@ -5,10 +5,9 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::blaslapack::common::AsI32;
 use crate::blaslapack::gees;
 use crate::blaslapack::gees::Gees;
-use crate::common::{Field, Float, One, Zero};
+use crate::common::{Field, One, Zero};
 //}}}
 //{{{ std imports
 //}}}
@@ -51,8 +50,8 @@ where
         let lwork = (n * 5) as i32;
         let mut bwork = vec![0; n];
         T::gees(
-            b'V' as u8,
-            b'N' as u8,
+            b'V',
+            b'N',
             n as i32,
             &mut a.data,
             n as i32,

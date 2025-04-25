@@ -52,7 +52,7 @@ where
 {
     pub fn eig(&self) -> Result<Return<T, N>, Error>
     {
-        let mut a = self.clone();
+        let mut a = *self;
         let mut vl = SMatrix::<T, N, N>::zeros();
         let mut vr = SMatrix::<T, N, N>::zeros();
         let mut wr = [T::zero(); N];
@@ -61,8 +61,8 @@ where
         // Query optimal workspace
         let mut work = vec![T::zero(); 1];
         T::geev(
-            b'V' as u8,
-            b'V' as u8,
+            b'V',
+            b'V',
             N as i32,
             &mut a.data,
             N as i32,
@@ -80,8 +80,8 @@ where
         let lwork = work[0].as_i32();
         let mut work = vec![T::zero(); lwork as usize];
         T::geev(
-            b'V' as u8,
-            b'V' as u8,
+            b'V',
+            b'V',
             N as i32,
             &mut a.data,
             N as i32,
@@ -99,7 +99,7 @@ where
         Ok(Return {
             left_eigvecs: vl,
             right_eigvecs: vr,
-            eigvals: eigvals,
+            eigvals,
         })
     }
 }

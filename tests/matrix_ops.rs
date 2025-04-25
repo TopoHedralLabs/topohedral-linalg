@@ -17,11 +17,9 @@ mod smatrix_tests
 
         let eig = a.eig().unwrap();
         // Known eigenvalues for this matrix
-        let expected_eigenvalues = vec![
-            Complex::<f64>::new(-0.8595233886152194, 0.0),
+        let expected_eigenvalues = [Complex::<f64>::new(-0.8595233886152194, 0.0),
             Complex::<f64>::new(5.433664629783286, 0.0),
-            Complex::<f64>::new(3.42585875883193, 0.0),
-        ];
+            Complex::<f64>::new(3.42585875883193, 0.0)];
 
         for i in 0..3
         {
@@ -474,11 +472,9 @@ mod dmatrix_tests
 
         let eig = a.eig().unwrap();
         // Known eigenvalues for this matrix
-        let expected_eigenvalues = vec![
-            Complex::<f64>::new(-0.8595233886152194, 0.0),
+        let expected_eigenvalues = [Complex::<f64>::new(-0.8595233886152194, 0.0),
             Complex::<f64>::new(5.433664629783286, 0.0),
-            Complex::<f64>::new(3.42585875883193, 0.0),
-        ];
+            Complex::<f64>::new(3.42585875883193, 0.0)];
 
         for i in 0..3
         {

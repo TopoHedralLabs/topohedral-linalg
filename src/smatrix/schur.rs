@@ -5,10 +5,9 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::blaslapack::common::AsI32;
 use crate::blaslapack::gees;
 use crate::blaslapack::gees::Gees;
-use crate::common::{Field, Float, One, Zero};
+use crate::common::{Field, One, Zero};
 //}}}
 //{{{ std imports
 //}}}
@@ -43,7 +42,7 @@ where
 {
     pub fn schur(&self) -> Result<Return<T, N, M>, Error>
     {
-        let mut a = self.clone();
+        let mut a = *self;
         let mut vs = SMatrix::<T, N, M>::zeros();
         let mut wr = [T::zero(); N];
         let mut wi = [T::zero(); N];
@@ -52,8 +51,8 @@ where
         let lwork = (N * 5) as i32;
         let mut bwork = [0; N];
         T::gees(
-            b'V' as u8,
-            b'N' as u8,
+            b'V',
+            b'N',
             N as i32,
             &mut a.data,
             N as i32,

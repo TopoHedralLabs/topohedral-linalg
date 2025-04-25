@@ -5,13 +5,11 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::blaslapack::common::AsI32;
 use crate::blaslapack::gesv;
 use crate::blaslapack::gesv::Gesv;
-use crate::common::{Field, One, Zero};
+use crate::common::Field;
 //}}}
 //{{{ std imports
-use std::fmt;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -36,8 +34,8 @@ where
         b: &SMatrix<T, N, M>,
     ) -> Result<SMatrix<T, N, M>, Error>
     {
-        let mut a = self.clone();
-        let mut x = b.clone();
+        let mut a = *self;
+        let mut x = *b;
         let mut ipiv = vec![0; N];
         T::gesv(
             N as i32,

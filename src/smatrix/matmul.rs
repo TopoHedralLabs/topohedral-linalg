@@ -5,10 +5,9 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::blaslapack::common::AsI32;
 use crate::blaslapack::gemm::Gemm;
 use crate::blaslapack::gemv::Gemv;
-use crate::common::{Complex, Field, One, Zero};
+use crate::common::{Field, One, Zero};
 //}}}
 //{{{ std imports
 //}}}

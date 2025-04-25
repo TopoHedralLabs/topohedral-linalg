@@ -6,7 +6,6 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::blaslapack::common::AsI32;
 use crate::blaslapack::gemm::Gemm;
 use crate::blaslapack::gemv::Gemv;
 use crate::common::{Field, One, Zero};
