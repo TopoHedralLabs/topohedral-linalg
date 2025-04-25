@@ -8,7 +8,7 @@ use crate::blaslapack::getrf::Getrf;
 //{{{ std imports
 use ::std::ops::{Add, Div, Index, IndexMut, Mul, Neg, Sub};
 use std::cmp::PartialEq;
-use std::{ops::{AddAssign, DivAssign, MulAssign, SubAssign}};
+use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
 
 //}}}
 //{{{ dep imports
@@ -197,7 +197,10 @@ pub trait Float: Field
         max: Self,
     ) -> Self;
     fn small() -> Self;
-    fn powi(self, exp: i32) -> Self;
+    fn powi(
+        self,
+        exp: i32,
+    ) -> Self;
 }
 impl Float for f32
 {
@@ -217,7 +220,11 @@ impl Float for f32
     {
         f32::EPSILON
     }
-    fn powi(self, exp: i32) -> Self {
+    fn powi(
+        self,
+        exp: i32,
+    ) -> Self
+    {
         self.powi(exp)
     }
 }
@@ -239,7 +246,11 @@ impl Float for f64
     {
         f64::EPSILON
     }
-    fn powi(self, exp: i32) -> Self {
+    fn powi(
+        self,
+        exp: i32,
+    ) -> Self
+    {
         self.powi(exp)
     }
 }
@@ -333,8 +344,7 @@ where
     }
 }
 
-
-pub trait MatrixOps 
+pub trait MatrixOps
 where
     Self: Sized,
 {
@@ -343,7 +353,9 @@ where
 
     fn size(&self) -> (usize, usize);
     fn transpose(&self) -> Self::TransposeType;
-    fn determinant(&self) -> Self::ScalarType where Self::ScalarType: Getrf + Float;
+    fn determinant(&self) -> Self::ScalarType
+    where
+        Self::ScalarType: Getrf + Float;
     fn trace(&self) -> Self::ScalarType;
 }
 

@@ -1,14 +1,13 @@
-//! This module provides the implementation of expression templates. 
+//! This module provides the implementation of expression templates.
 //!
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
-
 
 pub mod binary_expr;

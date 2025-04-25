@@ -14,16 +14,15 @@
 #![feature(impl_trait_in_assoc_type)]
 
 //{{{ collection: private modules
-mod blaslapack; 
+mod blaslapack;
 mod common;
 mod expression;
 //}}}
 //{{{ collection: public API
 pub use common::{Complex, MatrixOps};
-pub mod smatrix;
 pub mod dmatrix;
+pub mod smatrix;
 //}}}
-
 
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
@@ -35,12 +34,10 @@ mod tests
     use ctor::ctor;
     use topohedral_tracing::*;
 
-
     #[ctor]
 
     fn init_logger()
     {
-
         init().unwrap();
     }
 
@@ -48,7 +45,6 @@ mod tests
 
     fn test_logging()
     {
-
         info!("Logging is working!");
     }
 }

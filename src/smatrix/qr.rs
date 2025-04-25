@@ -3,26 +3,27 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
-use crate::common::{Field, One, Zero};
+//{{{ crate imports
+use crate::blaslapack::common::AsI32;
 use crate::blaslapack::geqrf;
 use crate::blaslapack::geqrf::Geqrf;
-use crate::blaslapack::orgqr::Orgqr;
 use crate::blaslapack::orgqr;
-use crate::blaslapack::common::AsI32;
+use crate::blaslapack::orgqr::Orgqr;
+use crate::common::{Field, One, Zero};
 use crate::smatrix::SMatrix;
 //}}}
-//{{{ std imports 
+//{{{ std imports
 use std::ops::{Index, IndexMut};
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 //{{{ enum: Error
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum Error
+{
     #[error("Error in qr(), exited with error:\n{0}")]
     GetrfError(#[from] geqrf::Error),
     #[error("Error in qr(), exited with error:\n{0}")]
@@ -33,7 +34,7 @@ pub enum Error {
 pub struct Return<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
-    T: Field + Copy 
+    T: Field + Copy,
 {
     pub q: SMatrix<T, N, M>,
     pub r: SMatrix<T, N, M>,
@@ -46,11 +47,12 @@ where
     [(); N * M]:,
     T: One + Zero + Geqrf + Orgqr + Field + Copy + AsI32,
 {
-    pub fn qr(&self) -> Result<Return<T, N, M>, Error> {
+    pub fn qr(&self) -> Result<Return<T, N, M>, Error>
+    {
         let mut a = self.clone();
         let k = N.min(M);
         let mut tau = vec![T::zero(); k];
-        
+
         // Query optimal workspace
         let mut work = vec![T::zero(); 1];
         T::geqrf(
@@ -62,7 +64,7 @@ where
             &mut work,
             -1,
         )?;
-        
+
         // Perform QR factorization
         let lwork = work[0].as_i32();
         let mut work = vec![T::zero(); lwork as usize];
@@ -75,15 +77,17 @@ where
             &mut work,
             lwork,
         )?;
-        
+
         // Extract R matrix (upper triangular part)
         let mut r = SMatrix::<T, N, M>::zeros();
-        for i in 0..N {
-            for j in i..M {
+        for i in 0..N
+        {
+            for j in i..M
+            {
                 r[(i, j)] = a[(i, j)];
             }
         }
-        
+
         // Generate Q matrix
         T::orgqr(
             N as i32,

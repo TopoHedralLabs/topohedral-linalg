@@ -2,14 +2,14 @@
 //!
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
-use crate::common::{Field, One, Zero};
+//{{{ crate imports
 use super::SMatrix;
+use crate::common::{Field, One, Zero};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
-use rand::distributions::{Distribution, Uniform, uniform::SampleUniform};
+//{{{ dep imports
+use rand::distributions::{uniform::SampleUniform, Distribution, Uniform};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -55,7 +55,8 @@ where
     //{{{ fun: from_row_slice
     /// Takes N*M element array in row-major order and creates a new SMatrix
     pub fn from_row_slice(slice: &[T]) -> Self
-    where T: Zero
+    where
+        T: Zero,
     {
         assert_eq!(slice.len(), N * M);
 
@@ -72,10 +73,11 @@ where
         out
     }
     //}}}
-    //{{{ fun: from_col_slice 
+    //{{{ fun: from_col_slice
     /// Takes N*M element array in column-major order and creates a new SMatrix
     pub fn from_col_slice(slice: &[T]) -> Self
-    where T: Zero
+    where
+        T: Zero,
     {
         assert_eq!(slice.len(), N * M);
         Self {

@@ -3,23 +3,25 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum Error
+{
     #[error("Error in geqrf, exited with code {0}")]
     LapackError(i32),
 }
 
 //{{{ trait: Geqrf
-pub trait Geqrf: Copy {
+pub trait Geqrf: Copy
+{
     fn geqrf(
         m: i32,
         n: i32,
@@ -32,7 +34,8 @@ pub trait Geqrf: Copy {
 }
 //}}}
 //{{{ impl: Geqrf for f64
-impl Geqrf for f64 {
+impl Geqrf for f64
+{
     #[inline]
     fn geqrf(
         m: i32,
@@ -42,12 +45,14 @@ impl Geqrf for f64 {
         tau: &mut [Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error>
+    {
         let mut info = 0;
         unsafe {
             lapack::dgeqrf(m, n, a, lda, tau, work, lwork, &mut info);
         }
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())
@@ -55,7 +60,8 @@ impl Geqrf for f64 {
 }
 //}}}
 //{{{ impl: Geqrf for f32
-impl Geqrf for f32 {
+impl Geqrf for f32
+{
     #[inline]
     fn geqrf(
         m: i32,
@@ -65,12 +71,14 @@ impl Geqrf for f32 {
         tau: &mut [Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error>
+    {
         let mut info = 0;
         unsafe {
             lapack::sgeqrf(m, n, a, lda, tau, work, lwork, &mut info);
         }
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())

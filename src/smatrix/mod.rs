@@ -3,20 +3,20 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use crate::common::{Field, IndexValue, Zero};
-use crate::expression::binary_expr::{BinopExpr, BinOp};
+use crate::expression::binary_expr::{BinOp, BinopExpr};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 // binary operations
 pub mod addop;
-pub mod mulop;
 pub mod divop;
+pub mod mulop;
 pub mod subop;
 // unary operations
 pub mod negop;
@@ -79,7 +79,7 @@ where
 impl<T, const N: usize, const M: usize> EvaluateSMatrix<T, N, M> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy
+    T: Field + Default + Copy,
 {
     fn evals(&self) -> SMatrix<T, N, M>
     {

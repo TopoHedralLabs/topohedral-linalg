@@ -3,10 +3,9 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-
 //{{{ crate imports
 use crate::common::{Field, IndexValue, Zero};
-use crate::expression::binary_expr::{BinopExpr, BinOp};
+use crate::expression::binary_expr::{BinOp, BinopExpr};
 //}}}
 //{{{ std imports
 use serde::{Deserialize, Serialize};
@@ -14,7 +13,6 @@ use serde::{Deserialize, Serialize};
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
-
 
 // binary operations
 pub mod addop;
@@ -32,7 +30,7 @@ pub mod matrix_ops;
 pub mod qr;
 pub mod schur;
 pub mod solve;
-// everything else 
+// everything else
 pub mod construction;
 pub mod indexing;
 pub mod iteration;
@@ -70,7 +68,6 @@ where
 //{{{ trait: Evaluate
 pub trait EvaluateDMatrix<T>
 where
-    
     T: Field + Copy,
 {
     fn evald(&self) -> DMatrix<T>;
@@ -80,7 +77,6 @@ where
 //{{{ impl: Evaluate for DMatrix
 impl<T> EvaluateDMatrix<T> for DMatrix<T>
 where
-    
     T: Field + Copy,
 {
     fn evald(&self) -> DMatrix<T>

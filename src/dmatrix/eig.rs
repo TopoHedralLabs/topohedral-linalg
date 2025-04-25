@@ -3,20 +3,18 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use super::DMatrix;
 use crate::blaslapack::common::AsI32;
 use crate::blaslapack::geev::{self, Geev};
 use crate::common::{Complex, Field, One, Zero};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
-
-
 
 #[derive(Error, Debug)]
 pub enum Error
@@ -25,7 +23,7 @@ pub enum Error
     GeevError(#[from] geev::Error),
 }
 
-//{{{ struct: Return 
+//{{{ struct: Return
 /// Represents the eigenvalue decomposition of a square matrix of size `N`.
 ///
 /// The eigenvalue decomposition of a matrix `A` is a factorization of the form `A = PDP^-1`,
@@ -97,7 +95,8 @@ where
             lwork,
         )?;
 
-        let eigvals: Vec<Complex<T>> = wr.iter()
+        let eigvals: Vec<Complex<T>> = wr
+            .iter()
             .zip(wi.iter())
             .map(|(&wr_val, &wi_val)| Complex::new(wr_val, wi_val))
             .take(n)

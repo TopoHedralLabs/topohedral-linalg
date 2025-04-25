@@ -2,18 +2,16 @@
 //!
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use super::DMatrix;
 use crate::common::{Field, IndexValue};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 use std::ops::{Index, IndexMut};
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
-
-
 
 //{{{ collection: Index Pair Indexing
 //{{{ impl: Index<(usize, usize)> for SMatrix
@@ -53,7 +51,7 @@ where
 //{{{ impl: Index<usize> for SMatrix
 impl<T> Index<usize> for DMatrix<T>
 where
-    T: Field + Copy
+    T: Field + Copy,
 {
     type Output = T;
 
@@ -70,7 +68,7 @@ where
 //{{{ impl: IndexMut<usize> for SMatrix
 impl<T> IndexMut<usize> for DMatrix<T>
 where
-    T: Field + Copy
+    T: Field + Copy,
 {
     fn index_mut(
         &mut self,
@@ -85,7 +83,7 @@ where
 //{{{ impl: IndexValue<usize> for SMatrix
 impl<T> IndexValue<usize> for DMatrix<T>
 where
-    T: Field + Copy
+    T: Field + Copy,
 {
     type Output = T;
 
@@ -104,7 +102,7 @@ where
 //{{{ impl: IndexValue for &'a SMatrix
 impl<T> IndexValue<usize> for &DMatrix<T>
 where
-    T: Field + Copy
+    T: Field + Copy,
 {
     type Output = T;
 

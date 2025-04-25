@@ -3,15 +3,14 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use crate::apply_for_all_integer_types;
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
-
 
 //{{{ trait: Gemv
 /// Trait which signifies matrices of type can perform a general matrix-vector multiplication (GEMV)
@@ -74,9 +73,7 @@ impl Gemv for f64
         incy: i32,
     )
     {
-
         unsafe {
-
             cblas::dgemv(
                 cblas::Layout::ColumnMajor,
                 tr,
@@ -115,9 +112,7 @@ impl Gemv for f32
         incy: i32,
     )
     {
-
         unsafe {
-
             cblas::sgemv(
                 cblas::Layout::ColumnMajor,
                 tr,
@@ -158,22 +153,18 @@ macro_rules! impl_naive_gemv {
                 incy: i32,
             )
             {
-
                 let get_a = |i, j| a[i as usize + (j as usize * lda as usize)];
 
                 match tr
                 {
                     cblas::Transpose::None =>
                     {
-
                         for i in 0..m
                         {
-
                             let mut sum = Self::default();
 
                             for j in 0..k
                             {
-
                                 sum += get_a(i, j) * x[(j * incx) as usize];
                             }
 
@@ -182,15 +173,12 @@ macro_rules! impl_naive_gemv {
                     }
                     cblas::Transpose::Ordinary =>
                     {
-
                         for i in 0..m
                         {
-
                             let mut sum = Self::default();
 
                             for j in 0..k
                             {
-
                                 sum += get_a(j, i) * x[(j * incx) as usize];
                             }
 

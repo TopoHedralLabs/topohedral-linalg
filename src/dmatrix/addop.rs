@@ -3,16 +3,16 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
-use crate::common::{Field, IndexValue};
-use crate::expression::binary_expr::{AddOp, BinOp, BinopExpr };
+//{{{ crate imports
 use super::DMatrix;
 use crate::apply_for_all_types;
+use crate::common::{Field, IndexValue};
+use crate::expression::binary_expr::{AddOp, BinOp, BinopExpr};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 use std::ops::Add;
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 //{{{ collection: AddOp for SMatrix
@@ -103,12 +103,11 @@ where
 
 //}}}
 //{{{ impl: Add<&' DMatrix> for BinopExpr
-impl<'a, A, B, T, Op> Add<&'a DMatrix<T>>
-    for BinopExpr<A, B, T, Op>
+impl<'a, A, B, T, Op> Add<&'a DMatrix<T>> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
-    T: Field  + Copy,
+    T: Field + Copy,
     Op: BinOp,
 {
     type Output = BinopExpr<Self, &'a DMatrix<T>, T, AddOp>;

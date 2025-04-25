@@ -3,17 +3,17 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
-use crate::common::{Field, IndexValue};
-use crate::expression::binary_expr::{AddOp, BinOp, BinopExpr };
+//{{{ crate imports
 use super::SMatrix;
 use crate::apply_for_all_types;
+use crate::common::{Field, IndexValue};
+use crate::expression::binary_expr::{AddOp, BinOp, BinopExpr};
 //}}}
-//{{{ std imports 
-use std::ops::Add;
+//{{{ std imports
 use std::fmt;
+use std::ops::Add;
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 //{{{ collection: AddOp for SMatrix

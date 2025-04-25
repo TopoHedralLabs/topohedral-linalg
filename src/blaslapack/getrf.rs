@@ -3,17 +3,18 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum Error
+{
     #[error("Error in getrf, exited with code {0}")]
     LapackError(i32),
 }
@@ -55,7 +56,8 @@ impl Getrf for f64
         unsafe {
             lapack::dgetrf(m, n, a, lda, ipiv, &mut info);
         }
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())
@@ -78,7 +80,8 @@ impl Getrf for f32
         unsafe {
             lapack::sgetrf(m, n, a, lda, ipiv, &mut info);
         }
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())

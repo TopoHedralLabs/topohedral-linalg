@@ -3,15 +3,15 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use super::SMatrix;
 use crate::common::Field;
 //}}}
-//{{{ std imports 
+//{{{ std imports
 use std::fmt;
 use std::marker::PhantomData;
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use serde::de::{self, Deserialize, Deserializer, MapAccess, Visitor};
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 //}}}
@@ -192,10 +192,11 @@ where
             .max()
             .unwrap_or(0);
 
-        for i in 0..N {
-
+        for i in 0..N
+        {
             write!(f, "|")?;
-            for j in 0..M {
+            for j in 0..M
+            {
                 write!(f, " {:>width$}", self[(i, j)], width = max_width)?;
             }
             writeln!(f, " |")?;

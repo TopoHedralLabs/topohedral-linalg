@@ -3,12 +3,12 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use crate::apply_for_all_integer_types;
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -83,9 +83,7 @@ impl Gemm for f64
         ldc: i32,
     )
     {
-
         unsafe {
-
             cblas::dgemm(
                 cblas::Layout::ColumnMajor,
                 tr1,
@@ -128,9 +126,7 @@ impl Gemm for f32
         ldc: i32,
     )
     {
-
         unsafe {
-
             cblas::sgemm(
                 cblas::Layout::ColumnMajor,
                 tr1,
@@ -175,22 +171,18 @@ macro_rules! impl_naive_gemm {
                 ldc: i32,
             )
             {
-
                 let get_a = |i, j| a[i as usize + (j as usize * lda as usize)];
 
                 let get_b = |i, j| b[i as usize + (j as usize * ldb as usize)];
 
                 for i in 0..m
                 {
-
                     for j in 0..n
                     {
-
                         let mut sum = Self::default();
 
                         for l in 0..k
                         {
-
                             sum += get_a(i, l) * get_b(l, j);
                         }
 

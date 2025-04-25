@@ -3,16 +3,16 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use super::SMatrix;
-use crate::blaslapack::getrf::Getrf;
-use crate::blaslapack::getrf;
 use crate::blaslapack::common::AsI32;
-use crate::common::{One, Zero, Field, Complex};
+use crate::blaslapack::getrf;
+use crate::blaslapack::getrf::Getrf;
+use crate::common::{Complex, Field, One, Zero};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ pub enum Error
 pub struct Return<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
-    T: Field + Copy
+    T: Field + Copy,
 {
     pub l: SMatrix<T, N, M>,
     pub u: SMatrix<T, N, M>,
@@ -48,12 +48,12 @@ where
     pub num_swaps: usize,
 }
 //}}}
-//{{{ impl SMatrix<T, N, M> 
+//{{{ impl SMatrix<T, N, M>
 #[allow(private_bounds)]
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: One + Zero + Getrf + Field + Copy
+    T: One + Zero + Getrf + Field + Copy,
 {
     pub fn lu(&self) -> Result<Return<T, N, M>, Error>
     {
@@ -70,7 +70,6 @@ where
         {
             for j in 0..M
             {
-
                 if i > j
                 {
                     l[(i, j)] = a[(i, j)];
@@ -103,7 +102,7 @@ where
             }
         }
         //}}}
-        Ok(Return{ l, u, p, num_swaps})
+        Ok(Return { l, u, p, num_swaps })
     }
 }
 //}}}

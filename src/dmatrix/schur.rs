@@ -3,30 +3,31 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
-use crate::common::{One, Zero, Field, Float};
+//{{{ crate imports
 use super::DMatrix;
-use crate::blaslapack::gees::Gees;
-use crate::blaslapack::gees;
 use crate::blaslapack::common::AsI32;
+use crate::blaslapack::gees;
+use crate::blaslapack::gees::Gees;
+use crate::common::{Field, Float, One, Zero};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 //{{{ enum: Error
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum Error
+{
     #[error("Error in schur(), exited with error:\n{0}")]
     GeesfError(#[from] gees::Error),
 }
 
 pub struct Return<T>
 where
-    T: Field + Copy
+    T: Field + Copy,
 {
     pub q: DMatrix<T>,
     pub t: DMatrix<T>,
@@ -35,9 +36,10 @@ where
 #[allow(private_bounds)]
 impl<T> DMatrix<T>
 where
-    T: One + Zero + Gees + Field + Default + Copy
+    T: One + Zero + Gees + Field + Default + Copy,
 {
-    pub fn schur(&self) -> Result<Return<T>, Error> {
+    pub fn schur(&self) -> Result<Return<T>, Error>
+    {
         let n = self.nrows;
         let m = self.ncols;
         let mut a = self.clone();
@@ -67,12 +69,9 @@ where
     }
 }
 
-
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
 #[cfg(test)]
 mod tests
-{
-  
-}
+{}
 //}}}

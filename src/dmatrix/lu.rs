@@ -5,10 +5,10 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::blaslapack::getrf::Getrf;
-use crate::blaslapack::getrf;
 use crate::blaslapack::common::AsI32;
-use crate::common::{One, Zero, Field, Complex};
+use crate::blaslapack::getrf;
+use crate::blaslapack::getrf::Getrf;
+use crate::common::{Complex, Field, One, Zero};
 //}}}
 //{{{ std imports
 //}}}

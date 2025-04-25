@@ -3,13 +3,13 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
-use crate::common::{Field, IndexValue};
-use crate::expression::binary_expr::{DivOp, BinOp, BinopExpr };
+//{{{ crate imports
 use super::SMatrix;
 use crate::apply_for_all_types;
+use crate::common::{Field, IndexValue};
+use crate::expression::binary_expr::{BinOp, BinopExpr, DivOp};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 use std::ops::Div;
 //}}}
 //--------------------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ use std::ops::Div;
 impl<'a, T, const N: usize, const M: usize> Div<T> for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy  + Clone + IndexValue<usize, Output = T>,
+    T: Field + Default + Copy + Clone + IndexValue<usize, Output = T>,
 {
     type Output = BinopExpr<&'a SMatrix<T, N, M>, T, T, DivOp>;
 
@@ -82,7 +82,7 @@ apply_for_all_types!(impl_smatrix_div);
 impl<'a, T, const N: usize, const M: usize> Div for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy  + Clone,
+    T: Field + Default + Copy + Clone,
 {
     type Output = BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, DivOp>;
 
@@ -110,7 +110,7 @@ impl<'a, A, B, Op, T, const N: usize, const M: usize> Div<&'a SMatrix<T, N, M>>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy  + Clone,
+    T: Field + Default + Copy + Clone,
     Op: BinOp,
     [(); N * M]:,
 {
@@ -140,7 +140,7 @@ impl<A, B, T, Op, const N: usize, const M: usize> Div<BinopExpr<A, B, T, Op>> fo
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
-    T: Field + Default + Copy  + Clone,
+    T: Field + Default + Copy + Clone,
     Op: BinOp,
     [(); N * M]:,
 {

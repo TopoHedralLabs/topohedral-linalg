@@ -3,23 +3,24 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use super::SMatrix;
-use crate::common::{Field, One, Zero};
+use crate::blaslapack::common::AsI32;
 use crate::blaslapack::gesv;
 use crate::blaslapack::gesv::Gesv;
-use crate::blaslapack::common::AsI32;
+use crate::common::{Field, One, Zero};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 use std::fmt;
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum Error
+{
     #[error("Error in solve(), exited with error:\n{0}")]
     GesvError(#[from] gesv::Error),
 }
@@ -28,9 +29,13 @@ pub enum Error {
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Gesv + Field
+    T: Gesv + Field,
 {
-    pub fn solve(&self, b: &SMatrix<T, N, M>) -> Result<SMatrix<T, N, M>, Error> {
+    pub fn solve(
+        &self,
+        b: &SMatrix<T, N, M>,
+    ) -> Result<SMatrix<T, N, M>, Error>
+    {
         let mut a = self.clone();
         let mut x = b.clone();
         let mut ipiv = vec![0; N];

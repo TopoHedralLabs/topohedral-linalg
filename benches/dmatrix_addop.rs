@@ -2,10 +2,10 @@
 #![feature(impl_trait_in_assoc_type)]
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use topohedral_linalg::dmatrix;
-use topohedral_linalg::dmatrix::EvaluateDMatrix;
 use nalgebra::DMatrix as NADMatrix;
 use rand::prelude::*;
+use topohedral_linalg::dmatrix;
+use topohedral_linalg::dmatrix::EvaluateDMatrix;
 
 // fn somethin() {
 
@@ -20,7 +20,6 @@ use rand::prelude::*;
 //     let c = a + b;
 
 // }
-
 
 //{{{ collection: DMatrix benches
 macro_rules! add_benches_dmatrix {
@@ -51,7 +50,7 @@ macro_rules! add_benches_dmatrix {
                     be.iter(|| {
                         let j: dmatrix::DMatrix<f64> =
                             (&a + &b + &c + &d + &e + &f + &g + &h + &i).evald();
-                        
+
                         let tmp = j[(0, 0)];
                         black_box(j);
                     })

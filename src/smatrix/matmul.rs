@@ -3,16 +3,16 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use super::SMatrix;
+use crate::blaslapack::common::AsI32;
 use crate::blaslapack::gemm::Gemm;
 use crate::blaslapack::gemv::Gemv;
-use crate::blaslapack::common::AsI32;
-use crate::common::{One, Zero, Field, Complex};
+use crate::common::{Complex, Field, One, Zero};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ where
     [(); M * K]:,
     [(); K * N]:,
     [(); M * N]:,
-    T: Gemm + Gemv + Field + Zero + One + Copy 
+    T: Gemm + Gemv + Field + Zero + One + Copy,
 {
     type Output = SMatrix<T, M, N>;
 
@@ -46,12 +46,10 @@ where
         rhs: &'a SMatrix<T, K, N>,
     ) -> Self::Output
     {
-
         let mut result = SMatrix::<T, M, N>::zeros();
 
         if N == 1
         {
-
             T::gemv(
                 cblas::Transpose::None,
                 M as i32,
@@ -68,7 +66,6 @@ where
         }
         else if M == 1
         {
-
             T::gemv(
                 cblas::Transpose::Ordinary,
                 K as i32,
@@ -85,7 +82,6 @@ where
         }
         else
         {
-
             T::gemm(
                 cblas::Transpose::None, // transa: transpose left matrix
                 cblas::Transpose::None, // transb: transpose right matrix

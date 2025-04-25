@@ -133,7 +133,10 @@ where
     /// Creates a new `DMatrix` initialized as the identity matrix.
     ///
     /// The identity matrix is a square matrix with 1s on the main diagonal and 0s elsewhere.
-    pub fn identity(nrows: usize, ncols: usize) -> Self
+    pub fn identity(
+        nrows: usize,
+        ncols: usize,
+    ) -> Self
     where
         T: Field + One + Zero,
     {

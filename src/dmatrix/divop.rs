@@ -3,16 +3,16 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
-use crate::common::{Field, IndexValue};
-use crate::expression::binary_expr::{DivOp, BinOp, BinopExpr};
+//{{{ crate imports
 use super::DMatrix;
 use crate::apply_for_all_types;
+use crate::common::{Field, IndexValue};
+use crate::expression::binary_expr::{BinOp, BinopExpr, DivOp};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 use std::ops::Div;
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 //{{{ collection: DivOp for DMatrix
@@ -103,8 +103,7 @@ where
 
 //}}}
 //{{{ impl: Div<&' DMatrix> for BinopExpr
-impl<'a, A, B, T, Op> Div<&'a DMatrix<T>>
-    for BinopExpr<A, B, T, Op>
+impl<'a, A, B, T, Op> Div<&'a DMatrix<T>> for BinopExpr<A, B, T, Op>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,

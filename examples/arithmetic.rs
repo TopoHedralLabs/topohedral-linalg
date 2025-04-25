@@ -2,10 +2,8 @@
 
 use topohedral_tracing::*;
 
-
 fn main()
 {
-
     init().unwrap();
 
     // let a = tln::SMatrix::<f64, 2, 2>::from_value(1.0);

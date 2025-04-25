@@ -3,23 +3,24 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
-use crate::common::{One, Zero, Field, Float};
+//{{{ crate imports
 use super::SMatrix;
-use crate::blaslapack::gees::Gees;
-use crate::blaslapack::gees;
 use crate::blaslapack::common::AsI32;
+use crate::blaslapack::gees;
+use crate::blaslapack::gees::Gees;
+use crate::common::{Field, Float, One, Zero};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 //{{{ enum: Error
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum Error
+{
     #[error("Error in schur(), exited with error:\n{0}")]
     GeesError(#[from] gees::Error),
 }
@@ -27,7 +28,7 @@ pub enum Error {
 pub struct Return<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
-    T: Field + Copy
+    T: Field + Copy,
 {
     pub q: SMatrix<T, N, M>,
     pub t: SMatrix<T, N, M>,
@@ -38,9 +39,10 @@ impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * 5]:,
     [(); N * M]:,
-    T: One + Zero + Gees + Field + Default + Copy
+    T: One + Zero + Gees + Field + Default + Copy,
 {
-    pub fn schur(&self) -> Result<Return<T, N, M>, Error> {
+    pub fn schur(&self) -> Result<Return<T, N, M>, Error>
+    {
         let mut a = self.clone();
         let mut vs = SMatrix::<T, N, M>::zeros();
         let mut wr = [T::zero(); N];
@@ -68,12 +70,9 @@ where
     }
 }
 
-
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
 #[cfg(test)]
 mod tests
-{
-  
-}
+{}
 //}}}

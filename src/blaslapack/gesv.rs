@@ -3,22 +3,24 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum Error
+{
     #[error("Error in gesv, exited with code {0}")]
     LapackError(i32),
 }
 
-pub trait Gesv: Copy {
+pub trait Gesv: Copy
+{
     fn gesv(
         n: i32,
         nrhs: i32,
@@ -30,7 +32,8 @@ pub trait Gesv: Copy {
     ) -> Result<(), Error>;
 }
 
-impl Gesv for f64 {
+impl Gesv for f64
+{
     #[inline]
     fn gesv(
         n: i32,
@@ -40,19 +43,22 @@ impl Gesv for f64 {
         ipiv: &mut [i32],
         b: &mut [Self],
         ldb: i32,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error>
+    {
         let mut info = 0;
         unsafe {
             lapack::dgesv(n, nrhs, a, lda, ipiv, b, ldb, &mut info);
         }
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())
     }
 }
 
-impl Gesv for f32 {
+impl Gesv for f32
+{
     #[inline]
     fn gesv(
         n: i32,
@@ -62,12 +68,14 @@ impl Gesv for f32 {
         ipiv: &mut [i32],
         b: &mut [Self],
         ldb: i32,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error>
+    {
         let mut info = 0;
         unsafe {
             lapack::sgesv(n, nrhs, a, lda, ipiv, b, ldb, &mut info);
         }
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())

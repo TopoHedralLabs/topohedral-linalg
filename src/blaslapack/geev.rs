@@ -3,22 +3,24 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum Error
+{
     #[error("Error in geev, exited with code {0}")]
     LapackError(i32),
 }
 
-pub trait Geev: Copy {
+pub trait Geev: Copy
+{
     fn geev(
         jobvl: u8,
         jobvr: u8,
@@ -36,7 +38,8 @@ pub trait Geev: Copy {
     ) -> Result<(), Error>;
 }
 
-impl Geev for f64 {
+impl Geev for f64
+{
     #[inline]
     fn geev(
         jobvl: u8,
@@ -52,35 +55,25 @@ impl Geev for f64 {
         ldvr: i32,
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error>
+    {
         let mut info = 0;
         unsafe {
             lapack::dgeev(
-                jobvl,
-                jobvr,
-                n,
-                a,
-                lda,
-                wr,
-                wi,
-                vl,
-                ldvl,
-                vr,
-                ldvr,
-                work,
-                lwork,
-                &mut info,
+                jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwork, &mut info,
             );
         }
 
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())
     }
 }
 
-impl Geev for f32 {
+impl Geev for f32
+{
     #[inline]
     fn geev(
         jobvl: u8,
@@ -96,27 +89,16 @@ impl Geev for f32 {
         ldvr: i32,
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error>
+    {
         let mut info = 0;
         unsafe {
             lapack::sgeev(
-                jobvl,
-                jobvr,
-                n,
-                a,
-                lda,
-                wr,
-                wi,
-                vl,
-                ldvl,
-                vr,
-                ldvr,
-                work,
-                lwork,
-                &mut info,
+                jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwork, &mut info,
             );
         }
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())

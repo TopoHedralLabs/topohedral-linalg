@@ -4,8 +4,8 @@
 //{{{  mod: smatrix_tests
 mod smatrix_tests
 {
-    use topohedral_linalg::*;
     use topohedral_linalg::smatrix::*;
+    use topohedral_linalg::*;
 
     #[test]
     fn test_default()
@@ -156,7 +156,6 @@ mod dmatrix_tests
         {
             assert_eq!(*res, *exp);
         }
-
     }
 
     #[test]
@@ -173,7 +172,7 @@ mod dmatrix_tests
     #[test]
     fn test_matrix_indexing()
     {
-        let matrix = DMatrix::<i32>::from_row_slice( &[1, 10, 100, 1000], 2, 2);
+        let matrix = DMatrix::<i32>::from_row_slice(&[1, 10, 100, 1000], 2, 2);
         assert_eq!(matrix[(0, 0)], 1);
         assert_eq!(matrix[(0, 1)], 10);
         assert_eq!(matrix[(1, 0)], 100);

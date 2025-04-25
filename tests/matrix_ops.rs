@@ -915,27 +915,25 @@ mod dmatrix_tests
     //}}}
     //{{{ collection: solve
     #[test]
-    fn test_solve() {
+    fn test_solve()
+    {
+        let a =
+            DMatrix::<f64>::from_row_slice(&[3.0, -1.0, 2.0, 1.0, 2.0, 0.0, 4.0, 0.0, 6.0], 3, 3);
 
-        let a = DMatrix::<f64>::from_row_slice(&[
-            3.0, -1.0, 2.0,
-            1.0, 2.0, 0.0,
-            4.0, 0.0, 6.0,
-        ], 3, 3);
-
-        let b = DMatrix::<f64>::from_row_slice(&[
-            7.0, -7.0, 2.0,
-            1.0, 2.0, 3.0,
-            22.0, -10.0, 3.0,
-        ], 3, 3);
+        let b = DMatrix::<f64>::from_row_slice(
+            &[7.0, -7.0, 2.0, 1.0, 2.0, 3.0, 22.0, -10.0, 3.0],
+            3,
+            3,
+        );
 
         let x = a.solve(&b).unwrap();
 
         // Verify A * X = B
         let computed_b = a.matmul(&x);
 
-        for i in 0..9 {
-            assert_relative_eq!(computed_b[i], b[i], max_relative=1.0e-8);
+        for i in 0..9
+        {
+            assert_relative_eq!(computed_b[i], b[i], max_relative = 1.0e-8);
         }
     }
     //}}}

@@ -6,10 +6,10 @@
 
 //{{{ crate imports
 use super::DMatrix;
+use crate::blaslapack::common::AsI32;
 use crate::blaslapack::gemm::Gemm;
 use crate::blaslapack::gemv::Gemv;
-use crate::blaslapack::common::AsI32;
-use crate::common::{One, Zero, Field};
+use crate::common::{Field, One, Zero};
 //}}}
 //{{{ std imports
 //}}}
@@ -36,7 +36,10 @@ where
 {
     type Output = DMatrix<T>;
 
-    fn matmul(self, rhs: &'a DMatrix<T>) -> Self::Output
+    fn matmul(
+        self,
+        rhs: &'a DMatrix<T>,
+    ) -> Self::Output
     {
         let m = self.nrows;
         let k = self.ncols;
@@ -50,7 +53,8 @@ where
 
         let mut result = DMatrix::<T>::zeros(m, n);
 
-        if n == 1 {
+        if n == 1
+        {
             // Vector-matrix multiplication
             T::gemv(
                 cblas::Transpose::None,
@@ -65,7 +69,9 @@ where
                 &mut result.data,
                 1,
             );
-        } else if m == 1 {
+        }
+        else if m == 1
+        {
             // Matrix-vector multiplication
             T::gemv(
                 cblas::Transpose::Ordinary,
@@ -80,7 +86,9 @@ where
                 &mut result.data,
                 1,
             );
-        } else {
+        }
+        else
+        {
             // General matrix-matrix multiplication
             T::gemm(
                 cblas::Transpose::None, // transa: transpose left matrix

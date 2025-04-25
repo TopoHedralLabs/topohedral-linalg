@@ -4,8 +4,8 @@
 //{{{ mod: smatrix_tests
 mod smatrix_tests
 {
-    use topohedral_linalg::smatrix::{SMatrix, EvaluateSMatrix};
     use approx::assert_relative_eq;
+    use topohedral_linalg::smatrix::{EvaluateSMatrix, SMatrix};
 
     //{{{ collection: mixed tests
     #[test]
@@ -70,7 +70,6 @@ mod smatrix_tests
         }
     }
 
-
     #[test]
     fn test_add_scalar()
     {
@@ -90,7 +89,7 @@ mod smatrix_tests
         }
     }
     //}}}
-    //{{{ collection: division tests 
+    //{{{ collection: division tests
     #[test]
     fn test_div()
     {
@@ -230,12 +229,13 @@ mod smatrix_tests
     //}}}
     //{{{ collection: negation tests
     #[test]
-    fn test_neg() {
+    fn test_neg()
+    {
+        let a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
+        let b = -a.clone();
 
-        let a  = SMatrix::<i32, 2, 2>::from_row_slice(&[ 1, 2, 3, 4]);
-        let b = -a.clone(); 
-
-        for i in 0..4 {
+        for i in 0..4
+        {
             assert_eq!(b[i], -a[i]);
         }
     }
@@ -243,7 +243,7 @@ mod smatrix_tests
 }
 //}}}
 //{{{ mod: dmatrix_tests
-mod dmatrix_tests 
+mod dmatrix_tests
 {
     use topohedral_linalg::dmatrix::{DMatrix, EvaluateDMatrix};
 
@@ -360,8 +360,6 @@ mod dmatrix_tests
         }
     }
 
-
-
     #[test]
     fn test_sub_scalar()
     {
@@ -420,11 +418,12 @@ mod dmatrix_tests
     //}}}
     //{{{ collection: negation tests
     #[test]
-    fn test_neg() {
-
-        let a  = DMatrix::<i32>::from_col_slice( &[ 1, 2, 3, 4], 2, 2);
-        let b = -a.clone(); 
-        for i in 0..4 {
+    fn test_neg()
+    {
+        let a = DMatrix::<i32>::from_col_slice(&[1, 2, 3, 4], 2, 2);
+        let b = -a.clone();
+        for i in 0..4
+        {
             assert_eq!(b[i], -a[i]);
         }
     }
@@ -432,7 +431,7 @@ mod dmatrix_tests
 }
 //}}}
 //{{{ mod: scvector_tests
-// mod scvector_tests 
+// mod scvector_tests
 // {
 
 //     use topohedral_linalg::{SCVector, EvaluateSMatrix, SMatrixConstructors};
@@ -514,7 +513,6 @@ mod dmatrix_tests
 //         }
 //     }
 
-
 //     #[test]
 //     fn test_add_scalar()
 //     {
@@ -534,7 +532,7 @@ mod dmatrix_tests
 //         }
 //     }
 //     //}}}
-//     //{{{ collection: division tests 
+//     //{{{ collection: division tests
 //     #[test]
 //     fn test_div()
 //     {
@@ -694,7 +692,7 @@ mod dmatrix_tests
 // }
 //}}}
 //{{{ mod: dcvector_tests
-// mod dvector_tests 
+// mod dvector_tests
 // {
 //     use topohedral_linalg::{DRVector, EvaluateDMatrix, DVectorConstructors};
 //     use approx::assert_relative_eq;
@@ -788,7 +786,7 @@ mod dmatrix_tests
 //         }
 //     }
 //     //}}}
-//     //{{{ collection: division tests 
+//     //{{{ collection: division tests
 //     #[test]
 //     fn test_div() {
 //         let vector1 = DRVector::<f64>::from_value(10, 1.0);

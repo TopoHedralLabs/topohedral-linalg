@@ -3,13 +3,13 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use super::DMatrix;
 use crate::common::Field;
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ use crate::common::Field;
 //{{{ impl: IntoIterator for SMatrix
 impl<T> IntoIterator for DMatrix<T>
 where
-    T: Field + Copy
+    T: Field + Copy,
 {
     type Item = T;
 
@@ -33,7 +33,7 @@ where
 //{{{ impl: IntoIterator for &a' SMatrix
 impl<'a, T> IntoIterator for &'a DMatrix<T>
 where
-    T: Field + Copy
+    T: Field + Copy,
 {
     type Item = &'a T;
 
@@ -51,12 +51,14 @@ where
     T: Field + Copy,
 {
     //{{{ fun: iter
-    pub fn iter(&self) -> std::slice::Iter<'_, T>{
+    pub fn iter(&self) -> std::slice::Iter<'_, T>
+    {
         return self.data.iter();
     }
     //}}}
     //{{{ fun: iter_mut
-    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T>{
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T>
+    {
         return self.data.iter_mut();
     }
     //}}}

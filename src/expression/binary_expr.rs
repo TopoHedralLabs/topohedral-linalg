@@ -1,15 +1,14 @@
-
 //! Short Description of module
 //!
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Field, IndexValue};
 use crate::apply_for_all_types;
+use crate::common::{Field, IndexValue};
 //}}}
 //{{{ std imports
-use std::ops::{Add, Sub, Mul, Div};
+use std::ops::{Add, Div, Mul, Sub};
 //}}}
 //{{{ dep imports
 //}}}
@@ -184,7 +183,7 @@ where
     ) -> BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, AddOp>
     {
         let nr = self.nrows;
-        let nc = self.ncols;    
+        let nc = self.ncols;
         BinopExpr {
             a: self,
             b: rhs,
@@ -292,7 +291,6 @@ where
         rhs: BinopExpr<A, B, T, Op1>,
     ) -> BinopExpr<BinopExpr<C, D, T, Op2>, BinopExpr<A, B, T, Op1>, T, DivOp>
     {
-
         debug_assert!(self.nrows == rhs.nrows);
         debug_assert!(self.ncols == rhs.ncols);
         let nr = self.nrows;

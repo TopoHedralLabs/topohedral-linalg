@@ -2,13 +2,13 @@
 //!
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use super::SMatrix;
 use crate::common::Field;
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ use crate::common::Field;
 impl<T, const N: usize, const M: usize> IntoIterator for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy
+    T: Field + Copy,
 {
     type Item = T;
 
@@ -34,7 +34,7 @@ where
 impl<'a, T, const N: usize, const M: usize> IntoIterator for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy
+    T: Field + Copy,
 {
     type Item = &'a T;
 
@@ -53,12 +53,14 @@ where
     T: Field + Copy,
 {
     //{{{ fun: iter
-    pub fn iter(&self) -> std::slice::Iter<'_, T>{
+    pub fn iter(&self) -> std::slice::Iter<'_, T>
+    {
         return self.data.iter();
     }
     //}}}
     //{{{ fun: iter_mut
-    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T>{
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T>
+    {
         return self.data.iter_mut();
     }
     //}}}

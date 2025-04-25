@@ -3,24 +3,25 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum Error
+{
     #[error("Error in orgqr, exited with code {0}")]
     LapackError(i32),
 }
 
 //{{{ trait: Orqr
-pub trait Orgqr: Copy {
-    
+pub trait Orgqr: Copy
+{
     fn orgqr(
         m: i32,
         n: i32,
@@ -34,8 +35,8 @@ pub trait Orgqr: Copy {
 }
 //}}}
 //{{{ impl: Orqr for f64
-impl Orgqr for f64 {
-
+impl Orgqr for f64
+{
     #[inline]
     fn orgqr(
         m: i32,
@@ -46,12 +47,14 @@ impl Orgqr for f64 {
         tau: &[Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error>
+    {
         let mut info = 0;
         unsafe {
             lapack::dorgqr(m, n, k, a, lda, tau, work, lwork, &mut info);
         }
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())
@@ -59,8 +62,8 @@ impl Orgqr for f64 {
 }
 //}}}
 //{{{ impl: Orqr for f32
-impl Orgqr for f32 {
-
+impl Orgqr for f32
+{
     #[inline]
     fn orgqr(
         m: i32,
@@ -71,12 +74,14 @@ impl Orgqr for f32 {
         tau: &[Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error>
+    {
         let mut info = 0;
         unsafe {
             lapack::sorgqr(m, n, k, a, lda, tau, work, lwork, &mut info);
         }
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())

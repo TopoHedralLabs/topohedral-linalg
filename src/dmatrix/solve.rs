@@ -3,21 +3,22 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use super::DMatrix;
-use crate::common::Field;
 use crate::blaslapack::gesv;
 use crate::blaslapack::gesv::Gesv;
+use crate::common::Field;
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum Error
+{
     #[error("Error in solve(), exited with error:\n{0}")]
     GesvError(#[from] gesv::Error),
 }
@@ -25,9 +26,13 @@ pub enum Error {
 #[allow(private_bounds)]
 impl<T> DMatrix<T>
 where
-    T: Gesv + Field
+    T: Gesv + Field,
 {
-    pub fn solve(&self, b: &DMatrix<T>) -> Result<DMatrix<T>, Error> {
+    pub fn solve(
+        &self,
+        b: &DMatrix<T>,
+    ) -> Result<DMatrix<T>, Error>
+    {
         let n = self.nrows;
         let m = self.ncols;
         let mut a = self.clone();
