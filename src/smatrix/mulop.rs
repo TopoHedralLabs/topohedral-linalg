@@ -19,7 +19,6 @@ use std::ops::Mul;
 //{{{ collection: MulOp for SMatrix
 //{{{ impl: Mul<T> for SMatrix
 #[doc(hidden)]
-
 impl<'a, T, const N: usize, const M: usize> Mul<T> for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -49,7 +48,6 @@ where
 macro_rules! impl_smatrix_mul {
     ($type:ty) => {
         #[doc(hidden)]
-
         impl<'a, const N: usize, const M: usize> Mul<&'a SMatrix<$type, N, M>> for $type
         where
             [(); N * M]:,

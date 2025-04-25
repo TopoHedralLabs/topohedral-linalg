@@ -25,7 +25,6 @@ where
     type Output = BinopExpr<&'a DMatrix<T>, T, T, AddOp>;
 
     #[inline]
-
     fn add(
         self,
         rhs: T,
@@ -48,13 +47,11 @@ where
 macro_rules! impl_dmatrix_add {
     ($type:ty) => {
         #[doc(hidden)]
-
         impl<'a> Add<&'a DMatrix<$type>> for $type
         {
             type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, AddOp>;
 
             #[inline]
-
             fn add(
                 self,
                 rhs: &'a DMatrix<$type>,
@@ -83,7 +80,6 @@ where
     type Output = BinopExpr<&'a DMatrix<T>, &'a DMatrix<T>, T, AddOp>;
 
     #[inline]
-
     fn add(
         self,
         rhs: Self,
@@ -113,7 +109,6 @@ where
     type Output = BinopExpr<Self, &'a DMatrix<T>, T, AddOp>;
 
     #[inline]
-
     fn add(
         self,
         rhs: &'a DMatrix<T>,
@@ -143,7 +138,6 @@ where
     type Output = BinopExpr<Self, BinopExpr<A, B, T, Op>, T, AddOp>;
 
     #[inline]
-
     fn add(
         self,
         rhs: BinopExpr<A, B, T, Op>,

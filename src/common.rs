@@ -92,7 +92,6 @@ macro_rules! impl_field {
             type Output = Self;
 
             #[inline]
-
             fn index_value(
                 &self,
                 _index: usize,

@@ -17,7 +17,6 @@ use std::ops::Sub;
 //{{{ collection: SubOp for SMatrix
 //{{{ impl: Sub<T> for SMatrix
 #[doc(hidden)]
-
 impl<'a, T, const N: usize, const M: usize> Sub<T> for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -47,7 +46,6 @@ where
 macro_rules! impl_smatrix_sub {
     ($type:ty) => {
         #[doc(hidden)]
-
         impl<'a, const N: usize, const M: usize> Sub<&'a SMatrix<$type, N, M>> for $type
         where
             [(); N * M]:,

@@ -15,7 +15,6 @@ use crate::apply_for_all_integer_types;
 //{{{ trait: Gemv
 /// Trait which signifies matrices of type can perform a general matrix-vector multiplication (GEMV)
 /// operation.
-
 pub trait Gemv: Copy
 {
     /// Performs a general matrix-vector multiplication (GEMV) operation.
@@ -58,7 +57,6 @@ pub trait Gemv: Copy
 impl Gemv for f64
 {
     #[inline]
-
     fn gemv(
         tr: cblas::Transpose,
         m: i32,
@@ -97,7 +95,6 @@ impl Gemv for f64
 impl Gemv for f32
 {
     #[inline]
-
     fn gemv(
         tr: cblas::Transpose,
         m: i32,
@@ -138,7 +135,6 @@ macro_rules! impl_naive_gemv {
         impl Gemv for $t
         {
             #[inline]
-
             fn gemv(
                 tr: cblas::Transpose,
                 m: i32,

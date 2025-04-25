@@ -15,7 +15,6 @@ use crate::apply_for_all_integer_types;
 //{{{ trait: Gemm
 /// Trait which signifies matrices of type can perform a general matrix multiplication (GEMM)
 /// operation.
-
 pub trait Gemm: Copy
 {
     /// Performs a general matrix multiplication (GEMM) operation.
@@ -66,7 +65,6 @@ pub trait Gemm: Copy
 impl Gemm for f64
 {
     #[inline]
-
     fn gemm(
         tr1: cblas::Transpose,
         tr2: cblas::Transpose,
@@ -109,7 +107,6 @@ impl Gemm for f64
 impl Gemm for f32
 {
     #[inline]
-
     fn gemm(
         tr1: cblas::Transpose,
         tr2: cblas::Transpose,
@@ -154,7 +151,6 @@ macro_rules! impl_naive_gemm {
         impl Gemm for $t
         {
             #[inline]
-
             fn gemm(
                 tr1: cblas::Transpose,
                 tr2: cblas::Transpose,

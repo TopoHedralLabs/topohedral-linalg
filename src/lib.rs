@@ -27,7 +27,6 @@ pub mod smatrix;
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
 #[cfg(test)]
-
 mod tests
 {
 
@@ -35,14 +34,12 @@ mod tests
     use topohedral_tracing::*;
 
     #[ctor]
-
     fn init_logger()
     {
         init().unwrap();
     }
 
     #[test]
-
     fn test_logging()
     {
         info!("Logging is working!");

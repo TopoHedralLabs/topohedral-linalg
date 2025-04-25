@@ -88,7 +88,6 @@ where
     type Output = T;
 
     #[inline]
-
     fn index_value(
         &self,
         index: usize,
@@ -107,7 +106,6 @@ where
     type Output = T;
 
     #[inline]
-
     fn index_value(
         &self,
         index: usize,
