@@ -8,7 +8,7 @@ use crate::blaslapack::getrf::Getrf;
 //{{{ std imports
 use ::std::ops::{Add, Div, Mul, Neg, Sub};
 use std::cmp::PartialEq;
-use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign, Index, IndexMut};
+use std::ops::{AddAssign, DivAssign, Index, IndexMut, MulAssign, SubAssign};
 
 //}}}
 //{{{ dep imports
@@ -200,7 +200,7 @@ pub trait Float: Field
     ) -> Self;
 }
 //}}}
-//{{{ impl: Float for f32 
+//{{{ impl: Float for f32
 impl Float for f32
 {
     fn acos(self) -> Self
@@ -272,7 +272,7 @@ where
     fn trace(&self) -> Self::ScalarType;
 }
 //}}}
-//{{{ trait: VectorOps 
+//{{{ trait: VectorOps
 pub trait VectorOps:
     Index<usize, Output = Self::ScalarType> + IndexMut<usize, Output = Self::ScalarType> + Sized + Clone
 {
@@ -344,7 +344,7 @@ pub trait VectorOps:
             panic!("Cross product is only defined for 2D and 3D vectors");
         }
 
-        if self.len() != other.len() 
+        if self.len() != other.len()
         {
             panic!("Vectors must be of the same length");
         }
@@ -369,8 +369,7 @@ where
         other: &Self,
     ) -> Self::ScalarType
     {
-
-        if self.len() != other.len() 
+        if self.len() != other.len()
         {
             panic!("Vectors must be of the same length");
         }

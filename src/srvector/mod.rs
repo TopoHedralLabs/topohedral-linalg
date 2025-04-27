@@ -2,13 +2,13 @@
 //!
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 use super::smatrix::SMatrix;
-use crate::common::{VectorOps, FloatVectorOps, Zero, One, Field, Float};
+use crate::common::{Field, Float, FloatVectorOps, One, VectorOps, Zero};
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -24,13 +24,12 @@ impl IsTrue for Assert<true> {}
 pub type SRVector<T, const N: usize> = SMatrix<T, 1, N>;
 //}}}
 //{{{ impl: VectorOps for SCVector
-impl<T, const N: usize>  VectorOps for SRVector<T, N>
+impl<T, const N: usize> VectorOps for SRVector<T, N>
 where
     [(); 1usize * N]:,
     T: Field + Default + Copy + Clone + Zero + One,
-    Assert<{N > 1}>: IsTrue,
+    Assert<{ N > 1 }>: IsTrue,
 {
-
     type ScalarType = T;
 
     fn len(&self) -> usize
@@ -40,10 +39,11 @@ where
 }
 //}}}
 //{{{ impl: FloatVectorOps for SCVector
-impl<T, const N: usize> FloatVectorOps for SRVector<T, N> 
+impl<T, const N: usize> FloatVectorOps for SRVector<T, N>
 where
     [(); 1usize * N]:,
     T: Float + Default + Copy + Clone + Zero + One,
-    Assert<{N > 1}>: IsTrue,
-{}
+    Assert<{ N > 1 }>: IsTrue,
+{
+}
 //}}}
