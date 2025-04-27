@@ -14,7 +14,7 @@ use crate::common::{VectorOps, FloatVectorOps, Zero, One, Field, Float};
 
 //{{{ collection: compile-time checks
 /// Assertion struct for compile-time checks
-struct Assert<const check: bool>;
+struct Assert<const CHECK: bool>;
 /// This trait is used to ensure that the compile-time check is true
 trait IsTrue {}
 impl IsTrue for Assert<true> {}

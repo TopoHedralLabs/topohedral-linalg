@@ -3,9 +3,6 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-
-use std::vec;
-
 //{{{ crate imports 
 use crate::dmatrix::DMatrix;
 use crate::common::{Field, One, Zero, VectorOps, FloatVectorOps, Float};
