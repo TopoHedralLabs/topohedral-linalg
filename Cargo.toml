@@ -6,7 +6,7 @@ edition = "2021"
 repository = "https://github.com/TopoHedralLabs/topohedral-linalg"
 readme = "README.md"
 license = "MIT"
-description = "A library for tracing the execution of Rust programs. Provides both a compile-time switch and a runtime switch for tracing."
+description = "A library for small, dense linear algebra in rust, blas/lapack backends and expression templates"
 publish = ["cloudsmith"]
 
 
