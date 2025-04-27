@@ -22,6 +22,7 @@ mod expression;
 //{{{ collection: public API
 pub use common::{Complex, MatrixOps, VectorOps, FloatVectorOps};
 pub mod dmatrix;
+pub mod dvector;
 pub mod smatrix;
 pub mod srvector;
 pub mod scvector;

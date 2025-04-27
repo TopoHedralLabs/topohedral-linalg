@@ -305,6 +305,11 @@ pub trait VectorOps:
         other: &Self,
     ) -> Self::ScalarType
     {
+        if self.len() != other.len()
+        {
+            panic!("Vectors must be of the same length");
+        }
+
         let mut out = Self::ScalarType::zero();
         for i in 0..self.len()
         {
@@ -337,6 +342,11 @@ pub trait VectorOps:
         if self.len() != 3
         {
             panic!("Cross product is only defined for 2D and 3D vectors");
+        }
+
+        if self.len() != other.len() 
+        {
+            panic!("Vectors must be of the same length");
         }
 
         let mut out = other.clone();
