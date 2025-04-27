@@ -1,6 +1,6 @@
-//! Short Description of module
+//! # Welcome to Topohedral-Linalg!
 //!
-//! Longer description of module
+//!
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -20,9 +20,12 @@ mod common;
 mod expression;
 //}}}
 //{{{ collection: public API
-pub use common::{Complex, MatrixOps};
+pub use common::{Complex, FloatVectorOps, MatrixOps, VectorOps};
 pub mod dmatrix;
+pub mod dvector;
+pub mod scvector;
 pub mod smatrix;
+pub mod srvector;
 //}}}
 
 //-------------------------------------------------------------------------------------------------

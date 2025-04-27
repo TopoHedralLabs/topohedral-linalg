@@ -8,7 +8,7 @@ use crate::blaslapack::getrf::Getrf;
 //{{{ std imports
 use ::std::ops::{Add, Div, Mul, Neg, Sub};
 use std::cmp::PartialEq;
-use std::ops::{AddAssign, DivAssign, MulAssign, SubAssign};
+use std::ops::{AddAssign, DivAssign, Index, IndexMut, MulAssign, SubAssign};
 
 //}}}
 //{{{ dep imports
@@ -151,7 +151,6 @@ pub trait One
 }
 //}}}
 //{{{ collection: impl_one implementations
-
 impl One for f32
 {
     fn one() -> Self
@@ -185,7 +184,7 @@ apply_for_all_integer_types!(impl_zero);
 //{{{ collection: re-exports
 pub use num_complex::Complex;
 //}}}
-
+//{{{ trait: Float
 pub trait Float: Field
 {
     fn acos(self) -> Self;
@@ -200,6 +199,8 @@ pub trait Float: Field
         exp: i32,
     ) -> Self;
 }
+//}}}
+//{{{ impl: Float for f32
 impl Float for f32
 {
     fn acos(self) -> Self
@@ -226,6 +227,8 @@ impl Float for f32
         self.powi(exp)
     }
 }
+//}}}
+//{{{ impl: Float for f64
 impl Float for f64
 {
     fn acos(self) -> Self
@@ -252,7 +255,8 @@ impl Float for f64
         self.powi(exp)
     }
 }
-
+//}}}
+//{{{ trait: MatrixOps
 pub trait MatrixOps
 where
     Self: Sized,
@@ -267,3 +271,125 @@ where
         Self::ScalarType: Getrf + Float;
     fn trace(&self) -> Self::ScalarType;
 }
+//}}}
+//{{{ trait: VectorOps
+#[allow(clippy::len_without_is_empty)]
+pub trait VectorOps:
+    Index<usize, Output = Self::ScalarType> + IndexMut<usize, Output = Self::ScalarType> + Sized + Clone
+{
+    type ScalarType: Field + Zero + One + Copy + Default;
+
+    //{{{ fn: len
+    fn len(&self) -> usize;
+    //}}}
+    //{{{ fn: norm
+    /// Computes the norm (magnitude) of the vector.
+    ///
+    /// # Returns
+    ///
+    /// The norm of the vector as a value of type `Self::T`.
+    ///
+    fn norm(&self) -> Self::ScalarType
+    {
+        let mut out = Self::ScalarType::zero();
+
+        for i in 0..self.len()
+        {
+            out += self[i] * self[i]
+        }
+        out
+    }
+    //}}}
+    //{{{ fn: dot
+    fn dot(
+        &self,
+        other: &Self,
+    ) -> Self::ScalarType
+    {
+        if self.len() != other.len()
+        {
+            panic!("Vectors must be of the same length");
+        }
+
+        let mut out = Self::ScalarType::zero();
+        for i in 0..self.len()
+        {
+            out += self[i] * other[i]
+        }
+        out
+    }
+    //}}}
+    //{{{ fn: normalize
+    fn normalize(&self) -> Self
+    {
+        let norm = self.norm();
+        let mut out = self.clone();
+        if norm != Self::ScalarType::zero()
+        {
+            for i in 0..self.len()
+            {
+                out[i] /= norm;
+            }
+        }
+        out
+    }
+    //}}}
+    //{{{ fn: cross
+    fn cross(
+        &self,
+        other: &Self,
+    ) -> Self
+    {
+        if self.len() != 3
+        {
+            panic!("Cross product is only defined for 2D and 3D vectors");
+        }
+
+        if self.len() != other.len()
+        {
+            panic!("Vectors must be of the same length");
+        }
+
+        let mut out = other.clone();
+        out[0] = self[1] * other[2] - self[2] * other[1];
+        out[1] = self[2] * other[0] - self[0] * other[2];
+        out[2] = self[0] * other[1] - self[1] * other[0];
+        out
+    }
+    //}}}
+}
+//}}}
+//{{{ trait: FloatVectorOps
+pub trait FloatVectorOps: VectorOps
+where
+    Self::ScalarType: Float + Zero + One + Copy + Default,
+{
+    //{{{ fn: angle
+    fn angle(
+        &self,
+        other: &Self,
+    ) -> Self::ScalarType
+    {
+        if self.len() != other.len()
+        {
+            panic!("Vectors must be of the same length");
+        }
+
+        if self.len() != 2 && self.len() != 3
+        {
+            panic!("Angle is only defined for 2D and 3D vectors");
+        }
+
+        if self.norm() < Self::ScalarType::small() || other.norm() < Self::ScalarType::small()
+        {
+            panic!("Cannot compute angle with zero vector");
+        }
+
+        let a = self.normalize();
+        let b = other.normalize();
+        let dot = (a.dot(&b)).clamp(-Self::ScalarType::one(), Self::ScalarType::one());
+        dot.acos()
+    }
+    //}}}
+}
+//}}}
