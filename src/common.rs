@@ -359,6 +359,17 @@ where
         other: &Self,
     ) -> Self::ScalarType
     {
+
+        if self.len() != other.len() 
+        {
+            panic!("Vectors must be of the same length");
+        }
+
+        if self.len() != 2 && self.len() != 3
+        {
+            panic!("Angle is only defined for 2D and 3D vectors");
+        }
+
         if self.norm() < Self::ScalarType::small() || other.norm() < Self::ScalarType::small()
         {
             panic!("Cannot compute angle with zero vector");
