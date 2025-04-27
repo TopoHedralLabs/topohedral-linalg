@@ -24,6 +24,7 @@ impl IsTrue for Assert<true> {}
 pub type SRVector<T, const N: usize> = SMatrix<T, 1, N>;
 //}}}
 //{{{ impl: VectorOps for SCVector
+#[allow(clippy::identity_op)]
 impl<T, const N: usize> VectorOps for SRVector<T, N>
 where
     [(); 1usize * N]:,
@@ -39,6 +40,7 @@ where
 }
 //}}}
 //{{{ impl: FloatVectorOps for SCVector
+#[allow(clippy::identity_op)]
 impl<T, const N: usize> FloatVectorOps for SRVector<T, N>
 where
     [(); 1usize * N]:,

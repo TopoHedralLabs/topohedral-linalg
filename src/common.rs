@@ -273,6 +273,7 @@ where
 }
 //}}}
 //{{{ trait: VectorOps
+#[allow(clippy::len_without_is_empty)]
 pub trait VectorOps:
     Index<usize, Output = Self::ScalarType> + IndexMut<usize, Output = Self::ScalarType> + Sized + Clone
 {
