@@ -5,7 +5,7 @@
 
 mod dmatrix_tests {
 
-    // use topohedral_linalg::dmatrix::subviews::MatrixView;
+    use topohedral_linalg::dmatrix::subviews::{MatrixView, MatrixViewIter};
     use topohedral_linalg::dmatrix::DMatrix;
 
 
@@ -26,9 +26,26 @@ mod dmatrix_tests {
                 assert_eq!(subm[(i, j)], m[(i + 1, j + 1)]);
             }
         }
-
-        
     }
+
+    #[test]
+    fn test_row() {
+
+        let m = DMatrix::<i32>::from_col_slice(&[1, 2, 3, 4, 5, 
+                                                 6, 7, 8, 9, 10, 
+                                                 11, 12, 13, 14, 15,
+                                                 16, 17, 18, 19, 20, 
+                                                 21, 22, 23, 24, 25], 
+                                                 5, 5);
+
+        let subm = m.row(2);
+        let expected = [3, 8, 13, 18, 23];
+
+        for (val, exp) in subm.iter().zip(expected.iter()) {
+            assert_eq!(*val, *exp);
+        }
+    }
+
 
     #[test]
     fn test_submatrix_iter() {
