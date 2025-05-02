@@ -5,7 +5,7 @@
 
 mod dmatrix_tests {
 
-    use topohedral_linalg::subviews::MatrixView;
+    // use topohedral_linalg::dmatrix::subviews::MatrixView;
     use topohedral_linalg::dmatrix::DMatrix;
 
 

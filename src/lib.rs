@@ -26,7 +26,6 @@ pub mod dvector;
 pub mod scvector;
 pub mod smatrix;
 pub mod srvector;
-pub mod subviews;
 //}}}
 
 //-------------------------------------------------------------------------------------------------
