@@ -16,11 +16,11 @@ use std::ops::{Index, IndexMut};
 
 
 //{{{ struct: MatrixView
-pub struct MatrixView<'a, Mat> 
+pub struct MatrixView<'a, T> 
 where 
-    Mat: MatrixOps + Index<(usize, usize), Output = <Mat as MatrixOps>::ScalarType>,
+    T: Field + Copy,
 {
-    pub(crate) matrix: &'a Mat,
+    pub(crate) matrix: &'a DMatrix<T>,
     pub(crate) start_row: usize,
     pub(crate) start_col: usize,
     pub(crate) nrows: usize,
@@ -28,11 +28,11 @@ where
 }
 //}}}
 //{{{ impl: Index for MatrixView
-impl<'a, Mat> Index<(usize, usize)> for MatrixView<'a, Mat>
+impl<'a, T> Index<(usize, usize)> for MatrixView<'a, T>
 where 
-    Mat: MatrixOps + Index<(usize, usize), Output = <Mat as MatrixOps>::ScalarType>,
+    T: Field + Copy,
 {
-    type Output = <Mat as MatrixOps>::ScalarType;
+    type Output = T;
 
     fn index(&self, index: (usize, usize)) -> &Self::Output {
         let (row_loc, col_loc) = index;
@@ -41,20 +41,20 @@ where
 }
 //}}}
 //{{{ struct: MatrixViewIter
-pub struct MatrixViewIter<'a, Mat>
+pub struct MatrixViewIter<'a, T>
 where 
-    Mat: MatrixOps + Index<(usize, usize), Output = <Mat as MatrixOps>::ScalarType>,
+    T: Field + Copy,
 {
-    pub(crate) matrix_view: &'a MatrixView<'a, Mat>,
+    pub(crate) matrix_view: &'a MatrixView<'a, T>,
     index: usize,
 }
 //}}}
 //{{{ impl: Iterator for MatrixViewIter
-impl<'a, Mat> Iterator for MatrixViewIter<'a, Mat> 
+impl<'a, T> Iterator for MatrixViewIter<'a, T> 
 where 
-    Mat: MatrixOps + Index<(usize, usize), Output = <Mat as MatrixOps>::ScalarType>,
+    T: Field + Copy,
 {
-    type Item = &'a <Mat as MatrixOps>::ScalarType;
+    type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.matrix_view.nrows * self.matrix_view.ncols {
@@ -68,14 +68,28 @@ where
 }
 //}}}
 //{{{ impl: MatrixView
-impl<'a, Mat> MatrixView<'a, Mat>
+impl<'a, T> MatrixView<'a, T>
 where 
-    Mat: MatrixOps + Index<(usize, usize), Output = <Mat as MatrixOps>::ScalarType>,
+    T: Field + Copy,
 {
-    pub fn iter(&'a self) -> MatrixViewIter<'a, Mat> {
+    pub fn iter(&'a self) -> MatrixViewIter<'a, T> {
         MatrixViewIter {
             matrix_view: self,
             index: 0,
+        }
+    }
+
+    pub fn to_dmatrix(&self) -> DMatrix<T> {
+        let mut data = Vec::with_capacity(self.nrows * self.ncols);
+        for i in 0..self.nrows {
+            for j in 0..self.ncols {
+                data.push(self[(j, i)]);
+            }
+        }
+        DMatrix {
+            data,
+            nrows: self.nrows,
+            ncols: self.ncols,
         }
     }
 }
@@ -94,7 +108,7 @@ where
         start_col: usize,
         nrows: usize,
         ncols: usize,
-    ) -> MatrixView<'a, DMatrix<T>> {
+    ) -> MatrixView<'a, T> {
         MatrixView {
             matrix: self,
             start_row,
@@ -108,7 +122,7 @@ where
     pub fn row(
         &'a self,
         row: usize,
-    ) -> MatrixView<'a, DMatrix<T>> {
+    ) -> MatrixView<'a, T> {
         self.subview(row, 0, 1, self.ncols)
     }
     //}}}
@@ -117,7 +131,7 @@ where
         &'a self,
         start_row: usize,
         nrows: usize,
-    ) -> MatrixView<'a, DMatrix<T>> {
+    ) -> MatrixView<'a, T> {
         self.subview(start_row, 0, nrows, self.ncols)
     }
     //}}}
@@ -125,7 +139,7 @@ where
     pub fn col(
         &'a self,
         col: usize,
-    ) -> MatrixView<'a, DMatrix<T>> {
+    ) -> MatrixView<'a, T> {
         self.subview(0, col, self.nrows, 1)
     }
     //}}}
@@ -134,7 +148,7 @@ where
         &'a self,
         start_col: usize,
         ncols: usize,
-    ) -> MatrixView<'a, DMatrix<T>> {
+    ) -> MatrixView<'a, T> {
         self.subview(0, start_col, self.nrows, ncols)
     }
     //}}}
