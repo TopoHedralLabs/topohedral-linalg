@@ -29,6 +29,7 @@ pub mod matrix_ops;
 pub mod qr;
 pub mod schur;
 pub mod solve;
+pub mod symeig;
 // everything else
 pub mod construction;
 pub mod indexing;

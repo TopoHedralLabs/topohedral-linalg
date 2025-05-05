@@ -38,33 +38,28 @@ def test_diagonal_dominant():
     print(u)
 
 
+def test_symmetric_eig():
+
+    m1 = np.array([[1.0, 2.0, 3.0], 
+                   [2.0, 4.0, 5.0], 
+                   [3.0, 5.0, 6.0]])
+
+    eig_out = sci.linalg.eigh(a = m1, lower = True, type=2)
+    print(np.array2string(eig_out[0], precision=14, suppress_small=False, formatter={'float': lambda x: f'{x:.14e}'}))
+    np.set_printoptions(precision=14, suppress=False, formatter={'float': lambda x: f'{x:.14e}'})
+    print(eig_out[1])
+    np.set_printoptions(precision=8, suppress=False, formatter=None)
+
+
 
 def main():
 
     # test_non_diagonal_dominant()
     # test_diagonal_dominant()
-    test_eig()
+    # test_eig()
+    test_symmetric_eig()
 
-    # for m in range(30):
-    #     for n in range(30):
-    #         for k in range(30):
-
-    #             m1 = np.random.uniform(low=0, high=100, size=(m, k))
-    #             out = sci.linalg.qr
-    #             m2 = np.random.uniform(low=0, high=100, size=(k, n))
-
-
-    # pass
 
 
 if __name__ == "__main__":
     main()
-
-
-#  INFO is INTEGER
-#           = 0:  successful exit
-#           < 0:  if INFO = -i, the i-th argument had an illegal value
-#           > 0:  if INFO = i, U(i,i) is exactly zero. The factorization
-#                 has been completed, but the factor U is exactly
-#                 singular, and division by zero will occur if it is used
-#                 to solve a system of equations.

@@ -20,3 +20,4 @@ pub mod geqrf;
 pub mod gesv;
 pub mod getrf;
 pub mod orgqr;
+pub mod syev;
