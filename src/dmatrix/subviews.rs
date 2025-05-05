@@ -377,7 +377,6 @@ where
         end_col: usize,
     ) -> MatrixView<'a, T>
     {
-        let ncols = end_col - start_col;
         self.subview(0, self.nrows - 1, start_col, end_col)
     }
     //}}}

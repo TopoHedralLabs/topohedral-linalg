@@ -20,6 +20,7 @@ pub enum Error
 }
 
 /// Trait for LAPACK's symmetric eigenvalue computation routine
+#[allow(clippy::too_many_arguments)]
 pub trait Syev: Copy
 {
     fn syev(

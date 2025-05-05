@@ -5,7 +5,6 @@
 mod dmatrix_tests
 {
 
-    use topohedral_linalg::dmatrix::subviews::{MatrixView, MatrixViewIter};
     use topohedral_linalg::dmatrix::DMatrix;
 
     #[test]

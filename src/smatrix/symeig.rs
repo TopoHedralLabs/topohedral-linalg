@@ -63,7 +63,7 @@ where
     {
         // SMatrix is always square, so no need to check for squareness
 
-        let mut a = self.clone();
+        let mut a = *self;
         let mut eigvals = [T::zero(); N];
 
         // Query optimal workspace
