@@ -39,12 +39,11 @@ where
 {
     /// Matrix of eigenvectors (columns are the eigenvectors)
     pub eigvecs: SMatrix<T, N, N>,
-    
+
     /// Real eigenvalues
     pub eigvals: [T; N],
 }
 //}}}
-
 
 #[allow(private_bounds)]
 impl<T, const N: usize> SMatrix<T, N, N>
@@ -70,14 +69,14 @@ where
         // Query optimal workspace
         let mut work = vec![T::zero(); 1];
         T::syev(
-            b'V',        // Compute both eigenvalues and eigenvectors
-            b'L',        // Use lower triangular part of the matrix
+            b'V', // Compute both eigenvalues and eigenvectors
+            b'L', // Use lower triangular part of the matrix
             N as i32,
             &mut a.data,
             N as i32,
             &mut eigvals,
             &mut work,
-            -1,          // Workspace query
+            -1, // Workspace query
         )?;
 
         // Perform eigenvalue decomposition

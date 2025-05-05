@@ -38,12 +38,11 @@ where
 {
     /// Matrix of eigenvectors (columns are the eigenvectors)
     pub eigvecs: DMatrix<T>,
-    
+
     /// Real eigenvalues
     pub eigvals: Vec<T>,
 }
 //}}}
-
 
 #[allow(private_bounds)]
 impl<T> DMatrix<T>
@@ -61,7 +60,8 @@ where
     pub fn symeig(&self) -> Result<Return<T>, Error>
     {
         let n = self.nrows;
-        if n != self.ncols {
+        if n != self.ncols
+        {
             panic!("Matrix must be square for eigenvalue decomposition");
         }
 
@@ -71,14 +71,14 @@ where
         // Query optimal workspace
         let mut work = vec![T::zero(); 1];
         T::syev(
-            b'V',        // Compute both eigenvalues and eigenvectors
-            b'L',        // Use lower triangular part of the matrix
+            b'V', // Compute both eigenvalues and eigenvectors
+            b'L', // Use lower triangular part of the matrix
             n as i32,
             &mut a.data,
             n as i32,
             &mut eigvals,
             &mut work,
-            -1,          // Workspace query
+            -1, // Workspace query
         )?;
 
         // Perform eigenvalue decomposition

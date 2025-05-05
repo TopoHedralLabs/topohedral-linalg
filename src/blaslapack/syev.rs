@@ -3,11 +3,11 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 
-//{{{ crate imports 
+//{{{ crate imports
 //}}}
-//{{{ std imports 
+//{{{ std imports
 //}}}
-//{{{ dep imports 
+//{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
@@ -20,10 +20,11 @@ pub enum Error
 }
 
 /// Trait for LAPACK's symmetric eigenvalue computation routine
-pub trait Syev: Copy {
+pub trait Syev: Copy
+{
     fn syev(
-        jobz: u8,       // 'N' for eigenvalues only, 'V' for eigenvalues and eigenvectors
-        uplo: u8,       // 'U' for upper triangle, 'L' for lower triangle
+        jobz: u8, // 'N' for eigenvalues only, 'V' for eigenvalues and eigenvectors
+        uplo: u8, // 'U' for upper triangle, 'L' for lower triangle
         n: i32,
         a: &mut [Self], // On exit, contains eigenvectors if jobz = 'V'
         lda: i32,
@@ -34,7 +35,8 @@ pub trait Syev: Copy {
 }
 
 // Implementation for f64
-impl Syev for f64 {
+impl Syev for f64
+{
     #[inline]
     fn syev(
         jobz: u8,
@@ -45,12 +47,14 @@ impl Syev for f64 {
         w: &mut [Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error>
+    {
         let mut info = 0;
         unsafe {
             lapack::dsyev(jobz, uplo, n, a, lda, w, work, lwork, &mut info);
         }
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())
@@ -58,7 +62,8 @@ impl Syev for f64 {
 }
 
 // Implementation for f32
-impl Syev for f32 {
+impl Syev for f32
+{
     #[inline]
     fn syev(
         jobz: u8,
@@ -69,12 +74,14 @@ impl Syev for f32 {
         w: &mut [Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error>
+    {
         let mut info = 0;
         unsafe {
             lapack::ssyev(jobz, uplo, n, a, lda, w, work, lwork, &mut info);
         }
-        if info != 0 {
+        if info != 0
+        {
             return Err(Error::LapackError(info));
         }
         Ok(())

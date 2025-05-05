@@ -4,7 +4,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{Field, IndexValue, lin_index};
+use crate::common::{lin_index, Field, IndexValue};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
