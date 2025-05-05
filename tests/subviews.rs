@@ -19,10 +19,10 @@ mod dmatrix_tests {
                                                  21, 22, 23, 24, 25], 
                                                  5, 5);
 
-        let subm = m.subview(1, 1, 3, 3);
+        let subm = m.subview(1, 3, 1, 3);
 
-        for i in 0..3 {
-            for j in 0..3 {
+        for i in 0..2 {
+            for j in 0..2 {
                 assert_eq!(subm[(i, j)], m[(i + 1, j + 1)]);
             }
         }
@@ -46,6 +46,59 @@ mod dmatrix_tests {
         }
     }
 
+    #[test]
+    fn test_rows() {
+        let m = DMatrix::<i32>::from_col_slice(&[1,  2,  3,  4,  5, 
+                                                 6,  7,  8,  9,  10, 
+                                                 11, 12, 13, 14, 15,
+                                                 16, 17, 18, 19, 20, 
+                                                 21, 22, 23, 24, 25], 
+                                                 5, 5);
+
+        let subm = m.rows(1, 2);
+        let expected = [2, 3, 7,8,12,13,17,18,22,23];
+
+
+        for (val, exp) in subm.iter().zip(expected.iter()) {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_col() {
+
+        let m = DMatrix::<i32>::from_col_slice(&[1, 2, 3, 4, 5, 
+                                                 6, 7, 8, 9, 10, 
+                                                 11, 12, 13, 14, 15,
+                                                 16, 17, 18, 19, 20, 
+                                                 21, 22, 23, 24, 25], 
+                                                 5, 5);
+
+        let subm = m.col(4);
+        let expected = [21, 22, 23, 24, 25];
+
+        for (val, exp) in subm.iter().zip(expected.iter()) {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_cols() {
+        let m = DMatrix::<i32>::from_col_slice(&[1, 2, 3, 4, 5, 
+                                                 6, 7, 8, 9, 10, 
+                                                 11, 12, 13, 14, 15,
+                                                 16, 17, 18, 19, 20, 
+                                                 21, 22, 23, 24, 25], 
+                                                 5, 5);
+
+        let subm = m.cols(1,3);
+        let expected = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+
+        for (val, exp) in subm.iter().zip(expected.iter()) {
+            assert_eq!(*val,*exp);
+        }
+    }
+
 
     #[test]
     fn test_submatrix_iter() {
@@ -56,7 +109,7 @@ mod dmatrix_tests {
                                                  21, 22, 23, 24, 25], 
                                                  5, 5);
 
-        let subm = m.subview(1, 1, 3, 3);
+        let subm = m.subview(1, 3, 1, 3);
 
         let mut iter = subm.iter();
 

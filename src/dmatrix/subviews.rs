@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports 
-use crate::common::{Field, MatrixOps, Zero, One, tuple_index};
+use crate::common::{Field, Zero, One, tuple_index};
 use super::DMatrix;
 //}}}
 //{{{ std imports 
@@ -105,10 +105,12 @@ where
     pub fn subview(
         &'a self,
         start_row: usize,
+        end_row: usize,
         start_col: usize,
-        nrows: usize,
-        ncols: usize,
+        end_col: usize,
     ) -> MatrixView<'a, T> {
+        let nrows = end_row - start_row + 1;
+        let ncols = end_col - start_col + 1;
         MatrixView {
             matrix: self,
             start_row,
@@ -123,16 +125,16 @@ where
         &'a self,
         row: usize,
     ) -> MatrixView<'a, T> {
-        self.subview(row, 0, 1, self.ncols)
+        self.subview(row, row, 0, self.ncols-1)
     }
     //}}}
     //{{{ fun: rows
     pub fn rows(
         &'a self,
         start_row: usize,
-        nrows: usize,
+        end_row: usize,
     ) -> MatrixView<'a, T> {
-        self.subview(start_row, 0, nrows, self.ncols)
+        self.subview(start_row, end_row, 0, self.ncols-1)
     }
     //}}}
     //{{{ fun: col
@@ -140,16 +142,17 @@ where
         &'a self,
         col: usize,
     ) -> MatrixView<'a, T> {
-        self.subview(0, col, self.nrows, 1)
+        self.subview(0, self.nrows-1, col, col)
     }
     //}}}
     //{{{ fun: cols
     pub fn cols(
         &'a self,
         start_col: usize,
-        ncols: usize,
+        end_col: usize
     ) -> MatrixView<'a, T> {
-        self.subview(0, start_col, self.nrows, ncols)
+        let ncols = end_col - start_col;
+        self.subview(0, self.nrows-1, start_col, end_col)
     }
     //}}}
 }
