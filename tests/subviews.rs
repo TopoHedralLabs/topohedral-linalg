@@ -2,6 +2,7 @@
 #![allow(incomplete_features)]
 #![feature(impl_trait_in_assoc_type)]
 
+//{{{ mod: dmatrix_tests
 mod dmatrix_tests
 {
 
@@ -290,3 +291,5 @@ mod dmatrix_tests
         }
     }
 }
+//}}}
+
