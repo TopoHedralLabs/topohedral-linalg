@@ -30,10 +30,12 @@ pub mod matrix_ops;
 pub mod qr;
 pub mod schur;
 pub mod solve;
+pub mod symeig;
 // everything else
 pub mod construction;
 pub mod indexing;
 pub mod iteration;
+pub mod subviews;
 
 //{{{ struct: DMatrix
 /// A dynamic-size $N \times M$ matrix type that stores its elements in a dynamic, contiguous array.

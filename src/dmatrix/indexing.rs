@@ -4,7 +4,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{Field, IndexValue};
+use crate::common::{lin_index, Field, IndexValue};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -116,14 +116,4 @@ where
 }
 
 //}}}
-//}}}
-//{{{ fun: lin_index
-#[inline]
-fn lin_index(
-    idx: (usize, usize),
-    n: usize,
-) -> usize
-{
-    idx.0 + idx.1 * n
-}
 //}}}

@@ -341,7 +341,7 @@ mod smatrix_tests
         }
     }
     //}}}
-    //{{{ collectoin: qr
+    //{{{ collectoin: qr tests
     #[test]
     fn test_qr_decomposition()
     {
@@ -379,7 +379,7 @@ mod smatrix_tests
         }
     }
     //}}}
-    //{{{ collection: schur
+    //{{{ collection: schur tests
     #[test]
     fn test_schur_decomposition()
     {
@@ -427,7 +427,7 @@ mod smatrix_tests
         }
     }
     //}}}
-    //{{{ collection: solve
+    //{{{ collection: solve test
     #[test]
     fn test_solve()
     {
@@ -446,6 +446,43 @@ mod smatrix_tests
         for i in 0..9
         {
             assert_relative_eq!(computed_b[i], b[i], max_relative = 1.0e-8);
+        }
+    }
+    //}}}
+    //{{{ collection: symeig tests
+    #[test]
+    fn test_symeig_simple()
+    {
+        let a =
+            SMatrix::<f64, 3, 3>::from_col_slice(&[1.0, 2.0, 3.0, 2.0, 4.0, 5.0, 3.0, 5.0, 6.0]);
+
+        let eig = a.symeig().unwrap();
+        let expected_eigenvalues = [
+            -5.15729471589257e-01,
+            1.70915188827179e-01,
+            1.13448142827621e+01,
+        ];
+
+        for (val, exp) in eig.eigvals.iter().zip(expected_eigenvalues.iter())
+        {
+            assert_relative_eq!(val, exp, epsilon = 1e-10);
+        }
+
+        let expected_eigenvectors = SMatrix::<f64, 3, 3>::from_row_slice(&[
+            -7.36976229099578e-01,
+            5.91009048506104e-01,
+            -3.27985277605682e-01,
+            -3.27985277605682e-01,
+            -7.36976229099578e-01,
+            -5.91009048506103e-01,
+            5.91009048506104e-01,
+            3.27985277605681e-01,
+            -7.36976229099578e-01,
+        ]);
+
+        for (val, exp) in eig.eigvecs.iter().zip(expected_eigenvectors.iter())
+        {
+            assert_relative_eq!(val, exp, epsilon = 1e-10);
         }
     }
     //}}}
@@ -919,6 +956,47 @@ mod dmatrix_tests
         for i in 0..9
         {
             assert_relative_eq!(computed_b[i], b[i], max_relative = 1.0e-8);
+        }
+    }
+    //}}}
+    //{{{ collection: symeig tests
+    #[test]
+    fn test_symeig_simple()
+    {
+        let a =
+            DMatrix::<f64>::from_col_slice(&[1.0, 2.0, 3.0, 2.0, 4.0, 5.0, 3.0, 5.0, 6.0], 3, 3);
+
+        let eig = a.symeig().unwrap();
+        let expected_eigenvalues = [
+            -5.15729471589257e-01,
+            1.70915188827179e-01,
+            1.13448142827621e+01,
+        ];
+
+        for (val, exp) in eig.eigvals.iter().zip(expected_eigenvalues.iter())
+        {
+            assert_relative_eq!(val, exp, epsilon = 1e-10);
+        }
+
+        let expected_eigenvectors = DMatrix::<f64>::from_row_slice(
+            &[
+                -7.36976229099578e-01,
+                5.91009048506104e-01,
+                -3.27985277605682e-01,
+                -3.27985277605682e-01,
+                -7.36976229099578e-01,
+                -5.91009048506103e-01,
+                5.91009048506104e-01,
+                3.27985277605681e-01,
+                -7.36976229099578e-01,
+            ],
+            3,
+            3,
+        );
+
+        for (val, exp) in eig.eigvecs.iter().zip(expected_eigenvectors.iter())
+        {
+            assert_relative_eq!(val, exp, epsilon = 1e-10);
         }
     }
     //}}}

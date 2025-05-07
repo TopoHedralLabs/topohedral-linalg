@@ -393,3 +393,24 @@ where
     //}}}
 }
 //}}}
+//{{{ fun: lin_index
+#[inline]
+pub fn lin_index(
+    idx: (usize, usize),
+    n: usize,
+) -> usize
+{
+    idx.0 + idx.1 * n
+}
+//}}}
+//{{{ fun: tuple_index
+#[inline]
+pub fn tuple_index(
+    idx: usize,
+    nrows: usize,
+) -> (usize, usize)
+{
+    (idx % nrows, idx / nrows)
+}
+
+//}}}

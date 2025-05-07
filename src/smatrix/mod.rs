@@ -29,11 +29,13 @@ pub mod matrix_ops;
 pub mod qr;
 pub mod schur;
 pub mod solve;
+pub mod symeig;
 // everything else
 pub mod construction;
 pub mod indexing;
 pub mod io;
 pub mod iteration;
+pub mod subviews;
 
 //{{{ struct: SMatrix
 /// A fixed-size $N \times M$ matrix type that stores its elements in a static, contiguous array.
