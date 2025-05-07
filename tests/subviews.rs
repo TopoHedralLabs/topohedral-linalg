@@ -301,12 +301,10 @@ mod smatrix_tests
     #[test]
     fn test_submatrix()
     {
-        let m = SMatrix::<i32, 5, 5>::from_col_slice(
-            &[
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-                24, 25,
-            ],
-        );
+        let m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
 
         let subm = m.subview(1, 3, 1, 3);
         // test via indexing
@@ -331,12 +329,10 @@ mod smatrix_tests
     #[test]
     fn test_row()
     {
-        let m = SMatrix::<i32, 5, 5>::from_col_slice(
-            &[
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-                24, 25,
-            ],
-        );
+        let m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
 
         let subm = m.row(2);
         let expected = [3, 8, 13, 18, 23];
@@ -350,12 +346,10 @@ mod smatrix_tests
     #[test]
     fn test_rows()
     {
-        let m = SMatrix::<i32, 5, 5>::from_col_slice(
-            &[
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-                24, 25,
-            ],
-        );
+        let m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
 
         let subm = m.rows(1, 2);
         let expected = [2, 3, 7, 8, 12, 13, 17, 18, 22, 23];
@@ -369,12 +363,10 @@ mod smatrix_tests
     #[test]
     fn test_col()
     {
-        let m = SMatrix::<i32, 5, 5>::from_col_slice(
-            &[
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-                24, 25,
-            ],
-        );
+        let m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
 
         let subm = m.col(4);
         let expected = [21, 22, 23, 24, 25];
@@ -388,12 +380,10 @@ mod smatrix_tests
     #[test]
     fn test_cols()
     {
-        let m = SMatrix::<i32, 5, 5>::from_col_slice(
-            &[
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-                24, 25,
-            ],
-        );
+        let m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
 
         let subm = m.cols(1, 3);
         let expected = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
@@ -407,12 +397,10 @@ mod smatrix_tests
     #[test]
     fn test_submatrix_mut()
     {
-        let mut m = SMatrix::<i32, 5, 5>::from_col_slice(
-            &[
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-                24, 25,
-            ],
-        );
+        let mut m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
         // test read
         let expected = m.subview(1, 3, 1, 3).to_dmatrix();
         let subm = m.subview_mut(1, 3, 1, 3);
@@ -436,12 +424,10 @@ mod smatrix_tests
     #[test]
     fn test_row_mut()
     {
-        let mut m = SMatrix::<i32, 5, 5>::from_col_slice(
-            &[
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-                24, 25,
-            ],
-        );
+        let mut m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
         // test read
         {
             let subm = m.row_mut(2);
@@ -470,12 +456,10 @@ mod smatrix_tests
     #[test]
     fn test_rows_mut()
     {
-        let mut m = SMatrix::<i32, 5,5>::from_col_slice(
-            &[
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-                24, 25,
-            ],
-        );
+        let mut m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
         // test read
         {
             let subm = m.rows_mut(1, 2);
@@ -504,12 +488,10 @@ mod smatrix_tests
     #[test]
     fn test_col_mut()
     {
-        let mut m = SMatrix::<i32, 5, 5>::from_col_slice(
-            &[
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-                24, 25,
-            ],
-        );
+        let mut m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
         // test read
         let subm = m.col_mut(4);
         let expected = [21, 22, 23, 24, 25];
@@ -534,12 +516,10 @@ mod smatrix_tests
     #[test]
     fn test_cols_mut()
     {
-        let mut m = SMatrix::<i32, 5, 5>::from_col_slice(
-            &[
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
-                24, 25,
-            ],
-        );
+        let mut m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
         // test read
         let subm = m.cols_mut(1, 3);
         let expected = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
@@ -562,4 +542,3 @@ mod smatrix_tests
     }
 }
 //}}}
-

@@ -3,9 +3,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::dmatrix::DMatrix;
 use super::SMatrix;
 use crate::common::{tuple_index, Field, One, Zero};
+use crate::dmatrix::DMatrix;
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
