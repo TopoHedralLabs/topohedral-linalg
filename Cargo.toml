@@ -1,7 +1,13 @@
 [package]
 name = "topohedral-linalg"
-version = "0.0.1"
+version = "0.0.0"
+authors = ["John Ferguson <JAFerguson952@gmail.com>"]
 edition = "2021"
+repository = "https://github.com/TopoHedralLabs/topohedral-linalg"
+readme = "README.md"
+license = "MIT"
+description = "A library for small, dense linear algebra in rust, blas/lapack backends and expression templates"
+publish = ["cloudsmith"]
 
 
 [features]
