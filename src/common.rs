@@ -24,7 +24,6 @@ impl IsTrue for Assert<true> {}
 
 pub type AssertGreaterThan<const N: usize, const M: usize> = Assert<{ N > M }>;
 
-
 //}}}
 //{{{ trait: Field
 pub trait Field:

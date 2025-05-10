@@ -4,14 +4,15 @@
 
 //{{{ crate imports
 use super::smatrix::SMatrix;
-use crate::common::{Field, Float, FloatVectorOps, One, VectorOps, Zero, AssertGreaterThan, IsTrue};
+use crate::common::{
+    AssertGreaterThan, Field, Float, FloatVectorOps, IsTrue, One, VectorOps, Zero,
+};
 //}}}
 //{{{ std imports
 //}}}
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
-
 
 //{{{ type: SCVector
 /// A type alias for a column vector of size N.

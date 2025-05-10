@@ -20,7 +20,9 @@ mod common;
 mod expression;
 //}}}
 //{{{ collection: public API
-pub use common::{Complex, FloatVectorOps, MatrixOps, VectorOps, Assert, AssertGreaterThan, IsTrue};
+pub use common::{
+    Assert, AssertGreaterThan, Complex, FloatVectorOps, IsTrue, MatrixOps, VectorOps,
+};
 pub mod dmatrix;
 pub mod dvector;
 pub mod scvector;
