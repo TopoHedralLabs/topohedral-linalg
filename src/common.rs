@@ -15,6 +15,16 @@ use std::ops::{AddAssign, DivAssign, Index, IndexMut, MulAssign, SubAssign};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ collection: compile-time checks
+/// Assertion struct for compile-time checks
+pub struct Assert<const CHECK: bool>;
+/// This trait is used to ensure that the compile-time check is true
+pub trait IsTrue {}
+impl IsTrue for Assert<true> {}
+
+pub type AssertGreaterThan<const N: usize, const M: usize> = Assert<{ N > M }>;
+
+//}}}
 //{{{ trait: Field
 pub trait Field:
     Sized
