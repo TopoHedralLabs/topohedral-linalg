@@ -5,7 +5,7 @@
 //{{{ crate imports
 use super::smatrix::SMatrix;
 use crate::common::{
-    AssertGreaterThan, Field, Float, FloatVectorOps, IsTrue, One, VectorOps, Zero,
+    GreaterThan, Field, Float, FloatVectorOps, One, VectorOps, Zero,
 };
 //}}}
 //{{{ std imports
@@ -24,7 +24,7 @@ impl<T, const N: usize> VectorOps for SRVector<T, N>
 where
     [(); 1usize * N]:,
     T: Field + Default + Copy + Clone + Zero + One,
-    AssertGreaterThan<N, 1>: IsTrue,
+    (): GreaterThan<N, 1>,
 {
     type ScalarType = T;
 
@@ -40,7 +40,7 @@ impl<T, const N: usize> FloatVectorOps for SRVector<T, N>
 where
     [(); 1usize * N]:,
     T: Float + Default + Copy + Clone + Zero + One,
-    AssertGreaterThan<N, 1>: IsTrue,
+    (): GreaterThan<N, 1>,
 {
 }
 //}}}

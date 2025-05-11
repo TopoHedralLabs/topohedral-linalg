@@ -17,13 +17,16 @@ use std::ops::{AddAssign, DivAssign, Index, IndexMut, MulAssign, SubAssign};
 
 //{{{ collection: compile-time checks
 /// Assertion struct for compile-time checks
-pub struct Assert<const CHECK: bool>;
+struct Assert<const CHECK: bool>;
 /// This trait is used to ensure that the compile-time check is true
-pub trait IsTrue {}
+trait IsTrue {}
 impl IsTrue for Assert<true> {}
 
-pub type AssertGreaterThan<const N: usize, const M: usize> = Assert<{ N > M }>;
-
+pub trait GreaterThan<const N: usize, const M: usize> {}
+impl<const N: usize, const M: usize> GreaterThan<N, M> for () 
+where
+    Assert<{ N > M }>: IsTrue 
+{}
 //}}}
 //{{{ trait: Field
 pub trait Field:
