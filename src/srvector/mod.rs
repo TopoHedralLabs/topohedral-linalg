@@ -4,9 +4,7 @@
 
 //{{{ crate imports
 use super::smatrix::SMatrix;
-use crate::common::{
-    GreaterThan, Field, Float, FloatVectorOps, One, VectorOps, Zero,
-};
+use crate::common::{Field, Float, FloatVectorOps, GreaterThan, One, VectorOps, Zero};
 //}}}
 //{{{ std imports
 //}}}

@@ -20,9 +20,7 @@ mod common;
 mod expression;
 //}}}
 //{{{ collection: public API
-pub use common::{
-    Complex, FloatVectorOps, MatrixOps, VectorOps, GreaterThan
-};
+pub use common::{Complex, FloatVectorOps, GreaterThan, MatrixOps, VectorOps};
 pub mod dmatrix;
 pub mod dvector;
 pub mod scvector;

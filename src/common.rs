@@ -23,10 +23,7 @@ trait IsTrue {}
 impl IsTrue for Assert<true> {}
 
 pub trait GreaterThan<const N: usize, const M: usize> {}
-impl<const N: usize, const M: usize> GreaterThan<N, M> for () 
-where
-    Assert<{ N > M }>: IsTrue 
-{}
+impl<const N: usize, const M: usize> GreaterThan<N, M> for () where Assert<{ N > M }>: IsTrue {}
 //}}}
 //{{{ trait: Field
 pub trait Field:

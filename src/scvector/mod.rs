@@ -4,9 +4,10 @@
 
 //{{{ crate imports
 use super::smatrix::SMatrix;
-use crate::{common::{
-    Field, Float, FloatVectorOps, One, VectorOps, Zero,
-}, GreaterThan};
+use crate::{
+    common::{Field, Float, FloatVectorOps, One, VectorOps, Zero},
+    GreaterThan,
+};
 //}}}
 //{{{ std imports
 //}}}
@@ -24,7 +25,7 @@ impl<T, const N: usize> VectorOps for SCVector<T, N>
 where
     [(); N * 1]:,
     T: Field + Default + Copy + Clone + Zero + One,
-    (): GreaterThan<N, 1>
+    (): GreaterThan<N, 1>,
 {
     type ScalarType = T;
 
@@ -40,7 +41,7 @@ impl<T, const N: usize> FloatVectorOps for SCVector<T, N>
 where
     [(); N * 1]:,
     T: Float + Default + Copy + Clone + Zero + One,
-    (): GreaterThan<N, 1>
+    (): GreaterThan<N, 1>,
 {
 }
 //}}}
