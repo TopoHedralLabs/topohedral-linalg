@@ -3,7 +3,7 @@
     "rust-analyzer.debug.engine": "vadimcn.vscode-lldb",
     "editor.foldingStrategy": "auto", 
     "editor.defaultFoldingRangeProvider": "TopoHedralLabs.topohedral-vscode",
-    "rust-analyzer.cargo.features": ["enable_trace"] ,
+    "rust-analyzer.cargo.features": ["enable_trace", "enable_checks"] ,
     "rust-analyzer.cargo.buildScripts.useRustcWrapper": true, 
     "rust-analyzer.cargo.extraEnv": {
         "RUSTUP_TOOLCHAIN": "nightly"

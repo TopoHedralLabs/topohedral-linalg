@@ -12,6 +12,7 @@ publish = ["cloudsmith"]
 
 [features]
 enable_trace = ["topohedral-tracing/enable_trace"]
+enable_checks = []
 
 [dependencies]
 log = "0.4.21"

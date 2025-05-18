@@ -251,6 +251,53 @@ mod dmatrix_tests
     fn test_add()
     {
         let matrix1 = DMatrix::<i32>::from_value(1, 2, 2);
+        let matrix2 = DMatrix::<i32>::from_value(10, 2, 2);
+        let matrix3 = matrix1.clone() + matrix2.clone();
+        for val in &matrix3
+        {
+            assert_eq!(*val, 11);
+        }
+    }
+
+    #[test]
+    fn test_add_scalar()
+    {
+        let matrix1 = DMatrix::<i32>::from_value(1, 2, 2);
+        let scalar = 10;
+        let matrix2 = matrix1.clone() + scalar;
+        for val in &matrix2
+        {
+            assert_eq!(*val, 11);
+        }
+        let matrix3 = matrix2 + scalar;
+        for val in &matrix3
+        {
+            assert_eq!(*val, 21);
+        }
+    }
+
+    #[test]
+    fn test_add_assign()
+    {
+        let mut matrix1 = DMatrix::<i32>::from_value(1, 2, 2);
+        let scalar = 10;
+        matrix1 += scalar;
+        for val in &matrix1
+        {
+            assert_eq!(*val, 11);
+        }
+        let matrix2 = DMatrix::<i32>::from_value(10, 2, 2);
+        matrix1 += matrix2;
+        for val in &matrix1
+        {
+            assert_eq!(*val, 21);
+        }
+    }
+
+    #[test]
+    fn test_add_lazy()
+    {
+        let matrix1 = DMatrix::<i32>::from_value(1, 2, 2);
 
         let matrix2 = DMatrix::<i32>::from_value(10, 2, 2);
 
@@ -276,7 +323,7 @@ mod dmatrix_tests
         }
     }
     #[test]
-    fn test_add_scalar()
+    fn test_add_scalar_lazy()
     {
         let matrix1 = DMatrix::<i32>::from_value(10, 2, 2);
 
@@ -295,6 +342,53 @@ mod dmatrix_tests
     //{{{ collection: division tests
     #[test]
     fn test_div()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(1.0, 2, 2);
+        let scalar = 10.0;
+        let matrix2 = matrix1 / scalar;
+        for val in &matrix2
+        {
+            assert_eq!(*val, 1.0 / 10.0);
+        }
+    }
+
+    #[test]
+    fn test_div_scalar()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let scalar = 100.0;
+        let matrix2 = matrix1.clone() / scalar;
+        for val in &matrix2
+        {
+            assert_eq!(*val, 10.0 / 100.0);
+        }
+        let matrix3 = matrix2 / scalar;
+        for val in &matrix3
+        {
+            assert_eq!(*val, 10.0 / (100.0 * 100.0));
+        }
+    }
+
+    #[test]
+    fn test_div_assign()
+    {
+        let mut matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let scalar = 100.0;
+        matrix1 /= scalar;
+        for val in &matrix1
+        {
+            assert_eq!(*val, 10.0 / 100.0);
+        }
+        let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
+        matrix1 /= matrix2;
+        for val in &matrix1
+        {
+            assert_eq!(*val, 10.0 / (100.0 * 100.0));
+        }
+    }
+
+    #[test]
+    fn test_div_lazy()
     {
         let matrix1 = DMatrix::<f64>::from_value(1.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(10.0, 2, 2);
@@ -317,7 +411,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_div_scalar()
+    fn test_div_scalar_lazy()
     {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
@@ -332,9 +426,55 @@ mod dmatrix_tests
     }
     //}}}
     //{{{ collection: subtraction tests
-
     #[test]
     fn test_sub()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let matrix2 = DMatrix::<f64>::from_value(3.0, 2, 2);
+        let matrix3 = matrix1.clone() - matrix2.clone();
+        for val in &matrix3
+        {
+            assert_eq!(*val, 7.0);
+        }
+    }
+
+    #[test]
+    fn test_sub_scalar()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let scalar = 3.0;
+        let matrix2 = matrix1.clone() - scalar;
+        for val in &matrix2
+        {
+            assert_eq!(*val, 7.0);
+        }
+        let matrix3 = matrix2 - scalar;
+        for val in &matrix3
+        {
+            assert_eq!(*val, 4.0);
+        }
+    }
+
+    #[test]
+    fn test_sub_assign()
+    {
+        let mut matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let scalar = 3.0;
+        matrix1 -= scalar;
+        for val in &matrix1
+        {
+            assert_eq!(*val, 7.0);
+        }
+        let matrix2 = DMatrix::<f64>::from_value(2.0, 2, 2);
+        matrix1 -= matrix2;
+        for val in &matrix1
+        {
+            assert_eq!(*val, 5.0);
+        }
+    }
+
+    #[test]
+    fn test_sub_lazy()
     {
         let matrix1 = DMatrix::<f64>::from_value(1.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(10.0, 2, 2);
@@ -354,7 +494,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_sub_scalar()
+    fn test_sub_scalar_lazy()
     {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
@@ -371,6 +511,52 @@ mod dmatrix_tests
     //{{{ collection: multiplication tests
     #[test]
     fn test_mul()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let matrix2 = DMatrix::<f64>::from_value(3.0, 2, 2);
+        let matrix3 = matrix1.clone() * matrix2.clone();
+        for val in &matrix3
+        {
+            assert_eq!(*val, 30.0);
+        }
+    }
+
+    #[test]
+    fn test_mul_scalar()
+    {
+        let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let scalar = 3.0;
+        let matrix2 = matrix1.clone() * scalar;
+        for val in &matrix2
+        {
+            assert_eq!(*val, 30.0);
+        }
+        let matrix3 = matrix2 * scalar;
+        for val in &matrix3
+        {
+            assert_eq!(*val, 90.0);
+        }
+    }
+
+    #[test]
+    fn test_mul_assign()
+    {
+        let mut matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
+        let scalar = 3.0;
+        matrix1 *= scalar;
+        for val in &matrix1
+        {
+            assert_eq!(*val, 30.0);
+        }
+        let matrix2 = DMatrix::<f64>::from_value(2.0, 2, 2);
+        matrix1 *= matrix2;
+        for val in &matrix1
+        {
+            assert_eq!(*val, 60.0);
+        }
+    }
+    #[test]
+    fn test_mul_lazy()
     {
         let matrix1 = DMatrix::<f64>::from_value(1.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(10.0, 2, 2);
@@ -390,7 +576,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_mul_scalar()
+    fn test_mul_scalar_lazy()
     {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
@@ -417,506 +603,4 @@ mod dmatrix_tests
     }
     //}}}
 }
-//}}}
-//{{{ mod: scvector_tests
-// mod scvector_tests
-// {
-
-//     use topohedral_linalg::{SCVector, EvaluateSMatrix, SMatrixConstructors};
-//     use approx::assert_relative_eq;
-
-//     #[test]
-//     fn test1() {
-//         let a = SCVector::<i32, 10>::from_value(1);
-//         let b = SCVector::<i32, 10>::from_value(2);
-//         let c = SCVector::<i32, 10>::from_value(3);
-
-//         let d:SCVector::<i32, 10> = (&a + &b + &c).evals();
-
-//         for i in 0..10 {
-//             assert_eq!(d[i], 6);
-//         }
-//     }
-
-//     //{{{ collection: mixed tests
-//     #[test]
-//     pub fn test_all()
-//     {
-//         let aval = 1.0;
-//         let a = SCVector::<f64, 10>::from_value(aval);
-
-//         let bval = 10.0;
-//         let b = SCVector::<f64, 10>::from_value(bval);
-
-//         let cval = 100.0;
-//         let c = SCVector::<f64, 10>::from_value(cval);
-
-//         let dval = 1000.0;
-//         let d = SCVector::<f64, 10>::from_value(dval);
-
-//         let eval = 10000.0;
-//         let e = SCVector::<f64, 10>::from_value(eval);
-
-//         let fval = 100000.0;
-//         let f = SCVector::<f64, 10>::from_value(fval);
-
-//         let gval = fval * (aval + bval) - (cval / (dval * 2.0)) + 1.0 * eval;
-//         let g: SCVector<f64, 10> = (&f * (&a + &b) - (&c / (&d * 2.0)) + 1.0 * &e).evals();
-
-//         for val in g
-//         {
-//             assert_relative_eq!(val, gval, max_relative = 1e-10);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: addition tests
-
-//     #[test]
-//     fn test_add()
-//     {
-//         let vector1 = SCVector::<i32, 10>::from_value(1);
-
-//         let vector2 = SCVector::<i32, 10>::from_value(10);
-
-//         let vector3 = SCVector::<i32, 10>::from_value(100);
-
-//         let vector4 = SCVector::<i32, 10>::from_value(1000);
-
-//         let vector5 = SCVector::<i32, 10>::from_value(10000);
-
-//         let vector6 = SCVector::<i32, 10>::from_value(100000);
-
-//         let vector7 = SCVector::<i32, 10>::from_value(1000000);
-
-//         let mut vector8 = SCVector::<i32, 10>::zeros();
-
-//         vector8 = (&vector7 + (&vector4 + &vector5) + (&vector1 + &vector2 + &vector3) + &vector6)
-//             .evals();
-
-//         let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
-
-//         for val in &vector8
-//         {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
-
-//     #[test]
-//     fn test_add_scalar()
-//     {
-//         let vector1 = SCVector::<i32, 10>::from_value(10);
-
-//         let vector2 = SCVector::<i32, 10>::from_value(100);
-
-//         let mut vector4 = SCVector::<i32, 10>::zeros();
-
-//         vector4 = (4i32 + (2i32 + &vector1) + (&vector2 + 3i32) + 5i32).evals();
-
-//         let exp_val = 4 + (2 + 10) + (100 + 3) + 5;
-
-//         for val in &vector4
-//         {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: division tests
-//     #[test]
-//     fn test_div()
-//     {
-//         let vector1 = SCVector::<f64, 10>::from_value(1.0);
-
-//         let vector2 = SCVector::<f64, 10>::from_value(10.0);
-
-//         let vector3 = SCVector::<f64, 10>::from_value(100.0);
-
-//         let vector4 = SCVector::<f64, 10>::from_value(1000.0);
-
-//         let vector5 = SCVector::<f64, 10>::from_value(10000.0);
-
-//         let vector6 = SCVector::<f64, 10>::from_value(100000.0);
-
-//         let vector7 = SCVector::<f64, 10>::from_value(1000000.0);
-
-//         let mut vector8 = SCVector::<f64, 10>::zeros();
-
-//         vector8 = (&vector7 / (&vector4 / &vector5) / (&vector1 / &vector2 / &vector3) / &vector6)
-//             .evals();
-
-//         let exp_value: f64 = 1000000.0 / (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
-
-//         for val in &vector8
-//         {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
-
-//     #[test]
-//     fn test_div_scalar()
-//     {
-//         let vector1 = SCVector::<f64, 10>::from_value(10.0);
-
-//         let vector2 = SCVector::<f64, 10>::from_value(100.0);
-
-//         let mut vector4 = SCVector::<f64, 10>::zeros();
-
-//         vector4 = (4.0 / (2.0 / &vector1) / (&vector2 / 3.0) / 5.0).evals();
-
-//         let exp_val = 4.0 / (2.0 / 10.0) / (100.0 / 3.0) / 5.0;
-
-//         for val in &vector4
-//         {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: subtraction tests
-
-//     #[test]
-//     fn test_sub()
-//     {
-//         let vector1 = SCVector::<i32, 10>::from_value(1);
-
-//         let vector2 = SCVector::<i32, 10>::from_value(10);
-
-//         let vector3 = SCVector::<i32, 10>::from_value(100);
-
-//         let vector4 = SCVector::<i32, 10>::from_value(1000);
-
-//         let vector5 = SCVector::<i32, 10>::from_value(10000);
-
-//         let vector6 = SCVector::<i32, 10>::from_value(100000);
-
-//         let mut vector7 = SCVector::<i32, 10>::zeros();
-
-//         vector7 = ((&vector4 - &vector5) - (&vector1 - &vector2 - &vector3) - &vector6).evals();
-
-//         let exp_value: i32 = (1000 - 10000) - (1 - 10 - 100) - 100000;
-
-//         for val in &vector7
-//         {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
-
-//     #[test]
-//     fn test_sub_scalar()
-//     {
-//         let vector1 = SCVector::<i32, 10>::from_value(10);
-
-//         let vector2 = SCVector::<i32, 10>::from_value(100);
-
-//         let mut vector4 = SCVector::<i32, 10>::zeros();
-
-//         vector4 = (4i32 - (2i32 - &vector1) - (&vector2 - 3i32) - 5i32).evals();
-
-//         let exp_val = 4 - (2 - 10) - (100 - 3) - 5;
-
-//         for val in &vector4
-//         {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: multiplication tests
-//     #[test]
-//     fn test_mul()
-//     {
-//         let vector1 = SCVector::<f64, 10>::from_value(1.0);
-
-//         let vector2 = SCVector::<f64, 10>::from_value(10.0);
-
-//         let vector3 = SCVector::<f64, 10>::from_value(100.0);
-
-//         let vector4 = SCVector::<f64, 10>::from_value(1000.0);
-
-//         let vector5 = SCVector::<f64, 10>::from_value(10000.0);
-
-//         let vector6 = SCVector::<f64, 10>::from_value(100000.0);
-
-//         let mut vector7 = SCVector::<f64, 10>::zeros();
-
-//         vector7 = ((&vector4 * &vector5) * (&vector1 * &vector2 * &vector3) * &vector6).evals();
-
-//         let exp_value: f64 = (1000.0 * 10000.0) * (1.0 * 10.0 * 100.0) * 100000.0;
-
-//         for val in &vector7
-//         {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
-
-//     #[test]
-//     fn test_mul_scalar()
-//     {
-//         let vector1 = SCVector::<i32, 10>::from_value(10);
-
-//         let vector2 = SCVector::<i32, 10>::from_value(100);
-
-//         let mut vector4 = SCVector::<i32, 10>::zeros();
-
-//         vector4 = (4i32 * (2i32 * &vector1) * (&vector2 * 3i32) * 5i32).evals();
-
-//         let exp_val = 4 * (2 * 10) * (100 * 3) * 5;
-
-//         for val in &vector4
-//         {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: negation tests
-//     #[test]
-//     fn test_neg() {
-
-//         let a = SCVector::<i32, 4>::from_slice(&[1, 2, 3, 4]);
-//         let b = -a.clone();
-
-//         for i in 0..4 {
-//             assert_eq!(b[i], -a[i]);
-//         }
-//     }
-//     //}}}
-// }
-//}}}
-//{{{ mod: dcvector_tests
-// mod dvector_tests
-// {
-//     use topohedral_linalg::{DRVector, EvaluateDMatrix, DVectorConstructors};
-//     use approx::assert_relative_eq;
-
-//     #[test]
-//     fn test1() {
-//         let a = DRVector::<i32>::from_value(10, 1i32);
-//         let b = DRVector::<i32>::from_value(10, 2i32);
-//         let c = DRVector::<i32>::from_value(10, 3i32);
-
-//         let d: DRVector::<i32> = (&a + &b + &c).evald();
-
-//         for i in 0..10 {
-//             assert_eq!(d[i], 6);
-//         }
-//     }
-
-//     //{{{ collection: mixed tests
-//     #[test]
-//     pub fn test_all() {
-//         let aval = 1.0;
-//         let a = DRVector::<f64>::from_value(10, aval);
-
-//         let bval = 10.0;
-//         let b = DRVector::<f64>::from_value(10, bval);
-
-//         let cval = 100.0;
-//         let c = DRVector::<f64>::from_value(10, cval);
-
-//         let dval = 1000.0;
-//         let d = DRVector::<f64>::from_value(10, dval);
-
-//         let eval = 10000.0;
-//         let e = DRVector::<f64>::from_value(10, eval);
-
-//         let fval = 100000.0;
-//         let f = DRVector::<f64>::from_value(10, fval);
-
-//         let gval = fval * (aval + bval) - (cval / (dval * 2.0)) + 1.0 * eval;
-//         let g: DRVector<f64> = (&f * (&a + &b) - (&c / (&d * 2.0)) + 1.0 * &e).evald();
-
-//         for val in g {
-//             assert_relative_eq!(val, gval, max_relative = 1e-10);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: addition tests
-
-//     #[test]
-//     fn test_add() {
-//         let vector1 = DRVector::<i32>::from_value(10, 1);
-
-//         let vector2 = DRVector::<i32>::from_value(10, 10);
-
-//         let vector3 = DRVector::<i32>::from_value(10, 100);
-
-//         let vector4 = DRVector::<i32>::from_value(10, 1000);
-
-//         let vector5 = DRVector::<i32>::from_value(10, 10000);
-
-//         let vector6 = DRVector::<i32>::from_value(10, 100000);
-
-//         let vector7 = DRVector::<i32>::from_value(10, 1000000);
-
-//         let mut vector8 = DRVector::<i32>::zeros(10);
-
-//         vector8 = (&vector7 + (&vector4 + &vector5) + (&vector1 + &vector2 + &vector3) + &vector6)
-//             .evald();
-
-//         let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
-
-//         for val in &vector8 {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
-
-//     #[test]
-//     fn test_add_scalar() {
-//         let vector1 = DRVector::<i32>::from_value(10, 10);
-
-//         let vector2 = DRVector::<i32>::from_value(10, 100);
-
-//         let mut vector4 = DRVector::<i32>::zeros(10);
-
-//         vector4 = (4i32 + (2i32 + &vector1) + (&vector2 + 3i32) + 5i32).evald();
-
-//         let exp_val = 4 + (2 + 10) + (100 + 3) + 5;
-
-//         for val in &vector4 {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: division tests
-//     #[test]
-//     fn test_div() {
-//         let vector1 = DRVector::<f64>::from_value(10, 1.0);
-
-//         let vector2 = DRVector::<f64>::from_value(10, 10.0);
-
-//         let vector3 = DRVector::<f64>::from_value(10, 100.0);
-
-//         let vector4 = DRVector::<f64>::from_value(10, 1000.0);
-
-//         let vector5 = DRVector::<f64>::from_value(10, 10000.0);
-
-//         let vector6 = DRVector::<f64>::from_value(10, 100000.0);
-
-//         let vector7 = DRVector::<f64>::from_value(10, 1000000.0);
-
-//         let mut vector8 = DRVector::<f64>::zeros(10);
-
-//         vector8 = (&vector7 / (&vector4 / &vector5) / (&vector1 / &vector2 / &vector3) / &vector6)
-//             .evald();
-
-//         let exp_value: f64 = 1000000.0 / (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
-
-//         for val in &vector8 {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
-
-//     #[test]
-//     fn test_div_scalar() {
-//         let vector1 = DRVector::<f64>::from_value(10, 10.0);
-
-//         let vector2 = DRVector::<f64>::from_value(10, 100.0);
-
-//         let mut vector4 = DRVector::<f64>::zeros(10);
-
-//         vector4 = (4.0 / (2.0 / &vector1) / (&vector2 / 3.0) / 5.0).evald();
-
-//         let exp_val = 4.0 / (2.0 / 10.0) / (100.0 / 3.0) / 5.0;
-
-//         for val in &vector4 {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: subtraction tests
-
-//     #[test]
-//     fn test_sub() {
-//         let vector1 = DRVector::<i32>::from_value(10, 1);
-
-//         let vector2 = DRVector::<i32>::from_value(10, 10);
-
-//         let vector3 = DRVector::<i32>::from_value(10, 100);
-
-//         let vector4 = DRVector::<i32>::from_value(10, 1000);
-
-//         let vector5 = DRVector::<i32>::from_value(10, 10000);
-
-//         let vector6 = DRVector::<i32>::from_value(10, 100000);
-
-//         let mut vector7 = DRVector::<i32>::zeros(10);
-
-//         vector7 = ((&vector4 - &vector5) - (&vector1 - &vector2 - &vector3) - &vector6).evald();
-
-//         let exp_value: i32 = (1000 - 10000) - (1 - 10 - 100) - 100000;
-
-//         for val in &vector7 {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
-
-//     #[test]
-//     fn test_sub_scalar() {
-//         let vector1 = DRVector::<i32>::from_value(10, 10);
-
-//         let vector2 = DRVector::<i32>::from_value(10, 100);
-
-//         let mut vector4 = DRVector::<i32>::zeros(10);
-
-//         vector4 = (4i32 - (2i32 - &vector1) - (&vector2 - 3i32) - 5i32).evald();
-
-//         let exp_val = 4 - (2 - 10) - (100 - 3) - 5;
-
-//         for val in &vector4 {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: multiplication tests
-//     #[test]
-//     fn test_mul() {
-//         let vector1 = DRVector::<f64>::from_value(10, 1.0);
-
-//         let vector2 = DRVector::<f64>::from_value(10, 10.0);
-
-//         let vector3 = DRVector::<f64>::from_value(10, 100.0);
-
-//         let vector4 = DRVector::<f64>::from_value(10, 1000.0);
-
-//         let vector5 = DRVector::<f64>::from_value(10, 10000.0);
-
-//         let vector6 = DRVector::<f64>::from_value(10, 100000.0);
-
-//         let mut vector7 = DRVector::<f64>::zeros(10);
-
-//         vector7 = ((&vector4 * &vector5) * (&vector1 * &vector2 * &vector3) * &vector6).evald();
-
-//         let exp_value: f64 = (1000.0 * 10000.0) * (1.0 * 10.0 * 100.0) * 100000.0;
-
-//         for val in &vector7 {
-//             assert_eq!(*val, exp_value);
-//         }
-//     }
-
-//     #[test]
-//     fn test_mul_scalar() {
-//         let vector1 = DRVector::<i32>::from_value(10, 10);
-
-//         let vector2 = DRVector::<i32>::from_value(10, 100);
-
-//         let mut vector4 = DRVector::<i32>::zeros(10);
-
-//         vector4 = (4i32 * (2i32 * &vector1) * (&vector2 * 3i32) * 5i32).evald();
-
-//         let exp_val = 4 * (2 * 10) * (100 * 3) * 5;
-
-//         for val in &vector4 {
-//             assert_eq!(*val, exp_val);
-//         }
-//     }
-//     //}}}
-//     //{{{ collection: negation tests
-//     #[test]
-//     fn test_neg() {
-//         let a = DRVector::<i32>::from_slice(&[1i32, 2i32, 3i32, 4i32]);
-//         let b = -a.clone();
-
-//         for i in 0..4 {
-//             assert_eq!(b[i], -a[i]);
-//         }
-//     }
-//     //}}}
-// }
 //}}}

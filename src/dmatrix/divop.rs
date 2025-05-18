@@ -10,11 +10,127 @@ use crate::common::{Field, IndexValue};
 use crate::expression::binary_expr::{BinOp, BinopExpr, DivOp};
 //}}}
 //{{{ std imports
-use std::ops::Div;
+use std::ops::{Div, DivAssign};
 //}}}
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
+//{{{ collection: eagerly evaluated expressions
+//{{{ impl: Div<T> for DMatrix
+impl<T> Div<T> for DMatrix<T>
+where
+    T: Field + Copy,
+{
+    type Output = DMatrix<T>;
+
+    #[inline]
+    fn div(
+        self,
+        rhs: T,
+    ) -> Self::Output
+    {
+        let mut out = self.clone();
+        out.iter_mut().for_each(|x| *x /= rhs);
+        out
+    }
+}
+//}}}
+//{{{ impl: Div<DMatrix> for DMatrix
+impl<T> Div for DMatrix<T>
+where
+    T: Field + Copy + IndexValue<usize, Output = T>,
+{
+    type Output = DMatrix<T>;
+
+    #[inline]
+    fn div(
+        self,
+        rhs: DMatrix<T>,
+    ) -> Self::Output
+    {
+        //{{{ check: assert dimensions are equal
+        #[cfg(feature = "enable_checks")]
+        {
+            assert_eq!(self.nrows, rhs.nrows);
+            assert_eq!(self.ncols, rhs.ncols);
+        }
+        //}}}
+        let mut out = self.clone();
+        out.iter_mut()
+            .zip(rhs.iter())
+            .for_each(|(out_elem, rhs_elem)| {
+                *out_elem /= *rhs_elem;
+            });
+
+        out
+    }
+}
+//}}}
+//{{{ impl Div<DMatrix<T>> for T
+macro_rules! impl_dmatrix_div_scalar {
+    ($type: ty) => {
+        #[doc(hidden)]
+        impl Div<DMatrix<$type>> for $type
+        {
+            type Output = DMatrix<$type>;
+
+            #[inline]
+            fn div(
+                self,
+                rhs: DMatrix<$type>,
+            ) -> Self::Output
+            {
+                let mut out = rhs.clone();
+                out.iter_mut().for_each(|x| *x = self / *x);
+                out
+            }
+        }
+    };
+}
+apply_for_all_types!(impl_dmatrix_div_scalar);
+//}}}
+//{{{ impl DivAssign<T> for DMatrix
+impl<T> DivAssign<T> for DMatrix<T>
+where
+    T: Field + Copy,
+{
+    #[inline]
+    fn div_assign(
+        &mut self,
+        rhs: T,
+    )
+    {
+        self.iter_mut().for_each(|x| *x /= rhs);
+    }
+}
+//}}}
+//{{{ impl: DivAssign<DMatrix> for DMatrix
+impl<T> DivAssign for DMatrix<T>
+where
+    T: Field + Copy,
+{
+    #[inline]
+    fn div_assign(
+        &mut self,
+        rhs: DMatrix<T>,
+    )
+    {
+        //{{{ check: assert dimensions are equal
+        #[cfg(feature = "enable_checks")]
+        {
+            assert_eq!(self.nrows, rhs.nrows);
+            assert_eq!(self.ncols, rhs.ncols);
+        }
+        //}}}
+        self.iter_mut()
+            .zip(rhs.iter())
+            .for_each(|(out_elem, rhs_elem)| {
+                *out_elem /= *rhs_elem;
+            });
+    }
+}
+//}}}
+//}}}
 //{{{ collection: DivOp for DMatrix
 //{{{ impl: Div<T> for DMatrix
 #[doc(hidden)]
