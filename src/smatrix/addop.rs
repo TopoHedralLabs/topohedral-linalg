@@ -11,11 +11,133 @@ use crate::expression::binary_expr::{AddOp, BinOp, BinopExpr};
 //}}}
 //{{{ std imports
 use std::fmt;
-use std::ops::Add;
+use std::ops::{Add, AddAssign};
 //}}}
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
+//{{{ collection: eagerly evaluated expressions
+//{{{ impl: Add<T> for SMatrix
+impl<T, const N: usize, const M: usize> Add<T> for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Copy,
+{
+    type Output = SMatrix<T, N, M>;
+
+    #[inline]
+    fn add(
+        self,
+        rhs: T,
+    ) -> Self::Output
+    {
+        let mut out = self;
+        out.iter_mut().for_each(|x| *x += rhs);
+        out
+    }
+}
+//}}}
+//{{{ impl: Add<SMatrix> for SMatrix
+impl<T, const N: usize, const M: usize> Add for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Copy + IndexValue<usize, Output = T>,
+{
+    type Output = SMatrix<T, N, M>;
+
+    #[inline]
+    fn add(
+        self,
+        rhs: SMatrix<T, N, M>,
+    ) -> Self::Output
+    {
+        //{{{ check: assert dimensions are equal
+        #[cfg(feature = "enable_checks")]
+        {
+            assert_eq!(self.nrows, rhs.nrows);
+            assert_eq!(self.ncols, rhs.ncols);
+        }
+        //}}}
+        let mut out = self;
+        out.iter_mut()
+            .zip(rhs.iter())
+            .for_each(|(out_elem, rhs_elem)| {
+                *out_elem += *rhs_elem;
+            });
+
+        out
+    }
+}
+//}}}
+//{{{ impl Add<SMatrix<T, N, M>> for T
+macro_rules! impl_smatrix_add_owned {
+    ($type: ty) => {
+        #[doc(hidden)]
+        impl<const N: usize, const M: usize> Add<SMatrix<$type, N, M>> for $type
+        where
+            [(); N * M]:,
+        {
+            type Output = SMatrix<$type, N, M>;
+
+            #[inline]
+            fn add(
+                self,
+                rhs: SMatrix<$type, N, M>,
+            ) -> Self::Output
+            {
+                let mut out = rhs;
+                out.iter_mut().for_each(|x| *x += self);
+                out
+            }
+        }
+    };
+}
+apply_for_all_types!(impl_smatrix_add_owned);
+//}}}
+//{{{ impl AddAssign<T> for SMatrix
+impl<T, const N: usize, const M: usize> AddAssign<T> for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Copy,
+{
+    #[inline]
+    fn add_assign(
+        &mut self,
+        rhs: T,
+    )
+    {
+        self.iter_mut().for_each(|x| *x += rhs);
+    }
+}
+//}}}
+//{{{ impl: AddAssign<SMatrix> for SMatrix
+impl<T, const N: usize, const M: usize> AddAssign for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Copy,
+{
+    #[inline]
+    fn add_assign(
+        &mut self,
+        rhs: SMatrix<T, N, M>,
+    )
+    {
+        //{{{ check: assert dimensions are equal
+        #[cfg(feature = "enable_checks")]
+        {
+            assert_eq!(self.nrows, rhs.nrows);
+            assert_eq!(self.ncols, rhs.ncols);
+        }
+        //}}}
+        self.iter_mut()
+            .zip(rhs.iter())
+            .for_each(|(out_elem, rhs_elem)| {
+                *out_elem += *rhs_elem;
+            });
+    }
+}
+//}}}
+//}}}
 //{{{ collection: AddOp for SMatrix
 //{{{ impl: Add<T> for SMatrix
 #[doc(hidden)]

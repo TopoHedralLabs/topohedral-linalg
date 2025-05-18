@@ -10,10 +10,131 @@ use crate::common::{Field, IndexValue};
 use crate::expression::binary_expr::{BinOp, BinopExpr, SubOp};
 //}}}
 //{{{ std imports
-use std::ops::Sub;
+use std::ops::{Sub, SubAssign};
 //}}}
 //--------------------------------------------------------------------------------------------------
+//{{{ collection: eagerly evaluated expressions
+//{{{ impl: Sub<T> for SMatrix
+impl<T, const N: usize, const M: usize> Sub<T> for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Copy,
+{
+    type Output = SMatrix<T, N, M>;
 
+    #[inline]
+    fn sub(
+        self,
+        rhs: T,
+    ) -> Self::Output
+    {
+        let mut out = self;
+        out.iter_mut().for_each(|x| *x -= rhs);
+        out
+    }
+}
+//}}}
+//{{{ impl: Sub<SMatrix> for SMatrix
+impl<T, const N: usize, const M: usize> Sub for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Copy + IndexValue<usize, Output = T>,
+{
+    type Output = SMatrix<T, N, M>;
+
+    #[inline]
+    fn sub(
+        self,
+        rhs: SMatrix<T, N, M>,
+    ) -> Self::Output
+    {
+        //{{{ check: assert dimensions are equal
+        #[cfg(feature = "enable_checks")]
+        {
+            assert_eq!(self.nrows, rhs.nrows);
+            assert_eq!(self.ncols, rhs.ncols);
+        }
+        //}}}
+        let mut out = self;
+        out.iter_mut()
+            .zip(rhs.iter())
+            .for_each(|(out_elem, rhs_elem)| {
+                *out_elem -= *rhs_elem;
+            });
+
+        out
+    }
+}
+//}}}
+//{{{ impl Sub<SMatrix<T, N, M>> for T
+macro_rules! impl_smatrix_sub_owned {
+    ($type: ty) => {
+        #[doc(hidden)]
+        impl<const N: usize, const M: usize> Sub<SMatrix<$type, N, M>> for $type
+        where
+            [(); N * M]:,
+        {
+            type Output = SMatrix<$type, N, M>;
+
+            #[inline]
+            fn sub(
+                self,
+                rhs: SMatrix<$type, N, M>,
+            ) -> Self::Output
+            {
+                let mut out = rhs;
+                out.iter_mut().for_each(|x| *x = self - *x);
+                out
+            }
+        }
+    };
+}
+apply_for_all_types!(impl_smatrix_sub_owned);
+//}}}
+//{{{ impl SubAssign<T> for SMatrix
+impl<T, const N: usize, const M: usize> SubAssign<T> for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Copy,
+{
+    #[inline]
+    fn sub_assign(
+        &mut self,
+        rhs: T,
+    )
+    {
+        self.iter_mut().for_each(|x| *x -= rhs);
+    }
+}
+//}}}
+//{{{ impl: SubAssign<SMatrix> for SMatrix
+impl<T, const N: usize, const M: usize> SubAssign for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Copy,
+{
+    #[inline]
+    fn sub_assign(
+        &mut self,
+        rhs: SMatrix<T, N, M>,
+    )
+    {
+        //{{{ check: assert dimensions are equal
+        #[cfg(feature = "enable_checks")]
+        {
+            assert_eq!(self.nrows, rhs.nrows);
+            assert_eq!(self.ncols, rhs.ncols);
+        }
+        //}}}
+        self.iter_mut()
+            .zip(rhs.iter())
+            .for_each(|(out_elem, rhs_elem)| {
+                *out_elem -= *rhs_elem;
+            });
+    }
+}
+//}}}
+//}}}
 //{{{ collection: SubOp for SMatrix
 //{{{ impl: Sub<T> for SMatrix
 #[doc(hidden)]
