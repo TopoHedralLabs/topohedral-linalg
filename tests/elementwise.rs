@@ -10,6 +10,7 @@ mod smatrix_tests
 
     //{{{ collection: mixed tests
     #[test]
+    #[allow(clippy::op_ref)]
     pub fn test_all()
     {
         let aval = 1.0;
@@ -48,6 +49,68 @@ mod smatrix_tests
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(10);
 
+        let matrix3 = matrix1 + matrix2;
+
+        for val in &matrix3
+        {
+            assert_eq!(*val, 11);
+        }
+    }
+
+    #[test]
+    fn test_add_scalar()
+    {
+        let matrix1 = SMatrix::<i32, 2, 2>::from_value(1);
+
+        let scalar = 10;
+
+        let matrix2 = matrix1 + scalar;
+
+        for val in &matrix2
+        {
+            assert_eq!(*val, 11);
+        }
+
+        let matrix3 = scalar + matrix2;
+
+        for val in &matrix3
+        {
+            assert_eq!(*val, 21);
+        }
+    }
+
+    #[test]
+    fn test_add_assign()
+    {
+        let mut matrix1 = SMatrix::<i32, 2, 2>::from_value(1);
+
+        let scalar = 10;
+
+        matrix1 += scalar;
+
+        for val in &matrix1
+        {
+            assert_eq!(*val, 11);
+        }
+
+        let matrix2 = SMatrix::<i32, 2, 2>::from_value(10);
+
+        matrix1 += matrix2;
+
+        for val in &matrix1
+        {
+            assert_eq!(*val, 21);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_add_lazy()
+    {
+        let matrix1 = SMatrix::<i32, 2, 2>::from_value(1);
+
+        let matrix2 = SMatrix::<i32, 2, 2>::from_value(10);
+
         let matrix3 = SMatrix::<i32, 2, 2>::from_value(100);
 
         let matrix4 = SMatrix::<i32, 2, 2>::from_value(1000);
@@ -71,7 +134,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_add_scalar()
+    fn test_add_scalar_lazy()
     {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(10);
 
@@ -91,6 +154,68 @@ mod smatrix_tests
     //{{{ collection: division tests
     #[test]
     fn test_div()
+    {
+        let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
+
+        let matrix2 = SMatrix::<f64, 2, 2>::from_value(2.0);
+
+        let matrix3 = matrix1 / matrix2;
+
+        for val in &matrix3
+        {
+            assert_eq!(*val, 5.0);
+        }
+    }
+
+    #[test]
+    fn test_div_scalar()
+    {
+        let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
+
+        let scalar = 2.0;
+
+        let matrix2 = matrix1 / scalar;
+
+        for val in &matrix2
+        {
+            assert_eq!(*val, 5.0);
+        }
+
+        let matrix3 = 100.0 / matrix2;
+
+        for val in &matrix3
+        {
+            assert_eq!(*val, 20.0);
+        }
+    }
+
+    #[test]
+    fn test_div_assign()
+    {
+        let mut matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
+
+        let scalar = 2.0;
+
+        matrix1 /= scalar;
+
+        for val in &matrix1
+        {
+            assert_eq!(*val, 5.0);
+        }
+
+        let matrix2 = SMatrix::<f64, 2, 2>::from_value(5.0);
+
+        matrix1 /= matrix2;
+
+        for val in &matrix1
+        {
+            assert_eq!(*val, 1.0);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_div_lazy()
     {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(1.0);
 
@@ -119,7 +244,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_div_scalar()
+    fn test_div_scalar_lazy()
     {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
 
@@ -139,6 +264,67 @@ mod smatrix_tests
 
     #[test]
     fn test_sub()
+    {
+        let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
+
+        let matrix2 = SMatrix::<f64, 2, 2>::from_value(3.0);
+
+        let matrix3 = matrix1 - matrix2;
+
+        for val in &matrix3
+        {
+            assert_eq!(*val, 7.0);
+        }
+    }
+
+    #[test]
+    fn test_sub_scalar()
+    {
+        let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
+
+        let scalar = 3.0;
+
+        let matrix2 = matrix1 - scalar;
+
+        for val in &matrix2
+        {
+            assert_eq!(*val, 7.0);
+        }
+
+        let matrix3 = 15.0 - matrix2;
+
+        for val in &matrix3
+        {
+            assert_eq!(*val, 8.0);
+        }
+    }
+
+    #[test]
+    fn test_sub_assign()
+    {
+        let mut matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
+
+        let scalar = 3.0;
+
+        matrix1 -= scalar;
+
+        for val in &matrix1
+        {
+            assert_eq!(*val, 7.0);
+        }
+
+        let matrix2 = SMatrix::<f64, 2, 2>::from_value(2.0);
+
+        matrix1 -= matrix2;
+
+        for val in &matrix1
+        {
+            assert_eq!(*val, 5.0);
+        }
+    }
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_sub_lazy()
     {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(1);
 
@@ -164,7 +350,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_sub_scalar()
+    fn test_sub_scalar_lazy()
     {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(10);
 
@@ -183,7 +369,70 @@ mod smatrix_tests
     //}}}
     //{{{ collection: multiplication tests
     #[test]
+    #[allow(clippy::op_ref)]
     fn test_mul()
+    {
+        let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
+
+        let matrix2 = SMatrix::<f64, 2, 2>::from_value(2.0);
+
+        let matrix3 = matrix1 * matrix2;
+
+        for val in &matrix3
+        {
+            assert_eq!(*val, 20.0);
+        }
+    }
+
+    #[test]
+    fn test_mul_scalar()
+    {
+        let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
+
+        let scalar = 2.0;
+
+        let matrix2 = matrix1 * scalar;
+
+        for val in &matrix2
+        {
+            assert_eq!(*val, 20.0);
+        }
+
+        let matrix3 = 3.0 * matrix2;
+
+        for val in &matrix3
+        {
+            assert_eq!(*val, 60.0);
+        }
+    }
+
+    #[test]
+    fn test_mul_assign()
+    {
+        let mut matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
+
+        let scalar = 2.0;
+
+        matrix1 *= scalar;
+
+        for val in &matrix1
+        {
+            assert_eq!(*val, 20.0);
+        }
+
+        let matrix2 = SMatrix::<f64, 2, 2>::from_value(3.0);
+
+        matrix1 *= matrix2;
+
+        for val in &matrix1
+        {
+            assert_eq!(*val, 60.0);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_mul_lazy()
     {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(1.0);
 
@@ -209,7 +458,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_mul_scalar()
+    fn test_mul_scalar_lazy()
     {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(10);
 
