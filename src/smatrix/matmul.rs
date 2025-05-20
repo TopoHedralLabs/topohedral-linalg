@@ -7,26 +7,13 @@
 use super::SMatrix;
 use crate::blaslapack::gemm::Gemm;
 use crate::blaslapack::gemv::Gemv;
-use crate::common::{Field, One, Zero};
+use crate::common::{Field, MatMul, One, Zero};
 //}}}
 //{{{ std imports
 //}}}
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
-
-//{{{ trait: MatMul
-/// Trait which provides the matrix multiplication operation `matmul`.
-pub trait MatMul<Rhs = Self>
-{
-    type Output;
-
-    /// Performs a matrix multiplication operation.
-    fn matmul(
-        self,
-        rhs: Rhs,
-    ) -> Self::Output;
-}
 
 //}}}
 //{{{ trait: MatMul for SMatrix

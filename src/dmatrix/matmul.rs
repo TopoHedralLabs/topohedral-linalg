@@ -8,25 +8,11 @@
 use super::DMatrix;
 use crate::blaslapack::gemm::Gemm;
 use crate::blaslapack::gemv::Gemv;
-use crate::common::{Field, One, Zero};
+use crate::common::{Field, MatMul, One, Zero};
 //}}}
 //{{{ std imports
 //}}}
 //--------------------------------------------------------------------------------------------------
-
-//{{{ trait: MatMul
-/// Trait which provides the matrix multiplication operation `matmul`.
-pub trait MatMul<Rhs = Self>
-{
-    type Output;
-
-    /// Performs a matrix multiplication operation.
-    fn matmul(
-        self,
-        rhs: Rhs,
-    ) -> Self::Output;
-}
-//}}}
 
 //{{{ impl MatMul for DMatrix
 impl<'a, T> MatMul<&'a DMatrix<T>> for &'a DMatrix<T>
