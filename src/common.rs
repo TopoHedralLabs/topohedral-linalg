@@ -282,6 +282,19 @@ where
     fn trace(&self) -> Self::ScalarType;
 }
 //}}}
+//{{{ trait: MatMul
+pub trait MatMul<Rhs = Self>
+where
+    Self: Sized,
+{
+    type Output;
+
+    fn matmul(
+        self,
+        rhs: Rhs,
+    ) -> Self::Output;
+}
+//}}}
 //{{{ trait: VectorOps
 #[allow(clippy::len_without_is_empty)]
 pub trait VectorOps:

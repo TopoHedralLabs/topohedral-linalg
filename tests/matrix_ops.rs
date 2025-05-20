@@ -7,7 +7,7 @@ mod smatrix_tests
 
     use approx::assert_relative_eq;
     use topohedral_linalg::smatrix::*;
-    use topohedral_linalg::{Complex, MatrixOps};
+    use topohedral_linalg::{Complex, MatMul, MatrixOps};
 
     //{{{ collection: eig tests
     #[test]
@@ -493,7 +493,7 @@ mod dmatrix_tests
 
     use approx::assert_relative_eq;
     use topohedral_linalg::dmatrix::*;
-    use topohedral_linalg::{Complex, MatrixOps};
+    use topohedral_linalg::{Complex, MatMul, MatrixOps};
 
     //{{{ collection: eig tests
     #[test]
