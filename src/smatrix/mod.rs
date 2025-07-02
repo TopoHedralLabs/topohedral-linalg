@@ -8,6 +8,7 @@ use crate::common::{Field, IndexValue, Zero};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 //}}}
 //{{{ std imports
+use std::convert::From;
 //}}}
 //{{{ dep imports
 //}}}
@@ -66,33 +67,8 @@ where
     pub(crate) ncols: usize,
 }
 //}}}
-//{{{ trait: EvaluateSMatrix
-pub trait EvaluateSMatrix<T, const N: usize, const M: usize>
-where
-    [(); N * M]:,
-    T: Field + Copy,
-{
-    fn evals(&self) -> SMatrix<T, N, M>;
-}
-
-//}}}
-//{{{ impl: Evaluate for SMatrix
-impl<T, const N: usize, const M: usize> EvaluateSMatrix<T, N, M> for SMatrix<T, N, M>
-where
-    [(); N * M]:,
-    T: Field + Default + Copy,
-{
-    fn evals(&self) -> SMatrix<T, N, M>
-    {
-        *self
-    }
-}
-
-//}}}
-//{{{ impl: EvaluateSMatrix for BinopExpr
-#[doc(hidden)]
-impl<A, B, T, const N: usize, const M: usize, Op> EvaluateSMatrix<T, N, M>
-    for BinopExpr<A, B, T, Op>
+//{{{ impl: From<BinopExpr> for SMatrix
+impl<A, B, T, Op, const N: usize, const M: usize> From<BinopExpr<A, B, T, Op>> for SMatrix<T, N, M>
 where
     [(); N * M]:,
     A: IndexValue<usize, Output = T>,
@@ -100,16 +76,15 @@ where
     T: Field + Copy + Zero,
     Op: BinOp,
 {
-    fn evals(&self) -> SMatrix<T, N, M>
-    {
+    fn from(expr: BinopExpr<A, B, T, Op>) -> Self {
+
         let mut out = SMatrix::<T, N, M>::zeros();
 
         for i in 0..N * M
         {
-            out[i] = self.index_value(i);
+            out[i] = expr.index_value(i);
         }
 
         out
     }
-}
-//}}}
+}//}}}

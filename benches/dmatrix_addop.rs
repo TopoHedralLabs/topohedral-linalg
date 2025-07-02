@@ -6,7 +6,6 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use nalgebra::DMatrix as NADMatrix;
 use rand::prelude::*;
 use topohedral_linalg::dmatrix;
-use topohedral_linalg::dmatrix::EvaluateDMatrix;
 
 // fn somethin() {
 
@@ -50,7 +49,7 @@ macro_rules! add_benches_dmatrix {
                 |be| {
                     be.iter(|| {
                         let j: dmatrix::DMatrix<f64> =
-                            (&a + &b + &c + &d + &e + &f + &g + &h + &i).evald();
+                            (&a + &b + &c + &d + &e + &f + &g + &h + &i).into();
                         black_box(j);
                     })
                 },
