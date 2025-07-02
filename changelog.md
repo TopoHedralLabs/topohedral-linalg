@@ -1,5 +1,6 @@
 Changes as follows:
 
-- No longer expose Assert and AssertGreaterThan as the use of generic expression accross crate 
-  boundaries causes ICE's
-- Expose GreaterThan<N, 1> instead.
+- Implemented eagerly evaluated binary operators
+- Made MatMul a commmon trait to both SMatrix and DMatrix, defined in common.
+- Replaced EvaluateSMatrix and EvaluateDMatrix with implementation of the standard 
+  From trait
