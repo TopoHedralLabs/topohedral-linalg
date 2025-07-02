@@ -122,8 +122,7 @@ mod smatrix_tests
         let matrix7 = SMatrix::<i32, 2, 2>::from_value(1000000);
 
         let matrix8: SMatrix<i32, 2, 2> =
-            (&matrix7 + (&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6)
-                .into();
+            (&matrix7 + (&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6).into();
 
         let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
 
@@ -232,8 +231,7 @@ mod smatrix_tests
         let matrix7 = SMatrix::<f64, 2, 2>::from_value(1000000.0);
 
         let matrix8: SMatrix<f64, 2, 2> =
-            (&matrix7 / (&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6)
-                .into();
+            (&matrix7 / (&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6).into();
 
         let exp_value: f64 = 1000000.0 / (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
 
@@ -493,7 +491,7 @@ mod smatrix_tests
 //{{{ mod: dmatrix_tests
 mod dmatrix_tests
 {
-    use topohedral_linalg::dmatrix::{DMatrix};
+    use topohedral_linalg::dmatrix::DMatrix;
 
     //{{{ collection: addition tests
     #[test]
@@ -561,8 +559,7 @@ mod dmatrix_tests
         let matrix7 = DMatrix::<i32>::from_value(1000000, 2, 2);
 
         let matrix8: DMatrix<i32> =
-            (&matrix7 + (&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6)
-                .into();
+            (&matrix7 + (&matrix4 + &matrix5) + (&matrix1 + &matrix2 + &matrix3) + &matrix6).into();
 
         let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
 
@@ -648,8 +645,7 @@ mod dmatrix_tests
         let matrix7 = DMatrix::<f64>::from_value(1000000.0, 2, 2);
 
         let matrix8: DMatrix<f64> =
-            (&matrix7 / (&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6)
-                .into();
+            (&matrix7 / (&matrix4 / &matrix5) / (&matrix1 / &matrix2 / &matrix3) / &matrix6).into();
 
         let exp_value: f64 = 1000000.0 / (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
 

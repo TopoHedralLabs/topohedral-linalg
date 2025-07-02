@@ -76,8 +76,8 @@ where
     T: Field + Copy + Zero,
     Op: BinOp,
 {
-    fn from(expr: BinopExpr<A, B, T, Op>) -> Self {
-
+    fn from(expr: BinopExpr<A, B, T, Op>) -> Self
+    {
         let mut out = SMatrix::<T, N, M>::zeros();
 
         for i in 0..N * M
@@ -87,4 +87,4 @@ where
 
         out
     }
-}//}}}
+} //}}}
