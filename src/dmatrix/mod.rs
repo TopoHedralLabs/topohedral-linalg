@@ -65,46 +65,21 @@ where
     pub(crate) ncols: usize,
 }
 //}}}
-//{{{ collection: Evaluation to DMatrix
-//{{{ trait: Evaluate
-pub trait EvaluateDMatrix<T>
-where
-    T: Field + Copy,
-{
-    fn evald(&self) -> DMatrix<T>;
-}
-
-//}}}
-//{{{ impl: Evaluate for DMatrix
-impl<T> EvaluateDMatrix<T> for DMatrix<T>
-where
-    T: Field + Copy,
-{
-    fn evald(&self) -> DMatrix<T>
-    {
-        self.clone()
-    }
-}
-
-//}}}
-//{{{ impl: EvaluateDMatrix for BinopExpr
-#[doc(hidden)]
-impl<A, B, T, Op> EvaluateDMatrix<T> for BinopExpr<A, B, T, Op>
+//{{{ impl: From<BinopExpr> for DMatrix
+impl<A, B, T, Op> From<BinopExpr<A, B, T, Op>> for DMatrix<T>
 where
     A: IndexValue<usize, Output = T>,
     B: IndexValue<usize, Output = T>,
     T: Field + Copy + Zero,
     Op: BinOp,
 {
-    fn evald(&self) -> DMatrix<T>
+    fn from(expr: BinopExpr<A, B, T, Op>) -> DMatrix<T>
     {
-        let mut out = DMatrix::<T>::zeros(self.nrows, self.ncols);
-        for i in 0..self.nrows * self.ncols
+        let mut out = DMatrix::<T>::zeros(expr.nrows, expr.ncols);
+        for i in 0..expr.nrows * expr.ncols
         {
-            out.data[i] = self.index_value(i);
+            out.data[i] = expr.index_value(i);
         }
         out
     }
-}
-//}}}
-//}}}
+} //}}}

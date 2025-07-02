@@ -5,7 +5,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 use topohedral_linalg::smatrix;
-use topohedral_linalg::smatrix::EvaluateSMatrix;
 
 use nalgebra::SMatrix as NASMatrix;
 
@@ -39,7 +38,7 @@ macro_rules! add_benches_smatrix {
                 |be| {
                     be.iter(|| {
                         let j: smatrix::SMatrix<f64, $dim, $dim> =
-                            (&a + &b + &c + &d + &e + &f + &g + &h + &i).evals();
+                            (&a + &b + &c + &d + &e + &f + &g + &h + &i).into();
 
                         black_box(j);
                     })
