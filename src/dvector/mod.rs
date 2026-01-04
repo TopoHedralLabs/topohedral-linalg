@@ -10,7 +10,7 @@ use crate::dmatrix::DMatrix;
 //{{{ std imports
 //}}}
 //{{{ dep imports
-use rand::distributions::uniform::SampleUniform;
+use rand::distr::uniform::SampleUniform;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
