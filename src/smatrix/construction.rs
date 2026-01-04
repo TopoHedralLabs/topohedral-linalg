@@ -9,7 +9,7 @@ use crate::common::{Field, One, Zero};
 //{{{ std imports
 //}}}
 //{{{ dep imports
-use rand::distributions::{uniform::SampleUniform, Distribution, Uniform};
+use rand::distr::{uniform::SampleUniform, Distribution, Uniform};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -101,9 +101,9 @@ where
     {
         let mut out = Self::zeros();
 
-        let range = Uniform::<T>::new(low, high);
+        let range = Uniform::<T>::new(low, high).unwrap();
 
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         for i in 0..N * M
         {

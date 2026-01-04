@@ -10,7 +10,7 @@ use crate::common::{Field, One, Zero};
 //{{{ std imports
 //}}}
 //{{{ dep imports
-use rand::distributions::{uniform::SampleUniform, Distribution, Uniform};
+use rand::distr::{uniform::SampleUniform, Distribution, Uniform};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -120,8 +120,8 @@ where
         T: SampleUniform + Zero,
     {
         let mut out = Self::zeros(nrows, ncols);
-        let range = Uniform::<T>::new(low, high);
-        let mut rng = rand::thread_rng();
+        let range = Uniform::<T>::new(low, high).unwrap();
+        let mut rng = rand::rng();
         for i in 0..out.nrows * out.ncols
         {
             out[i] = range.sample(&mut rng);
