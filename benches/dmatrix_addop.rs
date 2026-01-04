@@ -2,7 +2,7 @@
 #![allow(incomplete_features)]
 #![feature(impl_trait_in_assoc_type)]
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 use nalgebra::DMatrix as NADMatrix;
 use rand::prelude::*;
 use topohedral_linalg::dmatrix;
@@ -50,7 +50,7 @@ macro_rules! add_benches_dmatrix {
                     be.iter(|| {
                         let j: dmatrix::DMatrix<f64> =
                             (&a + &b + &c + &d + &e + &f + &g + &h + &i).into();
-                        black_box(j);
+                        std::hint::black_box(j);
                     })
                 },
             );
@@ -58,9 +58,9 @@ macro_rules! add_benches_dmatrix {
 
         pub fn $name2(crit: &mut Criterion)
         {
-            let range = rand::distributions::Uniform::<f64>::new(0.0, 10.0);
+            let range = rand::distr::Uniform::<f64>::new(0.0, 10.0).unwrap();
 
-            let mut rng = rand::thread_rng();
+            let mut rng = rand::rng();
 
             let a = NADMatrix::<f64>::from_distribution($dim, $dim, &range, &mut rng);
 
@@ -84,17 +84,17 @@ macro_rules! add_benches_dmatrix {
                 be.iter(|| {
                     let j = (&a + &b + &c + &d + &e + &f + &g + &h + &i);
                     let tmp = j[(0, 0)];
-                    black_box(tmp);
-                    black_box(j);
+                    std::hint::black_box(tmp);
+                    std::hint::black_box(j);
                 })
             });
         }
 
         pub fn $name3(crit: &mut Criterion)
         {
-            let range = rand::distributions::Uniform::<f64>::new(0.0, 10.0);
+            let range = rand::distr::Uniform::<f64>::new(0.0, 10.0).unwrap();
 
-            let mut rng = rand::thread_rng();
+            let mut rng = rand::rng();
 
             let mut a = vec![0.0f64; $dim * $dim];
 
@@ -145,7 +145,7 @@ macro_rules! add_benches_dmatrix {
                             a[ii] + b[ii] + c[ii] + d[ii] + e[ii] + f[ii] + g[ii] + h[ii] + i[ii];
                     }
 
-                    black_box(j);
+                    std::hint::black_box(j);
                 })
             });
         }
