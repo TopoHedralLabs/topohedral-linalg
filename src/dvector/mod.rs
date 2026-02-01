@@ -104,7 +104,7 @@ where
 
 impl<T> VectorOps for DVector<T>
 where
-    T: Field + Default + Copy + Clone + Zero + One,
+    T: Field + Default + Copy + Clone + Zero + One + Float,
 {
     type ScalarType = T;
 
