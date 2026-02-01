@@ -13,7 +13,7 @@ mod scvector_tests
     {
         let v = SCVector::<f64, 3>::from_col_slice(&[1.0, 2.0, 3.0]);
         let norm = v.norm();
-        assert_relative_eq!(norm, 14.0);
+        assert_relative_eq!(norm, 3.7416573867739413);
     }
 
     #[test]
@@ -71,7 +71,7 @@ mod srvector_tests
     {
         let v = SRVector::<f64, 3>::from_row_slice(&[1.0, 2.0, 3.0]);
         let norm = v.norm();
-        assert_relative_eq!(norm, 14.0);
+        assert_relative_eq!(norm, 3.7416573867739413);
     }
 
     #[test]
@@ -128,12 +128,12 @@ mod dvector_tests
         {
             let v = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0], 3, VecType::Row);
             let norm = v.norm();
-            assert_relative_eq!(norm, 14.0);
+            assert_relative_eq!(norm, 3.7416573867739413);
         }
         {
             let v = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0], 3, VecType::Col);
             let norm = v.norm();
-            assert_relative_eq!(norm, 14.0);
+            assert_relative_eq!(norm, 3.7416573867739413);
         }
     }
 

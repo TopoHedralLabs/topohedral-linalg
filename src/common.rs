@@ -208,6 +208,8 @@ pub trait Float: Field
         self,
         exp: i32,
     ) -> Self;
+
+    fn sqrt(self) -> Self;
 }
 //}}}
 //{{{ impl: Float for f32
@@ -236,6 +238,11 @@ impl Float for f32
     {
         self.powi(exp)
     }
+
+    fn sqrt(self) -> Self
+    {
+        self.sqrt()
+    }
 }
 //}}}
 //{{{ impl: Float for f64
@@ -263,6 +270,11 @@ impl Float for f64
     ) -> Self
     {
         self.powi(exp)
+    }
+
+    fn sqrt(self) -> Self
+    {
+        self.sqrt()
     }
 }
 //}}}
@@ -300,7 +312,7 @@ where
 pub trait VectorOps:
     Index<usize, Output = Self::ScalarType> + IndexMut<usize, Output = Self::ScalarType> + Sized + Clone
 {
-    type ScalarType: Field + Zero + One + Copy + Default;
+    type ScalarType: Field + Zero + One + Copy + Default + Float;
 
     //{{{ fn: len
     fn len(&self) -> usize;
@@ -320,7 +332,7 @@ pub trait VectorOps:
         {
             out += self[i] * self[i]
         }
-        out
+        out.sqrt()
     }
     //}}}
     //{{{ fn: dot

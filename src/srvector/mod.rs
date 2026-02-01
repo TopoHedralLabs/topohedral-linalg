@@ -21,7 +21,7 @@ pub type SRVector<T, const N: usize> = SMatrix<T, 1, N>;
 impl<T, const N: usize> VectorOps for SRVector<T, N>
 where
     [(); 1usize * N]:,
-    T: Field + Default + Copy + Clone + Zero + One,
+    T: Field + Default + Copy + Clone + Zero + One + Float,
     (): GreaterThan<N, 1>,
 {
     type ScalarType = T;

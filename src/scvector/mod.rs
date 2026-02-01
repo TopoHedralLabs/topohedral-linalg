@@ -24,7 +24,7 @@ pub type SCVector<T, const N: usize> = SMatrix<T, N, 1>;
 impl<T, const N: usize> VectorOps for SCVector<T, N>
 where
     [(); N * 1]:,
-    T: Field + Default + Copy + Clone + Zero + One,
+    T: Field + Default + Copy + Clone + Zero + One + Float,
     (): GreaterThan<N, 1>,
 {
     type ScalarType = T;
