@@ -493,6 +493,10 @@ mod dmatrix_tests
 
     use approx::assert_relative_eq;
     use topohedral_linalg::dmatrix::*;
+    use topohedral_linalg::dvector::{DVector, VecType};
+    use topohedral_linalg::scvector::SCVector;
+    use topohedral_linalg::smatrix::SMatrix;
+    use topohedral_linalg::srvector::SRVector;
     use topohedral_linalg::{Complex, MatMul, MatrixOps};
 
     //{{{ collection: eig tests
@@ -684,6 +688,111 @@ mod dmatrix_tests
         let b = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 3, 2);
 
         let expected = DMatrix::<f64>::from_row_slice(&[22.0, 28.0, 49.0, 64.0], 2, 2);
+
+        let result = (&a).matmul(&b);
+
+        for (res_val, exp_val) in result.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+    }
+
+    #[test]
+    fn test_matmul_smatrix_dmatrix_f64_general()
+    {
+        let a = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+
+        let b = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 3, 2);
+
+        let expected = DMatrix::<f64>::from_row_slice(&[22.0, 28.0, 49.0, 64.0], 2, 2);
+
+        let result = (&a).matmul(&b);
+
+        for (res_val, exp_val) in result.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+    }
+
+    #[test]
+    fn test_matmul_dmatrix_smatrix_f64_general()
+    {
+        let a = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 2, 3);
+
+        let b = SMatrix::<f64, 3, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+
+        let expected = DMatrix::<f64>::from_row_slice(&[22.0, 28.0, 49.0, 64.0], 2, 2);
+
+        let result = (&a).matmul(&b);
+
+        for (res_val, exp_val) in result.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Matrix dimensions are incompatible for multiplication: 2x3 and 2x2")]
+    fn test_matmul_smatrix_dmatrix_dimension_mismatch_panics()
+    {
+        let a = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+
+        let b = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0], 2, 2);
+
+        let _ = (&a).matmul(&b);
+    }
+
+    #[test]
+    fn test_matmul_dmatrix_scvector_col_vector()
+    {
+        let a = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 2, 3);
+        let b = SCVector::<f64, 3>::from_col_slice(&[1.0, 2.0, 3.0]);
+        let expected = DMatrix::<f64>::from_row_slice(&[14.0, 32.0], 2, 1);
+
+        let result = (&a).matmul(&b);
+
+        for (res_val, exp_val) in result.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+    }
+
+    #[test]
+    fn test_matmul_smatrix_dvector_col_vector()
+    {
+        let a = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+        let b = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0], 3, VecType::Col);
+        let expected = DMatrix::<f64>::from_row_slice(&[14.0, 32.0], 2, 1);
+
+        let result = (&a).matmul(&b);
+
+        for (res_val, exp_val) in result.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+    }
+
+    #[test]
+    fn test_matmul_srvector_dmatrix_row_vector()
+    {
+        let a = SRVector::<f64, 3>::from_row_slice(&[1.0, 2.0, 3.0]);
+        let b = DMatrix::<f64>::from_row_slice(&[4.0, 5.0, 6.0, 7.0, 8.0, 9.0], 3, 2);
+        let expected = DMatrix::<f64>::from_row_slice(&[40.0, 46.0], 1, 2);
+
+        let result = (&a).matmul(&b);
+
+        for (res_val, exp_val) in result.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+    }
+
+    #[test]
+    fn test_matmul_dvector_smatrix_row_vector()
+    {
+        let a = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0], 3, VecType::Row);
+        let b = SMatrix::<f64, 3, 2>::from_row_slice(&[4.0, 5.0, 6.0, 7.0, 8.0, 9.0]);
+        let expected = DMatrix::<f64>::from_row_slice(&[40.0, 46.0], 1, 2);
 
         let result = (&a).matmul(&b);
 
