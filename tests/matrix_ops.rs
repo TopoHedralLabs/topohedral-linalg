@@ -493,6 +493,7 @@ mod dmatrix_tests
 
     use approx::assert_relative_eq;
     use topohedral_linalg::dmatrix::*;
+    use topohedral_linalg::smatrix::SMatrix;
     use topohedral_linalg::{Complex, MatMul, MatrixOps};
 
     //{{{ collection: eig tests
@@ -691,6 +692,53 @@ mod dmatrix_tests
         {
             assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
         }
+    }
+
+    #[test]
+    fn test_matmul_smatrix_dmatrix_f64_general()
+    {
+        let a = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+
+        let b = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 3, 2);
+
+        let expected = DMatrix::<f64>::from_row_slice(&[22.0, 28.0, 49.0, 64.0], 2, 2);
+
+        let result = (&a).matmul(&b);
+
+        for (res_val, exp_val) in result.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+    }
+
+    #[test]
+    fn test_matmul_dmatrix_smatrix_f64_general()
+    {
+        let a = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 2, 3);
+
+        let b = SMatrix::<f64, 3, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+
+        let expected = DMatrix::<f64>::from_row_slice(&[22.0, 28.0, 49.0, 64.0], 2, 2);
+
+        let result = (&a).matmul(&b);
+
+        for (res_val, exp_val) in result.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Matrix dimensions are incompatible for multiplication: 2x3 and 2x2"
+    )]
+    fn test_matmul_smatrix_dmatrix_dimension_mismatch_panics()
+    {
+        let a = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+
+        let b = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0], 2, 2);
+
+        let _ = (&a).matmul(&b);
     }
 
     #[test]

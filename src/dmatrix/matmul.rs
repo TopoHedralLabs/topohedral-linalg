@@ -9,6 +9,7 @@ use super::DMatrix;
 use crate::blaslapack::gemm::Gemm;
 use crate::blaslapack::gemv::Gemv;
 use crate::common::{Field, MatMul, One, Zero};
+use crate::smatrix::SMatrix;
 //}}}
 //{{{ std imports
 //}}}
@@ -89,6 +90,87 @@ where
                 T::zero(),              // beta: scaling factor for result matrix
                 &mut result.data,       // c: result matrix data
                 m as i32,               // ldc: leading dimension of result matrix
+            );
+        }
+
+        result
+    }
+}
+//}}}
+
+//{{{ impl MatMul for DMatrix x SMatrix
+impl<'a, T, const K: usize, const N: usize> MatMul<&'a SMatrix<T, K, N>> for &'a DMatrix<T>
+where
+    [(); K * N]:,
+    T: Gemm + Gemv + Field + Zero + One + Copy,
+{
+    type Output = DMatrix<T>;
+
+    fn matmul(
+        self,
+        rhs: &'a SMatrix<T, K, N>,
+    ) -> Self::Output
+    {
+        let m = self.nrows;
+        let k = self.ncols;
+        let n = rhs.ncols;
+
+        assert_eq!(
+            k, rhs.nrows,
+            "Matrix dimensions are incompatible for multiplication: {}x{} and {}x{}",
+            self.nrows, self.ncols, rhs.nrows, rhs.ncols
+        );
+
+        let mut result = DMatrix::<T>::zeros(m, n);
+
+        if n == 1
+        {
+            T::gemv(
+                cblas::Transpose::None,
+                m as i32,
+                k as i32,
+                T::one(),
+                &self.data,
+                m as i32,
+                &rhs.data,
+                1,
+                T::zero(),
+                &mut result.data,
+                1,
+            );
+        }
+        else if m == 1
+        {
+            T::gemv(
+                cblas::Transpose::Ordinary,
+                k as i32,
+                n as i32,
+                T::one(),
+                &rhs.data,
+                k as i32,
+                &self.data,
+                1,
+                T::zero(),
+                &mut result.data,
+                1,
+            );
+        }
+        else
+        {
+            T::gemm(
+                cblas::Transpose::None,
+                cblas::Transpose::None,
+                m as i32,
+                n as i32,
+                k as i32,
+                T::one(),
+                &self.data,
+                m as i32,
+                &rhs.data,
+                k as i32,
+                T::zero(),
+                &mut result.data,
+                m as i32,
             );
         }
 
