@@ -732,9 +732,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    #[should_panic(
-        expected = "Matrix dimensions are incompatible for multiplication: 2x3 and 2x2"
-    )]
+    #[should_panic(expected = "Matrix dimensions are incompatible for multiplication: 2x3 and 2x2")]
     fn test_matmul_smatrix_dmatrix_dimension_mismatch_panics()
     {
         let a = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
