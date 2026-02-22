@@ -172,3 +172,60 @@ where
     }
 }
 //}}}
+
+//{{{ trait: MatMul for &mut SMatrix x DMatrix
+impl<'a, T, const M: usize, const K: usize> MatMul<&'a DMatrix<T>> for &'a mut SMatrix<T, M, K>
+where
+    [(); M * K]:,
+    T: Gemm + Gemv + Field + Zero + One + Copy,
+{
+    type Output = DMatrix<T>;
+
+    #[inline]
+    fn matmul(
+        self,
+        rhs: &'a DMatrix<T>,
+    ) -> Self::Output
+    {
+        (&*self).matmul(rhs)
+    }
+}
+//}}}
+
+//{{{ trait: MatMul for SMatrix x &mut DMatrix
+impl<'a, T, const M: usize, const K: usize> MatMul<&'a mut DMatrix<T>> for &'a SMatrix<T, M, K>
+where
+    [(); M * K]:,
+    T: Gemm + Gemv + Field + Zero + One + Copy,
+{
+    type Output = DMatrix<T>;
+
+    #[inline]
+    fn matmul(
+        self,
+        rhs: &'a mut DMatrix<T>,
+    ) -> Self::Output
+    {
+        self.matmul(&*rhs)
+    }
+}
+//}}}
+
+//{{{ trait: MatMul for &mut SMatrix x &mut DMatrix
+impl<'a, T, const M: usize, const K: usize> MatMul<&'a mut DMatrix<T>> for &'a mut SMatrix<T, M, K>
+where
+    [(); M * K]:,
+    T: Gemm + Gemv + Field + Zero + One + Copy,
+{
+    type Output = DMatrix<T>;
+
+    #[inline]
+    fn matmul(
+        self,
+        rhs: &'a mut DMatrix<T>,
+    ) -> Self::Output
+    {
+        (&*self).matmul(&*rhs)
+    }
+}
+//}}}
