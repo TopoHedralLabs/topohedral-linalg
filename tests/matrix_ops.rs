@@ -732,6 +732,36 @@ mod dmatrix_tests
     }
 
     #[test]
+    fn test_matmul_dmatrix_smatrix_mutability_combinations()
+    {
+        let mut a = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 2, 3);
+        let mut b = SMatrix::<f64, 3, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+        let expected = DMatrix::<f64>::from_row_slice(&[22.0, 28.0, 49.0, 64.0], 2, 2);
+
+        let result_ref_ref = (&a).matmul(&b);
+        let result_mut_ref = (&mut a).matmul(&b);
+        let result_ref_mut = (&a).matmul(&mut b);
+        let result_mut_mut = (&mut a).matmul(&mut b);
+
+        for (res_val, exp_val) in result_ref_ref.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+        for (res_val, exp_val) in result_mut_ref.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+        for (res_val, exp_val) in result_ref_mut.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+        for (res_val, exp_val) in result_mut_mut.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+    }
+
+    #[test]
     #[should_panic(expected = "Matrix dimensions are incompatible for multiplication: 2x3 and 2x2")]
     fn test_matmul_smatrix_dmatrix_dimension_mismatch_panics()
     {
