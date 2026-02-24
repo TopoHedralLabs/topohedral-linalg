@@ -98,6 +98,42 @@ where
 }
 //}}}
 
+//{{{ impl MatMul for DMatrix x owned DMatrix
+impl<T> MatMul<DMatrix<T>> for &DMatrix<T>
+where
+    T: Gemm + Gemv + Field + Zero + One + Copy,
+{
+    type Output = DMatrix<T>;
+
+    #[inline]
+    fn matmul(
+        self,
+        rhs: DMatrix<T>,
+    ) -> Self::Output
+    {
+        self.matmul(&rhs)
+    }
+}
+//}}}
+
+//{{{ impl MatMul for &mut DMatrix x owned DMatrix
+impl<T> MatMul<DMatrix<T>> for &mut DMatrix<T>
+where
+    T: Gemm + Gemv + Field + Zero + One + Copy,
+{
+    type Output = DMatrix<T>;
+
+    #[inline]
+    fn matmul(
+        self,
+        rhs: DMatrix<T>,
+    ) -> Self::Output
+    {
+        (&*self).matmul(&rhs)
+    }
+}
+//}}}
+
 //{{{ impl MatMul for DMatrix x SMatrix
 impl<'a, T, const K: usize, const N: usize> MatMul<&'a SMatrix<T, K, N>> for &'a DMatrix<T>
 where

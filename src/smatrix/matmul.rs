@@ -92,6 +92,50 @@ where
 
 //}}}
 
+//{{{ trait: MatMul for SMatrix x owned SMatrix
+impl<T, const N: usize, const M: usize, const K: usize> MatMul<SMatrix<T, K, N>>
+    for &SMatrix<T, M, K>
+where
+    [(); M * K]:,
+    [(); K * N]:,
+    [(); M * N]:,
+    T: Gemm + Gemv + Field + Zero + One + Copy,
+{
+    type Output = SMatrix<T, M, N>;
+
+    #[inline]
+    fn matmul(
+        self,
+        rhs: SMatrix<T, K, N>,
+    ) -> Self::Output
+    {
+        self.matmul(&rhs)
+    }
+}
+//}}}
+
+//{{{ trait: MatMul for &mut SMatrix x owned SMatrix
+impl<T, const N: usize, const M: usize, const K: usize> MatMul<SMatrix<T, K, N>>
+    for &mut SMatrix<T, M, K>
+where
+    [(); M * K]:,
+    [(); K * N]:,
+    [(); M * N]:,
+    T: Gemm + Gemv + Field + Zero + One + Copy,
+{
+    type Output = SMatrix<T, M, N>;
+
+    #[inline]
+    fn matmul(
+        self,
+        rhs: SMatrix<T, K, N>,
+    ) -> Self::Output
+    {
+        (&*self).matmul(&rhs)
+    }
+}
+//}}}
+
 //{{{ trait: MatMul for SMatrix x DMatrix
 impl<'a, T, const M: usize, const K: usize> MatMul<&'a DMatrix<T>> for &'a SMatrix<T, M, K>
 where
