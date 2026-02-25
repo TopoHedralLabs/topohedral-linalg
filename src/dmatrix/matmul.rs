@@ -98,6 +98,24 @@ where
 }
 //}}}
 
+//{{{ impl MatMul for &mut DMatrix x DMatrix
+impl<'a, T> MatMul<&'a DMatrix<T>> for &'a mut DMatrix<T>
+where
+    T: Gemm + Gemv + Field + Zero + One + Copy,
+{
+    type Output = DMatrix<T>;
+
+    #[inline]
+    fn matmul(
+        self,
+        rhs: &'a DMatrix<T>,
+    ) -> Self::Output
+    {
+        (&*self).matmul(rhs)
+    }
+}
+//}}}
+
 //{{{ impl MatMul for DMatrix x owned DMatrix
 impl<T> MatMul<DMatrix<T>> for &DMatrix<T>
 where
