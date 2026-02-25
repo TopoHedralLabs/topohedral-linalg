@@ -183,6 +183,21 @@ mod smatrix_tests
     }
 
     #[test]
+    fn test_matmul_f64_general_mut_lhs_ref_rhs()
+    {
+        let mut a = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+        let b = SMatrix::<f64, 3, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+        let expected = SMatrix::<f64, 2, 2>::from_row_slice(&[22.0, 28.0, 49.0, 64.0]);
+
+        let result = (&mut a).matmul(&b);
+
+        for (res_val, exp_val) in result.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+    }
+
+    #[test]
     fn test_matmul_f64_general_temporary_rhs()
     {
         let a = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
@@ -766,6 +781,21 @@ mod dmatrix_tests
         let expected = DMatrix::<f64>::from_row_slice(&[22.0, 28.0, 49.0, 64.0], 2, 2);
 
         let result = (&a).matmul(&b);
+
+        for (res_val, exp_val) in result.iter().zip(expected.iter())
+        {
+            assert_relative_eq!(res_val, exp_val, epsilon = 1e-10);
+        }
+    }
+
+    #[test]
+    fn test_matmul_f64_general_mut_lhs_ref_rhs()
+    {
+        let mut a = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 2, 3);
+        let b = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 3, 2);
+        let expected = DMatrix::<f64>::from_row_slice(&[22.0, 28.0, 49.0, 64.0], 2, 2);
+
+        let result = (&mut a).matmul(&b);
 
         for (res_val, exp_val) in result.iter().zip(expected.iter())
         {
