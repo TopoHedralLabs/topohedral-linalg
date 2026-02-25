@@ -159,6 +159,25 @@ where
 }
 
 //}}}
+//{{{ impl: Add<T> for &'a mut DMatrix
+#[doc(hidden)]
+impl<'a, T> Add<T> for &'a mut DMatrix<T>
+where
+    T: Field + Copy + IndexValue<usize, Output = T>,
+{
+    type Output = BinopExpr<&'a DMatrix<T>, T, T, AddOp>;
+
+    #[inline]
+    fn add(
+        self,
+        rhs: T,
+    ) -> Self::Output
+    {
+        (&*self).add(rhs)
+    }
+}
+
+//}}}
 //{{{ impl: Add<Dmatrix> for $type
 macro_rules! impl_dmatrix_ref_add {
     ($type:ty) => {
@@ -187,6 +206,26 @@ macro_rules! impl_dmatrix_ref_add {
     };
 }
 apply_for_all_types!(impl_dmatrix_ref_add);
+//{{{ impl: Add<&mut Dmatrix> for $type
+macro_rules! impl_dmatrix_ref_mut_add {
+    ($type:ty) => {
+        #[doc(hidden)]
+        impl<'a> Add<&'a mut DMatrix<$type>> for $type
+        {
+            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, AddOp>;
+
+            #[inline]
+            fn add(
+                self,
+                rhs: &'a mut DMatrix<$type>,
+            ) -> Self::Output
+            {
+                self.add(&*rhs)
+            }
+        }
+    };
+}
+apply_for_all_types!(impl_dmatrix_ref_mut_add);
 //}}}
 //{{{ impl: Add for &'a DMatrix
 impl<'a, T> Add for &'a DMatrix<T>
@@ -210,6 +249,60 @@ where
             ncols: nc,
             _marker: std::marker::PhantomData,
         }
+    }
+}
+
+//}}}
+//{{{ impl: Add<&DMatrix> for &'a mut DMatrix
+impl<'a, T> Add<&'a DMatrix<T>> for &'a mut DMatrix<T>
+where
+    T: Field + Copy,
+{
+    type Output = BinopExpr<&'a DMatrix<T>, &'a DMatrix<T>, T, AddOp>;
+
+    #[inline]
+    fn add(
+        self,
+        rhs: &'a DMatrix<T>,
+    ) -> Self::Output
+    {
+        (&*self).add(rhs)
+    }
+}
+
+//}}}
+//{{{ impl: Add<&mut DMatrix> for &'a DMatrix
+impl<'a, T> Add<&'a mut DMatrix<T>> for &'a DMatrix<T>
+where
+    T: Field + Copy,
+{
+    type Output = BinopExpr<&'a DMatrix<T>, &'a DMatrix<T>, T, AddOp>;
+
+    #[inline]
+    fn add(
+        self,
+        rhs: &'a mut DMatrix<T>,
+    ) -> Self::Output
+    {
+        self.add(&*rhs)
+    }
+}
+
+//}}}
+//{{{ impl: Add<&mut DMatrix> for &'a mut DMatrix
+impl<'a, T> Add<&'a mut DMatrix<T>> for &'a mut DMatrix<T>
+where
+    T: Field + Copy,
+{
+    type Output = BinopExpr<&'a DMatrix<T>, &'a DMatrix<T>, T, AddOp>;
+
+    #[inline]
+    fn add(
+        self,
+        rhs: &'a mut DMatrix<T>,
+    ) -> Self::Output
+    {
+        (&*self).add(&*rhs)
     }
 }
 
@@ -243,6 +336,27 @@ where
 }
 
 //}}}
+//{{{ impl: Add<&' mut DMatrix> for BinopExpr
+impl<'a, A, B, T, Op> Add<&'a mut DMatrix<T>> for BinopExpr<A, B, T, Op>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Copy,
+    Op: BinOp,
+{
+    type Output = BinopExpr<Self, &'a DMatrix<T>, T, AddOp>;
+
+    #[inline]
+    fn add(
+        self,
+        rhs: &'a mut DMatrix<T>,
+    ) -> Self::Output
+    {
+        self.add(&*rhs)
+    }
+}
+
+//}}}
 //{{{ impl: Add<BinopExpr> for &'a DMatrix
 impl<A, B, T, Op> Add<BinopExpr<A, B, T, Op>> for &DMatrix<T>
 where
@@ -268,6 +382,27 @@ where
             ncols: nc,
             _marker: std::marker::PhantomData,
         }
+    }
+}
+
+//}}}
+//{{{ impl: Add<BinopExpr> for &'a mut DMatrix
+impl<'a, A, B, T, Op> Add<BinopExpr<A, B, T, Op>> for &'a mut DMatrix<T>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Copy,
+    Op: BinOp,
+{
+    type Output = BinopExpr<&'a DMatrix<T>, BinopExpr<A, B, T, Op>, T, AddOp>;
+
+    #[inline]
+    fn add(
+        self,
+        rhs: BinopExpr<A, B, T, Op>,
+    ) -> Self::Output
+    {
+        (&*self).add(rhs)
     }
 }
 

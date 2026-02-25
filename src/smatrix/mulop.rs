@@ -165,6 +165,26 @@ where
 }
 
 //}}}
+//{{{ impl: Mul<T> for &'a mut SMatrix
+#[doc(hidden)]
+impl<'a, T, const N: usize, const M: usize> Mul<T> for &'a mut SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + Clone + IndexValue<usize, Output = T>,
+{
+    type Output = BinopExpr<&'a SMatrix<T, N, M>, T, T, MulOp>;
+
+    #[inline]
+    fn mul(
+        self,
+        rhs: T,
+    ) -> Self::Output
+    {
+        (&*self).mul(rhs)
+    }
+}
+
+//}}}
 //{{{ impl: Mul<Smatrix> for $type
 macro_rules! impl_smatrix_mul {
     ($type:ty) => {
@@ -195,6 +215,29 @@ macro_rules! impl_smatrix_mul {
 }
 
 apply_for_all_types!(impl_smatrix_mul);
+//{{{ impl: Mul<&mut Smatrix> for $type
+macro_rules! impl_smatrix_mul_mut {
+    ($type:ty) => {
+        #[doc(hidden)]
+        impl<'a, const N: usize, const M: usize> Mul<&'a mut SMatrix<$type, N, M>> for $type
+        where
+            [(); N * M]:,
+        {
+            type Output = BinopExpr<$type, &'a SMatrix<$type, N, M>, $type, MulOp>;
+
+            #[inline]
+            fn mul(
+                self,
+                rhs: &'a mut SMatrix<$type, N, M>,
+            ) -> Self::Output
+            {
+                self.mul(&*rhs)
+            }
+        }
+    };
+}
+
+apply_for_all_types!(impl_smatrix_mul_mut);
 
 //}}}
 //{{{ impl: Mul for &'a SMatrix
@@ -219,6 +262,64 @@ where
             ncols: nc,
             _marker: std::marker::PhantomData,
         }
+    }
+}
+
+//}}}
+//{{{ impl: Mul<&SMatrix> for &'a mut SMatrix
+impl<'a, T, const N: usize, const M: usize> Mul<&'a SMatrix<T, N, M>> for &'a mut SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + Clone,
+{
+    type Output = BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, MulOp>;
+
+    #[inline]
+    fn mul(
+        self,
+        rhs: &'a SMatrix<T, N, M>,
+    ) -> Self::Output
+    {
+        (&*self).mul(rhs)
+    }
+}
+
+//}}}
+//{{{ impl: Mul<&mut SMatrix> for &'a SMatrix
+impl<'a, T, const N: usize, const M: usize> Mul<&'a mut SMatrix<T, N, M>> for &'a SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + Clone,
+{
+    type Output = BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, MulOp>;
+
+    #[inline]
+    fn mul(
+        self,
+        rhs: &'a mut SMatrix<T, N, M>,
+    ) -> Self::Output
+    {
+        self.mul(&*rhs)
+    }
+}
+
+//}}}
+//{{{ impl: Mul<&mut SMatrix> for &'a mut SMatrix
+impl<'a, T, const N: usize, const M: usize> Mul<&'a mut SMatrix<T, N, M>>
+    for &'a mut SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Default + Copy + Clone,
+{
+    type Output = BinopExpr<&'a SMatrix<T, N, M>, &'a SMatrix<T, N, M>, T, MulOp>;
+
+    #[inline]
+    fn mul(
+        self,
+        rhs: &'a mut SMatrix<T, N, M>,
+    ) -> Self::Output
+    {
+        (&*self).mul(&*rhs)
     }
 }
 
@@ -253,6 +354,29 @@ where
 }
 
 //}}}
+//{{{ impl: Mul<&' mut SMatrix> for BinopExpr
+impl<'a, A, B, T, Op, const N: usize, const M: usize> Mul<&'a mut SMatrix<T, N, M>>
+    for BinopExpr<A, B, T, Op>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Default + Copy + Clone,
+    Op: BinOp,
+    [(); N * M]:,
+{
+    type Output = BinopExpr<Self, &'a SMatrix<T, N, M>, T, MulOp>;
+
+    #[inline]
+    fn mul(
+        self,
+        rhs: &'a mut SMatrix<T, N, M>,
+    ) -> Self::Output
+    {
+        self.mul(&*rhs)
+    }
+}
+
+//}}}
 //{{{ impl: Mul<BinopExpr> for &'a SMatrix
 impl<A, B, T, Op, const N: usize, const M: usize> Mul<BinopExpr<A, B, T, Op>> for &SMatrix<T, N, M>
 where
@@ -278,6 +402,29 @@ where
             ncols: nc,
             _marker: std::marker::PhantomData,
         }
+    }
+}
+
+//}}}
+//{{{ impl: Mul<BinopExpr> for &'a mut SMatrix
+impl<'a, A, B, T, Op, const N: usize, const M: usize> Mul<BinopExpr<A, B, T, Op>>
+    for &'a mut SMatrix<T, N, M>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Default + Copy + Clone,
+    Op: BinOp,
+    [(); N * M]:,
+{
+    type Output = BinopExpr<&'a SMatrix<T, N, M>, BinopExpr<A, B, T, Op>, T, MulOp>;
+
+    #[inline]
+    fn mul(
+        self,
+        rhs: BinopExpr<A, B, T, Op>,
+    ) -> Self::Output
+    {
+        (&*self).mul(rhs)
     }
 }
 
