@@ -133,6 +133,58 @@ mod smatrix_tests
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
+    fn test_add_lazy_mutability_combinations()
+    {
+        let mut a = SMatrix::<i32, 2, 2>::from_value(1);
+        let mut b = SMatrix::<i32, 2, 2>::from_value(2);
+        let mut c = SMatrix::<i32, 2, 2>::from_value(3);
+        let mut d = SMatrix::<i32, 2, 2>::from_value(4);
+
+        let rr: SMatrix<i32, 2, 2> = (&a + &b).into();
+        let mr: SMatrix<i32, 2, 2> = (&mut a + &b).into();
+        let rm: SMatrix<i32, 2, 2> = (&a + &mut b).into();
+        let mm: SMatrix<i32, 2, 2> = (&mut a + &mut b).into();
+        let sm: SMatrix<i32, 2, 2> = (4 + &mut a).into();
+        let ms: SMatrix<i32, 2, 2> = (&mut a + 4).into();
+        let em: SMatrix<i32, 2, 2> = ((&a + &b) + &mut c).into();
+        let me: SMatrix<i32, 2, 2> = (&mut d + (&a + &b)).into();
+
+        for val in &rr
+        {
+            assert_eq!(*val, 3);
+        }
+        for val in &mr
+        {
+            assert_eq!(*val, 3);
+        }
+        for val in &rm
+        {
+            assert_eq!(*val, 3);
+        }
+        for val in &mm
+        {
+            assert_eq!(*val, 3);
+        }
+        for val in &sm
+        {
+            assert_eq!(*val, 5);
+        }
+        for val in &ms
+        {
+            assert_eq!(*val, 5);
+        }
+        for val in &em
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &me
+        {
+            assert_eq!(*val, 7);
+        }
+    }
+
+    #[test]
     fn test_add_scalar_lazy()
     {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(10);
@@ -238,6 +290,58 @@ mod smatrix_tests
         for val in &matrix8
         {
             assert_eq!(*val, exp_value);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_div_lazy_mutability_combinations()
+    {
+        let mut a = SMatrix::<f64, 2, 2>::from_value(64.0);
+        let mut b = SMatrix::<f64, 2, 2>::from_value(4.0);
+        let mut c = SMatrix::<f64, 2, 2>::from_value(2.0);
+        let mut d = SMatrix::<f64, 2, 2>::from_value(128.0);
+
+        let rr: SMatrix<f64, 2, 2> = (&a / &b).into();
+        let mr: SMatrix<f64, 2, 2> = (&mut a / &b).into();
+        let rm: SMatrix<f64, 2, 2> = (&a / &mut b).into();
+        let mm: SMatrix<f64, 2, 2> = (&mut a / &mut b).into();
+        let sm: SMatrix<f64, 2, 2> = (8.0 / &mut a).into();
+        let ms: SMatrix<f64, 2, 2> = (&mut a / 8.0).into();
+        let em: SMatrix<f64, 2, 2> = ((&a / &b) / &mut c).into();
+        let me: SMatrix<f64, 2, 2> = (&mut d / (&a / &b)).into();
+
+        for val in &rr
+        {
+            assert_eq!(*val, 16.0);
+        }
+        for val in &mr
+        {
+            assert_eq!(*val, 16.0);
+        }
+        for val in &rm
+        {
+            assert_eq!(*val, 16.0);
+        }
+        for val in &mm
+        {
+            assert_eq!(*val, 16.0);
+        }
+        for val in &sm
+        {
+            assert_eq!(*val, 0.125);
+        }
+        for val in &ms
+        {
+            assert_eq!(*val, 8.0);
+        }
+        for val in &em
+        {
+            assert_eq!(*val, 8.0);
+        }
+        for val in &me
+        {
+            assert_eq!(*val, 8.0);
         }
     }
 
@@ -348,6 +452,58 @@ mod smatrix_tests
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
+    fn test_sub_lazy_mutability_combinations()
+    {
+        let mut a = SMatrix::<i32, 2, 2>::from_value(10);
+        let mut b = SMatrix::<i32, 2, 2>::from_value(3);
+        let mut c = SMatrix::<i32, 2, 2>::from_value(2);
+        let mut d = SMatrix::<i32, 2, 2>::from_value(20);
+
+        let rr: SMatrix<i32, 2, 2> = (&a - &b).into();
+        let mr: SMatrix<i32, 2, 2> = (&mut a - &b).into();
+        let rm: SMatrix<i32, 2, 2> = (&a - &mut b).into();
+        let mm: SMatrix<i32, 2, 2> = (&mut a - &mut b).into();
+        let sm: SMatrix<i32, 2, 2> = (4 - &mut a).into();
+        let ms: SMatrix<i32, 2, 2> = (&mut a - 4).into();
+        let em: SMatrix<i32, 2, 2> = ((&a - &b) - &mut c).into();
+        let me: SMatrix<i32, 2, 2> = (&mut d - (&a - &b)).into();
+
+        for val in &rr
+        {
+            assert_eq!(*val, 7);
+        }
+        for val in &mr
+        {
+            assert_eq!(*val, 7);
+        }
+        for val in &rm
+        {
+            assert_eq!(*val, 7);
+        }
+        for val in &mm
+        {
+            assert_eq!(*val, 7);
+        }
+        for val in &sm
+        {
+            assert_eq!(*val, -6);
+        }
+        for val in &ms
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &em
+        {
+            assert_eq!(*val, 5);
+        }
+        for val in &me
+        {
+            assert_eq!(*val, 13);
+        }
+    }
+
+    #[test]
     fn test_sub_scalar_lazy()
     {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(10);
@@ -452,6 +608,58 @@ mod smatrix_tests
         for val in &matrix7
         {
             assert_eq!(*val, exp_value);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_mul_lazy_mutability_combinations()
+    {
+        let mut a = SMatrix::<i32, 2, 2>::from_value(2);
+        let mut b = SMatrix::<i32, 2, 2>::from_value(3);
+        let mut c = SMatrix::<i32, 2, 2>::from_value(4);
+        let mut d = SMatrix::<i32, 2, 2>::from_value(5);
+
+        let rr: SMatrix<i32, 2, 2> = (&a * &b).into();
+        let mr: SMatrix<i32, 2, 2> = (&mut a * &b).into();
+        let rm: SMatrix<i32, 2, 2> = (&a * &mut b).into();
+        let mm: SMatrix<i32, 2, 2> = (&mut a * &mut b).into();
+        let sm: SMatrix<i32, 2, 2> = (10 * &mut a).into();
+        let ms: SMatrix<i32, 2, 2> = (&mut a * 10).into();
+        let em: SMatrix<i32, 2, 2> = ((&a * &b) * &mut c).into();
+        let me: SMatrix<i32, 2, 2> = (&mut d * (&a * &b)).into();
+
+        for val in &rr
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &mr
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &rm
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &mm
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &sm
+        {
+            assert_eq!(*val, 20);
+        }
+        for val in &ms
+        {
+            assert_eq!(*val, 20);
+        }
+        for val in &em
+        {
+            assert_eq!(*val, 24);
+        }
+        for val in &me
+        {
+            assert_eq!(*val, 30);
         }
     }
 
@@ -569,6 +777,57 @@ mod dmatrix_tests
         }
     }
     #[test]
+    #[allow(clippy::op_ref)]
+    fn test_add_lazy_mutability_combinations()
+    {
+        let mut a = DMatrix::<i32>::from_value(1, 2, 2);
+        let mut b = DMatrix::<i32>::from_value(2, 2, 2);
+        let mut c = DMatrix::<i32>::from_value(3, 2, 2);
+        let mut d = DMatrix::<i32>::from_value(4, 2, 2);
+
+        let rr: DMatrix<i32> = (&a + &b).into();
+        let mr: DMatrix<i32> = (&mut a + &b).into();
+        let rm: DMatrix<i32> = (&a + &mut b).into();
+        let mm: DMatrix<i32> = (&mut a + &mut b).into();
+        let sm: DMatrix<i32> = (4 + &mut a).into();
+        let ms: DMatrix<i32> = (&mut a + 4).into();
+        let em: DMatrix<i32> = ((&a + &b) + &mut c).into();
+        let me: DMatrix<i32> = (&mut d + (&a + &b)).into();
+
+        for val in &rr
+        {
+            assert_eq!(*val, 3);
+        }
+        for val in &mr
+        {
+            assert_eq!(*val, 3);
+        }
+        for val in &rm
+        {
+            assert_eq!(*val, 3);
+        }
+        for val in &mm
+        {
+            assert_eq!(*val, 3);
+        }
+        for val in &sm
+        {
+            assert_eq!(*val, 5);
+        }
+        for val in &ms
+        {
+            assert_eq!(*val, 5);
+        }
+        for val in &em
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &me
+        {
+            assert_eq!(*val, 7);
+        }
+    }
+    #[test]
     fn test_add_scalar_lazy()
     {
         let matrix1 = DMatrix::<i32>::from_value(10, 2, 2);
@@ -656,6 +915,58 @@ mod dmatrix_tests
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
+    fn test_div_lazy_mutability_combinations()
+    {
+        let mut a = DMatrix::<f64>::from_value(64.0, 2, 2);
+        let mut b = DMatrix::<f64>::from_value(4.0, 2, 2);
+        let mut c = DMatrix::<f64>::from_value(2.0, 2, 2);
+        let mut d = DMatrix::<f64>::from_value(128.0, 2, 2);
+
+        let rr: DMatrix<f64> = (&a / &b).into();
+        let mr: DMatrix<f64> = (&mut a / &b).into();
+        let rm: DMatrix<f64> = (&a / &mut b).into();
+        let mm: DMatrix<f64> = (&mut a / &mut b).into();
+        let sm: DMatrix<f64> = (8.0 / &mut a).into();
+        let ms: DMatrix<f64> = (&mut a / 8.0).into();
+        let em: DMatrix<f64> = ((&a / &b) / &mut c).into();
+        let me: DMatrix<f64> = (&mut d / (&a / &b)).into();
+
+        for val in &rr
+        {
+            assert_eq!(*val, 16.0);
+        }
+        for val in &mr
+        {
+            assert_eq!(*val, 16.0);
+        }
+        for val in &rm
+        {
+            assert_eq!(*val, 16.0);
+        }
+        for val in &mm
+        {
+            assert_eq!(*val, 16.0);
+        }
+        for val in &sm
+        {
+            assert_eq!(*val, 0.125);
+        }
+        for val in &ms
+        {
+            assert_eq!(*val, 8.0);
+        }
+        for val in &em
+        {
+            assert_eq!(*val, 8.0);
+        }
+        for val in &me
+        {
+            assert_eq!(*val, 8.0);
+        }
+    }
+
+    #[test]
     fn test_div_scalar_lazy()
     {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
@@ -739,6 +1050,58 @@ mod dmatrix_tests
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
+    fn test_sub_lazy_mutability_combinations()
+    {
+        let mut a = DMatrix::<i32>::from_value(10, 2, 2);
+        let mut b = DMatrix::<i32>::from_value(3, 2, 2);
+        let mut c = DMatrix::<i32>::from_value(2, 2, 2);
+        let mut d = DMatrix::<i32>::from_value(20, 2, 2);
+
+        let rr: DMatrix<i32> = (&a - &b).into();
+        let mr: DMatrix<i32> = (&mut a - &b).into();
+        let rm: DMatrix<i32> = (&a - &mut b).into();
+        let mm: DMatrix<i32> = (&mut a - &mut b).into();
+        let sm: DMatrix<i32> = (4 - &mut a).into();
+        let ms: DMatrix<i32> = (&mut a - 4).into();
+        let em: DMatrix<i32> = ((&a - &b) - &mut c).into();
+        let me: DMatrix<i32> = (&mut d - (&a - &b)).into();
+
+        for val in &rr
+        {
+            assert_eq!(*val, 7);
+        }
+        for val in &mr
+        {
+            assert_eq!(*val, 7);
+        }
+        for val in &rm
+        {
+            assert_eq!(*val, 7);
+        }
+        for val in &mm
+        {
+            assert_eq!(*val, 7);
+        }
+        for val in &sm
+        {
+            assert_eq!(*val, -6);
+        }
+        for val in &ms
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &em
+        {
+            assert_eq!(*val, 5);
+        }
+        for val in &me
+        {
+            assert_eq!(*val, 13);
+        }
+    }
+
+    #[test]
     fn test_sub_scalar_lazy()
     {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
@@ -817,6 +1180,58 @@ mod dmatrix_tests
         for val in &matrix7
         {
             assert_eq!(*val, exp_value);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_mul_lazy_mutability_combinations()
+    {
+        let mut a = DMatrix::<i32>::from_value(2, 2, 2);
+        let mut b = DMatrix::<i32>::from_value(3, 2, 2);
+        let mut c = DMatrix::<i32>::from_value(4, 2, 2);
+        let mut d = DMatrix::<i32>::from_value(5, 2, 2);
+
+        let rr: DMatrix<i32> = (&a * &b).into();
+        let mr: DMatrix<i32> = (&mut a * &b).into();
+        let rm: DMatrix<i32> = (&a * &mut b).into();
+        let mm: DMatrix<i32> = (&mut a * &mut b).into();
+        let sm: DMatrix<i32> = (10 * &mut a).into();
+        let ms: DMatrix<i32> = (&mut a * 10).into();
+        let em: DMatrix<i32> = ((&a * &b) * &mut c).into();
+        let me: DMatrix<i32> = (&mut d * (&a * &b)).into();
+
+        for val in &rr
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &mr
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &rm
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &mm
+        {
+            assert_eq!(*val, 6);
+        }
+        for val in &sm
+        {
+            assert_eq!(*val, 20);
+        }
+        for val in &ms
+        {
+            assert_eq!(*val, 20);
+        }
+        for val in &em
+        {
+            assert_eq!(*val, 24);
+        }
+        for val in &me
+        {
+            assert_eq!(*val, 30);
         }
     }
 
