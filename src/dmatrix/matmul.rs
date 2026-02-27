@@ -15,7 +15,7 @@ use crate::smatrix::SMatrix;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-//{{{ impl MatMul for DMatrix
+//{{{ impl MatMul<&'a DMatrix<T>> for &'a DMatrix<T>
 impl<'a, T> MatMul<&'a DMatrix<T>> for &'a DMatrix<T>
 where
     T: Gemm + Gemv + Field + Zero + One + Copy,
@@ -97,8 +97,7 @@ where
     }
 }
 //}}}
-
-//{{{ impl MatMul for &mut DMatrix x DMatrix
+//{{{ impl MatMul<&'a DMatrix<T>> for &'a mut DMatrix<T>
 impl<'a, T> MatMul<&'a DMatrix<T>> for &'a mut DMatrix<T>
 where
     T: Gemm + Gemv + Field + Zero + One + Copy,
@@ -115,8 +114,40 @@ where
     }
 }
 //}}}
+//{{{ impl MatMul<&'a mut DMatrix<T>> for &'a DMatrix<T>
+impl<'a, T> MatMul<&'a mut DMatrix<T>> for &'a DMatrix<T>
+where
+    T: Gemm + Gemv + Field + Zero + One + Copy,
+{
+    type Output = DMatrix<T>;
 
-//{{{ impl MatMul for DMatrix x owned DMatrix
+    fn matmul(
+        self,
+        rhs: &'a mut DMatrix<T>,
+    ) -> Self::Output
+    {
+        self.matmul(&(*rhs))
+    }
+}
+//}}}
+//{{{ impl MatMul<&'a mut DMatrix<T>> for &'a mut DMatrix<T>
+impl<'a, T> MatMul<&'a mut DMatrix<T>> for &'a mut DMatrix<T>
+where
+    T: Gemm + Gemv + Field + Zero + One + Copy,
+{
+    type Output = DMatrix<T>;
+
+    fn matmul(
+        self,
+        rhs: &'a mut DMatrix<T>,
+    ) -> Self::Output
+    {
+        (&*self).matmul(&(*rhs))
+    }
+}
+//}}}
+
+//{{{ impl MatMul<DMatrix<T>> for &DMatrix<T>
 impl<T> MatMul<DMatrix<T>> for &DMatrix<T>
 where
     T: Gemm + Gemv + Field + Zero + One + Copy,
@@ -133,8 +164,7 @@ where
     }
 }
 //}}}
-
-//{{{ impl MatMul for &mut DMatrix x owned DMatrix
+//{{{ impl MatMul<DMatrix<T>> for &mut DMatrix<T>
 impl<T> MatMul<DMatrix<T>> for &mut DMatrix<T>
 where
     T: Gemm + Gemv + Field + Zero + One + Copy,
@@ -152,7 +182,7 @@ where
 }
 //}}}
 
-//{{{ impl MatMul for DMatrix x SMatrix
+//{{{ impl MatMul<&'a SMatrix<T, K, N>> for &'a DMatrix<T>
 impl<'a, T, const K: usize, const N: usize> MatMul<&'a SMatrix<T, K, N>> for &'a DMatrix<T>
 where
     [(); K * N]:,
@@ -232,8 +262,7 @@ where
     }
 }
 //}}}
-
-//{{{ impl MatMul for &mut DMatrix x SMatrix
+//{{{ impl MatMul<&'a SMatrix<T, K, N>> for &'a mut DMatrix<T>
 impl<'a, T, const K: usize, const N: usize> MatMul<&'a SMatrix<T, K, N>> for &'a mut DMatrix<T>
 where
     [(); K * N]:,
@@ -251,8 +280,7 @@ where
     }
 }
 //}}}
-
-//{{{ impl MatMul for DMatrix x &mut SMatrix
+//{{{ impl MatMul<&'a mut SMatrix<T, K, N>> for &'a DMatrix<T>
 impl<'a, T, const K: usize, const N: usize> MatMul<&'a mut SMatrix<T, K, N>> for &'a DMatrix<T>
 where
     [(); K * N]:,
@@ -270,8 +298,7 @@ where
     }
 }
 //}}}
-
-//{{{ impl MatMul for &mut DMatrix x &mut SMatrix
+//{{{ impl MatMul<&'a mut SMatrix<T, K, N>> for &'a mut DMatrix<T>
 impl<'a, T, const K: usize, const N: usize> MatMul<&'a mut SMatrix<T, K, N>> for &'a mut DMatrix<T>
 where
     [(); K * N]:,
