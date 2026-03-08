@@ -4,7 +4,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{tuple_index, Field, One, Zero};
+use crate::common::{tuple_index, Field, MatrixSource, One, Zero};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -126,6 +126,79 @@ where
             nrows: self.nrows,
             ncols: self.ncols,
         }
+    }
+}
+//}}}
+//{{{ impl: MatrixSource for DMatrix and subviews
+impl<T> MatrixSource<T> for DMatrix<T>
+where
+    T: Field + Copy,
+{
+    fn nrows(&self) -> usize
+    {
+        self.nrows
+    }
+
+    fn ncols(&self) -> usize
+    {
+        self.ncols
+    }
+
+    fn get(
+        &self,
+        row: usize,
+        col: usize,
+    ) -> T
+    {
+        self[(row, col)]
+    }
+}
+
+impl<'a, T> MatrixSource<T> for MatrixView<'a, T>
+where
+    T: Field + Copy,
+{
+    fn nrows(&self) -> usize
+    {
+        self.nrows
+    }
+
+    fn ncols(&self) -> usize
+    {
+        self.ncols
+    }
+
+    fn get(
+        &self,
+        row: usize,
+        col: usize,
+    ) -> T
+    {
+        self[(row, col)]
+    }
+}
+
+impl<'a, T> MatrixSource<T> for MatrixViewMut<'a, T>
+where
+    T: Field + Copy,
+{
+    fn nrows(&self) -> usize
+    {
+        self.nrows
+    }
+
+    fn ncols(&self) -> usize
+    {
+        self.ncols
+    }
+
+    fn get(
+        &self,
+        row: usize,
+        col: usize,
+    ) -> T
+    {
+        self[(row, col)]
     }
 }
 //}}}
@@ -311,6 +384,35 @@ where
             ncols: self.ncols,
         }
     }
+
+    /// Copies entries from `rhs` into this mutable view.
+    ///
+    /// # Panics
+    ///
+    /// Panics when `rhs` dimensions do not match this view's dimensions.
+    pub fn copy_from<Rhs>(&mut self, rhs: Rhs)
+    where
+        Rhs: MatrixSource<T>,
+    {
+        let rhs_nrows = rhs.nrows();
+        let rhs_ncols = rhs.ncols();
+
+        if self.nrows != rhs_nrows || self.ncols != rhs_ncols
+        {
+            panic!(
+                "MatrixViewMut::copy_from dimension mismatch: lhs is {}x{}, rhs is {}x{}",
+                self.nrows, self.ncols, rhs_nrows, rhs_ncols
+            );
+        }
+
+        for i in 0..self.nrows
+        {
+            for j in 0..self.ncols
+            {
+                self[(i, j)] = rhs.get(i, j);
+            }
+        }
+    }
 }
 //}}}
 
@@ -439,6 +541,53 @@ where
     ) -> MatrixViewMut<'a, T>
     {
         self.subview_mut(0, self.nrows - 1, start_col, end_col)
+    }
+    //}}}
+    //{{{ fun: set_row
+    /// Copies `rhs` into the row view at `row`.
+    ///
+    /// This is the assignment-style alternative to the unsupported syntax `m.row(row) = rhs`.
+    pub fn set_row<Rhs>(
+        &'a mut self,
+        row: usize,
+        rhs: Rhs,
+    ) where
+        Rhs: MatrixSource<T>,
+    {
+        let mut row_view = self.row_mut(row);
+        row_view.copy_from(rhs);
+    }
+    //}}}
+    //{{{ fun: set_col
+    /// Copies `rhs` into the column view at `col`.
+    pub fn set_col<Rhs>(
+        &'a mut self,
+        col: usize,
+        rhs: Rhs,
+    ) where
+        Rhs: MatrixSource<T>,
+    {
+        let mut col_view = self.col_mut(col);
+        col_view.copy_from(rhs);
+    }
+    //}}}
+    //{{{ fun: set_subview
+    /// Copies `rhs` into the subview described by `[start_row..=end_row, start_col..=end_col]`.
+    ///
+    /// Rust does not allow assignment to method-call temporaries, so use this or
+    /// `subview_mut(...).copy_from(...)` instead of `m.subview(...) = rhs`.
+    pub fn set_subview<Rhs>(
+        &'a mut self,
+        start_row: usize,
+        end_row: usize,
+        start_col: usize,
+        end_col: usize,
+        rhs: Rhs,
+    ) where
+        Rhs: MatrixSource<T>,
+    {
+        let mut subview = self.subview_mut(start_row, end_row, start_col, end_col);
+        subview.copy_from(rhs);
     }
     //}}}
 }

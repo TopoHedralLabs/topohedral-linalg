@@ -54,6 +54,70 @@ pub trait IndexValue<I>
 }
 
 //}}}
+//{{{ trait: MatrixSource
+pub trait MatrixSource<T>
+where
+    T: Field + Copy,
+{
+    fn nrows(&self) -> usize;
+    fn ncols(&self) -> usize;
+    fn get(
+        &self,
+        row: usize,
+        col: usize,
+    ) -> T;
+}
+
+impl<T, R> MatrixSource<T> for &R
+where
+    T: Field + Copy,
+    R: MatrixSource<T> + ?Sized,
+{
+    fn nrows(&self) -> usize
+    {
+        (*self).nrows()
+    }
+
+    fn ncols(&self) -> usize
+    {
+        (*self).ncols()
+    }
+
+    fn get(
+        &self,
+        row: usize,
+        col: usize,
+    ) -> T
+    {
+        (*self).get(row, col)
+    }
+}
+
+impl<T, R> MatrixSource<T> for &mut R
+where
+    T: Field + Copy,
+    R: MatrixSource<T> + ?Sized,
+{
+    fn nrows(&self) -> usize
+    {
+        (**self).nrows()
+    }
+
+    fn ncols(&self) -> usize
+    {
+        (**self).ncols()
+    }
+
+    fn get(
+        &self,
+        row: usize,
+        col: usize,
+    ) -> T
+    {
+        (**self).get(row, col)
+    }
+}
+//}}}
 //{{{ macro: apply_for_all_types
 #[macro_export]
 macro_rules! apply_for_all_types {
