@@ -286,12 +286,55 @@ where
     type ScalarType: Field + Zero + One + Copy;
     type TransposeType;
 
-    fn size(&self) -> (usize, usize);
     fn transpose(&self) -> Self::TransposeType;
     fn determinant(&self) -> Self::ScalarType
     where
         Self::ScalarType: Getrf + Float;
     fn trace(&self) -> Self::ScalarType;
+}
+//}}}
+//{{{ trait: Shape
+pub trait Shape
+where
+    Self: Sized,
+{
+    fn nrows(&self) -> usize;
+    fn ncols(&self) -> usize;
+    fn size(&self) -> (usize, usize)
+    {
+        (self.nrows(), self.ncols())
+    }
+}
+//}}}
+//{{{ impl: Shape for references
+impl<T> Shape for &T
+where
+    T: Shape + ?Sized,
+{
+    fn nrows(&self) -> usize
+    {
+        (*self).nrows()
+    }
+
+    fn ncols(&self) -> usize
+    {
+        (*self).ncols()
+    }
+}
+
+impl<T> Shape for &mut T
+where
+    T: Shape + ?Sized,
+{
+    fn nrows(&self) -> usize
+    {
+        (**self).nrows()
+    }
+
+    fn ncols(&self) -> usize
+    {
+        (**self).ncols()
+    }
 }
 //}}}
 //{{{ trait: MatMul

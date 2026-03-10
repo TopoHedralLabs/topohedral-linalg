@@ -7,6 +7,7 @@
 use super::lu;
 use super::DMatrix;
 use crate::blaslapack::getrf::Getrf;
+use crate::common::Shape;
 use crate::common::{Field, Float, MatrixOps, One, Zero};
 //}}}
 //{{{ std imports
@@ -15,6 +16,19 @@ use crate::common::{Field, Float, MatrixOps, One, Zero};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+impl<T> Shape  for DMatrix<T>
+where
+    T: Field + Copy,
+{
+    fn nrows(&self) -> usize {
+        self.nrows
+    }
+
+    fn ncols(&self) -> usize {
+        self.ncols
+    }
+}
+
 impl<T> MatrixOps for DMatrix<T>
 where
     T: Field + Zero + One + Copy,
@@ -22,10 +36,6 @@ where
     type ScalarType = T;
     type TransposeType = DMatrix<T>;
 
-    fn size(&self) -> (usize, usize)
-    {
-        (self.nrows, self.ncols)
-    }
 
     fn transpose(&self) -> Self::TransposeType
     {

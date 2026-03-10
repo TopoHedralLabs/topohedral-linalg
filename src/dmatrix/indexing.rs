@@ -31,6 +31,38 @@ where
     }
 }
 //}}}
+//{{{ impl: Index<(usize, usize)> for &DMatrix
+impl<T> Index<(usize, usize)> for &DMatrix<T>
+where
+    T: Field + Copy,
+{
+    type Output = T;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+//}}}
+//{{{ impl: Index<(usize, usize)> for &mut DMatrix
+impl<T> Index<(usize, usize)> for &mut DMatrix<T>
+where
+    T: Field + Copy,
+{
+    type Output = T;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+//}}}
 //{{{ impl: IndexMut<(usize, usize)> for SMatrix
 impl<T> IndexMut<(usize, usize)> for DMatrix<T>
 where
@@ -43,6 +75,20 @@ where
     {
         let lin_idx = lin_index(index, self.nrows);
         &mut self.data[lin_idx]
+    }
+}
+//}}}
+//{{{ impl: IndexMut<(usize, usize)> for &mut DMatrix
+impl<T> IndexMut<(usize, usize)> for &mut DMatrix<T>
+where
+    T: Field + Copy,
+{
+    fn index_mut(
+        &mut self,
+        index: (usize, usize),
+    ) -> &mut Self::Output
+    {
+        &mut (**self)[index]
     }
 }
 //}}}
@@ -65,6 +111,38 @@ where
 }
 
 //}}}
+//{{{ impl: Index<usize> for &DMatrix
+impl<T> Index<usize> for &DMatrix<T>
+where
+    T: Field + Copy,
+{
+    type Output = T;
+
+    fn index(
+        &self,
+        index: usize,
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+//}}}
+//{{{ impl: Index<usize> for &mut DMatrix
+impl<T> Index<usize> for &mut DMatrix<T>
+where
+    T: Field + Copy,
+{
+    type Output = T;
+
+    fn index(
+        &self,
+        index: usize,
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+//}}}
 //{{{ impl: IndexMut<usize> for SMatrix
 impl<T> IndexMut<usize> for DMatrix<T>
 where
@@ -79,6 +157,20 @@ where
     }
 }
 
+//}}}
+//{{{ impl: IndexMut<usize> for &mut DMatrix
+impl<T> IndexMut<usize> for &mut DMatrix<T>
+where
+    T: Field + Copy,
+{
+    fn index_mut(
+        &mut self,
+        index: usize,
+    ) -> &mut Self::Output
+    {
+        &mut (**self)[index]
+    }
+}
 //}}}
 //{{{ impl: IndexValue<usize> for SMatrix
 impl<T> IndexValue<usize> for DMatrix<T>
