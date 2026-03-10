@@ -18,7 +18,7 @@ use crate::common::{Field, Float, MatrixOps, One, Zero};
 
 impl<T> Shape  for DMatrix<T>
 where
-    T: Field + Zero + One + Copy,
+    T: Field + Copy,
 {
     fn nrows(&self) -> usize {
         self.nrows
@@ -26,10 +26,6 @@ where
 
     fn ncols(&self) -> usize {
         self.ncols
-    }
-
-    fn size(&self) -> (usize, usize) {
-        (self.nrows, self.ncols)
     }
 }
 

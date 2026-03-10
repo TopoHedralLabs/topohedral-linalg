@@ -4,7 +4,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{tuple_index, Field, MatrixSource, One, Zero};
+use crate::common::{tuple_index, Field, One, Shape, Zero};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -88,7 +88,7 @@ where
         {
             let (row, col) = tuple_index(self.index, self.matrix_view.nrows);
             self.index += 1;
-            Some(&self.matrix_view[(row, col)])
+            Some(&(*self.matrix_view)[(row, col)])
         }
         else
         {
@@ -129,8 +129,8 @@ where
     }
 }
 //}}}
-//{{{ impl: MatrixSource for DMatrix and subviews
-impl<T> MatrixSource<T> for DMatrix<T>
+//{{{ impl: Shape/Index wrappers for views
+impl<'a, T> Shape for MatrixView<'a, T>
 where
     T: Field + Copy,
 {
@@ -142,19 +142,10 @@ where
     fn ncols(&self) -> usize
     {
         self.ncols
-    }
-
-    fn get(
-        &self,
-        row: usize,
-        col: usize,
-    ) -> T
-    {
-        self[(row, col)]
     }
 }
 
-impl<'a, T> MatrixSource<T> for MatrixView<'a, T>
+impl<'a, T> Shape for MatrixViewMut<'a, T>
 where
     T: Field + Copy,
 {
@@ -166,39 +157,66 @@ where
     fn ncols(&self) -> usize
     {
         self.ncols
-    }
-
-    fn get(
-        &self,
-        row: usize,
-        col: usize,
-    ) -> T
-    {
-        self[(row, col)]
     }
 }
 
-impl<'a, T> MatrixSource<T> for MatrixViewMut<'a, T>
+impl<'a, T> Index<(usize, usize)> for &MatrixView<'a, T>
 where
     T: Field + Copy,
 {
-    fn nrows(&self) -> usize
-    {
-        self.nrows
-    }
+    type Output = T;
 
-    fn ncols(&self) -> usize
-    {
-        self.ncols
-    }
-
-    fn get(
+    fn index(
         &self,
-        row: usize,
-        col: usize,
-    ) -> T
+        index: (usize, usize),
+    ) -> &Self::Output
     {
-        self[(row, col)]
+        &(**self)[index]
+    }
+}
+
+impl<'a, T> Index<(usize, usize)> for &mut MatrixView<'a, T>
+where
+    T: Field + Copy,
+{
+    type Output = T;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+
+impl<'a, T> Index<(usize, usize)> for &MatrixViewMut<'a, T>
+where
+    T: Field + Copy,
+{
+    type Output = T;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+
+impl<'a, T> Index<(usize, usize)> for &mut MatrixViewMut<'a, T>
+where
+    T: Field + Copy,
+{
+    type Output = T;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        &(**self)[index]
     }
 }
 //}}}
@@ -260,7 +278,7 @@ where
     ) -> &mut Self::Output
     {
         let (row_loc, col_loc) = index;
-        &mut self.matrix[(self.start_row + row_loc, self.start_col + col_loc)]
+        &mut (*self.matrix)[(self.start_row + row_loc, self.start_col + col_loc)]
     }
 }
 
@@ -274,7 +292,7 @@ where
     ) -> &mut Self::Output
     {
         let (row_loc, col_loc) = tuple_index(index, self.nrows);
-        &mut self.matrix[(self.start_row + row_loc, self.start_col + col_loc)]
+        &mut (*self.matrix)[(self.start_row + row_loc, self.start_col + col_loc)]
     }
 }
 //}}}
@@ -301,7 +319,7 @@ where
         {
             let (row, col) = tuple_index(self.index, self.matrix_view.nrows);
             self.index += 1;
-            Some(&self.matrix_view[(row, col)])
+            Some(&(*self.matrix_view)[(row, col)])
         }
         else
         {
@@ -335,7 +353,7 @@ where
             self.index += 1;
             unsafe {
                 // Convert to a raw pointer and then back to a reference with lifetime 'a
-                let ptr = &mut self.matrix_view[(row, col)] as *mut T;
+                let ptr = &mut (*self.matrix_view)[(row, col)] as *mut T;
                 Some(&mut *ptr)
             }
         }
@@ -392,7 +410,7 @@ where
     /// Panics when `rhs` dimensions do not match this view's dimensions.
     pub fn copy_from<Rhs>(&mut self, rhs: Rhs)
     where
-        Rhs: MatrixSource<T>,
+        Rhs: Shape + Index<(usize, usize), Output = T>,
     {
         let rhs_nrows = rhs.nrows();
         let rhs_ncols = rhs.ncols();
@@ -409,7 +427,7 @@ where
         {
             for j in 0..self.ncols
             {
-                self[(i, j)] = rhs.get(i, j);
+                (*self)[(i, j)] = rhs[(i, j)];
             }
         }
     }
@@ -552,7 +570,7 @@ where
         row: usize,
         rhs: Rhs,
     ) where
-        Rhs: MatrixSource<T>,
+        Rhs: Shape + Index<(usize, usize), Output = T>,
     {
         let mut row_view = self.row_mut(row);
         row_view.copy_from(rhs);
@@ -565,7 +583,7 @@ where
         col: usize,
         rhs: Rhs,
     ) where
-        Rhs: MatrixSource<T>,
+        Rhs: Shape + Index<(usize, usize), Output = T>,
     {
         let mut col_view = self.col_mut(col);
         col_view.copy_from(rhs);
@@ -584,7 +602,7 @@ where
         end_col: usize,
         rhs: Rhs,
     ) where
-        Rhs: MatrixSource<T>,
+        Rhs: Shape + Index<(usize, usize), Output = T>,
     {
         let mut subview = self.subview_mut(start_row, end_row, start_col, end_col);
         subview.copy_from(rhs);

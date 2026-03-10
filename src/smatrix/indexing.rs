@@ -32,6 +32,40 @@ where
     }
 }
 //}}}
+//{{{ impl: Index<(usize, usize)> for &SMatrix
+impl<T, const N: usize, const M: usize> Index<(usize, usize)> for &SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Copy,
+{
+    type Output = T;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+//}}}
+//{{{ impl: Index<(usize, usize)> for &mut SMatrix
+impl<T, const N: usize, const M: usize> Index<(usize, usize)> for &mut SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Copy,
+{
+    type Output = T;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+//}}}
 //{{{ impl: IndexMut<(usize, usize)> for SMatrix
 impl<T, const N: usize, const M: usize> IndexMut<(usize, usize)> for SMatrix<T, N, M>
 where

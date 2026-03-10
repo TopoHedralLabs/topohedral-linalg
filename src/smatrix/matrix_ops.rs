@@ -20,8 +20,7 @@ use crate::common::{Field, Float, MatrixOps, One, Zero};
 impl <T, const N: usize, const M: usize> Shape for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    [(); M * N]:,
-    T: Field + Zero + One + Copy,
+    T: Field + Copy,
 {
     fn ncols(&self) -> usize {
         M
@@ -29,11 +28,6 @@ where
 
     fn nrows(&self) -> usize {
         N
-    }
-
-    fn size(&self) -> (usize, usize)
-    {
-        (N, M)
     }
 }
 

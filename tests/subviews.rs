@@ -377,6 +377,33 @@ mod dmatrix_tests
     }
 
     #[test]
+    fn test_subview_copy_from_borrowed_views()
+    {
+        let mut m = DMatrix::<i32>::zeros(4, 4);
+        let rhs_source = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9], 3, 3);
+
+        let rhs_view = rhs_source.subview(1, 2, 1, 2);
+        m.subview_mut(0, 1, 0, 1).copy_from(&rhs_view);
+
+        let mut rhs_source_mut =
+            DMatrix::<i32>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18], 3, 3);
+        let mut rhs_view_mut = rhs_source_mut.subview_mut(0, 1, 0, 1);
+        m.subview_mut(2, 3, 2, 3).copy_from(&mut rhs_view_mut);
+
+        let expected_a = DMatrix::<i32>::from_row_slice(&[5, 6, 8, 9], 2, 2);
+        let expected_b = DMatrix::<i32>::from_row_slice(&[10, 11, 13, 14], 2, 2);
+
+        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
     fn test_set_row_borrowed_and_moved()
     {
         let mut m = DMatrix::<i32>::zeros(3, 4);
@@ -793,6 +820,33 @@ mod smatrix_tests
             assert_eq!(*val, *exp);
         }
         for (val, exp) in m.subview(0, 1, 2, 3).iter().zip(expected_c.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_subview_copy_from_borrowed_views()
+    {
+        let mut m = SMatrix::<i32, 4, 4>::zeros();
+        let rhs_source = SMatrix::<i32, 3, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+        let rhs_view = rhs_source.subview(1, 2, 1, 2);
+        m.subview_mut(0, 1, 0, 1).copy_from(&rhs_view);
+
+        let mut rhs_source_mut =
+            SMatrix::<i32, 3, 3>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18]);
+        let mut rhs_view_mut = rhs_source_mut.subview_mut(0, 1, 0, 1);
+        m.subview_mut(2, 3, 2, 3).copy_from(&mut rhs_view_mut);
+
+        let expected_a = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 8, 9]);
+        let expected_b = SMatrix::<i32, 2, 2>::from_row_slice(&[10, 11, 13, 14]);
+
+        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
         {
             assert_eq!(*val, *exp);
         }
