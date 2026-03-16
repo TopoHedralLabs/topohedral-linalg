@@ -301,7 +301,8 @@ mod dmatrix_tests
         let moved_rhs = DMatrix::<i32>::from_row_slice(&[6, 7, 8, 9, 10], 1, 5);
         m.row_mut(1).copy_from(moved_rhs);
 
-        let rhs_source = DMatrix::<i32>::from_row_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20], 2, 5);
+        let rhs_source =
+            DMatrix::<i32>::from_row_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20], 2, 5);
         m.row_mut(2).copy_from(rhs_source.row(1));
 
         for (val, exp) in m.row(0).iter().zip([1, 2, 3, 4, 5].iter())
@@ -328,7 +329,8 @@ mod dmatrix_tests
         let moved_rhs = DMatrix::<i32>::from_col_slice(&[6, 7, 8, 9, 10], 5, 1);
         m.col_mut(1).copy_from(moved_rhs);
 
-        let rhs_source = DMatrix::<i32>::from_col_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20], 5, 2);
+        let rhs_source =
+            DMatrix::<i32>::from_col_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20], 5, 2);
         m.col_mut(2).copy_from(rhs_source.col(1));
 
         for (val, exp) in m.col(0).iter().zip([1, 2, 3, 4, 5].iter())
@@ -355,8 +357,10 @@ mod dmatrix_tests
         let moved_rhs = DMatrix::<i32>::from_row_slice(&[5, 6, 7, 8], 2, 2);
         m.subview_mut(2, 3, 2, 3).copy_from(moved_rhs);
 
-        let rhs_source = DMatrix::<i32>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18], 3, 3);
-        m.subview_mut(0, 1, 2, 3).copy_from(rhs_source.subview(1, 2, 0, 1));
+        let rhs_source =
+            DMatrix::<i32>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18], 3, 3);
+        m.subview_mut(0, 1, 2, 3)
+            .copy_from(rhs_source.subview(1, 2, 0, 1));
 
         let expected_a = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
         let expected_b = DMatrix::<i32>::from_row_slice(&[5, 6, 7, 8], 2, 2);
@@ -487,7 +491,8 @@ mod dmatrix_tests
     fn test_subview_copy_from_dimension_mismatch_panics()
     {
         let mut m = DMatrix::<i32>::zeros(4, 4);
-        m.subview_mut(0, 1, 0, 1).copy_from(DMatrix::<i32>::zeros(1, 3));
+        m.subview_mut(0, 1, 0, 1)
+            .copy_from(DMatrix::<i32>::zeros(1, 3));
     }
 }
 //}}}
@@ -750,7 +755,8 @@ mod smatrix_tests
         let moved_rhs = SMatrix::<i32, 1, 5>::from_row_slice(&[6, 7, 8, 9, 10]);
         m.row_mut(1).copy_from(moved_rhs);
 
-        let rhs_source = SMatrix::<i32, 2, 5>::from_row_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+        let rhs_source =
+            SMatrix::<i32, 2, 5>::from_row_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
         m.row_mut(2).copy_from(rhs_source.row(1));
 
         for (val, exp) in m.row(0).iter().zip([1, 2, 3, 4, 5].iter())
@@ -777,7 +783,8 @@ mod smatrix_tests
         let moved_rhs = SMatrix::<i32, 5, 1>::from_col_slice(&[6, 7, 8, 9, 10]);
         m.col_mut(1).copy_from(moved_rhs);
 
-        let rhs_source = SMatrix::<i32, 5, 2>::from_col_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+        let rhs_source =
+            SMatrix::<i32, 5, 2>::from_col_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
         m.col_mut(2).copy_from(rhs_source.col(1));
 
         for (val, exp) in m.col(0).iter().zip([1, 2, 3, 4, 5].iter())
@@ -804,8 +811,10 @@ mod smatrix_tests
         let moved_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
         m.subview_mut(2, 3, 2, 3).copy_from(moved_rhs);
 
-        let rhs_source = SMatrix::<i32, 3, 3>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18]);
-        m.subview_mut(0, 1, 2, 3).copy_from(rhs_source.subview(1, 2, 0, 1));
+        let rhs_source =
+            SMatrix::<i32, 3, 3>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18]);
+        m.subview_mut(0, 1, 2, 3)
+            .copy_from(rhs_source.subview(1, 2, 0, 1));
 
         let expected_a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
         let expected_b = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
@@ -936,7 +945,8 @@ mod smatrix_tests
     fn test_subview_copy_from_dimension_mismatch_panics()
     {
         let mut m = SMatrix::<i32, 4, 4>::zeros();
-        m.subview_mut(0, 1, 0, 1).copy_from(SMatrix::<i32, 1, 3>::zeros());
+        m.subview_mut(0, 1, 0, 1)
+            .copy_from(SMatrix::<i32, 1, 3>::zeros());
     }
 }
 //}}}

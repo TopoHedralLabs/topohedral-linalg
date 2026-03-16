@@ -432,8 +432,10 @@ where
     /// # Panics
     ///
     /// Panics when `rhs` dimensions do not match this view's dimensions.
-    pub fn copy_from<Rhs>(&mut self, rhs: Rhs)
-    where
+    pub fn copy_from<Rhs>(
+        &mut self,
+        rhs: Rhs,
+    ) where
         Rhs: Shape + Index<(usize, usize), Output = T>,
     {
         let rhs_nrows = rhs.nrows();

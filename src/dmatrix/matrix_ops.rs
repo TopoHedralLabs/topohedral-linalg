@@ -16,15 +16,17 @@ use crate::common::{Field, Float, MatrixOps, One, Zero};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-impl<T> Shape  for DMatrix<T>
+impl<T> Shape for DMatrix<T>
 where
     T: Field + Copy,
 {
-    fn nrows(&self) -> usize {
+    fn nrows(&self) -> usize
+    {
         self.nrows
     }
 
-    fn ncols(&self) -> usize {
+    fn ncols(&self) -> usize
+    {
         self.ncols
     }
 }
@@ -35,7 +37,6 @@ where
 {
     type ScalarType = T;
     type TransposeType = DMatrix<T>;
-
 
     fn transpose(&self) -> Self::TransposeType
     {

@@ -9,7 +9,7 @@ mod smatrix_tests
     use topohedral_linalg::smatrix::*;
     use topohedral_linalg::{
         dvector::{DVector, VecType},
-        Complex, MatMul, MatrixOps, Shape
+        Complex, MatMul, MatrixOps, Shape,
     };
 
     //{{{ collection: eig tests

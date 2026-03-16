@@ -16,17 +16,18 @@ use crate::common::{Field, Float, MatrixOps, One, Zero};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-
-impl <T, const N: usize, const M: usize> Shape for SMatrix<T, N, M>
+impl<T, const N: usize, const M: usize> Shape for SMatrix<T, N, M>
 where
     [(); N * M]:,
     T: Field + Copy,
 {
-    fn ncols(&self) -> usize {
+    fn ncols(&self) -> usize
+    {
         M
     }
 
-    fn nrows(&self) -> usize {
+    fn nrows(&self) -> usize
+    {
         N
     }
 }
@@ -39,7 +40,6 @@ where
 {
     type ScalarType = T;
     type TransposeType = SMatrix<T, M, N>;
-
 
     fn transpose(&self) -> Self::TransposeType
     {
