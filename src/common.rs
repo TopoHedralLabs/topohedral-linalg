@@ -324,7 +324,7 @@ where
 
 impl<T> Shape for &mut T
 where
-    T: Shape
+    T: Shape,
 {
     fn nrows(&self) -> usize
     {
