@@ -309,7 +309,7 @@ where
 //{{{ impl: Shape for references
 impl<T> Shape for &T
 where
-    T: Shape + ?Sized,
+    T: Shape,
 {
     fn nrows(&self) -> usize
     {
@@ -324,7 +324,7 @@ where
 
 impl<T> Shape for &mut T
 where
-    T: Shape + ?Sized,
+    T: Shape
 {
     fn nrows(&self) -> usize
     {
