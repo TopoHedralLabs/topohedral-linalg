@@ -1,6 +1,5 @@
 #![feature(generic_const_exprs)]
 #![allow(incomplete_features)]
-#![feature(impl_trait_in_assoc_type)]
 
 mod smatrix_tests
 {
@@ -9,7 +8,7 @@ mod smatrix_tests
     use topohedral_linalg::smatrix::*;
     use topohedral_linalg::{
         dvector::{DVector, VecType},
-        Complex, MatMul, MatrixOps,
+        Complex, MatMul, MatrixOps, Shape,
     };
 
     //{{{ collection: eig tests

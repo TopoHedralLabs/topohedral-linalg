@@ -1,6 +1,5 @@
 #![feature(generic_const_exprs)]
 #![allow(incomplete_features)]
-#![feature(impl_trait_in_assoc_type)]
 
 //{{{ mod: dmatrix_tests
 mod dmatrix_tests
@@ -290,6 +289,210 @@ mod dmatrix_tests
             assert_eq!(*val, -1);
         }
     }
+
+    #[test]
+    fn test_row_copy_from_borrowed_and_moved()
+    {
+        let mut m = DMatrix::<i32>::zeros(3, 5);
+        let borrowed_rhs = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5], 1, 5);
+        m.row_mut(0).copy_from(&borrowed_rhs);
+
+        let moved_rhs = DMatrix::<i32>::from_row_slice(&[6, 7, 8, 9, 10], 1, 5);
+        m.row_mut(1).copy_from(moved_rhs);
+
+        let rhs_source =
+            DMatrix::<i32>::from_row_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20], 2, 5);
+        m.row_mut(2).copy_from(rhs_source.row(1));
+
+        for (val, exp) in m.row(0).iter().zip([1, 2, 3, 4, 5].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.row(1).iter().zip([6, 7, 8, 9, 10].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.row(2).iter().zip([16, 17, 18, 19, 20].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_col_copy_from_borrowed_and_moved()
+    {
+        let mut m = DMatrix::<i32>::zeros(5, 3);
+        let borrowed_rhs = DMatrix::<i32>::from_col_slice(&[1, 2, 3, 4, 5], 5, 1);
+        m.col_mut(0).copy_from(&borrowed_rhs);
+
+        let moved_rhs = DMatrix::<i32>::from_col_slice(&[6, 7, 8, 9, 10], 5, 1);
+        m.col_mut(1).copy_from(moved_rhs);
+
+        let rhs_source =
+            DMatrix::<i32>::from_col_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20], 5, 2);
+        m.col_mut(2).copy_from(rhs_source.col(1));
+
+        for (val, exp) in m.col(0).iter().zip([1, 2, 3, 4, 5].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.col(1).iter().zip([6, 7, 8, 9, 10].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.col(2).iter().zip([16, 17, 18, 19, 20].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_subview_copy_from_borrowed_and_moved()
+    {
+        let mut m = DMatrix::<i32>::zeros(4, 4);
+        let borrowed_rhs = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
+        m.subview_mut(0, 1, 0, 1).copy_from(&borrowed_rhs);
+
+        let moved_rhs = DMatrix::<i32>::from_row_slice(&[5, 6, 7, 8], 2, 2);
+        m.subview_mut(2, 3, 2, 3).copy_from(moved_rhs);
+
+        let rhs_source =
+            DMatrix::<i32>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18], 3, 3);
+        m.subview_mut(0, 1, 2, 3)
+            .copy_from(rhs_source.subview(1, 2, 0, 1));
+
+        let expected_a = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
+        let expected_b = DMatrix::<i32>::from_row_slice(&[5, 6, 7, 8], 2, 2);
+        let expected_c = DMatrix::<i32>::from_row_slice(&[13, 14, 16, 17], 2, 2);
+
+        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.subview(0, 1, 2, 3).iter().zip(expected_c.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_subview_copy_from_borrowed_views()
+    {
+        let mut m = DMatrix::<i32>::zeros(4, 4);
+        let rhs_source = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9], 3, 3);
+
+        let rhs_view = rhs_source.subview(1, 2, 1, 2);
+        m.subview_mut(0, 1, 0, 1).copy_from(&rhs_view);
+
+        let mut rhs_source_mut =
+            DMatrix::<i32>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18], 3, 3);
+        let mut rhs_view_mut = rhs_source_mut.subview_mut(0, 1, 0, 1);
+        m.subview_mut(2, 3, 2, 3).copy_from(&mut rhs_view_mut);
+
+        let expected_a = DMatrix::<i32>::from_row_slice(&[5, 6, 8, 9], 2, 2);
+        let expected_b = DMatrix::<i32>::from_row_slice(&[10, 11, 13, 14], 2, 2);
+
+        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_set_row_borrowed_and_moved()
+    {
+        let mut m = DMatrix::<i32>::zeros(3, 4);
+        let borrowed_rhs = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 1, 4);
+        m.set_row(0, &borrowed_rhs);
+
+        let moved_rhs = DMatrix::<i32>::from_row_slice(&[5, 6, 7, 8], 1, 4);
+        m.set_row(1, moved_rhs);
+
+        for (val, exp) in m.row(0).iter().zip([1, 2, 3, 4].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.row(1).iter().zip([5, 6, 7, 8].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_set_col_borrowed_and_moved()
+    {
+        let mut m = DMatrix::<i32>::zeros(4, 3);
+        let borrowed_rhs = DMatrix::<i32>::from_col_slice(&[1, 2, 3, 4], 4, 1);
+        m.set_col(0, &borrowed_rhs);
+
+        let moved_rhs = DMatrix::<i32>::from_col_slice(&[5, 6, 7, 8], 4, 1);
+        m.set_col(1, moved_rhs);
+
+        for (val, exp) in m.col(0).iter().zip([1, 2, 3, 4].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.col(1).iter().zip([5, 6, 7, 8].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_set_subview_borrowed_and_moved()
+    {
+        let mut m = DMatrix::<i32>::zeros(4, 4);
+        let borrowed_rhs = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
+        m.set_subview(0, 1, 0, 1, &borrowed_rhs);
+
+        let moved_rhs = DMatrix::<i32>::from_row_slice(&[5, 6, 7, 8], 2, 2);
+        m.set_subview(2, 3, 2, 3, moved_rhs);
+
+        let expected_a = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
+        let expected_b = DMatrix::<i32>::from_row_slice(&[5, 6, 7, 8], 2, 2);
+
+        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "dimension mismatch")]
+    fn test_row_copy_from_dimension_mismatch_panics()
+    {
+        let mut m = DMatrix::<i32>::zeros(3, 4);
+        m.row_mut(0).copy_from(DMatrix::<i32>::zeros(2, 2));
+    }
+
+    #[test]
+    #[should_panic(expected = "dimension mismatch")]
+    fn test_col_copy_from_dimension_mismatch_panics()
+    {
+        let mut m = DMatrix::<i32>::zeros(4, 3);
+        m.col_mut(0).copy_from(DMatrix::<i32>::zeros(2, 2));
+    }
+
+    #[test]
+    #[should_panic(expected = "dimension mismatch")]
+    fn test_subview_copy_from_dimension_mismatch_panics()
+    {
+        let mut m = DMatrix::<i32>::zeros(4, 4);
+        m.subview_mut(0, 1, 0, 1)
+            .copy_from(DMatrix::<i32>::zeros(1, 3));
+    }
 }
 //}}}
 //{{{ mod: smatrix_tests
@@ -539,6 +742,210 @@ mod smatrix_tests
         {
             assert_eq!(*val, -1);
         }
+    }
+
+    #[test]
+    fn test_row_copy_from_borrowed_and_moved()
+    {
+        let mut m = SMatrix::<i32, 3, 5>::zeros();
+        let borrowed_rhs = SMatrix::<i32, 1, 5>::from_row_slice(&[1, 2, 3, 4, 5]);
+        m.row_mut(0).copy_from(&borrowed_rhs);
+
+        let moved_rhs = SMatrix::<i32, 1, 5>::from_row_slice(&[6, 7, 8, 9, 10]);
+        m.row_mut(1).copy_from(moved_rhs);
+
+        let rhs_source =
+            SMatrix::<i32, 2, 5>::from_row_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+        m.row_mut(2).copy_from(rhs_source.row(1));
+
+        for (val, exp) in m.row(0).iter().zip([1, 2, 3, 4, 5].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.row(1).iter().zip([6, 7, 8, 9, 10].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.row(2).iter().zip([16, 17, 18, 19, 20].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_col_copy_from_borrowed_and_moved()
+    {
+        let mut m = SMatrix::<i32, 5, 3>::zeros();
+        let borrowed_rhs = SMatrix::<i32, 5, 1>::from_col_slice(&[1, 2, 3, 4, 5]);
+        m.col_mut(0).copy_from(&borrowed_rhs);
+
+        let moved_rhs = SMatrix::<i32, 5, 1>::from_col_slice(&[6, 7, 8, 9, 10]);
+        m.col_mut(1).copy_from(moved_rhs);
+
+        let rhs_source =
+            SMatrix::<i32, 5, 2>::from_col_slice(&[11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+        m.col_mut(2).copy_from(rhs_source.col(1));
+
+        for (val, exp) in m.col(0).iter().zip([1, 2, 3, 4, 5].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.col(1).iter().zip([6, 7, 8, 9, 10].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.col(2).iter().zip([16, 17, 18, 19, 20].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_subview_copy_from_borrowed_and_moved()
+    {
+        let mut m = SMatrix::<i32, 4, 4>::zeros();
+        let borrowed_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
+        m.subview_mut(0, 1, 0, 1).copy_from(&borrowed_rhs);
+
+        let moved_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
+        m.subview_mut(2, 3, 2, 3).copy_from(moved_rhs);
+
+        let rhs_source =
+            SMatrix::<i32, 3, 3>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18]);
+        m.subview_mut(0, 1, 2, 3)
+            .copy_from(rhs_source.subview(1, 2, 0, 1));
+
+        let expected_a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
+        let expected_b = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
+        let expected_c = SMatrix::<i32, 2, 2>::from_row_slice(&[13, 14, 16, 17]);
+
+        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.subview(0, 1, 2, 3).iter().zip(expected_c.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_subview_copy_from_borrowed_views()
+    {
+        let mut m = SMatrix::<i32, 4, 4>::zeros();
+        let rhs_source = SMatrix::<i32, 3, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+        let rhs_view = rhs_source.subview(1, 2, 1, 2);
+        m.subview_mut(0, 1, 0, 1).copy_from(&rhs_view);
+
+        let mut rhs_source_mut =
+            SMatrix::<i32, 3, 3>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18]);
+        let mut rhs_view_mut = rhs_source_mut.subview_mut(0, 1, 0, 1);
+        m.subview_mut(2, 3, 2, 3).copy_from(&mut rhs_view_mut);
+
+        let expected_a = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 8, 9]);
+        let expected_b = SMatrix::<i32, 2, 2>::from_row_slice(&[10, 11, 13, 14]);
+
+        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_set_row_borrowed_and_moved()
+    {
+        let mut m = SMatrix::<i32, 3, 4>::zeros();
+        let borrowed_rhs = SMatrix::<i32, 1, 4>::from_row_slice(&[1, 2, 3, 4]);
+        m.set_row(0, &borrowed_rhs);
+
+        let moved_rhs = SMatrix::<i32, 1, 4>::from_row_slice(&[5, 6, 7, 8]);
+        m.set_row(1, moved_rhs);
+
+        for (val, exp) in m.row(0).iter().zip([1, 2, 3, 4].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.row(1).iter().zip([5, 6, 7, 8].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_set_col_borrowed_and_moved()
+    {
+        let mut m = SMatrix::<i32, 4, 3>::zeros();
+        let borrowed_rhs = SMatrix::<i32, 4, 1>::from_col_slice(&[1, 2, 3, 4]);
+        m.set_col(0, &borrowed_rhs);
+
+        let moved_rhs = SMatrix::<i32, 4, 1>::from_col_slice(&[5, 6, 7, 8]);
+        m.set_col(1, moved_rhs);
+
+        for (val, exp) in m.col(0).iter().zip([1, 2, 3, 4].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.col(1).iter().zip([5, 6, 7, 8].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_set_subview_borrowed_and_moved()
+    {
+        let mut m = SMatrix::<i32, 4, 4>::zeros();
+        let borrowed_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
+        m.set_subview(0, 1, 0, 1, &borrowed_rhs);
+
+        let moved_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
+        m.set_subview(2, 3, 2, 3, moved_rhs);
+
+        let expected_a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
+        let expected_b = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
+
+        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "dimension mismatch")]
+    fn test_row_copy_from_dimension_mismatch_panics()
+    {
+        let mut m = SMatrix::<i32, 3, 4>::zeros();
+        m.row_mut(0).copy_from(SMatrix::<i32, 2, 2>::zeros());
+    }
+
+    #[test]
+    #[should_panic(expected = "dimension mismatch")]
+    fn test_col_copy_from_dimension_mismatch_panics()
+    {
+        let mut m = SMatrix::<i32, 4, 3>::zeros();
+        m.col_mut(0).copy_from(SMatrix::<i32, 2, 2>::zeros());
+    }
+
+    #[test]
+    #[should_panic(expected = "dimension mismatch")]
+    fn test_subview_copy_from_dimension_mismatch_panics()
+    {
+        let mut m = SMatrix::<i32, 4, 4>::zeros();
+        m.subview_mut(0, 1, 0, 1)
+            .copy_from(SMatrix::<i32, 1, 3>::zeros());
     }
 }
 //}}}

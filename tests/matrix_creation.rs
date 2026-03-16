@@ -1,6 +1,5 @@
 #![feature(generic_const_exprs)]
 #![allow(incomplete_features)]
-#![feature(impl_trait_in_assoc_type)]
 
 //{{{  mod: smatrix_tests
 mod smatrix_tests
@@ -75,6 +74,24 @@ mod smatrix_tests
         assert_eq!(matrix[(0, 1)], 10);
         assert_eq!(matrix[(1, 0)], 100);
         assert_eq!(matrix[(1, 1)], 1000);
+    }
+
+    #[test]
+    fn test_indexing_through_refs()
+    {
+        let mut matrix = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 10, 100, 1000]);
+
+        {
+            let mut matrix_ref = &mut matrix;
+            matrix_ref[0] = -1;
+            matrix_ref[(1, 1)] = -2;
+            assert_eq!(matrix_ref[0], -1);
+            assert_eq!(matrix_ref[(1, 1)], -2);
+        }
+
+        let matrix_ref = &matrix;
+        assert_eq!(matrix_ref[0], -1);
+        assert_eq!(matrix_ref[(1, 1)], -2);
     }
 
     #[test]
@@ -178,6 +195,24 @@ mod dmatrix_tests
         assert_eq!(matrix[(0, 1)], 10);
         assert_eq!(matrix[(1, 0)], 100);
         assert_eq!(matrix[(1, 1)], 1000);
+    }
+
+    #[test]
+    fn test_matrix_indexing_through_refs()
+    {
+        let mut matrix = DMatrix::<i32>::from_row_slice(&[1, 10, 100, 1000], 2, 2);
+
+        {
+            let mut matrix_ref = &mut matrix;
+            matrix_ref[0] = -1;
+            matrix_ref[(1, 1)] = -2;
+            assert_eq!(matrix_ref[0], -1);
+            assert_eq!(matrix_ref[(1, 1)], -2);
+        }
+
+        let matrix_ref = &matrix;
+        assert_eq!(matrix_ref[0], -1);
+        assert_eq!(matrix_ref[(1, 1)], -2);
     }
 
     #[test]
