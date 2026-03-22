@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Field, IndexValue, Zero, Dimension};
+use crate::common::{Dimension, Field, IndexValue, Zero};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 //}}}
 //{{{ std imports
@@ -71,10 +71,9 @@ where
 //{{{ impl SMatrix
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    [(); N* M]:,
+    [(); N * M]:,
     T: Field + Copy + Ord,
 {
-
     //{{{ fn: sort
     pub fn sort(
         &mut self,
@@ -121,7 +120,7 @@ where
         dim: Dimension,
     ) -> Self
     {
-        let mut out = self.clone();
+        let mut out = *self;
         out.sort(dim);
         out
     }

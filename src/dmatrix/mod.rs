@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Field, IndexValue, One, Zero, Dimension};
+use crate::common::{Dimension, Field, IndexValue, One, Zero};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 //}}}
 //{{{ std imports

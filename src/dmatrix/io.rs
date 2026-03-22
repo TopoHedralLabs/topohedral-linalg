@@ -14,8 +14,6 @@ use std::fmt;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-
-
 //{{{ impl fmt::Display for SMatrix
 impl<T> fmt::Display for DMatrix<T>
 where
