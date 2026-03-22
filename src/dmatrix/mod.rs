@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Field, IndexValue, Zero};
+use crate::common::{Dimension, Field, IndexValue, One, Zero};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 //}}}
 //{{{ std imports
@@ -34,6 +34,7 @@ pub mod symeig;
 // everything else
 pub mod construction;
 pub mod indexing;
+pub mod io;
 pub mod iteration;
 pub mod subviews;
 
@@ -64,6 +65,74 @@ where
     pub(crate) data: Vec<T>,
     pub(crate) nrows: usize,
     pub(crate) ncols: usize,
+}
+//}}}
+//{{{ impl: DMatrix
+impl<T> DMatrix<T>
+where
+    T: Field + Copy + Ord + Zero + One,
+{
+    //{{{ fn: sort
+    pub fn sort(
+        &mut self,
+        dim: Dimension,
+    )
+    {
+        match dim
+        {
+            Dimension::Rows =>
+            {
+                for r in 0..self.nrows
+                {
+                    let mut row = Vec::with_capacity(self.ncols);
+                    for c in 0..self.ncols
+                    {
+                        row.push(self[(r, c)]);
+                    }
+                    row.sort();
+
+                    for (c, value) in row.into_iter().enumerate()
+                    {
+                        (*self)[(r, c)] = value;
+                    }
+                }
+            }
+            Dimension::Cols =>
+            {
+                for c in 0..self.ncols
+                {
+                    let offset = c * self.nrows;
+                    self.data[offset..(offset + self.nrows)].sort();
+                }
+            }
+            Dimension::All =>
+            {
+                self.data.sort();
+            }
+        }
+    }
+    //}}}
+    //{{{ fn: sorted
+    pub fn sorted(
+        &self,
+        dim: Dimension,
+    ) -> Self
+    {
+        let mut out = self.clone();
+        out.sort(dim);
+        out
+    }
+    //}}}
+    //{{{ fn: into_sorted
+    pub fn into_sorted(
+        mut self,
+        dim: Dimension,
+    ) -> Self
+    {
+        self.sort(dim);
+        self
+    }
+    //}}}
 }
 //}}}
 //{{{ impl: From<BinopExpr> for DMatrix
