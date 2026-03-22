@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Field, IndexValue, Zero};
+use crate::common::{Field, IndexValue, Zero, Dimension};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 //}}}
 //{{{ std imports
@@ -66,6 +66,76 @@ where
     pub(crate) data: [T; N * M],
     pub(crate) nrows: usize,
     pub(crate) ncols: usize,
+}
+//}}}
+//{{{ impl SMatrix
+impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
+where
+    [(); N* M]:,
+    T: Field + Copy + Ord,
+{
+
+    //{{{ fn: sort
+    pub fn sort(
+        &mut self,
+        dim: Dimension,
+    )
+    {
+        match dim
+        {
+            Dimension::Rows =>
+            {
+                for r in 0..self.nrows
+                {
+                    let mut row = Vec::with_capacity(self.ncols);
+                    for c in 0..self.ncols
+                    {
+                        row.push(self[(r, c)]);
+                    }
+                    row.sort();
+
+                    for (c, value) in row.into_iter().enumerate()
+                    {
+                        (*self)[(r, c)] = value;
+                    }
+                }
+            }
+            Dimension::Cols =>
+            {
+                for c in 0..self.ncols
+                {
+                    let offset = c * self.nrows;
+                    self.data[offset..(offset + self.nrows)].sort();
+                }
+            }
+            Dimension::All =>
+            {
+                self.data.sort();
+            }
+        }
+    }
+    //}}}
+    //{{{ fn: sorted
+    pub fn sorted(
+        &self,
+        dim: Dimension,
+    ) -> Self
+    {
+        let mut out = self.clone();
+        out.sort(dim);
+        out
+    }
+    //}}}
+    //{{{ fn: into_sorted
+    pub fn into_sorted(
+        mut self,
+        dim: Dimension,
+    ) -> Self
+    {
+        self.sort(dim);
+        self
+    }
+    //}}}
 }
 //}}}
 //{{{ impl: From<BinopExpr> for SMatrix

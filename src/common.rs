@@ -719,3 +719,11 @@ pub trait ReduceOps
     }
 }
 //}}}
+//{{{ enum
+pub enum Dimension
+{
+    Rows,
+    Cols,
+    All,
+}
+//}}}
