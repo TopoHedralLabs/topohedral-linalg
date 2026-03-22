@@ -27,6 +27,7 @@ pub mod lu;
 pub mod matmul;
 pub mod matrix_ops;
 pub mod qr;
+pub mod reduce_ops;
 pub mod schur;
 pub mod solve;
 pub mod symeig;
