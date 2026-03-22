@@ -191,6 +191,43 @@ macro_rules! impl_zero {
 
 apply_for_all_integer_types!(impl_zero);
 //}}}
+//{{{ trait: Abs
+pub trait Abs
+{
+    fn abs(self) -> Self;
+}
+//}}}
+//{{{ collection: impl_abs implementations
+impl Abs for f32
+{
+    fn abs(self) -> Self
+    {
+        self.abs()
+    }
+}
+
+impl Abs for f64
+{
+    fn abs(self) -> Self
+    {
+        self.abs()
+    }
+}
+
+macro_rules! impl_abs {
+    ($type:ty) => {
+        impl Abs for $type
+        {
+            fn abs(self) -> Self
+            {
+                self.abs()
+            }
+        }
+    };
+}
+
+apply_for_all_integer_types!(impl_abs);
+//}}}
 //{{{ collection: re-exports
 pub use num_complex::Complex;
 //}}}
@@ -491,4 +528,194 @@ pub fn tuple_index(
     (idx % nrows, idx / nrows)
 }
 
+//}}}
+//{{{ trait: ReduceOps
+pub trait ReduceOps
+{
+    type Item: Copy;
+    type Index: Copy;
+
+    fn fold<B, F>(
+        &self,
+        init: B,
+        f: F,
+    ) -> B
+    where
+        F: FnMut(B, Self::Item) -> B;
+
+    fn fold_indexed<B, F>(
+        &self,
+        init: B,
+        f: F,
+    ) -> B
+    where
+        F: FnMut(B, Self::Index, Self::Item) -> B;
+
+    fn is_empty(&self) -> bool
+    {
+        !self.fold(false, |_, _| true)
+    }
+
+    fn reduce<F>(
+        &self,
+        mut f: F,
+    ) -> Option<Self::Item>
+    where
+        F: FnMut(Self::Item, Self::Item) -> Self::Item,
+    {
+        self.fold(None, |acc, value| {
+            Some(match acc
+            {
+                Some(current) => f(current, value),
+                None => value,
+            })
+        })
+    }
+
+    fn sum(&self) -> Self::Item
+    where
+        Self::Item: Add<Output = Self::Item> + Zero,
+    {
+        self.fold(Self::Item::zero(), |acc, value| acc + value)
+    }
+
+    fn product(&self) -> Self::Item
+    where
+        Self::Item: Mul<Output = Self::Item> + One,
+    {
+        self.fold(Self::Item::one(), |acc, value| acc * value)
+    }
+
+    fn min(&self) -> Option<Self::Item>
+    where
+        Self::Item: PartialOrd,
+    {
+        self.reduce(|left, right| {
+            if left <= right
+            {
+                left
+            }
+            else
+            {
+                right
+            }
+        })
+    }
+
+    fn max(&self) -> Option<Self::Item>
+    where
+        Self::Item: PartialOrd,
+    {
+        self.reduce(|left, right| {
+            if left >= right
+            {
+                left
+            }
+            else
+            {
+                right
+            }
+        })
+    }
+
+    fn min_by_key<K, F>(
+        &self,
+        mut key: F,
+    ) -> Option<Self::Item>
+    where
+        K: PartialOrd,
+        F: FnMut(Self::Item) -> K,
+    {
+        self.fold(None, |acc, value| {
+            let current_key = key(value);
+            Some(match acc
+            {
+                Some((best_value, best_key)) if best_key <= current_key => (best_value, best_key),
+                _ => (value, current_key),
+            })
+        })
+        .map(|(value, _)| value)
+    }
+
+    fn max_by_key<K, F>(
+        &self,
+        mut key: F,
+    ) -> Option<Self::Item>
+    where
+        K: PartialOrd,
+        F: FnMut(Self::Item) -> K,
+    {
+        self.fold(None, |acc, value| {
+            let current_key = key(value);
+            Some(match acc
+            {
+                Some((best_value, best_key)) if best_key >= current_key => (best_value, best_key),
+                _ => (value, current_key),
+            })
+        })
+        .map(|(value, _)| value)
+    }
+
+    fn transform_min<F>(
+        &self,
+        transform: F,
+    ) -> Option<Self::Item>
+    where
+        Self::Item: PartialOrd,
+        F: FnMut(Self::Item) -> Self::Item,
+    {
+        self.min_by_key(transform)
+    }
+
+    fn transform_max<F>(
+        &self,
+        transform: F,
+    ) -> Option<Self::Item>
+    where
+        Self::Item: PartialOrd,
+        F: FnMut(Self::Item) -> Self::Item,
+    {
+        self.max_by_key(transform)
+    }
+
+    fn abs_min(&self) -> Option<Self::Item>
+    where
+        Self::Item: Abs + PartialOrd,
+    {
+        self.min_by_key(|value| value.abs())
+    }
+
+    fn abs_max(&self) -> Option<Self::Item>
+    where
+        Self::Item: Abs + PartialOrd,
+    {
+        self.max_by_key(|value| value.abs())
+    }
+
+    fn argmin(&self) -> Option<(Self::Index, Self::Item)>
+    where
+        Self::Item: PartialOrd,
+    {
+        self.fold_indexed(None, |acc, index, value| {
+            Some(match acc
+            {
+                Some((best_index, best_value)) if best_value <= value => (best_index, best_value),
+                _ => (index, value),
+            })
+        })
+    }
+
+    fn argmax(&self) -> Option<(Self::Index, Self::Item)>
+    where
+        Self::Item: PartialOrd,
+    {
+        self.fold_indexed(None, |acc, index, value| {
+            Some(match acc
+            {
+                Some((best_index, best_value)) if best_value >= value => (best_index, best_value),
+                _ => (index, value),
+            })
+        })
+    }
+}
 //}}}
