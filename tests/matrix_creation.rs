@@ -121,7 +121,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_copy_from()
+    fn test_clone_from()
     {
         let mut matrix = SMatrix::<i32, 2, 2>::zeros();
         let matrix2 = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
@@ -139,7 +139,7 @@ mod dmatrix_tests
 {
 
     use topohedral_linalg::dmatrix::DMatrix;
-    use topohedral_linalg::MatrixOps;
+    use topohedral_linalg::{MatrixOps, Shape};
 
     #[test]
     fn test_matrix_zeros()
@@ -239,6 +239,37 @@ mod dmatrix_tests
         assert_eq!(transposed[(1, 1)], 5);
         assert_eq!(transposed[(2, 0)], 3);
         assert_eq!(transposed[(2, 1)], 6);
+    }
+
+    #[test]
+    fn test_matrix_clone_from_overwrites_entries()
+    {
+        let mut matrix = DMatrix::<i32>::zeros(2, 3);
+        let matrix2 = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6], 2, 3);
+
+        matrix.clone_from(&matrix2);
+
+        for (val1, val2) in matrix.iter().zip(matrix2.iter())
+        {
+            assert_eq!(*val1, *val2);
+        }
+    }
+
+    #[test]
+    fn test_matrix_clone_from_updates_shape()
+    {
+        let mut matrix = DMatrix::<i32>::zeros(1, 2);
+        let matrix2 = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6], 2, 3);
+
+        matrix.clone_from(&matrix2);
+
+        assert_eq!(matrix.nrows(), 2);
+        assert_eq!(matrix.ncols(), 3);
+
+        for (val1, val2) in matrix.iter().zip(matrix2.iter())
+        {
+            assert_eq!(*val1, *val2);
+        }
     }
 }
 //}}}
