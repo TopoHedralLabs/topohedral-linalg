@@ -10,8 +10,6 @@ use crate::blaslapack::getrf::Getrf;
 use crate::common::Shape;
 use crate::common::{Field, Float, MatrixOps, One, Zero};
 //}}}
-//{{{ std imports
-//}}}
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------

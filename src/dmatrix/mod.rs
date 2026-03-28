@@ -31,6 +31,7 @@ pub mod reduce_ops;
 pub mod schur;
 pub mod solve;
 pub mod symeig;
+pub mod transform_ops;
 // everything else
 pub mod construction;
 pub mod indexing;
@@ -56,7 +57,7 @@ pub mod subviews;
 /// ```ignore
 /// 1 4 7 2 5 9 3 6 9
 /// ```
-#[derive(Clone, Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct DMatrix<T>
 where
     T: Field + Copy,
@@ -67,6 +68,30 @@ where
     pub(crate) ncols: usize,
 }
 //}}}
+impl<T> Clone for DMatrix<T>
+where
+    T: Field + Copy,
+{
+    fn clone(&self) -> Self
+    {
+        Self {
+            data: self.data.clone(),
+            nrows: self.nrows,
+            ncols: self.ncols,
+        }
+    }
+
+    fn clone_from(
+        &mut self,
+        source: &Self,
+    )
+    {
+        self.data.clone_from(&source.data);
+        self.nrows = source.nrows;
+        self.ncols = source.ncols;
+    }
+}
+
 //{{{ impl: DMatrix
 impl<T> DMatrix<T>
 where
