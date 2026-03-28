@@ -31,6 +31,7 @@ pub mod reduce_ops;
 pub mod schur;
 pub mod solve;
 pub mod symeig;
+pub mod transform_ops;
 // everything else
 pub mod construction;
 pub mod indexing;

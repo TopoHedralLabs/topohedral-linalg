@@ -508,6 +508,94 @@ where
     //}}}
 }
 //}}}
+//{{{ trait: TransformOps
+pub trait TransformOps
+where
+    Self: Sized,
+{
+    type ScalarType: Field + Copy;
+
+    /// Applies `f` to each element in-place.
+    fn transform<F>(
+        &mut self,
+        f: F,
+    ) where
+        F: FnMut(Self::ScalarType) -> Self::ScalarType;
+
+    /// Returns a transformed copy of `self`.
+    fn transformed<F>(
+        &self,
+        f: F,
+    ) -> Self
+    where
+        Self: Clone,
+        F: FnMut(Self::ScalarType) -> Self::ScalarType,
+    {
+        let mut out = self.clone();
+        out.transform(f);
+        out
+    }
+
+    /// Consumes `self`, transforms it in-place, and returns it.
+    fn into_transformed<F>(
+        mut self,
+        f: F,
+    ) -> Self
+    where
+        F: FnMut(Self::ScalarType) -> Self::ScalarType,
+    {
+        self.transform(f);
+        self
+    }
+}
+//}}}
+//{{{ trait: FloatTransformOps
+pub trait FloatTransformOps: TransformOps
+where
+    Self::ScalarType: Float,
+{
+    fn acos(&self) -> Self
+    where
+        Self: Clone,
+    {
+        self.transformed(|value| value.acos())
+    }
+
+    fn clamp(
+        &self,
+        min: Self::ScalarType,
+        max: Self::ScalarType,
+    ) -> Self
+    where
+        Self: Clone,
+    {
+        self.transformed(|value| value.clamp(min, max))
+    }
+
+    fn powi(
+        &self,
+        exp: i32,
+    ) -> Self
+    where
+        Self: Clone,
+    {
+        self.transformed(|value| value.powi(exp))
+    }
+
+    fn sqrt(&self) -> Self
+    where
+        Self: Clone,
+    {
+        self.transformed(|value| value.sqrt())
+    }
+}
+//}}}
+impl<T> FloatTransformOps for T
+where
+    T: TransformOps,
+    T::ScalarType: Float,
+{
+}
 //{{{ fun: lin_index
 #[inline]
 pub fn lin_index(
