@@ -239,7 +239,7 @@ mod smatrix_tests
         matrix.shift(3);
 
         let shifted = matrix.shifted(-1);
-        let into_shifted = matrix.clone().into_shifted(2);
+        let into_shifted = matrix.into_shifted(2);
 
         let shifted_expected = SMatrix::<i32, 2, 2>::from_row_slice(&[3, 4, 5, 6]);
         let into_shifted_expected = SMatrix::<i32, 2, 2>::from_row_slice(&[6, 7, 8, 9]);
@@ -258,7 +258,7 @@ mod smatrix_tests
         matrix.scale(3);
 
         let scaled = matrix.scaled(2);
-        let into_scaled = matrix.clone().into_scaled(-1);
+        let into_scaled = matrix.into_scaled(-1);
 
         let scaled_expected = SMatrix::<i32, 2, 2>::from_row_slice(&[6, 12, 18, 24]);
         let into_scaled_expected = SMatrix::<i32, 2, 2>::from_row_slice(&[-3, -6, -9, -12]);
