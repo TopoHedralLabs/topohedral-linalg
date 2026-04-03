@@ -522,6 +522,7 @@ where
     ) where
         F: FnMut(Self::ScalarType) -> Self::ScalarType;
 
+
     /// Returns a transformed copy of `self`.
     fn transformed<F>(
         &self,
@@ -546,6 +547,27 @@ where
     {
         self.transform(f);
         self
+    }
+
+    /// Assigns every element to `value`.
+    fn fill(
+        &mut self,
+        value: Self::ScalarType,
+    )
+    {
+        self.transform(|_| value);
+    }
+
+    fn filled(&self, value: Self::ScalarType) -> Self
+    where
+        Self: Clone,
+    {
+        self.transformed(|_| value)
+    }
+
+    fn into_filled(self, value: Self::ScalarType)  -> Self
+    {
+        self.into_transformed(|_| value)
     }
 }
 //}}}
@@ -590,12 +612,14 @@ where
     }
 }
 //}}}
+//{{{ impl: FloatTransformOps for T
 impl<T> FloatTransformOps for T
 where
     T: TransformOps,
     T::ScalarType: Float,
 {
 }
+//}}}
 //{{{ fun: lin_index
 #[inline]
 pub fn lin_index(

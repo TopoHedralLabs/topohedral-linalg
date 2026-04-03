@@ -50,6 +50,17 @@ mod dmatrix_tests
     }
 
     #[test]
+    fn test_fill_assigns_all_elements()
+    {
+        let mut matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
+
+        matrix.fill(7);
+
+        let expected = DMatrix::<i32>::from_row_slice(&[7, 7, 7, 7], 2, 2);
+        assert_matrix_eq(&matrix, &expected);
+    }
+
+    #[test]
     fn test_transformed_returns_changed_copy_and_leaves_original_unchanged()
     {
         let matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
@@ -144,6 +155,17 @@ mod smatrix_tests
         assert_matrix_eq(&matrix, &expected);
         assert_eq!(matrix.nrows(), 2);
         assert_eq!(matrix.ncols(), 3);
+    }
+
+    #[test]
+    fn test_fill_assigns_all_elements()
+    {
+        let mut matrix = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
+
+        matrix.fill(7);
+
+        let expected = SMatrix::<i32, 2, 2>::from_row_slice(&[7, 7, 7, 7]);
+        assert_matrix_eq(&matrix, &expected);
     }
 
     #[test]
