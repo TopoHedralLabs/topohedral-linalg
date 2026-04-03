@@ -1,6 +1,6 @@
 [package]
 name = "topohedral-linalg"
-version = "1.9.0"
+version = "1.10.0"
 authors = ["John Ferguson <JAFerguson952@gmail.com>"]
 edition = "2021"
 repository = "https://github.com/TopoHedralLabs/topohedral-linalg"
