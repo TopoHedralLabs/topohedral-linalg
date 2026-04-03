@@ -547,6 +547,87 @@ where
         self.transform(f);
         self
     }
+
+    /// Shifts every element by `value`.
+    fn shift(
+        &mut self,
+        value: Self::ScalarType,
+    )
+    {
+        self.transform(|element| element + value);
+    }
+
+    fn shifted(
+        &self,
+        value: Self::ScalarType,
+    ) -> Self
+    where
+        Self: Clone,
+    {
+        self.transformed(|element| element + value)
+    }
+
+    fn into_shifted(
+        self,
+        value: Self::ScalarType,
+    ) -> Self
+    {
+        self.into_transformed(|element| element + value)
+    }
+
+    /// Scales every element by `value`.
+    fn scale(
+        &mut self,
+        value: Self::ScalarType,
+    )
+    {
+        self.transform(|element| element * value);
+    }
+
+    fn scaled(
+        &self,
+        value: Self::ScalarType,
+    ) -> Self
+    where
+        Self: Clone,
+    {
+        self.transformed(|element| element * value)
+    }
+
+    fn into_scaled(
+        self,
+        value: Self::ScalarType,
+    ) -> Self
+    {
+        self.into_transformed(|element| element * value)
+    }
+
+    /// Assigns every element to `value`.
+    fn fill(
+        &mut self,
+        value: Self::ScalarType,
+    )
+    {
+        self.transform(|_| value);
+    }
+
+    fn filled(
+        &self,
+        value: Self::ScalarType,
+    ) -> Self
+    where
+        Self: Clone,
+    {
+        self.transformed(|_| value)
+    }
+
+    fn into_filled(
+        self,
+        value: Self::ScalarType,
+    ) -> Self
+    {
+        self.into_transformed(|_| value)
+    }
 }
 //}}}
 //{{{ trait: FloatTransformOps
@@ -590,12 +671,14 @@ where
     }
 }
 //}}}
+//{{{ impl: FloatTransformOps for T
 impl<T> FloatTransformOps for T
 where
     T: TransformOps,
     T::ScalarType: Float,
 {
 }
+//}}}
 //{{{ fun: lin_index
 #[inline]
 pub fn lin_index(

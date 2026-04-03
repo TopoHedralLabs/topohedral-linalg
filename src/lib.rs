@@ -29,11 +29,3 @@ pub mod scvector;
 pub mod smatrix;
 pub mod srvector;
 //}}}
-
-//-------------------------------------------------------------------------------------------------
-//{{{ mod: tests
-#[cfg(test)]
-mod tests
-{}
-
-//}}}
