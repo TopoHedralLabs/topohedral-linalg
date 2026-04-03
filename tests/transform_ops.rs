@@ -86,6 +86,44 @@ mod dmatrix_tests
     }
 
     #[test]
+    fn test_shift_helpers()
+    {
+        let mut matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
+
+        matrix.shift(3);
+
+        let shifted = matrix.shifted(-1);
+        let into_shifted = matrix.clone().into_shifted(2);
+
+        let shifted_expected = DMatrix::<i32>::from_row_slice(&[3, 4, 5, 6], 2, 2);
+        let into_shifted_expected = DMatrix::<i32>::from_row_slice(&[6, 7, 8, 9], 2, 2);
+        let in_place_expected = DMatrix::<i32>::from_row_slice(&[4, 5, 6, 7], 2, 2);
+
+        assert_matrix_eq(&matrix, &in_place_expected);
+        assert_matrix_eq(&shifted, &shifted_expected);
+        assert_matrix_eq(&into_shifted, &into_shifted_expected);
+    }
+
+    #[test]
+    fn test_scale_helpers()
+    {
+        let mut matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
+
+        matrix.scale(3);
+
+        let scaled = matrix.scaled(2);
+        let into_scaled = matrix.clone().into_scaled(-1);
+
+        let scaled_expected = DMatrix::<i32>::from_row_slice(&[6, 12, 18, 24], 2, 2);
+        let into_scaled_expected = DMatrix::<i32>::from_row_slice(&[-3, -6, -9, -12], 2, 2);
+        let in_place_expected = DMatrix::<i32>::from_row_slice(&[3, 6, 9, 12], 2, 2);
+
+        assert_matrix_eq(&matrix, &in_place_expected);
+        assert_matrix_eq(&scaled, &scaled_expected);
+        assert_matrix_eq(&into_scaled, &into_scaled_expected);
+    }
+
+    #[test]
     fn test_float_transform_helpers()
     {
         let acos_input = DMatrix::<f64>::from_row_slice(&[1.0, 0.0, -1.0, -1.0, 0.0, 1.0], 2, 3);
@@ -191,6 +229,44 @@ mod smatrix_tests
 
         let expected = SMatrix::<i32, 2, 2>::from_row_slice(&[3, 5, 7, 9]);
         assert_matrix_eq(&transformed, &expected);
+    }
+
+    #[test]
+    fn test_shift_helpers()
+    {
+        let mut matrix = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
+
+        matrix.shift(3);
+
+        let shifted = matrix.shifted(-1);
+        let into_shifted = matrix.clone().into_shifted(2);
+
+        let shifted_expected = SMatrix::<i32, 2, 2>::from_row_slice(&[3, 4, 5, 6]);
+        let into_shifted_expected = SMatrix::<i32, 2, 2>::from_row_slice(&[6, 7, 8, 9]);
+        let in_place_expected = SMatrix::<i32, 2, 2>::from_row_slice(&[4, 5, 6, 7]);
+
+        assert_matrix_eq(&matrix, &in_place_expected);
+        assert_matrix_eq(&shifted, &shifted_expected);
+        assert_matrix_eq(&into_shifted, &into_shifted_expected);
+    }
+
+    #[test]
+    fn test_scale_helpers()
+    {
+        let mut matrix = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
+
+        matrix.scale(3);
+
+        let scaled = matrix.scaled(2);
+        let into_scaled = matrix.clone().into_scaled(-1);
+
+        let scaled_expected = SMatrix::<i32, 2, 2>::from_row_slice(&[6, 12, 18, 24]);
+        let into_scaled_expected = SMatrix::<i32, 2, 2>::from_row_slice(&[-3, -6, -9, -12]);
+        let in_place_expected = SMatrix::<i32, 2, 2>::from_row_slice(&[3, 6, 9, 12]);
+
+        assert_matrix_eq(&matrix, &in_place_expected);
+        assert_matrix_eq(&scaled, &scaled_expected);
+        assert_matrix_eq(&into_scaled, &into_scaled_expected);
     }
 
     #[test]

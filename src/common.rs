@@ -522,7 +522,6 @@ where
     ) where
         F: FnMut(Self::ScalarType) -> Self::ScalarType;
 
-
     /// Returns a transformed copy of `self`.
     fn transformed<F>(
         &self,
@@ -549,6 +548,60 @@ where
         self
     }
 
+    /// Shifts every element by `value`.
+    fn shift(
+        &mut self,
+        value: Self::ScalarType,
+    )
+    {
+        self.transform(|element| element + value);
+    }
+
+    fn shifted(
+        &self,
+        value: Self::ScalarType,
+    ) -> Self
+    where
+        Self: Clone,
+    {
+        self.transformed(|element| element + value)
+    }
+
+    fn into_shifted(
+        self,
+        value: Self::ScalarType,
+    ) -> Self
+    {
+        self.into_transformed(|element| element + value)
+    }
+
+    /// Scales every element by `value`.
+    fn scale(
+        &mut self,
+        value: Self::ScalarType,
+    )
+    {
+        self.transform(|element| element * value);
+    }
+
+    fn scaled(
+        &self,
+        value: Self::ScalarType,
+    ) -> Self
+    where
+        Self: Clone,
+    {
+        self.transformed(|element| element * value)
+    }
+
+    fn into_scaled(
+        self,
+        value: Self::ScalarType,
+    ) -> Self
+    {
+        self.into_transformed(|element| element * value)
+    }
+
     /// Assigns every element to `value`.
     fn fill(
         &mut self,
@@ -558,14 +611,20 @@ where
         self.transform(|_| value);
     }
 
-    fn filled(&self, value: Self::ScalarType) -> Self
+    fn filled(
+        &self,
+        value: Self::ScalarType,
+    ) -> Self
     where
         Self: Clone,
     {
         self.transformed(|_| value)
     }
 
-    fn into_filled(self, value: Self::ScalarType)  -> Self
+    fn into_filled(
+        self,
+        value: Self::ScalarType,
+    ) -> Self
     {
         self.into_transformed(|_| value)
     }
