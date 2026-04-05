@@ -135,7 +135,7 @@ mod dmatrix_tests
             5,
         );
         // test read
-        let expected = m.subview(1, 3, 1, 3).to_dmatrix();
+        let expected = DMatrix::<i32>::from_col_slice(&[7, 8, 9, 12, 13, 14, 17, 18, 19], 3, 3);
         let subm = m.subview_mut(1, 3, 1, 3);
         for (val, exp) in subm.iter().zip(expected.iter())
         {
@@ -605,7 +605,7 @@ mod smatrix_tests
             25,
         ]);
         // test read
-        let expected = m.subview(1, 3, 1, 3).to_dmatrix();
+        let expected = SMatrix::<i32, 3, 3>::from_col_slice(&[7, 8, 9, 12, 13, 14, 17, 18, 19]);
         let subm = m.subview_mut(1, 3, 1, 3);
         for (val, exp) in subm.iter().zip(expected.iter())
         {

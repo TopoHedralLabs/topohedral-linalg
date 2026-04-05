@@ -121,11 +121,12 @@ where
     pub fn to_dmatrix(&self) -> DMatrix<T>
     {
         let mut data = Vec::with_capacity(self.nrows * self.ncols);
-        for i in 0..self.nrows
+
+        for j in 0..self.ncols
         {
-            for j in 0..self.ncols
+            for i in 0..self.nrows
             {
-                data.push(self[(j, i)]);
+                data.push(self[(i, j)]);
             }
         }
         DMatrix {
@@ -413,11 +414,12 @@ where
     pub fn to_dmatrix(&self) -> DMatrix<T>
     {
         let mut data = Vec::with_capacity(self.nrows * self.ncols);
-        for i in 0..self.nrows
+
+        for j in 0..self.ncols
         {
-            for j in 0..self.ncols
+            for i in 0..self.nrows
             {
-                data.push(self[(j, i)]);
+                data.push(self[(i, j)]);
             }
         }
         DMatrix {
