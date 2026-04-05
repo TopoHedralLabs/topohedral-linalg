@@ -40,6 +40,35 @@ mod dmatrix_tests
     }
 
     #[test]
+    fn test_submatrix_rectangular()
+    {
+        let m = DMatrix::<i32>::from_col_slice(
+            &[
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                24, 25,
+            ],
+            5,
+            5,
+        );
+
+        let subm = m.subview(1, 3, 2, 4);
+        let expected = [12, 13, 14, 17, 18, 19, 22, 23, 24];
+
+        for i in 0..3
+        {
+            for j in 0..3
+            {
+                assert_eq!(subm[(i, j)], m[(i + 1, j + 2)]);
+            }
+        }
+
+        for (val, exp) in subm.iter().zip(expected.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
     fn test_row()
     {
         let m = DMatrix::<i32>::from_col_slice(
@@ -151,6 +180,37 @@ mod dmatrix_tests
         for val in subm.iter()
         {
             assert_eq!(*val, 1);
+        }
+    }
+
+    #[test]
+    fn test_submatrix_rectangular_mut()
+    {
+        let mut m = DMatrix::<i32>::from_col_slice(
+            &[
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                24, 25,
+            ],
+            5,
+            5,
+        );
+        // test read
+        let expected = DMatrix::<i32>::from_col_slice(&[7, 8, 12, 13, 17, 18], 2, 3);
+        let subm = m.subview_mut(1, 2, 1, 3);
+        for (val, exp) in subm.iter().zip(expected.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        // test write
+        let mut subm = m.subview_mut(1, 2, 1, 3);
+        for val in subm.iter_mut()
+        {
+            *val *= -1;
+        }
+        let subm = m.subview(1, 2, 1, 3);
+        for (val, exp) in subm.iter().zip([-7, -8, -12, -13, -17, -18].iter())
+        {
+            assert_eq!(*val, *exp);
         }
     }
 
@@ -530,6 +590,31 @@ mod smatrix_tests
     }
 
     #[test]
+    fn test_submatrix_rectangular()
+    {
+        let m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
+
+        let subm = m.subview(1, 3, 2, 4);
+        let expected = [12, 13, 14, 17, 18, 19, 22, 23, 24];
+
+        for i in 0..3
+        {
+            for j in 0..3
+            {
+                assert_eq!(subm[(i, j)], m[(i + 1, j + 2)]);
+            }
+        }
+
+        for (val, exp) in subm.iter().zip(expected.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
     fn test_row()
     {
         let m = SMatrix::<i32, 5, 5>::from_col_slice(&[
@@ -621,6 +706,33 @@ mod smatrix_tests
         for val in subm.iter()
         {
             assert_eq!(*val, 1);
+        }
+    }
+
+    #[test]
+    fn test_submatrix_rectangular_mut()
+    {
+        let mut m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
+        // test read
+        let expected = SMatrix::<i32, 2, 3>::from_col_slice(&[7, 8, 12, 13, 17, 18]);
+        let subm = m.subview_mut(1, 2, 1, 3);
+        for (val, exp) in subm.iter().zip(expected.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+        // test write
+        let mut subm = m.subview_mut(1, 2, 1, 3);
+        for val in subm.iter_mut()
+        {
+            *val *= -1;
+        }
+        let subm = m.subview(1, 2, 1, 3);
+        for (val, exp) in subm.iter().zip([-7, -8, -12, -13, -17, -18].iter())
+        {
+            assert_eq!(*val, *exp);
         }
     }
 
