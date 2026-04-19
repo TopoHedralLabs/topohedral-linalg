@@ -143,6 +143,43 @@ mod dmatrix_tests
         let sqrt_expected = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0], 2, 2);
         assert_matrix_eq_f64(&sqrt_input.sqrt(), &sqrt_expected);
     }
+
+    #[test]
+    fn test_mutable_subview_transform_helpers_only_affect_the_view()
+    {
+        let mut matrix = DMatrix::<i32>::from_row_slice(
+            &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+            4,
+            4,
+        );
+
+        {
+            let mut view = matrix.subview_mut(1, 2, 1, 2);
+            view.transform(|value| -value);
+        }
+        {
+            let mut view = matrix.col_mut(0);
+            view.scale(2);
+        }
+        {
+            let mut view = matrix.subview_mut(0, 1, 3, 3);
+            view.shift(100);
+        }
+        {
+            let mut view = matrix.row_mut(3);
+            view.fill(0);
+        }
+
+        let expected = DMatrix::<i32>::from_row_slice(
+            &[2, 2, 3, 104, 10, -6, -7, 108, 18, -10, -11, 12, 0, 0, 0, 0],
+            4,
+            4,
+        );
+
+        assert_matrix_eq(&matrix, &expected);
+        assert_eq!(matrix.nrows(), 4);
+        assert_eq!(matrix.ncols(), 4);
+    }
 }
 
 mod smatrix_tests
@@ -288,5 +325,38 @@ mod smatrix_tests
         let sqrt_input = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 4.0, 9.0, 16.0]);
         let sqrt_expected = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0]);
         assert_matrix_eq_f64(&sqrt_input.sqrt(), &sqrt_expected);
+    }
+
+    #[test]
+    fn test_mutable_subview_transform_helpers_only_affect_the_view()
+    {
+        let mut matrix = SMatrix::<i32, 4, 4>::from_row_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        ]);
+
+        {
+            let mut view = matrix.subview_mut(1, 2, 1, 2);
+            view.transform(|value| -value);
+        }
+        {
+            let mut view = matrix.col_mut(0);
+            view.scale(2);
+        }
+        {
+            let mut view = matrix.subview_mut(0, 1, 3, 3);
+            view.shift(100);
+        }
+        {
+            let mut view = matrix.row_mut(3);
+            view.fill(0);
+        }
+
+        let expected = SMatrix::<i32, 4, 4>::from_row_slice(&[
+            2, 2, 3, 104, 10, -6, -7, 108, 18, -10, -11, 12, 0, 0, 0, 0,
+        ]);
+
+        assert_matrix_eq(&matrix, &expected);
+        assert_eq!(matrix.nrows(), 4);
+        assert_eq!(matrix.ncols(), 4);
     }
 }
