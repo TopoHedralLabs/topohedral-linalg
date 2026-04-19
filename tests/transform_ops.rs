@@ -134,10 +134,14 @@ mod dmatrix_tests
             DMatrix::<f64>::from_row_slice(&[1.0, 0.0, 1.0, 16.0, 16.0, 81.0], 2, 3);
         let clamp_expected =
             DMatrix::<f64>::from_row_slice(&[1.0, 0.0, -1.0, 1.0, -1.0, 1.0], 2, 3);
+        let pos_expected = DMatrix::<f64>::from_row_slice(&[1.0, 0.0, 0.0, 4.0, 0.0, 9.0], 2, 3);
+        let neg_expected = DMatrix::<f64>::from_row_slice(&[0.0, 0.0, -1.0, 0.0, -4.0, 0.0], 2, 3);
 
         assert_matrix_eq_f64(&acos_input.acos(), &acos_expected);
         assert_matrix_eq_f64(&matrix.powi(2), &powi_expected);
         assert_matrix_eq_f64(&matrix.clamp(-1.0, 1.0), &clamp_expected);
+        assert_matrix_eq_f64(&matrix.pos(), &pos_expected);
+        assert_matrix_eq_f64(&matrix.neg(), &neg_expected);
 
         let sqrt_input = DMatrix::<f64>::from_row_slice(&[1.0, 4.0, 9.0, 16.0], 2, 2);
         let sqrt_expected = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0], 2, 2);
@@ -317,10 +321,14 @@ mod smatrix_tests
             SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 0.0, 1.0, 16.0, 16.0, 81.0]);
         let clamp_expected =
             SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 0.0, -1.0, 1.0, -1.0, 1.0]);
+        let pos_expected = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 0.0, 0.0, 4.0, 0.0, 9.0]);
+        let neg_expected = SMatrix::<f64, 2, 3>::from_row_slice(&[0.0, 0.0, -1.0, 0.0, -4.0, 0.0]);
 
         assert_matrix_eq_f64(&acos_input.acos(), &acos_expected);
         assert_matrix_eq_f64(&matrix.powi(2), &powi_expected);
         assert_matrix_eq_f64(&matrix.clamp(-1.0, 1.0), &clamp_expected);
+        assert_matrix_eq_f64(&matrix.pos(), &pos_expected);
+        assert_matrix_eq_f64(&matrix.neg(), &neg_expected);
 
         let sqrt_input = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 4.0, 9.0, 16.0]);
         let sqrt_expected = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0]);
