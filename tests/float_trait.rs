@@ -66,14 +66,17 @@ macro_rules! float_trait_smoke_test {
             );
             assert_eq!(<$type as Float>::classify(x), FpCategory::Normal);
             assert_eq!(<$type as Float>::copysign(x, y), -x);
+            let sqrt_3_over_2 = (3.0 as $type).sqrt() / 2.0 as $type;
             assert_relative_eq!(
                 <$type as Float>::cos(theta),
-                0.8660254037844386 as $type,
+                sqrt_3_over_2,
                 epsilon = 10.0 as $type * $epsilon
             );
+            let half_exp = <$type as Float>::exp(0.5 as $type);
+            let neg_half_exp = <$type as Float>::exp(-0.5 as $type);
             assert_relative_eq!(
                 <$type as Float>::cosh(0.5 as $type),
-                1.1276259652063807 as $type,
+                (half_exp + neg_half_exp) / 2.0 as $type,
                 epsilon = 10.0 as $type * $epsilon
             );
             assert_eq!(
@@ -202,19 +205,19 @@ macro_rules! float_trait_smoke_test {
 
             assert_relative_eq!(
                 <$type as Float>::sinh(0.5 as $type),
-                0.5210953054937474 as $type,
+                (half_exp - neg_half_exp) / 2.0 as $type,
                 epsilon = 10.0 as $type * $epsilon
             );
             assert_eq!(<$type as Float>::small(), <$type>::EPSILON);
             assert_eq!(<$type as Float>::sqrt(4.0 as $type), 2.0 as $type);
             assert_relative_eq!(
                 <$type as Float>::tan(theta),
-                0.5773502691896257 as $type,
+                1.0 as $type / (3.0 as $type).sqrt(),
                 epsilon = 10.0 as $type * $epsilon
             );
             assert_relative_eq!(
                 <$type as Float>::tanh(0.5 as $type),
-                0.46211715726000974 as $type,
+                (half_exp - neg_half_exp) / (half_exp + neg_half_exp),
                 epsilon = 10.0 as $type * $epsilon
             );
             assert_eq!(
