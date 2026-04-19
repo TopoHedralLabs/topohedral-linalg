@@ -128,14 +128,14 @@ macro_rules! float_trait_smoke_test {
                 5.0 as $type,
                 epsilon = $epsilon
             );
-            assert!(<$type as Float>::is_finite(x));
-            assert!(<$type as Float>::is_infinite(<$type>::INFINITY));
-            assert!(<$type as Float>::is_nan(<$type>::NAN));
-            assert!(<$type as Float>::is_normal(x));
-            assert!(<$type as Float>::is_sign_negative(-1.0 as $type));
-            assert!(<$type as Float>::is_sign_positive(1.0 as $type));
+            assert!(<$type as Float>::is_finite(&x));
+            assert!(<$type as Float>::is_infinite(&<$type>::INFINITY));
+            assert!(<$type as Float>::is_nan(&<$type>::NAN));
+            assert!(<$type as Float>::is_normal(&x));
+            assert!(<$type as Float>::is_sign_negative(&(-1.0 as $type)));
+            assert!(<$type as Float>::is_sign_positive(&(1.0 as $type)));
             assert!(<$type as Float>::is_subnormal(
-                <$type>::MIN_POSITIVE / 2.0 as $type
+                &(<$type>::MIN_POSITIVE / 2.0 as $type)
             ));
             assert_relative_eq!(
                 <$type as Float>::ln(e),

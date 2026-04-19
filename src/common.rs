@@ -233,8 +233,23 @@ apply_for_all_integer_types!(impl_abs);
 pub use num_complex::Complex;
 //}}}
 //{{{ trait: FloatToInt
+/// Helper trait for converting floating-point values to integer types without
+/// runtime bounds checking.
+///
+/// # Safety
+///
+/// Implementors must ensure that [`FloatToInt::to_int_unchecked`] has the same
+/// safety contract and semantics as the corresponding primitive float
+/// conversion.
 pub unsafe trait FloatToInt<Int>
 {
+    /// Converts a floating-point value to an integer without checking that the
+    /// value is representable in the target type.
+    ///
+    /// # Safety
+    ///
+    /// The value must not be `NaN` or infinite, and after truncation its
+    /// integer part must be representable as `Int`.
     unsafe fn to_int_unchecked(self) -> Int;
 }
 //}}}
@@ -317,13 +332,13 @@ pub trait Float: Field
         self,
         other: Self,
     ) -> Self;
-    fn is_finite(self) -> bool;
-    fn is_infinite(self) -> bool;
-    fn is_nan(self) -> bool;
-    fn is_normal(self) -> bool;
-    fn is_sign_negative(self) -> bool;
-    fn is_sign_positive(self) -> bool;
-    fn is_subnormal(self) -> bool;
+    fn is_finite(&self) -> bool;
+    fn is_infinite(&self) -> bool;
+    fn is_nan(&self) -> bool;
+    fn is_normal(&self) -> bool;
+    fn is_sign_negative(&self) -> bool;
+    fn is_sign_positive(&self) -> bool;
+    fn is_subnormal(&self) -> bool;
     fn ln(self) -> Self;
     fn ln_1p(self) -> Self;
     fn ln_gamma(self) -> (Self, i32);
@@ -386,6 +401,13 @@ pub trait Float: Field
     fn to_be_bytes(self) -> Self::Bytes;
     fn to_bits(self) -> Self::Bits;
     fn to_degrees(self) -> Self;
+    /// Converts a floating-point value to an integer without checking that the
+    /// value is representable in the target type.
+    ///
+    /// # Safety
+    ///
+    /// The value must not be `NaN` or infinite, and after truncation its
+    /// integer part must be representable as `Int`.
     unsafe fn to_int_unchecked<Int>(self) -> Int
     where
         Self: FloatToInt<Int>;
@@ -640,45 +662,45 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn is_finite(self) -> bool
+            fn is_finite(&self) -> bool
             {
-                self.is_finite()
+                <$type>::is_finite(*self)
             }
 
             #[inline]
-            fn is_infinite(self) -> bool
+            fn is_infinite(&self) -> bool
             {
-                self.is_infinite()
+                <$type>::is_infinite(*self)
             }
 
             #[inline]
-            fn is_nan(self) -> bool
+            fn is_nan(&self) -> bool
             {
-                self.is_nan()
+                <$type>::is_nan(*self)
             }
 
             #[inline]
-            fn is_normal(self) -> bool
+            fn is_normal(&self) -> bool
             {
-                self.is_normal()
+                <$type>::is_normal(*self)
             }
 
             #[inline]
-            fn is_sign_negative(self) -> bool
+            fn is_sign_negative(&self) -> bool
             {
-                self.is_sign_negative()
+                <$type>::is_sign_negative(*self)
             }
 
             #[inline]
-            fn is_sign_positive(self) -> bool
+            fn is_sign_positive(&self) -> bool
             {
-                self.is_sign_positive()
+                <$type>::is_sign_positive(*self)
             }
 
             #[inline]
-            fn is_subnormal(self) -> bool
+            fn is_subnormal(&self) -> bool
             {
-                self.is_subnormal()
+                <$type>::is_subnormal(*self)
             }
 
             #[inline]
