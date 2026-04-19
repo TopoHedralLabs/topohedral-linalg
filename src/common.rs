@@ -669,6 +669,40 @@ where
     {
         self.transformed(|value| value.sqrt())
     }
+
+    fn pos(&self) -> Self
+    where
+        Self: Clone,
+        Self::ScalarType: Zero,
+    {
+        self.transformed(|value| {
+            if value > Self::ScalarType::zero()
+            {
+                value
+            }
+            else
+            {
+                Self::ScalarType::zero()
+            }
+        })
+    }
+
+    fn neg(&self) -> Self
+    where
+        Self: Clone,
+        Self::ScalarType: Zero,
+    {
+        self.transformed(|value| {
+            if value <= Self::ScalarType::zero()
+            {
+                value
+            }
+            else
+            {
+                Self::ScalarType::zero()
+            }
+        })
+    }
 }
 //}}}
 //{{{ impl: FloatTransformOps for T
