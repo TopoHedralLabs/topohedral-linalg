@@ -7,7 +7,8 @@ use crate::blaslapack::getrf::Getrf;
 //}}}
 //{{{ std imports
 use ::std::ops::{Add, Div, Mul, Neg, Sub};
-use std::cmp::PartialEq;
+use std::cmp::{Ordering, PartialEq};
+use std::num::FpCategory;
 use std::ops::{AddAssign, DivAssign, Index, IndexMut, MulAssign, SubAssign};
 
 //}}}
@@ -231,89 +232,764 @@ apply_for_all_integer_types!(impl_abs);
 //{{{ collection: re-exports
 pub use num_complex::Complex;
 //}}}
+//{{{ trait: FloatToInt
+pub unsafe trait FloatToInt<Int>
+{
+    unsafe fn to_int_unchecked(self) -> Int;
+}
+//}}}
+//{{{ macro: impl_float_to_int
+macro_rules! impl_float_to_int {
+    ($float:ty; $($int:ty),+ $(,)?) => {
+        $(
+            unsafe impl FloatToInt<$int> for $float
+            {
+                #[inline]
+                unsafe fn to_int_unchecked(self) -> $int
+                {
+                    unsafe { <$float>::to_int_unchecked::<$int>(self) }
+                }
+            }
+        )+
+    };
+}
+//}}}
+//{{{ collection: impl_float_to_int implementations
+impl_float_to_int!(f32; i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
+impl_float_to_int!(f64; i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
+//}}}
 //{{{ trait: Float
 pub trait Float: Field
 {
+    type Bits: Copy;
+    type Bytes: Copy;
+
+    fn abs(self) -> Self;
+    fn abs_sub(
+        self,
+        other: Self,
+    ) -> Self;
     fn acos(self) -> Self;
+    fn acosh(self) -> Self;
+    fn asin(self) -> Self;
+    fn asinh(self) -> Self;
+    fn atan(self) -> Self;
+    fn atan2(
+        self,
+        other: Self,
+    ) -> Self;
+    fn atanh(self) -> Self;
+    fn cbrt(self) -> Self;
+    fn ceil(self) -> Self;
     fn clamp(
         self,
         min: Self,
         max: Self,
+    ) -> Self;
+    fn clamp_magnitude(
+        self,
+        limit: Self,
+    ) -> Self;
+    fn classify(self) -> FpCategory;
+    fn copysign(
+        self,
+        sign: Self,
+    ) -> Self;
+    fn cos(self) -> Self;
+    fn cosh(self) -> Self;
+    fn div_euclid(
+        self,
+        rhs: Self,
+    ) -> Self;
+    fn erf(self) -> Self;
+    fn erfc(self) -> Self;
+    fn exp(self) -> Self;
+    fn exp2(self) -> Self;
+    fn exp_m1(self) -> Self;
+    fn floor(self) -> Self;
+    fn fract(self) -> Self;
+    fn from_be_bytes(bytes: Self::Bytes) -> Self;
+    fn from_bits(v: Self::Bits) -> Self;
+    fn from_le_bytes(bytes: Self::Bytes) -> Self;
+    fn from_ne_bytes(bytes: Self::Bytes) -> Self;
+    fn gamma(self) -> Self;
+    fn hypot(
+        self,
+        other: Self,
+    ) -> Self;
+    fn is_finite(self) -> bool;
+    fn is_infinite(self) -> bool;
+    fn is_nan(self) -> bool;
+    fn is_normal(self) -> bool;
+    fn is_sign_negative(self) -> bool;
+    fn is_sign_positive(self) -> bool;
+    fn is_subnormal(self) -> bool;
+    fn ln(self) -> Self;
+    fn ln_1p(self) -> Self;
+    fn ln_gamma(self) -> (Self, i32);
+    fn log(
+        self,
+        base: Self,
+    ) -> Self;
+    fn log10(self) -> Self;
+    fn log2(self) -> Self;
+    fn max(
+        self,
+        other: Self,
+    ) -> Self;
+    fn maximum(
+        self,
+        other: Self,
+    ) -> Self;
+    fn midpoint(
+        self,
+        other: Self,
+    ) -> Self;
+    fn min(
+        self,
+        other: Self,
+    ) -> Self;
+    fn minimum(
+        self,
+        other: Self,
+    ) -> Self;
+    fn mul_add(
+        self,
+        a: Self,
+        b: Self,
+    ) -> Self;
+    fn next_down(self) -> Self;
+    fn next_up(self) -> Self;
+    fn powf(
+        self,
+        exp: Self,
     ) -> Self;
     fn small() -> Self;
     fn powi(
         self,
         exp: i32,
     ) -> Self;
-
+    fn recip(self) -> Self;
+    fn rem_euclid(
+        self,
+        rhs: Self,
+    ) -> Self;
+    fn round(self) -> Self;
+    fn round_ties_even(self) -> Self;
+    fn signum(self) -> Self;
+    fn sin(self) -> Self;
+    fn sin_cos(self) -> (Self, Self);
+    fn sinh(self) -> Self;
     fn sqrt(self) -> Self;
+    fn tan(self) -> Self;
+    fn tanh(self) -> Self;
+    fn to_be_bytes(self) -> Self::Bytes;
+    fn to_bits(self) -> Self::Bits;
+    fn to_degrees(self) -> Self;
+    unsafe fn to_int_unchecked<Int>(self) -> Int
+    where
+        Self: FloatToInt<Int>;
+    fn to_le_bytes(self) -> Self::Bytes;
+    fn to_ne_bytes(self) -> Self::Bytes;
+    fn to_radians(self) -> Self;
+    fn total_cmp(
+        &self,
+        other: &Self,
+    ) -> Ordering;
+    fn trunc(self) -> Self;
+
+    fn algebraic_add(
+        self,
+        rhs: Self,
+    ) -> Self;
+    fn algebraic_sub(
+        self,
+        rhs: Self,
+    ) -> Self;
+    fn algebraic_mul(
+        self,
+        rhs: Self,
+    ) -> Self;
+    fn algebraic_div(
+        self,
+        rhs: Self,
+    ) -> Self;
+    fn algebraic_rem(
+        self,
+        rhs: Self,
+    ) -> Self;
 }
 //}}}
-//{{{ impl: Float for f32
-impl Float for f32
-{
-    fn acos(self) -> Self
-    {
-        self.acos()
-    }
-    fn clamp(
-        self,
-        min: Self,
-        max: Self,
-    ) -> Self
-    {
-        f32::clamp(self, min, max)
-    }
-    fn small() -> Self
-    {
-        f32::EPSILON
-    }
-    fn powi(
-        self,
-        exp: i32,
-    ) -> Self
-    {
-        self.powi(exp)
-    }
+//{{{ macro: impl_float
+macro_rules! impl_float {
+    ($type:ty, $bits:ty, $bytes:ty) => {
+        impl Float for $type
+        {
+            type Bits = $bits;
+            type Bytes = $bytes;
 
-    fn sqrt(self) -> Self
-    {
-        self.sqrt()
-    }
+            #[inline]
+            fn abs(self) -> Self
+            {
+                self.abs()
+            }
+
+            #[inline]
+            fn abs_sub(
+                self,
+                other: Self,
+            ) -> Self
+            {
+                #[allow(deprecated)]
+                {
+                    self.abs_sub(other)
+                }
+            }
+
+            #[inline]
+            fn acos(self) -> Self
+            {
+                self.acos()
+            }
+
+            #[inline]
+            fn acosh(self) -> Self
+            {
+                self.acosh()
+            }
+
+            #[inline]
+            fn asin(self) -> Self
+            {
+                self.asin()
+            }
+
+            #[inline]
+            fn asinh(self) -> Self
+            {
+                self.asinh()
+            }
+
+            #[inline]
+            fn atan(self) -> Self
+            {
+                self.atan()
+            }
+
+            #[inline]
+            fn atan2(
+                self,
+                other: Self,
+            ) -> Self
+            {
+                self.atan2(other)
+            }
+
+            #[inline]
+            fn atanh(self) -> Self
+            {
+                self.atanh()
+            }
+
+            #[inline]
+            fn cbrt(self) -> Self
+            {
+                self.cbrt()
+            }
+
+            #[inline]
+            fn ceil(self) -> Self
+            {
+                self.ceil()
+            }
+
+            #[inline]
+            fn clamp(
+                self,
+                min: Self,
+                max: Self,
+            ) -> Self
+            {
+                <$type>::clamp(self, min, max)
+            }
+
+            #[inline]
+            fn clamp_magnitude(
+                self,
+                limit: Self,
+            ) -> Self
+            {
+                self.clamp_magnitude(limit)
+            }
+
+            #[inline]
+            fn classify(self) -> FpCategory
+            {
+                self.classify()
+            }
+
+            #[inline]
+            fn copysign(
+                self,
+                sign: Self,
+            ) -> Self
+            {
+                self.copysign(sign)
+            }
+
+            #[inline]
+            fn cos(self) -> Self
+            {
+                self.cos()
+            }
+
+            #[inline]
+            fn cosh(self) -> Self
+            {
+                self.cosh()
+            }
+
+            #[inline]
+            fn div_euclid(
+                self,
+                rhs: Self,
+            ) -> Self
+            {
+                self.div_euclid(rhs)
+            }
+
+            #[inline]
+            fn erf(self) -> Self
+            {
+                self.erf()
+            }
+
+            #[inline]
+            fn erfc(self) -> Self
+            {
+                self.erfc()
+            }
+
+            #[inline]
+            fn exp(self) -> Self
+            {
+                self.exp()
+            }
+
+            #[inline]
+            fn exp2(self) -> Self
+            {
+                self.exp2()
+            }
+
+            #[inline]
+            fn exp_m1(self) -> Self
+            {
+                self.exp_m1()
+            }
+
+            #[inline]
+            fn floor(self) -> Self
+            {
+                self.floor()
+            }
+
+            #[inline]
+            fn fract(self) -> Self
+            {
+                self.fract()
+            }
+
+            #[inline]
+            fn from_be_bytes(bytes: Self::Bytes) -> Self
+            {
+                <$type>::from_be_bytes(bytes)
+            }
+
+            #[inline]
+            fn from_bits(v: Self::Bits) -> Self
+            {
+                <$type>::from_bits(v)
+            }
+
+            #[inline]
+            fn from_le_bytes(bytes: Self::Bytes) -> Self
+            {
+                <$type>::from_le_bytes(bytes)
+            }
+
+            #[inline]
+            fn from_ne_bytes(bytes: Self::Bytes) -> Self
+            {
+                <$type>::from_ne_bytes(bytes)
+            }
+
+            #[inline]
+            fn gamma(self) -> Self
+            {
+                self.gamma()
+            }
+
+            #[inline]
+            fn hypot(
+                self,
+                other: Self,
+            ) -> Self
+            {
+                self.hypot(other)
+            }
+
+            #[inline]
+            fn is_finite(self) -> bool
+            {
+                self.is_finite()
+            }
+
+            #[inline]
+            fn is_infinite(self) -> bool
+            {
+                self.is_infinite()
+            }
+
+            #[inline]
+            fn is_nan(self) -> bool
+            {
+                self.is_nan()
+            }
+
+            #[inline]
+            fn is_normal(self) -> bool
+            {
+                self.is_normal()
+            }
+
+            #[inline]
+            fn is_sign_negative(self) -> bool
+            {
+                self.is_sign_negative()
+            }
+
+            #[inline]
+            fn is_sign_positive(self) -> bool
+            {
+                self.is_sign_positive()
+            }
+
+            #[inline]
+            fn is_subnormal(self) -> bool
+            {
+                self.is_subnormal()
+            }
+
+            #[inline]
+            fn ln(self) -> Self
+            {
+                self.ln()
+            }
+
+            #[inline]
+            fn ln_1p(self) -> Self
+            {
+                self.ln_1p()
+            }
+
+            #[inline]
+            fn ln_gamma(self) -> (Self, i32)
+            {
+                self.ln_gamma()
+            }
+
+            #[inline]
+            fn log(
+                self,
+                base: Self,
+            ) -> Self
+            {
+                self.log(base)
+            }
+
+            #[inline]
+            fn log10(self) -> Self
+            {
+                self.log10()
+            }
+
+            #[inline]
+            fn log2(self) -> Self
+            {
+                self.log2()
+            }
+
+            #[inline]
+            fn max(
+                self,
+                other: Self,
+            ) -> Self
+            {
+                self.max(other)
+            }
+
+            #[inline]
+            fn maximum(
+                self,
+                other: Self,
+            ) -> Self
+            {
+                self.maximum(other)
+            }
+
+            #[inline]
+            fn midpoint(
+                self,
+                other: Self,
+            ) -> Self
+            {
+                self.midpoint(other)
+            }
+
+            #[inline]
+            fn min(
+                self,
+                other: Self,
+            ) -> Self
+            {
+                self.min(other)
+            }
+
+            #[inline]
+            fn minimum(
+                self,
+                other: Self,
+            ) -> Self
+            {
+                self.minimum(other)
+            }
+
+            #[inline]
+            fn mul_add(
+                self,
+                a: Self,
+                b: Self,
+            ) -> Self
+            {
+                self.mul_add(a, b)
+            }
+
+            #[inline]
+            fn next_down(self) -> Self
+            {
+                self.next_down()
+            }
+
+            #[inline]
+            fn next_up(self) -> Self
+            {
+                self.next_up()
+            }
+
+            #[inline]
+            fn powf(
+                self,
+                exp: Self,
+            ) -> Self
+            {
+                self.powf(exp)
+            }
+
+            #[inline]
+            fn powi(
+                self,
+                exp: i32,
+            ) -> Self
+            {
+                self.powi(exp)
+            }
+
+            #[inline]
+            fn recip(self) -> Self
+            {
+                self.recip()
+            }
+
+            #[inline]
+            fn rem_euclid(
+                self,
+                rhs: Self,
+            ) -> Self
+            {
+                self.rem_euclid(rhs)
+            }
+
+            #[inline]
+            fn round(self) -> Self
+            {
+                self.round()
+            }
+
+            #[inline]
+            fn round_ties_even(self) -> Self
+            {
+                self.round_ties_even()
+            }
+
+            #[inline]
+            fn signum(self) -> Self
+            {
+                self.signum()
+            }
+
+            #[inline]
+            fn sin(self) -> Self
+            {
+                self.sin()
+            }
+
+            #[inline]
+            fn sin_cos(self) -> (Self, Self)
+            {
+                self.sin_cos()
+            }
+
+            #[inline]
+            fn sinh(self) -> Self
+            {
+                self.sinh()
+            }
+
+            #[inline]
+            fn small() -> Self
+            {
+                <$type>::EPSILON
+            }
+
+            #[inline]
+            fn sqrt(self) -> Self
+            {
+                self.sqrt()
+            }
+
+            #[inline]
+            fn tan(self) -> Self
+            {
+                self.tan()
+            }
+
+            #[inline]
+            fn tanh(self) -> Self
+            {
+                self.tanh()
+            }
+
+            #[inline]
+            fn to_be_bytes(self) -> Self::Bytes
+            {
+                self.to_be_bytes()
+            }
+
+            #[inline]
+            fn to_bits(self) -> Self::Bits
+            {
+                self.to_bits()
+            }
+
+            #[inline]
+            fn to_degrees(self) -> Self
+            {
+                self.to_degrees()
+            }
+
+            #[inline]
+            unsafe fn to_int_unchecked<Int>(self) -> Int
+            where
+                Self: FloatToInt<Int>,
+            {
+                unsafe { <Self as FloatToInt<Int>>::to_int_unchecked(self) }
+            }
+
+            #[inline]
+            fn to_le_bytes(self) -> Self::Bytes
+            {
+                self.to_le_bytes()
+            }
+
+            #[inline]
+            fn to_ne_bytes(self) -> Self::Bytes
+            {
+                self.to_ne_bytes()
+            }
+
+            #[inline]
+            fn to_radians(self) -> Self
+            {
+                self.to_radians()
+            }
+
+            #[inline]
+            fn total_cmp(
+                &self,
+                other: &Self,
+            ) -> Ordering
+            {
+                self.total_cmp(other)
+            }
+
+            #[inline]
+            fn trunc(self) -> Self
+            {
+                self.trunc()
+            }
+
+            #[inline]
+            fn algebraic_add(
+                self,
+                rhs: Self,
+            ) -> Self
+            {
+                self.algebraic_add(rhs)
+            }
+
+            #[inline]
+            fn algebraic_sub(
+                self,
+                rhs: Self,
+            ) -> Self
+            {
+                self.algebraic_sub(rhs)
+            }
+
+            #[inline]
+            fn algebraic_mul(
+                self,
+                rhs: Self,
+            ) -> Self
+            {
+                self.algebraic_mul(rhs)
+            }
+
+            #[inline]
+            fn algebraic_div(
+                self,
+                rhs: Self,
+            ) -> Self
+            {
+                self.algebraic_div(rhs)
+            }
+
+            #[inline]
+            fn algebraic_rem(
+                self,
+                rhs: Self,
+            ) -> Self
+            {
+                self.algebraic_rem(rhs)
+            }
+        }
+    };
 }
 //}}}
-//{{{ impl: Float for f64
-impl Float for f64
-{
-    fn acos(self) -> Self
-    {
-        self.acos()
-    }
-    fn clamp(
-        self,
-        min: Self,
-        max: Self,
-    ) -> Self
-    {
-        f64::clamp(self, min, max)
-    }
-    fn small() -> Self
-    {
-        f64::EPSILON
-    }
-    fn powi(
-        self,
-        exp: i32,
-    ) -> Self
-    {
-        self.powi(exp)
-    }
-
-    fn sqrt(self) -> Self
-    {
-        self.sqrt()
-    }
-}
+//{{{ collection: impl_float implementations
+impl_float!(f32, u32, [u8; 4]);
+impl_float!(f64, u64, [u8; 8]);
 //}}}
 //{{{ trait: MatrixOps
 pub trait MatrixOps
