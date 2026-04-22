@@ -1,6 +1,4 @@
 use approx::assert_relative_eq;
-use std::cmp::Ordering;
-use std::num::FpCategory;
 use topohedral_linalg::Float;
 
 macro_rules! float_trait_smoke_test {
@@ -64,7 +62,6 @@ macro_rules! float_trait_smoke_test {
                 <$type as Float>::clamp_magnitude(-5.0 as $type, 3.0 as $type),
                 -3.0 as $type
             );
-            assert_eq!(<$type as Float>::classify(x), FpCategory::Normal);
             assert_eq!(<$type as Float>::copysign(x, y), -x);
             let sqrt_3_over_2 = (3.0 as $type).sqrt() / 2.0 as $type;
             assert_relative_eq!(
@@ -111,16 +108,6 @@ macro_rules! float_trait_smoke_test {
                 epsilon = $epsilon
             );
 
-            let bits = <$type as Float>::to_bits(x);
-            assert_eq!(<$type as Float>::from_bits(bits), x);
-
-            let be_bytes = <$type as Float>::to_be_bytes(x);
-            let le_bytes = <$type as Float>::to_le_bytes(x);
-            let ne_bytes = <$type as Float>::to_ne_bytes(x);
-            assert_eq!(<$type as Float>::from_be_bytes(be_bytes), x);
-            assert_eq!(<$type as Float>::from_le_bytes(le_bytes), x);
-            assert_eq!(<$type as Float>::from_ne_bytes(ne_bytes), x);
-
             assert_relative_eq!(
                 <$type as Float>::gamma(5.0 as $type),
                 24.0 as $type,
@@ -131,15 +118,6 @@ macro_rules! float_trait_smoke_test {
                 5.0 as $type,
                 epsilon = $epsilon
             );
-            assert!(<$type as Float>::is_finite(&x));
-            assert!(<$type as Float>::is_infinite(&<$type>::INFINITY));
-            assert!(<$type as Float>::is_nan(&<$type>::NAN));
-            assert!(<$type as Float>::is_normal(&x));
-            assert!(<$type as Float>::is_sign_negative(&(-1.0 as $type)));
-            assert!(<$type as Float>::is_sign_positive(&(1.0 as $type)));
-            assert!(<$type as Float>::is_subnormal(
-                &(<$type>::MIN_POSITIVE / 2.0 as $type)
-            ));
             assert_relative_eq!(
                 <$type as Float>::ln(e),
                 1.0 as $type,
@@ -150,10 +128,6 @@ macro_rules! float_trait_smoke_test {
                 (1.5 as $type).ln(),
                 epsilon = 10.0 as $type * $epsilon
             );
-
-            let (ln_gamma, sign) = <$type as Float>::ln_gamma(2.0 as $type);
-            assert_relative_eq!(ln_gamma, 0.0 as $type, epsilon = 10.0 as $type * $epsilon);
-            assert_eq!(sign, 1);
 
             assert_relative_eq!(
                 <$type as Float>::log(8.0 as $type, 2.0 as $type),
@@ -199,10 +173,6 @@ macro_rules! float_trait_smoke_test {
                 epsilon = $epsilon
             );
 
-            let (sin_theta, cos_theta) = <$type as Float>::sin_cos(theta);
-            assert_relative_eq!(sin_theta, 0.5 as $type, epsilon = $epsilon);
-            assert_relative_eq!(cos_theta, <$type as Float>::cos(theta), epsilon = $epsilon);
-
             assert_relative_eq!(
                 <$type as Float>::sinh(0.5 as $type),
                 (half_exp - neg_half_exp) / 2.0 as $type,
@@ -225,17 +195,10 @@ macro_rules! float_trait_smoke_test {
                 180.0 as $type
             );
 
-            let int_value = unsafe { <$type as Float>::to_int_unchecked::<u16>(4.75 as $type) };
-            assert_eq!(int_value, 4_u16);
-
             assert_relative_eq!(
                 <$type as Float>::to_radians(180.0 as $type),
                 std::f64::consts::PI as $type,
                 epsilon = 10.0 as $type * $epsilon
-            );
-            assert_eq!(
-                <$type as Float>::total_cmp(&(-0.0 as $type), &(0.0 as $type)),
-                Ordering::Less
             );
             assert_eq!(<$type as Float>::trunc(1.75 as $type), 1.0 as $type);
             assert_eq!(

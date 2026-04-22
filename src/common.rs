@@ -7,8 +7,7 @@ use crate::blaslapack::getrf::Getrf;
 //}}}
 //{{{ std imports
 use ::std::ops::{Add, Div, Mul, Neg, Sub};
-use std::cmp::{Ordering, PartialEq};
-use std::num::FpCategory;
+use std::cmp::PartialEq;
 use std::ops::{AddAssign, DivAssign, Index, IndexMut, MulAssign, SubAssign};
 
 //}}}
@@ -232,53 +231,9 @@ apply_for_all_integer_types!(impl_abs);
 //{{{ collection: re-exports
 pub use num_complex::Complex;
 //}}}
-//{{{ trait: FloatToInt
-/// Helper trait for converting floating-point values to integer types without
-/// runtime bounds checking.
-///
-/// # Safety
-///
-/// Implementors must ensure that [`FloatToInt::to_int_unchecked`] has the same
-/// safety contract and semantics as the corresponding primitive float
-/// conversion.
-pub unsafe trait FloatToInt<Int>
-{
-    /// Converts a floating-point value to an integer without checking that the
-    /// value is representable in the target type.
-    ///
-    /// # Safety
-    ///
-    /// The value must not be `NaN` or infinite, and after truncation its
-    /// integer part must be representable as `Int`.
-    unsafe fn to_int_unchecked(self) -> Int;
-}
-//}}}
-//{{{ macro: impl_float_to_int
-macro_rules! impl_float_to_int {
-    ($float:ty; $($int:ty),+ $(,)?) => {
-        $(
-            unsafe impl FloatToInt<$int> for $float
-            {
-                #[inline]
-                unsafe fn to_int_unchecked(self) -> $int
-                {
-                    unsafe { <$float>::to_int_unchecked::<$int>(self) }
-                }
-            }
-        )+
-    };
-}
-//}}}
-//{{{ collection: impl_float_to_int implementations
-impl_float_to_int!(f32; i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
-impl_float_to_int!(f64; i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
-//}}}
 //{{{ trait: Float
 pub trait Float: Field
 {
-    type Bits: Copy;
-    type Bytes: Copy;
-
     fn abs(self) -> Self;
     fn abs_sub(
         self,
@@ -305,7 +260,6 @@ pub trait Float: Field
         self,
         limit: Self,
     ) -> Self;
-    fn classify(self) -> FpCategory;
     fn copysign(
         self,
         sign: Self,
@@ -323,25 +277,13 @@ pub trait Float: Field
     fn exp_m1(self) -> Self;
     fn floor(self) -> Self;
     fn fract(self) -> Self;
-    fn from_be_bytes(bytes: Self::Bytes) -> Self;
-    fn from_bits(v: Self::Bits) -> Self;
-    fn from_le_bytes(bytes: Self::Bytes) -> Self;
-    fn from_ne_bytes(bytes: Self::Bytes) -> Self;
     fn gamma(self) -> Self;
     fn hypot(
         self,
         other: Self,
     ) -> Self;
-    fn is_finite(&self) -> bool;
-    fn is_infinite(&self) -> bool;
-    fn is_nan(&self) -> bool;
-    fn is_normal(&self) -> bool;
-    fn is_sign_negative(&self) -> bool;
-    fn is_sign_positive(&self) -> bool;
-    fn is_subnormal(&self) -> bool;
     fn ln(self) -> Self;
     fn ln_1p(self) -> Self;
-    fn ln_gamma(self) -> (Self, i32);
     fn log(
         self,
         base: Self,
@@ -393,31 +335,12 @@ pub trait Float: Field
     fn round_ties_even(self) -> Self;
     fn signum(self) -> Self;
     fn sin(self) -> Self;
-    fn sin_cos(self) -> (Self, Self);
     fn sinh(self) -> Self;
     fn sqrt(self) -> Self;
     fn tan(self) -> Self;
     fn tanh(self) -> Self;
-    fn to_be_bytes(self) -> Self::Bytes;
-    fn to_bits(self) -> Self::Bits;
     fn to_degrees(self) -> Self;
-    /// Converts a floating-point value to an integer without checking that the
-    /// value is representable in the target type.
-    ///
-    /// # Safety
-    ///
-    /// The value must not be `NaN` or infinite, and after truncation its
-    /// integer part must be representable as `Int`.
-    unsafe fn to_int_unchecked<Int>(self) -> Int
-    where
-        Self: FloatToInt<Int>;
-    fn to_le_bytes(self) -> Self::Bytes;
-    fn to_ne_bytes(self) -> Self::Bytes;
     fn to_radians(self) -> Self;
-    fn total_cmp(
-        &self,
-        other: &Self,
-    ) -> Ordering;
     fn trunc(self) -> Self;
 
     fn algebraic_add(
@@ -444,12 +367,9 @@ pub trait Float: Field
 //}}}
 //{{{ macro: impl_float
 macro_rules! impl_float {
-    ($type:ty, $bits:ty, $bytes:ty) => {
+    ($type:ty) => {
         impl Float for $type
         {
-            type Bits = $bits;
-            type Bytes = $bytes;
-
             #[inline]
             fn abs(self) -> Self
             {
@@ -545,12 +465,6 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn classify(self) -> FpCategory
-            {
-                self.classify()
-            }
-
-            #[inline]
             fn copysign(
                 self,
                 sign: Self,
@@ -623,30 +537,6 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn from_be_bytes(bytes: Self::Bytes) -> Self
-            {
-                <$type>::from_be_bytes(bytes)
-            }
-
-            #[inline]
-            fn from_bits(v: Self::Bits) -> Self
-            {
-                <$type>::from_bits(v)
-            }
-
-            #[inline]
-            fn from_le_bytes(bytes: Self::Bytes) -> Self
-            {
-                <$type>::from_le_bytes(bytes)
-            }
-
-            #[inline]
-            fn from_ne_bytes(bytes: Self::Bytes) -> Self
-            {
-                <$type>::from_ne_bytes(bytes)
-            }
-
-            #[inline]
             fn gamma(self) -> Self
             {
                 self.gamma()
@@ -662,48 +552,6 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn is_finite(&self) -> bool
-            {
-                <$type>::is_finite(*self)
-            }
-
-            #[inline]
-            fn is_infinite(&self) -> bool
-            {
-                <$type>::is_infinite(*self)
-            }
-
-            #[inline]
-            fn is_nan(&self) -> bool
-            {
-                <$type>::is_nan(*self)
-            }
-
-            #[inline]
-            fn is_normal(&self) -> bool
-            {
-                <$type>::is_normal(*self)
-            }
-
-            #[inline]
-            fn is_sign_negative(&self) -> bool
-            {
-                <$type>::is_sign_negative(*self)
-            }
-
-            #[inline]
-            fn is_sign_positive(&self) -> bool
-            {
-                <$type>::is_sign_positive(*self)
-            }
-
-            #[inline]
-            fn is_subnormal(&self) -> bool
-            {
-                <$type>::is_subnormal(*self)
-            }
-
-            #[inline]
             fn ln(self) -> Self
             {
                 self.ln()
@@ -713,12 +561,6 @@ macro_rules! impl_float {
             fn ln_1p(self) -> Self
             {
                 self.ln_1p()
-            }
-
-            #[inline]
-            fn ln_gamma(self) -> (Self, i32)
-            {
-                self.ln_gamma()
             }
 
             #[inline]
@@ -867,12 +709,6 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn sin_cos(self) -> (Self, Self)
-            {
-                self.sin_cos()
-            }
-
-            #[inline]
             fn sinh(self) -> Self
             {
                 self.sinh()
@@ -903,56 +739,15 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn to_be_bytes(self) -> Self::Bytes
-            {
-                self.to_be_bytes()
-            }
-
-            #[inline]
-            fn to_bits(self) -> Self::Bits
-            {
-                self.to_bits()
-            }
-
-            #[inline]
             fn to_degrees(self) -> Self
             {
                 self.to_degrees()
             }
 
             #[inline]
-            unsafe fn to_int_unchecked<Int>(self) -> Int
-            where
-                Self: FloatToInt<Int>,
-            {
-                unsafe { <Self as FloatToInt<Int>>::to_int_unchecked(self) }
-            }
-
-            #[inline]
-            fn to_le_bytes(self) -> Self::Bytes
-            {
-                self.to_le_bytes()
-            }
-
-            #[inline]
-            fn to_ne_bytes(self) -> Self::Bytes
-            {
-                self.to_ne_bytes()
-            }
-
-            #[inline]
             fn to_radians(self) -> Self
             {
                 self.to_radians()
-            }
-
-            #[inline]
-            fn total_cmp(
-                &self,
-                other: &Self,
-            ) -> Ordering
-            {
-                self.total_cmp(other)
             }
 
             #[inline]
@@ -1010,8 +805,8 @@ macro_rules! impl_float {
 }
 //}}}
 //{{{ collection: impl_float implementations
-impl_float!(f32, u32, [u8; 4]);
-impl_float!(f64, u64, [u8; 8]);
+impl_float!(f32);
+impl_float!(f64);
 //}}}
 //{{{ trait: MatrixOps
 pub trait MatrixOps
