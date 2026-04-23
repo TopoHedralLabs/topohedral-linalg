@@ -564,6 +564,38 @@ where
         self.subview_mut(0, self.nrows - 1, start_col, end_col)
     }
     //}}}
+    //{{{ fun: copy_from
+    /// Copies entries from `rhs` into this matrix.
+    ///
+    /// # Panics
+    ///
+    /// Panics when `rhs` dimensions do not match this matrix's dimensions.
+    pub fn copy_from<Rhs>(
+        &mut self,
+        rhs: Rhs,
+    ) where
+        Rhs: Shape + Index<(usize, usize), Output = T>,
+    {
+        let rhs_nrows = rhs.nrows();
+        let rhs_ncols = rhs.ncols();
+
+        if self.nrows != rhs_nrows || self.ncols != rhs_ncols
+        {
+            panic!(
+                "DMatrix::copy_from dimension mismatch: lhs is {}x{}, rhs is {}x{}",
+                self.nrows, self.ncols, rhs_nrows, rhs_ncols
+            );
+        }
+
+        for i in 0..self.nrows
+        {
+            for j in 0..self.ncols
+            {
+                (*self)[(i, j)] = rhs[(i, j)];
+            }
+        }
+    }
+    //}}}
     //{{{ fun: set_row
     /// Copies `rhs` into the row view at `row`.
     ///
