@@ -7,8 +7,7 @@ use crate::blaslapack::getrf::Getrf;
 //}}}
 //{{{ std imports
 use ::std::ops::{Add, Div, Mul, Neg, Sub};
-use std::cmp::{Ordering, PartialEq};
-use std::num::FpCategory;
+use std::cmp::PartialEq;
 use std::ops::{AddAssign, DivAssign, Index, IndexMut, MulAssign, SubAssign};
 
 //}}}
@@ -232,53 +231,9 @@ apply_for_all_integer_types!(impl_abs);
 //{{{ collection: re-exports
 pub use num_complex::Complex;
 //}}}
-//{{{ trait: FloatToInt
-/// Helper trait for converting floating-point values to integer types without
-/// runtime bounds checking.
-///
-/// # Safety
-///
-/// Implementors must ensure that [`FloatToInt::to_int_unchecked`] has the same
-/// safety contract and semantics as the corresponding primitive float
-/// conversion.
-pub unsafe trait FloatToInt<Int>
-{
-    /// Converts a floating-point value to an integer without checking that the
-    /// value is representable in the target type.
-    ///
-    /// # Safety
-    ///
-    /// The value must not be `NaN` or infinite, and after truncation its
-    /// integer part must be representable as `Int`.
-    unsafe fn to_int_unchecked(self) -> Int;
-}
-//}}}
-//{{{ macro: impl_float_to_int
-macro_rules! impl_float_to_int {
-    ($float:ty; $($int:ty),+ $(,)?) => {
-        $(
-            unsafe impl FloatToInt<$int> for $float
-            {
-                #[inline]
-                unsafe fn to_int_unchecked(self) -> $int
-                {
-                    unsafe { <$float>::to_int_unchecked::<$int>(self) }
-                }
-            }
-        )+
-    };
-}
-//}}}
-//{{{ collection: impl_float_to_int implementations
-impl_float_to_int!(f32; i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
-impl_float_to_int!(f64; i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
-//}}}
 //{{{ trait: Float
 pub trait Float: Field
 {
-    type Bits: Copy;
-    type Bytes: Copy;
-
     fn abs(self) -> Self;
     fn abs_sub(
         self,
@@ -305,7 +260,6 @@ pub trait Float: Field
         self,
         limit: Self,
     ) -> Self;
-    fn classify(self) -> FpCategory;
     fn copysign(
         self,
         sign: Self,
@@ -323,25 +277,13 @@ pub trait Float: Field
     fn exp_m1(self) -> Self;
     fn floor(self) -> Self;
     fn fract(self) -> Self;
-    fn from_be_bytes(bytes: Self::Bytes) -> Self;
-    fn from_bits(v: Self::Bits) -> Self;
-    fn from_le_bytes(bytes: Self::Bytes) -> Self;
-    fn from_ne_bytes(bytes: Self::Bytes) -> Self;
     fn gamma(self) -> Self;
     fn hypot(
         self,
         other: Self,
     ) -> Self;
-    fn is_finite(&self) -> bool;
-    fn is_infinite(&self) -> bool;
-    fn is_nan(&self) -> bool;
-    fn is_normal(&self) -> bool;
-    fn is_sign_negative(&self) -> bool;
-    fn is_sign_positive(&self) -> bool;
-    fn is_subnormal(&self) -> bool;
     fn ln(self) -> Self;
     fn ln_1p(self) -> Self;
-    fn ln_gamma(self) -> (Self, i32);
     fn log(
         self,
         base: Self,
@@ -393,31 +335,12 @@ pub trait Float: Field
     fn round_ties_even(self) -> Self;
     fn signum(self) -> Self;
     fn sin(self) -> Self;
-    fn sin_cos(self) -> (Self, Self);
     fn sinh(self) -> Self;
     fn sqrt(self) -> Self;
     fn tan(self) -> Self;
     fn tanh(self) -> Self;
-    fn to_be_bytes(self) -> Self::Bytes;
-    fn to_bits(self) -> Self::Bits;
     fn to_degrees(self) -> Self;
-    /// Converts a floating-point value to an integer without checking that the
-    /// value is representable in the target type.
-    ///
-    /// # Safety
-    ///
-    /// The value must not be `NaN` or infinite, and after truncation its
-    /// integer part must be representable as `Int`.
-    unsafe fn to_int_unchecked<Int>(self) -> Int
-    where
-        Self: FloatToInt<Int>;
-    fn to_le_bytes(self) -> Self::Bytes;
-    fn to_ne_bytes(self) -> Self::Bytes;
     fn to_radians(self) -> Self;
-    fn total_cmp(
-        &self,
-        other: &Self,
-    ) -> Ordering;
     fn trunc(self) -> Self;
 
     fn algebraic_add(
@@ -444,12 +367,9 @@ pub trait Float: Field
 //}}}
 //{{{ macro: impl_float
 macro_rules! impl_float {
-    ($type:ty, $bits:ty, $bytes:ty) => {
+    ($type:ty) => {
         impl Float for $type
         {
-            type Bits = $bits;
-            type Bytes = $bytes;
-
             #[inline]
             fn abs(self) -> Self
             {
@@ -545,12 +465,6 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn classify(self) -> FpCategory
-            {
-                self.classify()
-            }
-
-            #[inline]
             fn copysign(
                 self,
                 sign: Self,
@@ -623,30 +537,6 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn from_be_bytes(bytes: Self::Bytes) -> Self
-            {
-                <$type>::from_be_bytes(bytes)
-            }
-
-            #[inline]
-            fn from_bits(v: Self::Bits) -> Self
-            {
-                <$type>::from_bits(v)
-            }
-
-            #[inline]
-            fn from_le_bytes(bytes: Self::Bytes) -> Self
-            {
-                <$type>::from_le_bytes(bytes)
-            }
-
-            #[inline]
-            fn from_ne_bytes(bytes: Self::Bytes) -> Self
-            {
-                <$type>::from_ne_bytes(bytes)
-            }
-
-            #[inline]
             fn gamma(self) -> Self
             {
                 self.gamma()
@@ -662,48 +552,6 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn is_finite(&self) -> bool
-            {
-                <$type>::is_finite(*self)
-            }
-
-            #[inline]
-            fn is_infinite(&self) -> bool
-            {
-                <$type>::is_infinite(*self)
-            }
-
-            #[inline]
-            fn is_nan(&self) -> bool
-            {
-                <$type>::is_nan(*self)
-            }
-
-            #[inline]
-            fn is_normal(&self) -> bool
-            {
-                <$type>::is_normal(*self)
-            }
-
-            #[inline]
-            fn is_sign_negative(&self) -> bool
-            {
-                <$type>::is_sign_negative(*self)
-            }
-
-            #[inline]
-            fn is_sign_positive(&self) -> bool
-            {
-                <$type>::is_sign_positive(*self)
-            }
-
-            #[inline]
-            fn is_subnormal(&self) -> bool
-            {
-                <$type>::is_subnormal(*self)
-            }
-
-            #[inline]
             fn ln(self) -> Self
             {
                 self.ln()
@@ -713,12 +561,6 @@ macro_rules! impl_float {
             fn ln_1p(self) -> Self
             {
                 self.ln_1p()
-            }
-
-            #[inline]
-            fn ln_gamma(self) -> (Self, i32)
-            {
-                self.ln_gamma()
             }
 
             #[inline]
@@ -867,12 +709,6 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn sin_cos(self) -> (Self, Self)
-            {
-                self.sin_cos()
-            }
-
-            #[inline]
             fn sinh(self) -> Self
             {
                 self.sinh()
@@ -903,56 +739,15 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn to_be_bytes(self) -> Self::Bytes
-            {
-                self.to_be_bytes()
-            }
-
-            #[inline]
-            fn to_bits(self) -> Self::Bits
-            {
-                self.to_bits()
-            }
-
-            #[inline]
             fn to_degrees(self) -> Self
             {
                 self.to_degrees()
             }
 
             #[inline]
-            unsafe fn to_int_unchecked<Int>(self) -> Int
-            where
-                Self: FloatToInt<Int>,
-            {
-                unsafe { <Self as FloatToInt<Int>>::to_int_unchecked(self) }
-            }
-
-            #[inline]
-            fn to_le_bytes(self) -> Self::Bytes
-            {
-                self.to_le_bytes()
-            }
-
-            #[inline]
-            fn to_ne_bytes(self) -> Self::Bytes
-            {
-                self.to_ne_bytes()
-            }
-
-            #[inline]
             fn to_radians(self) -> Self
             {
                 self.to_radians()
-            }
-
-            #[inline]
-            fn total_cmp(
-                &self,
-                other: &Self,
-            ) -> Ordering
-            {
-                self.total_cmp(other)
             }
 
             #[inline]
@@ -1010,8 +805,8 @@ macro_rules! impl_float {
 }
 //}}}
 //{{{ collection: impl_float implementations
-impl_float!(f32, u32, [u8; 4]);
-impl_float!(f64, u64, [u8; 8]);
+impl_float!(f32);
+impl_float!(f64);
 //}}}
 //{{{ trait: MatrixOps
 pub trait MatrixOps
@@ -1328,47 +1123,223 @@ where
     }
 }
 //}}}
+//{{{ macro: float_transform_unary
+macro_rules! float_transform_unary {
+    ($method:ident, $methoded:ident, $into_methoded:ident) => {
+        fn $method(&mut self)
+        {
+            self.transform(|value| value.$method());
+        }
+
+        fn $methoded(&self) -> Self
+        where
+            Self: Clone,
+        {
+            self.transformed(|value| value.$method())
+        }
+
+        fn $into_methoded(self) -> Self
+        {
+            self.into_transformed(|value| value.$method())
+        }
+    };
+}
+//}}}
+//{{{ macro: float_transform_unary_with_arg
+macro_rules! float_transform_unary_with_arg {
+    ($method:ident, $methoded:ident, $into_methoded:ident, $arg:ident: $arg_type:ty) => {
+        fn $method(
+            &mut self,
+            $arg: $arg_type,
+        )
+        {
+            self.transform(|value| value.$method($arg));
+        }
+
+        fn $methoded(
+            &self,
+            $arg: $arg_type,
+        ) -> Self
+        where
+            Self: Clone,
+        {
+            self.transformed(|value| value.$method($arg))
+        }
+
+        fn $into_methoded(
+            self,
+            $arg: $arg_type,
+        ) -> Self
+        {
+            self.into_transformed(|value| value.$method($arg))
+        }
+    };
+}
+//}}}
+//{{{ macro: float_transform_unary_with_two_args
+macro_rules! float_transform_unary_with_two_args {
+    (
+        $method:ident,
+        $methoded:ident,
+        $into_methoded:ident,
+        $arg1:ident: $arg1_type:ty,
+        $arg2:ident: $arg2_type:ty
+    ) => {
+        fn $method(
+            &mut self,
+            $arg1: $arg1_type,
+            $arg2: $arg2_type,
+        )
+        {
+            self.transform(|value| value.$method($arg1, $arg2));
+        }
+
+        fn $methoded(
+            &self,
+            $arg1: $arg1_type,
+            $arg2: $arg2_type,
+        ) -> Self
+        where
+            Self: Clone,
+        {
+            self.transformed(|value| value.$method($arg1, $arg2))
+        }
+
+        fn $into_methoded(
+            self,
+            $arg1: $arg1_type,
+            $arg2: $arg2_type,
+        ) -> Self
+        {
+            self.into_transformed(|value| value.$method($arg1, $arg2))
+        }
+    };
+}
+//}}}
 //{{{ trait: FloatTransformOps
 pub trait FloatTransformOps: TransformOps
 where
     Self::ScalarType: Float,
 {
-    fn acos(&self) -> Self
-    where
-        Self: Clone,
-    {
-        self.transformed(|value| value.acos())
-    }
-
-    fn clamp(
-        &self,
+    float_transform_unary!(abs, absed, into_absed);
+    float_transform_unary_with_arg!(abs_sub, abs_subed, into_abs_subed, other: Self::ScalarType);
+    float_transform_unary!(acos, acosed, into_acosed);
+    float_transform_unary!(acosh, acoshed, into_acoshed);
+    float_transform_unary!(asin, asined, into_asined);
+    float_transform_unary!(asinh, asinhed, into_asinhed);
+    float_transform_unary!(atan, ataned, into_ataned);
+    float_transform_unary_with_arg!(atan2, atan2ed, into_atan2ed, other: Self::ScalarType);
+    float_transform_unary!(atanh, atanhed, into_atanhed);
+    float_transform_unary!(cbrt, cbrted, into_cbrted);
+    float_transform_unary!(ceil, ceiled, into_ceiled);
+    float_transform_unary_with_two_args!(
+        clamp,
+        clamped,
+        into_clamped,
         min: Self::ScalarType,
-        max: Self::ScalarType,
-    ) -> Self
+        max: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(
+        clamp_magnitude,
+        clamp_magnituded,
+        into_clamp_magnituded,
+        limit: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(copysign, copysigned, into_copysigned, sign: Self::ScalarType);
+    float_transform_unary!(cos, cosed, into_cosed);
+    float_transform_unary!(cosh, coshed, into_coshed);
+    float_transform_unary_with_arg!(div_euclid, div_euclided, into_div_euclided, rhs: Self::ScalarType);
+    float_transform_unary!(erf, erfed, into_erfed);
+    float_transform_unary!(erfc, erfced, into_erfced);
+    float_transform_unary!(exp, exped, into_exped);
+    float_transform_unary!(exp2, exp2ed, into_exp2ed);
+    float_transform_unary!(exp_m1, exp_m1ed, into_exp_m1ed);
+    float_transform_unary!(floor, floored, into_floored);
+    float_transform_unary!(fract, fracted, into_fracted);
+    float_transform_unary!(gamma, gammaed, into_gammaed);
+    float_transform_unary_with_arg!(hypot, hypoted, into_hypoted, other: Self::ScalarType);
+    float_transform_unary!(ln, lned, into_lned);
+    float_transform_unary!(ln_1p, ln_1ped, into_ln_1ped);
+    float_transform_unary_with_arg!(log, loged, into_loged, base: Self::ScalarType);
+    float_transform_unary!(log10, log10ed, into_log10ed);
+    float_transform_unary!(log2, log2ed, into_log2ed);
+    float_transform_unary_with_arg!(max, maxed, into_maxed, other: Self::ScalarType);
+    float_transform_unary_with_arg!(maximum, maximumed, into_maximumed, other: Self::ScalarType);
+    float_transform_unary_with_arg!(midpoint, midpointed, into_midpointed, other: Self::ScalarType);
+    float_transform_unary_with_arg!(min, mined, into_mined, other: Self::ScalarType);
+    float_transform_unary_with_arg!(minimum, minimumed, into_minimumed, other: Self::ScalarType);
+    float_transform_unary_with_two_args!(
+        mul_add,
+        mul_added,
+        into_mul_added,
+        a: Self::ScalarType,
+        b: Self::ScalarType
+    );
+    float_transform_unary!(next_down, next_downed, into_next_downed);
+    float_transform_unary!(next_up, next_uped, into_next_uped);
+    float_transform_unary_with_arg!(powf, powfed, into_powfed, exp: Self::ScalarType);
+    float_transform_unary_with_arg!(powi, powied, into_powied, exp: i32);
+    float_transform_unary!(recip, reciped, into_reciped);
+    float_transform_unary_with_arg!(rem_euclid, rem_euclided, into_rem_euclided, rhs: Self::ScalarType);
+    float_transform_unary!(round, rounded, into_rounded);
+    float_transform_unary!(round_ties_even, round_ties_evened, into_round_ties_evened);
+    float_transform_unary!(signum, signumed, into_signumed);
+    float_transform_unary!(sin, sined, into_sined);
+    float_transform_unary!(sinh, sinhed, into_sinhed);
+    float_transform_unary!(sqrt, sqrted, into_sqrted);
+    float_transform_unary!(tan, taned, into_taned);
+    float_transform_unary!(tanh, tanhed, into_tanhed);
+    float_transform_unary!(to_degrees, to_degreesed, into_to_degreesed);
+    float_transform_unary!(to_radians, to_radiansed, into_to_radiansed);
+    float_transform_unary!(trunc, trunced, into_trunced);
+    float_transform_unary_with_arg!(
+        algebraic_add,
+        algebraic_added,
+        into_algebraic_added,
+        rhs: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(
+        algebraic_sub,
+        algebraic_subed,
+        into_algebraic_subed,
+        rhs: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(
+        algebraic_mul,
+        algebraic_muled,
+        into_algebraic_muled,
+        rhs: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(
+        algebraic_div,
+        algebraic_dived,
+        into_algebraic_dived,
+        rhs: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(
+        algebraic_rem,
+        algebraic_remed,
+        into_algebraic_remed,
+        rhs: Self::ScalarType
+    );
+
+    fn pos(&mut self)
     where
-        Self: Clone,
+        Self::ScalarType: Zero,
     {
-        self.transformed(|value| value.clamp(min, max))
+        self.transform(|value| {
+            if value > Self::ScalarType::zero()
+            {
+                value
+            }
+            else
+            {
+                Self::ScalarType::zero()
+            }
+        });
     }
 
-    fn powi(
-        &self,
-        exp: i32,
-    ) -> Self
-    where
-        Self: Clone,
-    {
-        self.transformed(|value| value.powi(exp))
-    }
-
-    fn sqrt(&self) -> Self
-    where
-        Self: Clone,
-    {
-        self.transformed(|value| value.sqrt())
-    }
-
-    fn pos(&self) -> Self
+    fn posed(&self) -> Self
     where
         Self: Clone,
         Self::ScalarType: Zero,
@@ -1385,7 +1356,31 @@ where
         })
     }
 
-    fn neg(&self) -> Self
+    fn into_posed(mut self) -> Self
+    where
+        Self::ScalarType: Zero,
+    {
+        self.pos();
+        self
+    }
+
+    fn neg(&mut self)
+    where
+        Self::ScalarType: Zero,
+    {
+        self.transform(|value| {
+            if value <= Self::ScalarType::zero()
+            {
+                value
+            }
+            else
+            {
+                Self::ScalarType::zero()
+            }
+        });
+    }
+
+    fn neged(&self) -> Self
     where
         Self: Clone,
         Self::ScalarType: Zero,
@@ -1400,6 +1395,14 @@ where
                 Self::ScalarType::zero()
             }
         })
+    }
+
+    fn into_neged(mut self) -> Self
+    where
+        Self::ScalarType: Zero,
+    {
+        self.neg();
+        self
     }
 }
 //}}}

@@ -25,8 +25,8 @@ mod expression;
 //}}}
 //{{{ collection: public API
 pub use common::{
-    Abs, Complex, Dimension, Float, FloatToInt, FloatTransformOps, FloatVectorOps, GreaterThan,
-    MatMul, MatrixOps, ReduceOps, Shape, TransformOps, VectorOps,
+    Abs, Complex, Dimension, Float, FloatTransformOps, FloatVectorOps, GreaterThan, MatMul,
+    MatrixOps, ReduceOps, Shape, TransformOps, VectorOps,
 };
 pub mod dmatrix;
 pub mod dvector;
