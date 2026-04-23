@@ -504,40 +504,40 @@ mod smatrix_tests
         let pos_expected = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 0.0, 0.0, 4.0, 0.0, 9.0]);
         let neg_expected = SMatrix::<f64, 2, 3>::from_row_slice(&[0.0, 0.0, -1.0, 0.0, -4.0, 0.0]);
 
-        let mut in_place_acos = acos_input.clone();
+        let mut in_place_acos = acos_input;
         in_place_acos.acos();
         assert_matrix_eq_f64(&in_place_acos, &acos_expected);
         assert_matrix_eq_f64(&acos_input.acosed(), &acos_expected);
-        assert_matrix_eq_f64(&acos_input.clone().into_acosed(), &acos_expected);
+        assert_matrix_eq_f64(&acos_input.into_acosed(), &acos_expected);
 
-        let mut in_place_powi = matrix.clone();
+        let mut in_place_powi = matrix;
         in_place_powi.powi(2);
         assert_matrix_eq_f64(&in_place_powi, &powi_expected);
         assert_matrix_eq_f64(&matrix.powied(2), &powi_expected);
-        assert_matrix_eq_f64(&matrix.clone().into_powied(2), &powi_expected);
+        assert_matrix_eq_f64(&matrix.into_powied(2), &powi_expected);
 
-        let mut in_place_clamp = matrix.clone();
+        let mut in_place_clamp = matrix;
         in_place_clamp.clamp(-1.0, 1.0);
         assert_matrix_eq_f64(&in_place_clamp, &clamp_expected);
         assert_matrix_eq_f64(&matrix.clamped(-1.0, 1.0), &clamp_expected);
-        assert_matrix_eq_f64(&matrix.clone().into_clamped(-1.0, 1.0), &clamp_expected);
+        assert_matrix_eq_f64(&matrix.into_clamped(-1.0, 1.0), &clamp_expected);
 
-        let mut in_place_pos = matrix.clone();
+        let mut in_place_pos = matrix;
         in_place_pos.pos();
         assert_matrix_eq_f64(&in_place_pos, &pos_expected);
         assert_matrix_eq_f64(&matrix.posed(), &pos_expected);
-        assert_matrix_eq_f64(&matrix.clone().into_posed(), &pos_expected);
+        assert_matrix_eq_f64(&matrix.into_posed(), &pos_expected);
 
-        let mut in_place_neg = matrix.clone();
+        let mut in_place_neg = matrix;
         in_place_neg.neg();
         assert_matrix_eq_f64(&in_place_neg, &neg_expected);
         assert_matrix_eq_f64(&matrix.neged(), &neg_expected);
-        assert_matrix_eq_f64(&matrix.clone().into_neged(), &neg_expected);
+        assert_matrix_eq_f64(&matrix.into_neged(), &neg_expected);
 
         let sqrt_input = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 4.0, 9.0, 16.0]);
         let sqrt_expected = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0]);
 
-        let mut in_place_sqrt = sqrt_input.clone();
+        let mut in_place_sqrt = sqrt_input;
         in_place_sqrt.sqrt();
         assert_matrix_eq_f64(&in_place_sqrt, &sqrt_expected);
         assert_matrix_eq_f64(&sqrt_input.sqrted(), &sqrt_expected);
