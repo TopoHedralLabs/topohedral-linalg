@@ -467,6 +467,54 @@ mod dmatrix_tests
     }
 
     #[test]
+    fn test_matrix_copy_from_borrowed_and_moved()
+    {
+        let mut m = DMatrix::<i32>::zeros(2, 3);
+        let borrowed_rhs = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6], 2, 3);
+        m.copy_from(&borrowed_rhs);
+
+        for (val, exp) in m.iter().zip([1, 4, 2, 5, 3, 6].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+
+        let moved_rhs = DMatrix::<i32>::from_row_slice(&[7, 8, 9, 10, 11, 12], 2, 3);
+        m.copy_from(moved_rhs);
+
+        for (val, exp) in m.iter().zip([7, 10, 8, 11, 9, 12].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_matrix_copy_from_borrowed_views()
+    {
+        let mut m = DMatrix::<i32>::zeros(2, 2);
+        let rhs_source = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9], 3, 3);
+
+        let rhs_view = rhs_source.subview(1, 2, 1, 2);
+        m.copy_from(&rhs_view);
+
+        let expected_a = DMatrix::<i32>::from_row_slice(&[5, 6, 8, 9], 2, 2);
+        for (val, exp) in m.iter().zip(expected_a.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+
+        let mut rhs_source_mut =
+            DMatrix::<i32>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18], 3, 3);
+        let mut rhs_view_mut = rhs_source_mut.subview_mut(0, 1, 0, 1);
+        m.copy_from(&mut rhs_view_mut);
+
+        let expected_b = DMatrix::<i32>::from_row_slice(&[10, 11, 13, 14], 2, 2);
+        for (val, exp) in m.iter().zip(expected_b.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
     fn test_set_row_borrowed_and_moved()
     {
         let mut m = DMatrix::<i32>::zeros(3, 4);
@@ -552,6 +600,14 @@ mod dmatrix_tests
         let mut m = DMatrix::<i32>::zeros(4, 4);
         m.subview_mut(0, 1, 0, 1)
             .copy_from(DMatrix::<i32>::zeros(1, 3));
+    }
+
+    #[test]
+    #[should_panic(expected = "dimension mismatch")]
+    fn test_matrix_copy_from_dimension_mismatch_panics()
+    {
+        let mut m = DMatrix::<i32>::zeros(2, 3);
+        m.copy_from(DMatrix::<i32>::zeros(3, 2));
     }
 }
 //}}}
@@ -973,6 +1029,54 @@ mod smatrix_tests
     }
 
     #[test]
+    fn test_matrix_copy_from_borrowed_and_moved()
+    {
+        let mut m = SMatrix::<i32, 2, 3>::zeros();
+        let borrowed_rhs = SMatrix::<i32, 2, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6]);
+        m.copy_from(&borrowed_rhs);
+
+        for (val, exp) in m.iter().zip([1, 4, 2, 5, 3, 6].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+
+        let moved_rhs = SMatrix::<i32, 2, 3>::from_row_slice(&[7, 8, 9, 10, 11, 12]);
+        m.copy_from(moved_rhs);
+
+        for (val, exp) in m.iter().zip([7, 10, 8, 11, 9, 12].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
+    fn test_matrix_copy_from_borrowed_views()
+    {
+        let mut m = SMatrix::<i32, 2, 2>::zeros();
+        let rhs_source = SMatrix::<i32, 3, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+        let rhs_view = rhs_source.subview(1, 2, 1, 2);
+        m.copy_from(&rhs_view);
+
+        let expected_a = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 8, 9]);
+        for (val, exp) in m.iter().zip(expected_a.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+
+        let mut rhs_source_mut =
+            SMatrix::<i32, 3, 3>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18]);
+        let mut rhs_view_mut = rhs_source_mut.subview_mut(0, 1, 0, 1);
+        m.copy_from(&mut rhs_view_mut);
+
+        let expected_b = SMatrix::<i32, 2, 2>::from_row_slice(&[10, 11, 13, 14]);
+        for (val, exp) in m.iter().zip(expected_b.iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
     fn test_set_row_borrowed_and_moved()
     {
         let mut m = SMatrix::<i32, 3, 4>::zeros();
@@ -1058,6 +1162,14 @@ mod smatrix_tests
         let mut m = SMatrix::<i32, 4, 4>::zeros();
         m.subview_mut(0, 1, 0, 1)
             .copy_from(SMatrix::<i32, 1, 3>::zeros());
+    }
+
+    #[test]
+    #[should_panic(expected = "dimension mismatch")]
+    fn test_matrix_copy_from_dimension_mismatch_panics()
+    {
+        let mut m = SMatrix::<i32, 2, 3>::zeros();
+        m.copy_from(SMatrix::<i32, 3, 2>::zeros());
     }
 }
 //}}}
