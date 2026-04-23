@@ -1123,47 +1123,223 @@ where
     }
 }
 //}}}
+//{{{ macro: float_transform_unary
+macro_rules! float_transform_unary {
+    ($method:ident, $methoded:ident, $into_methoded:ident) => {
+        fn $method(&mut self)
+        {
+            self.transform(|value| value.$method());
+        }
+
+        fn $methoded(&self) -> Self
+        where
+            Self: Clone,
+        {
+            self.transformed(|value| value.$method())
+        }
+
+        fn $into_methoded(self) -> Self
+        {
+            self.into_transformed(|value| value.$method())
+        }
+    };
+}
+//}}}
+//{{{ macro: float_transform_unary_with_arg
+macro_rules! float_transform_unary_with_arg {
+    ($method:ident, $methoded:ident, $into_methoded:ident, $arg:ident: $arg_type:ty) => {
+        fn $method(
+            &mut self,
+            $arg: $arg_type,
+        )
+        {
+            self.transform(|value| value.$method($arg));
+        }
+
+        fn $methoded(
+            &self,
+            $arg: $arg_type,
+        ) -> Self
+        where
+            Self: Clone,
+        {
+            self.transformed(|value| value.$method($arg))
+        }
+
+        fn $into_methoded(
+            self,
+            $arg: $arg_type,
+        ) -> Self
+        {
+            self.into_transformed(|value| value.$method($arg))
+        }
+    };
+}
+//}}}
+//{{{ macro: float_transform_unary_with_two_args
+macro_rules! float_transform_unary_with_two_args {
+    (
+        $method:ident,
+        $methoded:ident,
+        $into_methoded:ident,
+        $arg1:ident: $arg1_type:ty,
+        $arg2:ident: $arg2_type:ty
+    ) => {
+        fn $method(
+            &mut self,
+            $arg1: $arg1_type,
+            $arg2: $arg2_type,
+        )
+        {
+            self.transform(|value| value.$method($arg1, $arg2));
+        }
+
+        fn $methoded(
+            &self,
+            $arg1: $arg1_type,
+            $arg2: $arg2_type,
+        ) -> Self
+        where
+            Self: Clone,
+        {
+            self.transformed(|value| value.$method($arg1, $arg2))
+        }
+
+        fn $into_methoded(
+            self,
+            $arg1: $arg1_type,
+            $arg2: $arg2_type,
+        ) -> Self
+        {
+            self.into_transformed(|value| value.$method($arg1, $arg2))
+        }
+    };
+}
+//}}}
 //{{{ trait: FloatTransformOps
 pub trait FloatTransformOps: TransformOps
 where
     Self::ScalarType: Float,
 {
-    fn acos(&self) -> Self
-    where
-        Self: Clone,
-    {
-        self.transformed(|value| value.acos())
-    }
-
-    fn clamp(
-        &self,
+    float_transform_unary!(abs, absed, into_absed);
+    float_transform_unary_with_arg!(abs_sub, abs_subed, into_abs_subed, other: Self::ScalarType);
+    float_transform_unary!(acos, acosed, into_acosed);
+    float_transform_unary!(acosh, acoshed, into_acoshed);
+    float_transform_unary!(asin, asined, into_asined);
+    float_transform_unary!(asinh, asinhed, into_asinhed);
+    float_transform_unary!(atan, ataned, into_ataned);
+    float_transform_unary_with_arg!(atan2, atan2ed, into_atan2ed, other: Self::ScalarType);
+    float_transform_unary!(atanh, atanhed, into_atanhed);
+    float_transform_unary!(cbrt, cbrted, into_cbrted);
+    float_transform_unary!(ceil, ceiled, into_ceiled);
+    float_transform_unary_with_two_args!(
+        clamp,
+        clamped,
+        into_clamped,
         min: Self::ScalarType,
-        max: Self::ScalarType,
-    ) -> Self
+        max: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(
+        clamp_magnitude,
+        clamp_magnituded,
+        into_clamp_magnituded,
+        limit: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(copysign, copysigned, into_copysigned, sign: Self::ScalarType);
+    float_transform_unary!(cos, cosed, into_cosed);
+    float_transform_unary!(cosh, coshed, into_coshed);
+    float_transform_unary_with_arg!(div_euclid, div_euclided, into_div_euclided, rhs: Self::ScalarType);
+    float_transform_unary!(erf, erfed, into_erfed);
+    float_transform_unary!(erfc, erfced, into_erfced);
+    float_transform_unary!(exp, exped, into_exped);
+    float_transform_unary!(exp2, exp2ed, into_exp2ed);
+    float_transform_unary!(exp_m1, exp_m1ed, into_exp_m1ed);
+    float_transform_unary!(floor, floored, into_floored);
+    float_transform_unary!(fract, fracted, into_fracted);
+    float_transform_unary!(gamma, gammaed, into_gammaed);
+    float_transform_unary_with_arg!(hypot, hypoted, into_hypoted, other: Self::ScalarType);
+    float_transform_unary!(ln, lned, into_lned);
+    float_transform_unary!(ln_1p, ln_1ped, into_ln_1ped);
+    float_transform_unary_with_arg!(log, loged, into_loged, base: Self::ScalarType);
+    float_transform_unary!(log10, log10ed, into_log10ed);
+    float_transform_unary!(log2, log2ed, into_log2ed);
+    float_transform_unary_with_arg!(max, maxed, into_maxed, other: Self::ScalarType);
+    float_transform_unary_with_arg!(maximum, maximumed, into_maximumed, other: Self::ScalarType);
+    float_transform_unary_with_arg!(midpoint, midpointed, into_midpointed, other: Self::ScalarType);
+    float_transform_unary_with_arg!(min, mined, into_mined, other: Self::ScalarType);
+    float_transform_unary_with_arg!(minimum, minimumed, into_minimumed, other: Self::ScalarType);
+    float_transform_unary_with_two_args!(
+        mul_add,
+        mul_added,
+        into_mul_added,
+        a: Self::ScalarType,
+        b: Self::ScalarType
+    );
+    float_transform_unary!(next_down, next_downed, into_next_downed);
+    float_transform_unary!(next_up, next_uped, into_next_uped);
+    float_transform_unary_with_arg!(powf, powfed, into_powfed, exp: Self::ScalarType);
+    float_transform_unary_with_arg!(powi, powied, into_powied, exp: i32);
+    float_transform_unary!(recip, reciped, into_reciped);
+    float_transform_unary_with_arg!(rem_euclid, rem_euclided, into_rem_euclided, rhs: Self::ScalarType);
+    float_transform_unary!(round, rounded, into_rounded);
+    float_transform_unary!(round_ties_even, round_ties_evened, into_round_ties_evened);
+    float_transform_unary!(signum, signumed, into_signumed);
+    float_transform_unary!(sin, sined, into_sined);
+    float_transform_unary!(sinh, sinhed, into_sinhed);
+    float_transform_unary!(sqrt, sqrted, into_sqrted);
+    float_transform_unary!(tan, taned, into_taned);
+    float_transform_unary!(tanh, tanhed, into_tanhed);
+    float_transform_unary!(to_degrees, to_degreesed, into_to_degreesed);
+    float_transform_unary!(to_radians, to_radiansed, into_to_radiansed);
+    float_transform_unary!(trunc, trunced, into_trunced);
+    float_transform_unary_with_arg!(
+        algebraic_add,
+        algebraic_added,
+        into_algebraic_added,
+        rhs: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(
+        algebraic_sub,
+        algebraic_subed,
+        into_algebraic_subed,
+        rhs: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(
+        algebraic_mul,
+        algebraic_muled,
+        into_algebraic_muled,
+        rhs: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(
+        algebraic_div,
+        algebraic_dived,
+        into_algebraic_dived,
+        rhs: Self::ScalarType
+    );
+    float_transform_unary_with_arg!(
+        algebraic_rem,
+        algebraic_remed,
+        into_algebraic_remed,
+        rhs: Self::ScalarType
+    );
+
+    fn pos(&mut self)
     where
-        Self: Clone,
+        Self::ScalarType: Zero,
     {
-        self.transformed(|value| value.clamp(min, max))
+        self.transform(|value| {
+            if value > Self::ScalarType::zero()
+            {
+                value
+            }
+            else
+            {
+                Self::ScalarType::zero()
+            }
+        });
     }
 
-    fn powi(
-        &self,
-        exp: i32,
-    ) -> Self
-    where
-        Self: Clone,
-    {
-        self.transformed(|value| value.powi(exp))
-    }
-
-    fn sqrt(&self) -> Self
-    where
-        Self: Clone,
-    {
-        self.transformed(|value| value.sqrt())
-    }
-
-    fn pos(&self) -> Self
+    fn posed(&self) -> Self
     where
         Self: Clone,
         Self::ScalarType: Zero,
@@ -1180,7 +1356,31 @@ where
         })
     }
 
-    fn neg(&self) -> Self
+    fn into_posed(mut self) -> Self
+    where
+        Self::ScalarType: Zero,
+    {
+        self.pos();
+        self
+    }
+
+    fn neg(&mut self)
+    where
+        Self::ScalarType: Zero,
+    {
+        self.transform(|value| {
+            if value <= Self::ScalarType::zero()
+            {
+                value
+            }
+            else
+            {
+                Self::ScalarType::zero()
+            }
+        });
+    }
+
+    fn neged(&self) -> Self
     where
         Self: Clone,
         Self::ScalarType: Zero,
@@ -1195,6 +1395,14 @@ where
                 Self::ScalarType::zero()
             }
         })
+    }
+
+    fn into_neged(mut self) -> Self
+    where
+        Self::ScalarType: Zero,
+    {
+        self.neg();
+        self
     }
 }
 //}}}

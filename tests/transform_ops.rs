@@ -36,6 +36,52 @@ mod dmatrix_tests
         }
     }
 
+    macro_rules! smoke_float_transform_unary {
+        ($method:ident, $methoded:ident, $into_methoded:ident, $value:expr) => {{
+            let mut matrix = DMatrix::<f64>::from_row_slice(&[$value], 1, 1);
+            matrix.$method();
+
+            let matrix = DMatrix::<f64>::from_row_slice(&[$value], 1, 1);
+            let _ = matrix.$methoded();
+
+            let matrix = DMatrix::<f64>::from_row_slice(&[$value], 1, 1);
+            let _ = matrix.$into_methoded();
+        }};
+    }
+
+    macro_rules! smoke_float_transform_with_arg {
+        ($method:ident, $methoded:ident, $into_methoded:ident, $value:expr, $arg:expr) => {{
+            let mut matrix = DMatrix::<f64>::from_row_slice(&[$value], 1, 1);
+            matrix.$method($arg);
+
+            let matrix = DMatrix::<f64>::from_row_slice(&[$value], 1, 1);
+            let _ = matrix.$methoded($arg);
+
+            let matrix = DMatrix::<f64>::from_row_slice(&[$value], 1, 1);
+            let _ = matrix.$into_methoded($arg);
+        }};
+    }
+
+    macro_rules! smoke_float_transform_with_two_args {
+        (
+            $method:ident,
+            $methoded:ident,
+            $into_methoded:ident,
+            $value:expr,
+            $arg1:expr,
+            $arg2:expr
+        ) => {{
+            let mut matrix = DMatrix::<f64>::from_row_slice(&[$value], 1, 1);
+            matrix.$method($arg1, $arg2);
+
+            let matrix = DMatrix::<f64>::from_row_slice(&[$value], 1, 1);
+            let _ = matrix.$methoded($arg1, $arg2);
+
+            let matrix = DMatrix::<f64>::from_row_slice(&[$value], 1, 1);
+            let _ = matrix.$into_methoded($arg1, $arg2);
+        }};
+    }
+
     #[test]
     fn test_transform_mutates_in_place_and_preserves_shape()
     {
@@ -137,15 +183,149 @@ mod dmatrix_tests
         let pos_expected = DMatrix::<f64>::from_row_slice(&[1.0, 0.0, 0.0, 4.0, 0.0, 9.0], 2, 3);
         let neg_expected = DMatrix::<f64>::from_row_slice(&[0.0, 0.0, -1.0, 0.0, -4.0, 0.0], 2, 3);
 
-        assert_matrix_eq_f64(&acos_input.acos(), &acos_expected);
-        assert_matrix_eq_f64(&matrix.powi(2), &powi_expected);
-        assert_matrix_eq_f64(&matrix.clamp(-1.0, 1.0), &clamp_expected);
-        assert_matrix_eq_f64(&matrix.pos(), &pos_expected);
-        assert_matrix_eq_f64(&matrix.neg(), &neg_expected);
+        let mut in_place_acos = acos_input.clone();
+        in_place_acos.acos();
+        assert_matrix_eq_f64(&in_place_acos, &acos_expected);
+        assert_matrix_eq_f64(&acos_input.acosed(), &acos_expected);
+        assert_matrix_eq_f64(&acos_input.clone().into_acosed(), &acos_expected);
+
+        let mut in_place_powi = matrix.clone();
+        in_place_powi.powi(2);
+        assert_matrix_eq_f64(&in_place_powi, &powi_expected);
+        assert_matrix_eq_f64(&matrix.powied(2), &powi_expected);
+        assert_matrix_eq_f64(&matrix.clone().into_powied(2), &powi_expected);
+
+        let mut in_place_clamp = matrix.clone();
+        in_place_clamp.clamp(-1.0, 1.0);
+        assert_matrix_eq_f64(&in_place_clamp, &clamp_expected);
+        assert_matrix_eq_f64(&matrix.clamped(-1.0, 1.0), &clamp_expected);
+        assert_matrix_eq_f64(&matrix.clone().into_clamped(-1.0, 1.0), &clamp_expected);
+
+        let mut in_place_pos = matrix.clone();
+        in_place_pos.pos();
+        assert_matrix_eq_f64(&in_place_pos, &pos_expected);
+        assert_matrix_eq_f64(&matrix.posed(), &pos_expected);
+        assert_matrix_eq_f64(&matrix.clone().into_posed(), &pos_expected);
+
+        let mut in_place_neg = matrix.clone();
+        in_place_neg.neg();
+        assert_matrix_eq_f64(&in_place_neg, &neg_expected);
+        assert_matrix_eq_f64(&matrix.neged(), &neg_expected);
+        assert_matrix_eq_f64(&matrix.clone().into_neged(), &neg_expected);
 
         let sqrt_input = DMatrix::<f64>::from_row_slice(&[1.0, 4.0, 9.0, 16.0], 2, 2);
         let sqrt_expected = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0], 2, 2);
-        assert_matrix_eq_f64(&sqrt_input.sqrt(), &sqrt_expected);
+
+        let mut in_place_sqrt = sqrt_input.clone();
+        in_place_sqrt.sqrt();
+        assert_matrix_eq_f64(&in_place_sqrt, &sqrt_expected);
+        assert_matrix_eq_f64(&sqrt_input.sqrted(), &sqrt_expected);
+        assert_matrix_eq_f64(&sqrt_input.into_sqrted(), &sqrt_expected);
+    }
+
+    #[test]
+    fn test_float_transform_helper_surface_smoke()
+    {
+        smoke_float_transform_unary!(abs, absed, into_absed, -1.25);
+        smoke_float_transform_with_arg!(abs_sub, abs_subed, into_abs_subed, 1.25, 0.5);
+        smoke_float_transform_unary!(acos, acosed, into_acosed, 0.5);
+        smoke_float_transform_unary!(acosh, acoshed, into_acoshed, 1.5);
+        smoke_float_transform_unary!(asin, asined, into_asined, 0.5);
+        smoke_float_transform_unary!(asinh, asinhed, into_asinhed, 1.5);
+        smoke_float_transform_unary!(atan, ataned, into_ataned, 0.5);
+        smoke_float_transform_with_arg!(atan2, atan2ed, into_atan2ed, 1.0, 1.0);
+        smoke_float_transform_unary!(atanh, atanhed, into_atanhed, 0.25);
+        smoke_float_transform_unary!(cbrt, cbrted, into_cbrted, 8.0);
+        smoke_float_transform_unary!(ceil, ceiled, into_ceiled, 1.25);
+        smoke_float_transform_with_two_args!(clamp, clamped, into_clamped, 3.0, -1.0, 2.0);
+        smoke_float_transform_with_arg!(
+            clamp_magnitude,
+            clamp_magnituded,
+            into_clamp_magnituded,
+            -5.0,
+            3.0
+        );
+        smoke_float_transform_with_arg!(copysign, copysigned, into_copysigned, 1.25, -1.0);
+        smoke_float_transform_unary!(cos, cosed, into_cosed, 0.5);
+        smoke_float_transform_unary!(cosh, coshed, into_coshed, 0.5);
+        smoke_float_transform_with_arg!(div_euclid, div_euclided, into_div_euclided, 7.0, 4.0);
+        smoke_float_transform_unary!(erf, erfed, into_erfed, 0.0);
+        smoke_float_transform_unary!(erfc, erfced, into_erfced, 0.0);
+        smoke_float_transform_unary!(exp, exped, into_exped, 1.0);
+        smoke_float_transform_unary!(exp2, exp2ed, into_exp2ed, 3.0);
+        smoke_float_transform_unary!(exp_m1, exp_m1ed, into_exp_m1ed, 1.0);
+        smoke_float_transform_unary!(floor, floored, into_floored, 1.75);
+        smoke_float_transform_unary!(fract, fracted, into_fracted, 1.75);
+        smoke_float_transform_unary!(gamma, gammaed, into_gammaed, 5.0);
+        smoke_float_transform_with_arg!(hypot, hypoted, into_hypoted, 3.0, 4.0);
+        smoke_float_transform_unary!(ln, lned, into_lned, std::f64::consts::E);
+        smoke_float_transform_unary!(ln_1p, ln_1ped, into_ln_1ped, 0.5);
+        smoke_float_transform_with_arg!(log, loged, into_loged, 8.0, 2.0);
+        smoke_float_transform_unary!(log10, log10ed, into_log10ed, 100.0);
+        smoke_float_transform_unary!(log2, log2ed, into_log2ed, 8.0);
+        smoke_float_transform_with_arg!(max, maxed, into_maxed, 1.25, -0.75);
+        smoke_float_transform_with_arg!(maximum, maximumed, into_maximumed, 1.25, -0.75);
+        smoke_float_transform_with_arg!(midpoint, midpointed, into_midpointed, 1.25, -0.75);
+        smoke_float_transform_with_arg!(min, mined, into_mined, 1.25, -0.75);
+        smoke_float_transform_with_arg!(minimum, minimumed, into_minimumed, 1.25, -0.75);
+        smoke_float_transform_with_two_args!(mul_add, mul_added, into_mul_added, 2.0, 3.0, 4.0);
+        smoke_float_transform_unary!(next_down, next_downed, into_next_downed, 1.0);
+        smoke_float_transform_unary!(next_up, next_uped, into_next_uped, 1.0);
+        smoke_float_transform_with_arg!(powf, powfed, into_powfed, 4.0, 0.5);
+        smoke_float_transform_with_arg!(powi, powied, into_powied, 4.0, 2);
+        smoke_float_transform_unary!(recip, reciped, into_reciped, 4.0);
+        smoke_float_transform_with_arg!(rem_euclid, rem_euclided, into_rem_euclided, 7.0, 4.0);
+        smoke_float_transform_unary!(round, rounded, into_rounded, 1.5);
+        smoke_float_transform_unary!(
+            round_ties_even,
+            round_ties_evened,
+            into_round_ties_evened,
+            2.5
+        );
+        smoke_float_transform_unary!(signum, signumed, into_signumed, -1.0);
+        smoke_float_transform_unary!(sin, sined, into_sined, 0.5);
+        smoke_float_transform_unary!(sinh, sinhed, into_sinhed, 0.5);
+        smoke_float_transform_unary!(sqrt, sqrted, into_sqrted, 4.0);
+        smoke_float_transform_unary!(tan, taned, into_taned, 0.5);
+        smoke_float_transform_unary!(tanh, tanhed, into_tanhed, 0.5);
+        smoke_float_transform_unary!(to_degrees, to_degreesed, into_to_degreesed, PI);
+        smoke_float_transform_unary!(to_radians, to_radiansed, into_to_radiansed, 180.0);
+        smoke_float_transform_unary!(trunc, trunced, into_trunced, 1.75);
+        smoke_float_transform_with_arg!(
+            algebraic_add,
+            algebraic_added,
+            into_algebraic_added,
+            1.5,
+            2.0
+        );
+        smoke_float_transform_with_arg!(
+            algebraic_sub,
+            algebraic_subed,
+            into_algebraic_subed,
+            1.5,
+            2.0
+        );
+        smoke_float_transform_with_arg!(
+            algebraic_mul,
+            algebraic_muled,
+            into_algebraic_muled,
+            1.5,
+            2.0
+        );
+        smoke_float_transform_with_arg!(
+            algebraic_div,
+            algebraic_dived,
+            into_algebraic_dived,
+            3.0,
+            2.0
+        );
+        smoke_float_transform_with_arg!(
+            algebraic_rem,
+            algebraic_remed,
+            into_algebraic_remed,
+            7.0,
+            4.0
+        );
     }
 
     #[test]
@@ -324,15 +504,44 @@ mod smatrix_tests
         let pos_expected = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 0.0, 0.0, 4.0, 0.0, 9.0]);
         let neg_expected = SMatrix::<f64, 2, 3>::from_row_slice(&[0.0, 0.0, -1.0, 0.0, -4.0, 0.0]);
 
-        assert_matrix_eq_f64(&acos_input.acos(), &acos_expected);
-        assert_matrix_eq_f64(&matrix.powi(2), &powi_expected);
-        assert_matrix_eq_f64(&matrix.clamp(-1.0, 1.0), &clamp_expected);
-        assert_matrix_eq_f64(&matrix.pos(), &pos_expected);
-        assert_matrix_eq_f64(&matrix.neg(), &neg_expected);
+        let mut in_place_acos = acos_input.clone();
+        in_place_acos.acos();
+        assert_matrix_eq_f64(&in_place_acos, &acos_expected);
+        assert_matrix_eq_f64(&acos_input.acosed(), &acos_expected);
+        assert_matrix_eq_f64(&acos_input.clone().into_acosed(), &acos_expected);
+
+        let mut in_place_powi = matrix.clone();
+        in_place_powi.powi(2);
+        assert_matrix_eq_f64(&in_place_powi, &powi_expected);
+        assert_matrix_eq_f64(&matrix.powied(2), &powi_expected);
+        assert_matrix_eq_f64(&matrix.clone().into_powied(2), &powi_expected);
+
+        let mut in_place_clamp = matrix.clone();
+        in_place_clamp.clamp(-1.0, 1.0);
+        assert_matrix_eq_f64(&in_place_clamp, &clamp_expected);
+        assert_matrix_eq_f64(&matrix.clamped(-1.0, 1.0), &clamp_expected);
+        assert_matrix_eq_f64(&matrix.clone().into_clamped(-1.0, 1.0), &clamp_expected);
+
+        let mut in_place_pos = matrix.clone();
+        in_place_pos.pos();
+        assert_matrix_eq_f64(&in_place_pos, &pos_expected);
+        assert_matrix_eq_f64(&matrix.posed(), &pos_expected);
+        assert_matrix_eq_f64(&matrix.clone().into_posed(), &pos_expected);
+
+        let mut in_place_neg = matrix.clone();
+        in_place_neg.neg();
+        assert_matrix_eq_f64(&in_place_neg, &neg_expected);
+        assert_matrix_eq_f64(&matrix.neged(), &neg_expected);
+        assert_matrix_eq_f64(&matrix.clone().into_neged(), &neg_expected);
 
         let sqrt_input = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 4.0, 9.0, 16.0]);
         let sqrt_expected = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0]);
-        assert_matrix_eq_f64(&sqrt_input.sqrt(), &sqrt_expected);
+
+        let mut in_place_sqrt = sqrt_input.clone();
+        in_place_sqrt.sqrt();
+        assert_matrix_eq_f64(&in_place_sqrt, &sqrt_expected);
+        assert_matrix_eq_f64(&sqrt_input.sqrted(), &sqrt_expected);
+        assert_matrix_eq_f64(&sqrt_input.into_sqrted(), &sqrt_expected);
     }
 
     #[test]
