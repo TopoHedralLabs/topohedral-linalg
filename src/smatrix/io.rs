@@ -178,26 +178,19 @@ where
 impl<T, const N: usize, const M: usize> fmt::Display for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display,
+    T: Field + Default + Copy + fmt::Display + fmt::LowerExp,
 {
     fn fmt(
         &self,
         f: &mut fmt::Formatter<'_>,
     ) -> fmt::Result
     {
-        let max_width = self
-            .data
-            .iter()
-            .map(|x| format!("{x}").len())
-            .max()
-            .unwrap_or(0);
-
         for i in 0..N
         {
             write!(f, "|")?;
             for j in 0..M
             {
-                write!(f, " {:>width$}", self[(i, j)], width = max_width)?;
+                write!(f, " {:1.4e} ", self[(i, j)])?;
             }
             writeln!(f, " |")?;
         }
