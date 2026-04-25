@@ -76,9 +76,11 @@ mod dmatrix_tests
     fn test_abs_and_transform_reductions()
     {
         let a = DMatrix::<i32>::from_row_slice(&[3, -2, 5, 4, -7, 1], 2, 3);
+        let b = DMatrix::<i32>::from_row_slice(&[-3, -1, 5, 4, -7, 2], 2, 3);
 
         assert_eq!(a.abs_min(), Some(1));
-        assert_eq!(a.abs_max(), Some(-7));
+        assert_eq!(a.abs_max(), Some(7));
+        assert_eq!(b.abs_min(), Some(1));
         assert_eq!(a.transform_min(|value| value * value), Some(1));
         assert_eq!(a.transform_max(|value| value * value), Some(-7));
     }
@@ -199,9 +201,11 @@ mod smatrix_tests
     fn test_abs_and_transform_reductions()
     {
         let a = SMatrix::<i32, 2, 3>::from_row_slice(&[3, -2, 5, 4, -7, 1]);
+        let b = SMatrix::<i32, 2, 3>::from_row_slice(&[-3, -1, 5, 4, -7, 2]);
 
         assert_eq!(a.abs_min(), Some(1));
-        assert_eq!(a.abs_max(), Some(-7));
+        assert_eq!(a.abs_max(), Some(7));
+        assert_eq!(b.abs_min(), Some(1));
         assert_eq!(a.transform_min(|value| value * value), Some(1));
         assert_eq!(a.transform_max(|value| value * value), Some(-7));
     }
