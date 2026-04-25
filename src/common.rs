@@ -1588,14 +1588,28 @@ pub trait ReduceOps
     where
         Self::Item: Abs + PartialOrd,
     {
-        self.min_by_key(|value| value.abs())
+        self.fold(None, |acc, value| {
+            let abs_value = value.abs();
+            Some(match acc
+            {
+                Some(current_min) if current_min <= abs_value => current_min,
+                _ => abs_value,
+            })
+        })
     }
 
     fn abs_max(&self) -> Option<Self::Item>
     where
         Self::Item: Abs + PartialOrd,
     {
-        self.max_by_key(|value| value.abs())
+        self.fold(None, |acc, value| {
+            let abs_value = value.abs();
+            Some(match acc
+            {
+                Some(current_max) if current_max >= abs_value => current_max,
+                _ => abs_value,
+            })
+        })
     }
 
     fn argmin(&self) -> Option<(Self::Index, Self::Item)>
