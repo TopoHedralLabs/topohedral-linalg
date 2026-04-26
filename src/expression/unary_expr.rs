@@ -356,9 +356,7 @@ macro_rules! define_float_unary_op {
         }
 
         #[inline]
-        pub fn $func_name<A, T>(
-            expr: A,
-        ) -> UnaryExpr<A, T, $op_name>
+        pub fn $func_name<A, T>(expr: A) -> UnaryExpr<A, T, $op_name>
         where
             A: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
             T: Float + Copy,
@@ -464,12 +462,7 @@ define_float_unary_op!(AtanhOp, atanh, atanh);
 define_float_unary_op!(CbrtOp, cbrt, cbrt);
 define_float_unary_op!(CeilOp, ceil, ceil);
 define_float_unary_op_with_two_same_args!(ClampOp, clamp, clamp, min, max);
-define_float_unary_op_with_same_arg!(
-    ClampMagnitudeOp,
-    clamp_magnitude,
-    clamp_magnitude,
-    limit
-);
+define_float_unary_op_with_same_arg!(ClampMagnitudeOp, clamp_magnitude, clamp_magnitude, limit);
 define_float_unary_op_with_same_arg!(CopysignOp, copysign, copysign, sign);
 define_float_unary_op!(CosOp, cos, cos);
 define_float_unary_op!(CoshOp, cosh, cosh);

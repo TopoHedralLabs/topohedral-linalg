@@ -5,9 +5,9 @@
 //{{{ crate imports
 use super::DMatrix;
 use crate::apply_for_all_types;
-use crate::common::{Field, IndexValue, LazyExpr};
 #[cfg(feature = "enable_checks")]
 use crate::common::Shape;
+use crate::common::{Field, IndexValue, LazyExpr};
 use crate::expression::binary_expr::{AddOp, BinopExpr};
 //}}}
 //{{{ std imports
