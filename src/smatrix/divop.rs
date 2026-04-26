@@ -188,7 +188,6 @@ macro_rules! impl_smatrix_div_scalar_rhs {
 apply_for_all_types!(impl_smatrix_div_scalar_rhs);
 
 //}}}
-//{{{ impl: Div<T> for &'a mut SMatrix
 //{{{ impl: Div<Smatrix> for $type
 macro_rules! impl_smatrix_div {
     ($type:ty) => {
@@ -220,6 +219,7 @@ macro_rules! impl_smatrix_div {
 }
 
 apply_for_all_types!(impl_smatrix_div);
+//}}}
 //{{{ impl: Div<&mut Smatrix> for $type
 macro_rules! impl_smatrix_div_mut {
     ($type:ty) => {

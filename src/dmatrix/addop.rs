@@ -180,7 +180,6 @@ macro_rules! impl_dmatrix_add_scalar_rhs {
 apply_for_all_types!(impl_dmatrix_add_scalar_rhs);
 
 //}}}
-//{{{ impl: Add<T> for &'a mut DMatrix
 //{{{ impl: Add<Dmatrix> for $type
 macro_rules! impl_dmatrix_ref_add {
     ($type:ty) => {
@@ -209,6 +208,7 @@ macro_rules! impl_dmatrix_ref_add {
     };
 }
 apply_for_all_types!(impl_dmatrix_ref_add);
+//}}}
 //{{{ impl: Add<&mut Dmatrix> for $type
 macro_rules! impl_dmatrix_ref_mut_add {
     ($type:ty) => {

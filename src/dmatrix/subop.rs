@@ -181,7 +181,6 @@ macro_rules! impl_dmatrix_sub_scalar_rhs {
 apply_for_all_types!(impl_dmatrix_sub_scalar_rhs);
 
 //}}}
-//{{{ impl: Sub<T> for &'a mut DMatrix
 //{{{ impl: Sub<DMatrix> for $type
 macro_rules! impl_dmatrix_sub {
     ($type:ty) => {
@@ -210,6 +209,7 @@ macro_rules! impl_dmatrix_sub {
     };
 }
 apply_for_all_types!(impl_dmatrix_sub);
+//}}}
 //{{{ impl: Sub<&mut DMatrix> for $type
 macro_rules! impl_dmatrix_ref_mut_sub {
     ($type:ty) => {
