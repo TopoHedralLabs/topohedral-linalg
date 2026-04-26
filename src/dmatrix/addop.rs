@@ -5,8 +5,8 @@
 //{{{ crate imports
 use super::DMatrix;
 use crate::apply_for_all_types;
-use crate::common::{Field, IndexValue};
-use crate::expression::binary_expr::{AddOp, BinOp, BinopExpr};
+use crate::common::{Field, IndexValue, LazyExpr};
+use crate::expression::binary_expr::{AddOp, BinopExpr};
 //}}}
 //{{{ std imports
 use std::ops::{Add, AddAssign};
@@ -133,51 +133,52 @@ where
 //}}}
 //{{{ collection: Lazily evaluated expressions
 //{{{ impl: Add<T> for &'a DMatrix
-#[doc(hidden)]
-impl<'a, T> Add<T> for &'a DMatrix<T>
-where
-    T: Field + Copy + IndexValue<usize, Output = T>,
-{
-    type Output = BinopExpr<&'a DMatrix<T>, T, T, AddOp>;
+macro_rules! impl_dmatrix_add_scalar_rhs {
+    ($type:ty) => {
+        #[doc(hidden)]
+        impl<'a> Add<$type> for &'a DMatrix<$type>
+        {
+            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, AddOp>;
 
-    #[inline]
-    fn add(
-        self,
-        rhs: T,
-    ) -> Self::Output
-    {
-        let nr = self.nrows;
-        let nc = self.ncols;
-        BinopExpr {
-            a: self,
-            b: rhs,
-            nrows: nr,
-            ncols: nc,
-            _marker: std::marker::PhantomData,
+            #[inline]
+            fn add(
+                self,
+                rhs: $type,
+            ) -> Self::Output
+            {
+                let nr = self.nrows;
+                let nc = self.ncols;
+                BinopExpr {
+                    a: self,
+                    b: rhs,
+                    nrows: nr,
+                    ncols: nc,
+                    _marker: std::marker::PhantomData,
+                }
+            }
         }
-    }
+
+        #[doc(hidden)]
+        impl<'a> Add<$type> for &'a mut DMatrix<$type>
+        {
+            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, AddOp>;
+
+            #[inline]
+            fn add(
+                self,
+                rhs: $type,
+            ) -> Self::Output
+            {
+                (&*self).add(rhs)
+            }
+        }
+    };
 }
+
+apply_for_all_types!(impl_dmatrix_add_scalar_rhs);
 
 //}}}
 //{{{ impl: Add<T> for &'a mut DMatrix
-#[doc(hidden)]
-impl<'a, T> Add<T> for &'a mut DMatrix<T>
-where
-    T: Field + Copy + IndexValue<usize, Output = T>,
-{
-    type Output = BinopExpr<&'a DMatrix<T>, T, T, AddOp>;
-
-    #[inline]
-    fn add(
-        self,
-        rhs: T,
-    ) -> Self::Output
-    {
-        (&*self).add(rhs)
-    }
-}
-
-//}}}
 //{{{ impl: Add<Dmatrix> for $type
 macro_rules! impl_dmatrix_ref_add {
     ($type:ty) => {
@@ -227,21 +228,28 @@ macro_rules! impl_dmatrix_ref_mut_add {
 }
 apply_for_all_types!(impl_dmatrix_ref_mut_add);
 //}}}
-//{{{ impl: Add for &'a DMatrix
-impl<'a, T> Add for &'a DMatrix<T>
+//{{{ impl: Add<Rhs> for &'a DMatrix
+impl<'a, T, Rhs> Add<Rhs> for &'a DMatrix<T>
 where
     T: Field + Copy,
+    Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
 {
-    type Output = BinopExpr<&'a DMatrix<T>, &'a DMatrix<T>, T, AddOp>;
+    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, AddOp>;
 
     #[inline]
     fn add(
         self,
-        rhs: Self,
-    ) -> BinopExpr<&'a DMatrix<T>, &'a DMatrix<T>, T, AddOp>
+        rhs: Rhs,
+    ) -> Self::Output
     {
+        #[cfg(feature = "enable_checks")]
+        {
+            assert_eq!(self.nrows(), rhs.nrows());
+            assert_eq!(self.ncols(), rhs.ncols());
+        }
+
         let nr = self.nrows;
-        let nc = rhs.ncols;
+        let nc = self.ncols;
         BinopExpr {
             a: self,
             b: rhs,
@@ -253,153 +261,18 @@ where
 }
 
 //}}}
-//{{{ impl: Add<&DMatrix> for &'a mut DMatrix
-impl<'a, T> Add<&'a DMatrix<T>> for &'a mut DMatrix<T>
+//{{{ impl: Add<Rhs> for &'a mut DMatrix
+impl<'a, T, Rhs> Add<Rhs> for &'a mut DMatrix<T>
 where
     T: Field + Copy,
+    Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
 {
-    type Output = BinopExpr<&'a DMatrix<T>, &'a DMatrix<T>, T, AddOp>;
+    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, AddOp>;
 
     #[inline]
     fn add(
         self,
-        rhs: &'a DMatrix<T>,
-    ) -> Self::Output
-    {
-        (&*self).add(rhs)
-    }
-}
-
-//}}}
-//{{{ impl: Add<&mut DMatrix> for &'a DMatrix
-impl<'a, T> Add<&'a mut DMatrix<T>> for &'a DMatrix<T>
-where
-    T: Field + Copy,
-{
-    type Output = BinopExpr<&'a DMatrix<T>, &'a DMatrix<T>, T, AddOp>;
-
-    #[inline]
-    fn add(
-        self,
-        rhs: &'a mut DMatrix<T>,
-    ) -> Self::Output
-    {
-        self.add(&*rhs)
-    }
-}
-
-//}}}
-//{{{ impl: Add<&mut DMatrix> for &'a mut DMatrix
-impl<'a, T> Add<&'a mut DMatrix<T>> for &'a mut DMatrix<T>
-where
-    T: Field + Copy,
-{
-    type Output = BinopExpr<&'a DMatrix<T>, &'a DMatrix<T>, T, AddOp>;
-
-    #[inline]
-    fn add(
-        self,
-        rhs: &'a mut DMatrix<T>,
-    ) -> Self::Output
-    {
-        (&*self).add(&*rhs)
-    }
-}
-
-//}}}
-//{{{ impl: Add<&' DMatrix> for BinopExpr
-impl<'a, A, B, T, Op> Add<&'a DMatrix<T>> for BinopExpr<A, B, T, Op>
-where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    T: Field + Copy,
-    Op: BinOp,
-{
-    type Output = BinopExpr<Self, &'a DMatrix<T>, T, AddOp>;
-
-    #[inline]
-    fn add(
-        self,
-        rhs: &'a DMatrix<T>,
-    ) -> BinopExpr<Self, &'a DMatrix<T>, T, AddOp>
-    {
-        let nr = rhs.nrows;
-        let nc = rhs.ncols;
-        BinopExpr {
-            a: self,
-            b: rhs,
-            nrows: nr,
-            ncols: nc,
-            _marker: std::marker::PhantomData,
-        }
-    }
-}
-
-//}}}
-//{{{ impl: Add<&' mut DMatrix> for BinopExpr
-impl<'a, A, B, T, Op> Add<&'a mut DMatrix<T>> for BinopExpr<A, B, T, Op>
-where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    T: Field + Copy,
-    Op: BinOp,
-{
-    type Output = BinopExpr<Self, &'a DMatrix<T>, T, AddOp>;
-
-    #[inline]
-    fn add(
-        self,
-        rhs: &'a mut DMatrix<T>,
-    ) -> Self::Output
-    {
-        self.add(&*rhs)
-    }
-}
-
-//}}}
-//{{{ impl: Add<BinopExpr> for &'a DMatrix
-impl<A, B, T, Op> Add<BinopExpr<A, B, T, Op>> for &DMatrix<T>
-where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    T: Field + Copy,
-    Op: BinOp,
-{
-    type Output = BinopExpr<Self, BinopExpr<A, B, T, Op>, T, AddOp>;
-
-    #[inline]
-    fn add(
-        self,
-        rhs: BinopExpr<A, B, T, Op>,
-    ) -> BinopExpr<Self, BinopExpr<A, B, T, Op>, T, AddOp>
-    {
-        let nr = rhs.nrows;
-        let nc = rhs.ncols;
-        BinopExpr {
-            a: self,
-            b: rhs,
-            nrows: nr,
-            ncols: nc,
-            _marker: std::marker::PhantomData,
-        }
-    }
-}
-
-//}}}
-//{{{ impl: Add<BinopExpr> for &'a mut DMatrix
-impl<'a, A, B, T, Op> Add<BinopExpr<A, B, T, Op>> for &'a mut DMatrix<T>
-where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    T: Field + Copy,
-    Op: BinOp,
-{
-    type Output = BinopExpr<&'a DMatrix<T>, BinopExpr<A, B, T, Op>, T, AddOp>;
-
-    #[inline]
-    fn add(
-        self,
-        rhs: BinopExpr<A, B, T, Op>,
+        rhs: Rhs,
     ) -> Self::Output
     {
         (&*self).add(rhs)

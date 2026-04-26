@@ -4,8 +4,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Dimension, Field, IndexValue, One, Zero};
+use crate::common::{Dimension, Field, IndexValue, LazyExpr, One, Zero};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
+use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
 //}}}
 //{{{ std imports
 use serde::{Deserialize, Serialize};
@@ -160,6 +161,15 @@ where
     //}}}
 }
 //}}}
+//{{{ impl: LazyExpr for DMatrix
+impl<T> LazyExpr for DMatrix<T>
+where
+    T: Field + Copy,
+{
+    type ScalarType = T;
+}
+
+//}}}
 //{{{ impl: From<BinopExpr> for DMatrix
 impl<A, B, T, Op> From<BinopExpr<A, B, T, Op>> for DMatrix<T>
 where
@@ -169,6 +179,24 @@ where
     Op: BinOp,
 {
     fn from(expr: BinopExpr<A, B, T, Op>) -> DMatrix<T>
+    {
+        let mut out = DMatrix::<T>::zeros(expr.nrows, expr.ncols);
+        for i in 0..expr.nrows * expr.ncols
+        {
+            out.data[i] = expr.index_value(i);
+        }
+        out
+    }
+} //}}}
+
+//{{{ impl: From<UnaryExpr> for DMatrix
+impl<A, T, Op> From<UnaryExpr<A, T, Op>> for DMatrix<T>
+where
+    A: IndexValue<usize, Output = T> + crate::common::Shape,
+    T: Field + Copy + Zero,
+    Op: UnaryOp<T>,
+{
+    fn from(expr: UnaryExpr<A, T, Op>) -> DMatrix<T>
     {
         let mut out = DMatrix::<T>::zeros(expr.nrows, expr.ncols);
         for i in 0..expr.nrows * expr.ncols
