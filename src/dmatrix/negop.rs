@@ -6,6 +6,7 @@
 //{{{ crate imports
 use super::DMatrix;
 use crate::common::{Field, Zero};
+use crate::expression::unary_expr::{NegOp, UnaryExpr};
 //}}}
 //{{{ std imports
 use std::ops::Neg;
@@ -28,5 +29,31 @@ where
             result[i] = -self[i];
         }
         result
+    }
+}
+
+impl<'a, T> Neg for &'a DMatrix<T>
+where
+    T: Field + Copy,
+{
+    type Output = UnaryExpr<&'a DMatrix<T>, T, NegOp>;
+
+    #[inline]
+    fn neg(self) -> Self::Output
+    {
+        UnaryExpr::new(self, NegOp)
+    }
+}
+
+impl<'a, T> Neg for &'a mut DMatrix<T>
+where
+    T: Field + Copy,
+{
+    type Output = UnaryExpr<&'a mut DMatrix<T>, T, NegOp>;
+
+    #[inline]
+    fn neg(self) -> Self::Output
+    {
+        UnaryExpr::new(self, NegOp)
     }
 }

@@ -190,22 +190,4 @@ where
 }
 
 //}}}
-//{{{ impl: IndexValue for &'a SMatrix
-impl<T> IndexValue<usize> for &DMatrix<T>
-where
-    T: Field + Copy,
-{
-    type Output = T;
-
-    #[inline]
-    fn index_value(
-        &self,
-        index: usize,
-    ) -> Self::Output
-    {
-        self.data[index]
-    }
-}
-
-//}}}
 //}}}

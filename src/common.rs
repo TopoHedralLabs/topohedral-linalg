@@ -53,6 +53,38 @@ pub trait IndexValue<I>
     ) -> Self::Output;
 }
 
+impl<I, T> IndexValue<I> for &T
+where
+    T: IndexValue<I>,
+{
+    type Output = T::Output;
+
+    #[inline]
+    fn index_value(
+        &self,
+        index: usize,
+    ) -> Self::Output
+    {
+        (*self).index_value(index)
+    }
+}
+
+impl<I, T> IndexValue<I> for &mut T
+where
+    T: IndexValue<I>,
+{
+    type Output = T::Output;
+
+    #[inline]
+    fn index_value(
+        &self,
+        index: usize,
+    ) -> Self::Output
+    {
+        (**self).index_value(index)
+    }
+}
+
 //}}}
 //{{{ macro: apply_for_all_types
 #[macro_export]
@@ -834,6 +866,26 @@ where
     {
         (self.nrows(), self.ncols())
     }
+}
+//}}}
+//{{{ trait: LazyExpr
+pub trait LazyExpr: Shape
+{
+    type ScalarType: Field + Copy;
+}
+
+impl<T> LazyExpr for &T
+where
+    T: LazyExpr,
+{
+    type ScalarType = T::ScalarType;
+}
+
+impl<T> LazyExpr for &mut T
+where
+    T: LazyExpr,
+{
+    type ScalarType = T::ScalarType;
 }
 //}}}
 //{{{ impl: Shape for references

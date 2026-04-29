@@ -6,6 +6,7 @@ mod smatrix_tests
 {
     use approx::assert_relative_eq;
     use topohedral_linalg::smatrix::SMatrix;
+    use topohedral_linalg::{abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps};
 
     //{{{ collection: mixed tests
     #[test]
@@ -692,13 +693,124 @@ mod smatrix_tests
             assert_eq!(b[i], -a[i]);
         }
     }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_neg_lazy()
+    {
+        let a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
+        let b: SMatrix<i32, 2, 2> = (-&a).into();
+
+        for i in 0..4
+        {
+            assert_eq!(b[i], -a[i]);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_lazy_unary_composition()
+    {
+        let a = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0]);
+        let b = SMatrix::<f64, 2, 2>::from_row_slice(&[2.0, 3.0, 4.0, 5.0]);
+        let c = SMatrix::<f64, 2, 2>::from_row_slice(&[0.0, 0.5, 1.0, 1.5]);
+        let dmat = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0]);
+
+        let expr1: SMatrix<f64, 2, 2> = ((-&a) * &b + sin(&c)).into();
+        let expr2: SMatrix<f64, 2, 2> = (powi(&c, 2) + exp(&dmat)).into();
+
+        let expected1 = (-a) * b + c.sined();
+        let expected2 = c.powied(2) + dmat.exped();
+
+        for (actual, expected) in expr1.iter().zip(expected1.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in expr2.iter().zip(expected2.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_lazy_unary_functions_match_eager_helpers()
+    {
+        let signed = SMatrix::<f64, 2, 2>::from_row_slice(&[-4.0, -1.0, 0.5, 2.0]);
+        let positive = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 4.0, 9.0, 16.0]);
+
+        let sin_lazy: SMatrix<f64, 2, 2> = sin(&signed).into();
+        let sqrt_lazy: SMatrix<f64, 2, 2> = sqrt(&positive).into();
+        let powi_lazy: SMatrix<f64, 2, 2> = powi(&positive, 2).into();
+        let powf_lazy: SMatrix<f64, 2, 2> = powf(&positive, 0.5).into();
+        let clamp_lazy: SMatrix<f64, 2, 2> = clamp(&signed, -1.0, 1.0).into();
+        let mul_add_lazy: SMatrix<f64, 2, 2> = mul_add(&signed, 2.0, 3.0).into();
+
+        let sin_expected = signed.sined();
+        let sqrt_expected = positive.sqrted();
+        let powi_expected = positive.powied(2);
+        let powf_expected = positive.powfed(0.5);
+        let clamp_expected = signed.clamped(-1.0, 1.0);
+        let mul_add_expected = signed.mul_added(2.0, 3.0);
+
+        for (actual, expected) in sin_lazy.iter().zip(sin_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in sqrt_lazy.iter().zip(sqrt_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in powi_lazy.iter().zip(powi_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in powf_lazy.iter().zip(powf_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in clamp_lazy.iter().zip(clamp_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in mul_add_lazy.iter().zip(mul_add_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_lazy_unary_nesting_and_mutability()
+    {
+        let a = SMatrix::<f64, 2, 2>::from_row_slice(&[9.0, 4.0, 1.0, 0.0]);
+        let b = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 0.0, 1.0, 4.0]);
+        let nested: SMatrix<f64, 2, 2> = sqrt(abs(-&a + &b)).into();
+        let expected_nested = (-a + b).absed().sqrted();
+
+        for (actual, expected) in nested.iter().zip(expected_nested.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+
+        let mut c = SMatrix::<f64, 2, 2>::from_row_slice(&[0.0, 0.5, 1.0, 1.5]);
+        let shifted: SMatrix<f64, 2, 2> = (1.0 + sin(&mut c)).into();
+        let expected_shifted = 1.0 + c.sined();
+
+        for (actual, expected) in shifted.iter().zip(expected_shifted.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+    }
     //}}}
 }
 //}}}
 //{{{ mod: dmatrix_tests
 mod dmatrix_tests
 {
+    use approx::assert_relative_eq;
     use topohedral_linalg::dmatrix::DMatrix;
+    use topohedral_linalg::{abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps};
 
     //{{{ collection: addition tests
     #[test]
@@ -1258,6 +1370,115 @@ mod dmatrix_tests
         for i in 0..4
         {
             assert_eq!(b[i], -a[i]);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_neg_lazy()
+    {
+        let a = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
+        let b: DMatrix<i32> = (-&a).into();
+
+        for i in 0..4
+        {
+            assert_eq!(b[i], -a[i]);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_lazy_unary_composition()
+    {
+        let a = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0], 2, 2);
+        let b = DMatrix::<f64>::from_row_slice(&[2.0, 3.0, 4.0, 5.0], 2, 2);
+        let c = DMatrix::<f64>::from_row_slice(&[0.0, 0.5, 1.0, 1.5], 2, 2);
+        let dmat = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0], 2, 2);
+
+        let expr1: DMatrix<f64> = ((-&a) * &b + sin(&c)).into();
+        let expr2: DMatrix<f64> = (powi(&c, 2) + exp(&dmat)).into();
+
+        let expected1 = (-a.clone()) * b.clone() + c.sined();
+        let expected2 = c.powied(2) + dmat.exped();
+
+        for (actual, expected) in expr1.iter().zip(expected1.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in expr2.iter().zip(expected2.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_lazy_unary_functions_match_eager_helpers()
+    {
+        let signed = DMatrix::<f64>::from_row_slice(&[-4.0, -1.0, 0.5, 2.0], 2, 2);
+        let positive = DMatrix::<f64>::from_row_slice(&[1.0, 4.0, 9.0, 16.0], 2, 2);
+
+        let sin_lazy: DMatrix<f64> = sin(&signed).into();
+        let sqrt_lazy: DMatrix<f64> = sqrt(&positive).into();
+        let powi_lazy: DMatrix<f64> = powi(&positive, 2).into();
+        let powf_lazy: DMatrix<f64> = powf(&positive, 0.5).into();
+        let clamp_lazy: DMatrix<f64> = clamp(&signed, -1.0, 1.0).into();
+        let mul_add_lazy: DMatrix<f64> = mul_add(&signed, 2.0, 3.0).into();
+
+        let sin_expected = signed.sined();
+        let sqrt_expected = positive.sqrted();
+        let powi_expected = positive.powied(2);
+        let powf_expected = positive.powfed(0.5);
+        let clamp_expected = signed.clamped(-1.0, 1.0);
+        let mul_add_expected = signed.mul_added(2.0, 3.0);
+
+        for (actual, expected) in sin_lazy.iter().zip(sin_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in sqrt_lazy.iter().zip(sqrt_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in powi_lazy.iter().zip(powi_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in powf_lazy.iter().zip(powf_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in clamp_lazy.iter().zip(clamp_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+        for (actual, expected) in mul_add_lazy.iter().zip(mul_add_expected.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_lazy_unary_nesting_and_mutability()
+    {
+        let a = DMatrix::<f64>::from_row_slice(&[9.0, 4.0, 1.0, 0.0], 2, 2);
+        let b = DMatrix::<f64>::from_row_slice(&[1.0, 0.0, 1.0, 4.0], 2, 2);
+        let nested: DMatrix<f64> = sqrt(abs(-&a + &b)).into();
+        let expected_nested = (-a.clone() + b.clone()).absed().sqrted();
+
+        for (actual, expected) in nested.iter().zip(expected_nested.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+
+        let mut c = DMatrix::<f64>::from_row_slice(&[0.0, 0.5, 1.0, 1.5], 2, 2);
+        let shifted: DMatrix<f64> = (1.0 + sin(&mut c)).into();
+        let expected_shifted = 1.0 + c.sined();
+
+        for (actual, expected) in shifted.iter().zip(expected_shifted.iter())
+        {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
     }
     //}}}
