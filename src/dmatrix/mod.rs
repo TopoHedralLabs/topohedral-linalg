@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Dimension, Field, IndexValue, LazyExpr, One, Zero};
+use crate::common::{Dimension, EvalInto, Field, IndexValue, LazyExpr, One, Zero};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
 //}}}
@@ -180,14 +180,17 @@ where
 {
     fn from(expr: BinopExpr<A, B, T, Op>) -> DMatrix<T>
     {
-        let total = expr.nrows * expr.ncols;
-        let mut out = DMatrix::<T>::zeros(expr.nrows, expr.ncols);
-        for i in 0..total
-        {
-            // Safety: out.data has exactly total elements, i < total
-            unsafe { *out.data.get_unchecked_mut(i) = expr.index_value(i) };
-        }
-        out
+        let nrows = expr.nrows;
+        let ncols = expr.ncols;
+        let total = nrows * ncols;
+        // Allocate uninitialised storage, then drive evaluation through
+        // EvalInto::eval_into.  That method writes through `&mut [T]` which
+        // LLVM marks `noalias`, letting it prove the output slice doesn't overlap
+        // the input DMatrix struct fields and enabling SIMD auto-vectorisation.
+        let mut data: Vec<T> = Vec::with_capacity(total);
+        unsafe { data.set_len(total) };
+        expr.eval_into(&mut data);
+        DMatrix { data, nrows, ncols }
     }
 } //}}}
 
@@ -200,13 +203,16 @@ where
 {
     fn from(expr: UnaryExpr<A, T, Op>) -> DMatrix<T>
     {
-        let total = expr.nrows * expr.ncols;
-        let mut out = DMatrix::<T>::zeros(expr.nrows, expr.ncols);
+        let nrows = expr.nrows;
+        let ncols = expr.ncols;
+        let total = nrows * ncols;
+        let mut data: Vec<T> = Vec::with_capacity(total);
+        let out_ptr: *mut T = data.as_mut_ptr();
         for i in 0..total
         {
-            // Safety: out.data has exactly total elements, i < total
-            unsafe { *out.data.get_unchecked_mut(i) = expr.index_value(i) };
+            unsafe { out_ptr.add(i).write(expr.index_value(i)) };
         }
-        out
+        unsafe { data.set_len(total) };
+        DMatrix { data, nrows, ncols }
     }
 } //}}}

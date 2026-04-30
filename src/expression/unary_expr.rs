@@ -3,7 +3,7 @@
 
 //{{{ crate imports
 use crate::apply_for_all_types;
-use crate::common::{Field, Float, IndexValue, LazyExpr, Shape};
+use crate::common::{EvalInto, Field, Float, IndexValue, LazyExpr, Shape};
 use crate::expression::binary_expr::{AddOp, BinopExpr, DivOp, MulOp, SubOp};
 //}}}
 //{{{ std imports
@@ -114,6 +114,28 @@ where
     type ScalarType = T;
 }
 
+//}}}
+//{{{ impl: EvalInto for UnaryExpr
+impl<A, T, Op> EvalInto<T> for UnaryExpr<A, T, Op>
+where
+    A: Shape + IndexValue<usize, Output = T> + EvalInto<T>,
+    T: Field + Copy,
+    Op: UnaryOp<T>,
+{
+    #[inline]
+    fn eval_into(
+        &self,
+        out: &mut [T],
+    )
+    {
+        self.a.eval_into(out);
+        let len = out.len();
+        for i in 0..len
+        {
+            unsafe { *out.get_unchecked_mut(i) = self.op.apply(*out.get_unchecked(i)) };
+        }
+    }
+}
 //}}}
 //{{{ impl: IndexValue for UnaryExpr
 impl<A, T, Op> IndexValue<usize> for UnaryExpr<A, T, Op>

@@ -5,7 +5,7 @@
 
 //{{{ crate imports
 use crate::apply_for_all_types;
-use crate::common::{Field, IndexValue, LazyExpr, Shape};
+use crate::common::{EvalInto, Field, IndexValue, LazyExpr, Shape};
 //}}}
 //{{{ std imports
 use std::ops::{Add, Div, Mul, Sub};
@@ -178,6 +178,41 @@ where
     type ScalarType = T;
 }
 
+//}}}
+//{{{ impl: EvalInto for BinopExpr
+/// Single-pass evaluation via `out: &mut [T]`.
+///
+/// Writing through the `noalias &mut [T]` parameter lets LLVM prove the output
+/// doesn't overlap any `&DMatrix` input (which are `noalias readonly`), so it
+/// can hoist all Vec data-pointer loads out of the loop and emit a single SIMD
+/// pass over all operands — matching nalgebra's vectorisation quality while
+/// doing one pass instead of N-1 separate fold passes.
+impl<A, B, T, Op> EvalInto<T> for BinopExpr<A, B, T, Op>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Copy,
+    Op: BinOp,
+{
+    #[inline]
+    fn eval_into(
+        &self,
+        out: &mut [T],
+    )
+    {
+        let len = out.len();
+        for i in 0..len
+        {
+            // Safety: i < len = out.len()
+            // `out` is noalias &mut [T]; all inputs are noalias readonly &DMatrix,
+            // so LLVM proves non-aliasing and auto-vectorises this loop.
+            unsafe {
+                *out.get_unchecked_mut(i) =
+                    Op::apply(self.a.index_value(i), self.b.index_value(i));
+            }
+        }
+    }
+}
 //}}}
 //{{{ macro: impl_binop_expr_binary_op
 macro_rules! impl_binop_expr_binary_op {

@@ -4,7 +4,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{lin_index, Field, IndexValue};
+use crate::common::{lin_index, EvalInto, Field, IndexValue};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -169,6 +169,21 @@ where
     ) -> &mut Self::Output
     {
         &mut (**self)[index]
+    }
+}
+//}}}
+//{{{ impl: EvalInto<T> for DMatrix
+impl<T> EvalInto<T> for DMatrix<T>
+where
+    T: Field + Copy,
+{
+    #[inline]
+    fn eval_into(
+        &self,
+        out: &mut [T],
+    )
+    {
+        out.copy_from_slice(&self.data);
     }
 }
 //}}}

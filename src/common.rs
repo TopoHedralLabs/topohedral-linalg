@@ -124,6 +124,25 @@ macro_rules! apply_for_all_integer_types {
 }
 
 //}}}
+//{{{ macro: impl_scalar_eval_into
+macro_rules! impl_scalar_eval_into {
+    ($type:ty) => {
+        impl EvalInto<$type> for $type
+        {
+            #[inline]
+            fn eval_into(
+                &self,
+                out: &mut [$type],
+            )
+            {
+                out.fill(*self);
+            }
+        }
+    };
+}
+
+apply_for_all_types!(impl_scalar_eval_into);
+//}}}
 //{{{ macro: impl_field
 macro_rules! impl_field {
     ($type:ty) => {
@@ -865,6 +884,34 @@ where
     fn size(&self) -> (usize, usize)
     {
         (self.nrows(), self.ncols())
+    }
+}
+//}}}
+//{{{ trait: EvalInto
+/// Evaluates `self` into a pre-allocated output slice.
+///
+/// Implementing types write their element-wise values into `out` in linear
+/// (column-major) order.  The default implementation falls back to
+/// `IndexValue` so leaf types only need to implement one path.
+pub trait EvalInto<T: Field + Copy>
+{
+    fn eval_into(
+        &self,
+        out: &mut [T],
+    );
+}
+
+impl<X, T: Field + Copy> EvalInto<T> for &X
+where
+    X: EvalInto<T>,
+{
+    #[inline]
+    fn eval_into(
+        &self,
+        out: &mut [T],
+    )
+    {
+        (**self).eval_into(out);
     }
 }
 //}}}
