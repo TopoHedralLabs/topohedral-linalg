@@ -185,7 +185,10 @@ where
         index: usize,
     ) -> Self::Output
     {
-        self.data[index]
+        // Safety: expression tree evaluation always iterates 0..nrows*ncols, and
+        // data has exactly nrows*ncols elements. Eliminating this bounds check
+        // allows LLVM to auto-vectorize the evaluation loop in From<BinopExpr>.
+        unsafe { *self.data.get_unchecked(index) }
     }
 }
 

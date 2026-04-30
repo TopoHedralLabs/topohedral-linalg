@@ -180,10 +180,12 @@ where
 {
     fn from(expr: BinopExpr<A, B, T, Op>) -> DMatrix<T>
     {
+        let total = expr.nrows * expr.ncols;
         let mut out = DMatrix::<T>::zeros(expr.nrows, expr.ncols);
-        for i in 0..expr.nrows * expr.ncols
+        for i in 0..total
         {
-            out.data[i] = expr.index_value(i);
+            // Safety: out.data has exactly total elements, i < total
+            unsafe { *out.data.get_unchecked_mut(i) = expr.index_value(i) };
         }
         out
     }
@@ -198,10 +200,12 @@ where
 {
     fn from(expr: UnaryExpr<A, T, Op>) -> DMatrix<T>
     {
+        let total = expr.nrows * expr.ncols;
         let mut out = DMatrix::<T>::zeros(expr.nrows, expr.ncols);
-        for i in 0..expr.nrows * expr.ncols
+        for i in 0..total
         {
-            out.data[i] = expr.index_value(i);
+            // Safety: out.data has exactly total elements, i < total
+            unsafe { *out.data.get_unchecked_mut(i) = expr.index_value(i) };
         }
         out
     }
