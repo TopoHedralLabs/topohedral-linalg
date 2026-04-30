@@ -207,8 +207,7 @@ where
             // `out` is noalias &mut [T]; all inputs are noalias readonly &DMatrix,
             // so LLVM proves non-aliasing and auto-vectorises this loop.
             unsafe {
-                *out.get_unchecked_mut(i) =
-                    Op::apply(self.a.index_value(i), self.b.index_value(i));
+                *out.get_unchecked_mut(i) = Op::apply(self.a.index_value(i), self.b.index_value(i));
             }
         }
     }
