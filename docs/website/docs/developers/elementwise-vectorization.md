@@ -107,7 +107,7 @@ move only ~1 000 doubles — but only if it can be vectorised.
 
 ### Fix 1 — `get_unchecked` on Leaf Reads
 
-**File:** [`src/dmatrix/indexing.rs`](../src/dmatrix/indexing.rs)
+**File:** [`src/dmatrix/indexing.rs`](https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/dmatrix/indexing.rs)
 
 ```rust
 // Before
@@ -130,7 +130,7 @@ still left LLVM generating scalar code due to the aliasing problem.
 
 ### Fix 2 — The `EvalInto<T>` Trait (the key change)
 
-**Files:** [`src/common.rs`](../src/common.rs), [`src/expression/binary_expr.rs`](../src/expression/binary_expr.rs), [`src/dmatrix/mod.rs`](../src/dmatrix/mod.rs)
+**Files:** [`src/common.rs`](https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/common.rs), [`src/expression/binary_expr.rs`](https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/expression/binary_expr.rs), [`src/dmatrix/mod.rs`](https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/dmatrix/mod.rs)
 
 The root cause of the aliasing failure was **where the output was written through**:
 
@@ -176,7 +176,7 @@ fn from(expr: BinopExpr<A, B, T, Op>) -> DMatrix<T> {
 
 ### Fix 3 — Single-Pass Evaluation
 
-**File:** [`src/expression/binary_expr.rs`](../src/expression/binary_expr.rs)
+**File:** [`src/expression/binary_expr.rs`](https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/expression/binary_expr.rs)
 
 With aliasing now provable, the natural implementation of `BinopExpr::eval_into` uses
 `index_value` for **both** operands in a single loop:

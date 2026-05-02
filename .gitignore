@@ -2,6 +2,7 @@
 archive/
 misc/
 venv/
+docs/website/site/
 Cargo.lock
 .DS_Store
 __pycache__/
