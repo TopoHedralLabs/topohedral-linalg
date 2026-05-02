@@ -189,7 +189,9 @@ where
         // the input DMatrix struct fields and enabling SIMD auto-vectorisation.
         let mut data: Vec<T> = Vec::with_capacity(total);
         #[allow(clippy::uninit_vec)]
-        unsafe { data.set_len(total) };
+        unsafe {
+            data.set_len(total)
+        };
         expr.eval_into(&mut data);
         DMatrix { data, nrows, ncols }
     }
