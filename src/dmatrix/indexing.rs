@@ -4,7 +4,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{lin_index, Field, IndexValue};
+use crate::common::{lin_index, EvalInto, Field, IndexValue};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -172,6 +172,21 @@ where
     }
 }
 //}}}
+//{{{ impl: EvalInto<T> for DMatrix
+impl<T> EvalInto<T> for DMatrix<T>
+where
+    T: Field + Copy,
+{
+    #[inline]
+    fn eval_into(
+        &self,
+        out: &mut [T],
+    )
+    {
+        out.copy_from_slice(&self.data);
+    }
+}
+//}}}
 //{{{ impl: IndexValue<usize> for SMatrix
 impl<T> IndexValue<usize> for DMatrix<T>
 where
@@ -185,7 +200,10 @@ where
         index: usize,
     ) -> Self::Output
     {
-        self.data[index]
+        // Safety: expression tree evaluation always iterates 0..nrows*ncols, and
+        // data has exactly nrows*ncols elements. Eliminating this bounds check
+        // allows LLVM to auto-vectorize the evaluation loop in From<BinopExpr>.
+        unsafe { *self.data.get_unchecked(index) }
     }
 }
 
