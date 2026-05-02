@@ -187,8 +187,8 @@ where
         // EvalInto::eval_into.  That method writes through `&mut [T]` which
         // LLVM marks `noalias`, letting it prove the output slice doesn't overlap
         // the input DMatrix struct fields and enabling SIMD auto-vectorisation.
-        #[allow(clippy::uninit_vec)]
         let mut data: Vec<T> = Vec::with_capacity(total);
+        #[allow(clippy::uninit_vec)]
         unsafe { data.set_len(total) };
         expr.eval_into(&mut data);
         DMatrix { data, nrows, ncols }
