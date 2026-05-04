@@ -1,11 +1,34 @@
 # User Guide
 
 This page covers the full surface area of `topohedral-linalg`, with examples for
-both `SMatrix` (fixed size) and `DMatrix` (dynamic size). All examples assume:
+both `SMatrix` (fixed size) and `DMatrix` (dynamic size).
+
+## Imports
+
+There is no prelude — import what you need. The module structure is:
+
+| What you need | Import path |
+|---|---|
+| `SMatrix` | `topohedral_linalg::smatrix::SMatrix` |
+| `DMatrix` | `topohedral_linalg::dmatrix::DMatrix` |
+| Traits (`MatMul`, `MatrixOps`, `ReduceOps`, `TransformOps`, `FloatTransformOps`, `Shape`, `VectorOps`, …) | `topohedral_linalg::{TraitName}` |
+| `Dimension` (for sorting) | `topohedral_linalg::Dimension` |
+| Lazy unary functions (`sin`, `cos`, `sqrt`, …) | `topohedral_linalg::{fn_name}` |
+
+A typical set of imports for general use:
 
 ```rust
-use topohedral_linalg::prelude::*;
+use topohedral_linalg::smatrix::SMatrix;
+use topohedral_linalg::dmatrix::DMatrix;
+use topohedral_linalg::{
+    Dimension, MatMul, MatrixOps, ReduceOps, Shape,
+    TransformOps, FloatTransformOps,
+};
 ```
+
+Add individual trait imports only when the methods they provide are actually needed;
+the Rust compiler will tell you which trait to bring into scope if a method call
+fails to resolve.
 
 ---
 
@@ -45,8 +68,8 @@ Both constructors accept flat slices and a layout flag. The slice length must eq
 ```rust
 // Row-major input (most natural when writing data inline)
 let a = SMatrix::<f64, 2, 3>::from_row_slice(&[
-    1.0, 2.0, 3.0,
-    4.0, 5.0, 6.0,
+    1.0, 2.0, 3.0, // row 0
+    4.0, 5.0, 6.0, // row 1
 ]);
 
 // Column-major input (matches internal storage)
@@ -134,7 +157,7 @@ Chains of any length collapse into one vectorised loop; see the
 
 ```rust
 let neg = -a.clone();               // owned negation
-let neg: DMatrix<f64> = (&a).into(); // lazy negation via UnaryExpr
+let neg: DMatrix<f64> = (-&a).into(); // lazy negation via UnaryExpr
 ```
 
 ---
@@ -167,26 +190,31 @@ parameters, so a dimension mismatch is a compile error.
 
 ### Scalar operations
 
+Every transformation is available in three flavours:
+
+| Flavour | Example | Effect |
+|---|---|---|
+| In-place | `m.transform()` | Modifies `m` |
+| Copying | `m.transformed()` | Returns new matrix, `m` unchanged |
+| Consuming | `m.into_transformed()` | Consumes `m`, returns new matrix |
+
+these are the three general purpose transformations which take a closure of type
+`FnMut(S) -> S` where `S` is the scalar type of the matrix. In additions to these
+general-purpose transformations we provide three standard transformations: `shift`,
+`scale` and `fill` for convenience. For example:
+
 ```rust
 use topohedral_linalg::TransformOps;
-
 let mut m = DMatrix::<f64>::ones(3, 3);
 m.shift(2.0);    // add 2.0 to every element in-place
-m.scale(0.5);    // multiply every element by 0.5 in-place
-m.fill(0.0);     // set every element to 0.0
-```
-
-### Custom closures
-
-```rust
-m.transform(|x| x * x);                // in-place: square every element
-let m2 = m.transformed(|x| x.sqrt());  // returns a new matrix
-let m3 = m.into_transformed(|x| x + 1.0); // consumes m, returns new matrix
+let m2 = m.shifted(2.0);    // Copies m, adds 2.0 to every element, m unchanged
+let m3 = m.into_shifted(2.0); // Consumes m, adds 2.0 to every element and returns new matrix
 ```
 
 ### Built-in math functions
 
-Every standard floating-point function is available in three flavours:
+Every standard floating-point function is available in three flavours, using `sqrt` as an
+example:
 
 | Flavour | Example | Effect |
 |---|---|---|
@@ -307,6 +335,10 @@ They are backed by LAPACK routines.
 
 ### LU decomposition
 
+Performs the LU decomposition with partial pivoting, which for matrix $\mathbf{A}$
+computes the permutation matrix $\mathbf{P}$, the lower-triangular matrix $\mathbf{L}$,
+and the upper-triangular matrix $\mathbf{U}$ such that: $\mathbf{P}\mathbf{A} = \mathbf{L}\mathbf{U}$.
+
 ```rust
 let m = DMatrix::<f64>::from_row_slice(&[2.0, 1.0, 1.0, 3.0], 2, 2);
 let lu = m.lu().unwrap();
@@ -320,6 +352,15 @@ let swaps = lu.num_swaps; // parity of the permutation
 LAPACK routine: `dgetrf` / `sgetrf`
 
 ### QR decomposition
+
+Performs the QR decomposition, which for matrix $\mathbf{A}$ computes a
+decomposition $\mathbf{A} = \mathbf{Q}\mathbf{R}$ where $\mathbf{Q}$
+is a **unitary** with unit-vector columns spanning the column space of the
+matrix and $\mathbf{R}$ is an upper-triangular matrix.
+
+!!! note
+    This is not a pivot-based QR decompositon therefore it is not rank-revealing.
+
 
 ```rust
 let m = DMatrix::<f64>::from_uniform_random(0.0, 1.0, 4, 3);
