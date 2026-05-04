@@ -374,7 +374,28 @@ LAPACK routine: `dgeqrf` + `dorgqr` / single-precision equivalents
 
 ### Eigenvalue decomposition (general)
 
-Returns complex eigenvalues even for real input matrices.
+For a square matrix $\mathbf{A}$, computes the eigenvalues
+$\lambda_{i}$ and the left and right eigenvectors satisfying:
+
+$$
+\mathbf{A}\mathbf{v}_{i}
+=
+\lambda_{i} \mathbf{v}_{i}
+\qquad \text{(right eigenvectors)}
+$$
+
+$$
+\mathbf{u}_{i}^H \mathbf{A}
+=
+\lambda_{i} \mathbf{u}_{i}^H
+\qquad \text{(left eigenvectors)}
+$$
+
+For real matrices, complex eigenvalues always appear as conjugate
+pairs $\lambda, \bar{\lambda}$.  Unlike the symmetric case, the right
+eigenvectors do not generally form an orthogonal basis, and for
+defective matrices (repeated eigenvalues with a shortage of independent eigenvectors)
+the decomposition may be ill-conditioned.
 
 ```rust
 use num_complex::Complex;
@@ -391,7 +412,18 @@ LAPACK routine: `dgeev` / `sgeev`
 
 ### Symmetric eigenvalue decomposition
 
-For real symmetric matrices; eigenvalues are guaranteed real.
+For a real symmetric matrix $\mathbf{A} = \mathbf{A}^T$, computes the spectral decomposition:
+
+$$\mathbf{A} = \mathbf{Q}\boldsymbol{\Lambda}\mathbf{Q}^T$$
+
+where $\mathbf{Q}$ is **orthogonal** (columns are the orthonormal eigenvectors) and
+$\boldsymbol{\Lambda} = \operatorname{diag}(\lambda_1, \ldots, \lambda_n)$ with real eigenvalues
+in ascending order $\lambda_1 \leq \lambda_2 \leq \cdots \leq \lambda_n$.
+
+!!! note
+    Only the lower triangular part of the input is read; the upper triangle is ignored.
+    This routine is more efficient than the general eigenvalue decomposition and should be
+    preferred whenever the matrix is known to be symmetric.
 
 ```rust
 let m = SMatrix::<f64, 3, 3>::from_uniform_random(0.0, 1.0);
@@ -406,7 +438,20 @@ LAPACK routine: `dsyev` / `ssyev`
 
 ### Schur decomposition
 
-Decomposes a matrix as A = Q T Q^T where T is quasi-upper-triangular.
+For a square matrix $\mathbf{A}$, computes an **orthogonal** $\mathbf{Q}$ and a
+quasi-upper-triangular $\mathbf{T}$ such that:
+
+$$\mathbf{A} = \mathbf{Q}\mathbf{T}\mathbf{Q}^T$$
+
+$\mathbf{T}$ is in real Schur form: block upper-triangular with $1 \times 1$ diagonal blocks
+for real eigenvalues and $2 \times 2$ blocks for conjugate complex pairs. The columns of
+$\mathbf{Q}$ are **Schur vectors** — orthonormal, but not eigenvectors in general. The
+eigenvalues of $\mathbf{A}$ are the eigenvalues of the diagonal blocks of $\mathbf{T}$.
+
+!!! note
+    The Schur decomposition exists for any square matrix and always yields an orthogonal $\mathbf{Q}$,
+    even when $\mathbf{A}$ is defective (i.e. does not have a full set of linearly independent
+    eigenvectors and therefore cannot be diagonalized).
 
 ```rust
 let m = DMatrix::<f64>::from_uniform_random(0.0, 1.0, 4, 4);
@@ -422,7 +467,8 @@ LAPACK routine: `dgees` / `sgees`
 
 ## Linear system solver
 
-Solves `A * X = B` for `X` using LAPACK `gesv` (LU with partial pivoting).
+Solves $\mathbf{A} * \mathbf{X} = \mathbf{B}$ for $\mathbf{X}$ using an LU decomposition
+with partial pivoting.
 
 ```rust
 let a = DMatrix::<f64>::from_row_slice(&[2.0, 1.0, 5.0, 3.0], 2, 2);

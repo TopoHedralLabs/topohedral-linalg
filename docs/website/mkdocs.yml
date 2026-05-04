@@ -1,4 +1,4 @@
-site_name: topohedral-linalg docs
+site_name: TopoHedral-Linalg Documentation
 site_url: https://mydomain.org/mysite
 theme:
   name: material
@@ -6,9 +6,9 @@ theme:
 markdown_extensions:
   - admonition
   - pymdownx.details
+  - pymdownx.superfences
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.superfences
   - pymdownx.arithmatex:
       generic: true
 
