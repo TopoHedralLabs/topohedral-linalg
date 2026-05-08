@@ -1,0 +1,51 @@
+name: Deploy Docs
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OpenBLAS
+        run: sudo apt-get install -y libopenblas-dev
+
+      - uses: dtolnay/rust-toolchain@nightly
+
+      - name: Build cargo doc
+        run: RUSTDOCFLAGS="--html-in-header $(pwd)/docs/rustdoc-html/custom-header.html" cargo doc --no-deps
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Build mkdocs site
+        run: |
+          pip install -r docs/website/requirements.txt
+          cd docs/website && mkdocs build
+
+      - name: Assemble deploy directory
+        run: |
+          mkdir -p deploy/api
+          cp -r docs/website/site/. deploy/
+          cp -r target/doc/. deploy/api/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./deploy
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
