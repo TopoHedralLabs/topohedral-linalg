@@ -1,24 +1,18 @@
 name: Deploy Docs
 on:
-  push:
-    branches: [main]
   release:
     types: [published]
 
-
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install OpenBLAS
         run: sudo apt-get install -y libopenblas-dev
@@ -32,20 +26,27 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Build mkdocs site
+      - name: Install Python dependencies
+        run: pip install -r docs/website/requirements.txt
+
+      - name: Configure git
         run: |
-          pip install -r docs/website/requirements.txt
-          cd docs/website && mkdocs build
+          git config user.name github-actions
+          git config user.email github-actions@github.com
 
-      - name: Assemble deploy directory
+      - name: Deploy docs with mike
         run: |
-          mkdir -p deploy/api
-          cp -r docs/website/site/. deploy/
-          cp -r target/doc/. deploy/api/
+          cd docs/website
+          mike deploy --no-push --update-aliases ${{ github.ref_name }} latest
 
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./deploy
-
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Inject API docs into gh-pages
+        run: |
+          git worktree add /tmp/gh-pages gh-pages
+          VERSION="${{ github.ref_name }}"
+          mkdir -p /tmp/gh-pages/${VERSION}/api /tmp/gh-pages/latest/api
+          cp -r target/doc/. /tmp/gh-pages/${VERSION}/api/
+          cp -r target/doc/. /tmp/gh-pages/latest/api/
+          cd /tmp/gh-pages
+          git add .
+          git commit -m "Add API docs for ${{ github.ref_name || 'dev' }}"
+          git push origin gh-pages

@@ -99,14 +99,3 @@ Add a top-level doc comment in `src/lib.rs` linking back:
 ```
 
 ---
-
-## Previewing locally
-
-Because the two sites are assembled post-build, use a static file server rather than `mkdocs serve`:
-
-```sh
-bash docs/website/build.sh
-python3 -m http.server 8000 --directory docs/website/site
-```
-
-Then open <http://127.0.0.1:8000> for the mkdocs site and <http://127.0.0.1:8000/api/topohedral_linalg/> for the API docs.
