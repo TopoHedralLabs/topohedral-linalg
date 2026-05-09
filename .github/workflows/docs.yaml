@@ -1,0 +1,52 @@
+name: Deploy Docs
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install OpenBLAS
+        run: sudo apt-get install -y libopenblas-dev
+
+      - uses: dtolnay/rust-toolchain@nightly
+
+      - name: Build cargo doc
+        run: RUSTDOCFLAGS="--html-in-header $(pwd)/docs/rustdoc-html/custom-header.html" cargo doc --no-deps
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: pip install -r docs/website/requirements.txt
+
+      - name: Configure git
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      - name: Deploy docs with mike
+        run: |
+          cd docs/website
+          mike deploy --no-push --update-aliases ${{ github.ref_name }} latest
+
+      - name: Inject API docs into gh-pages
+        run: |
+          git worktree add /tmp/gh-pages gh-pages
+          VERSION="${{ github.ref_name }}"
+          mkdir -p /tmp/gh-pages/${VERSION}/api /tmp/gh-pages/latest/api
+          cp -r target/doc/. /tmp/gh-pages/${VERSION}/api/
+          cp -r target/doc/. /tmp/gh-pages/latest/api/
+          cd /tmp/gh-pages
+          git add .
+          git commit -m "Add API docs for ${{ github.ref_name || 'dev' }}"
+          git push origin gh-pages
