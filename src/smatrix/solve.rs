@@ -3,7 +3,7 @@
 //! Provides the `solve` method on square [`SMatrix<T, N, N>`] instances, solving A X = B for X
 //! given right-hand-side [`SMatrix<T, N, M>`] B. Dimension compatibility (the row count of B
 //! must equal the column count of A) is enforced at compile time through const generics. The
-//! implementation delegates to [`Gesv`] and returns the solution as an `SMatrix<T, N, M>`.
+//! implementation delegates to `Gesv` and returns the solution as an `SMatrix<T, N, M>`.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

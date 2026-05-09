@@ -2,7 +2,7 @@
 //!
 //! Provides the `qr()` method on [`SMatrix<T, N, M>`], computing A = QR with Q orthogonal and R
 //! upper-triangular. The static `Return<T, N, M>` struct carries Q and R as [`SMatrix`] values
-//! with appropriate compile-time dimensions. The implementation mirrors its [`DMatrix`] counterpart
+//! with appropriate compile-time dimensions. The implementation mirrors its [`DMatrix`](crate::dmatrix::DMatrix) counterpart
 //! but operates entirely on stack-allocated storage.
 //--------------------------------------------------------------------------------------------------
 

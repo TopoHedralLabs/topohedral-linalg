@@ -1,8 +1,8 @@
 //! Element-wise division operators for [`DMatrix`]: matrix / scalar and matrix / matrix.
 //!
 //! Implements the [`Div`] trait for element-wise (Hadamard) division of [`DMatrix<T>`] operands
-//! and for matrix–scalar scaling. Like [`mulop`], this performs element-wise division rather than
-//! any matrix-theoretic inverse. Results are lazy [`BinopExpr`] values evaluated on demand when
+//! and for matrix–scalar scaling. Like `mulop`, this performs element-wise division rather than
+//! any matrix-theoretic inverse. Results are lazy `BinopExpr` values evaluated on demand when
 //! converted into a concrete [`DMatrix`].
 //--------------------------------------------------------------------------------------------------
 

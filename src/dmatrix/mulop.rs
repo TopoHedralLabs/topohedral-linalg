@@ -2,8 +2,8 @@
 //!
 //! Implements the [`Mul`] trait for element-wise (Hadamard) multiplication of [`DMatrix<T>`]
 //! operands and for scalar–matrix scaling. This is *not* matrix multiplication; for that see
-//! [`matmul`]. Both matrix–matrix and scalar–matrix products are lazy, returning a
-//! [`BinopExpr`] that is evaluated on demand when converted into a concrete [`DMatrix`].
+//! `matmul`. Both matrix–matrix and scalar–matrix products are lazy, returning a
+//! `BinopExpr` that is evaluated on demand when converted into a concrete [`DMatrix`].
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

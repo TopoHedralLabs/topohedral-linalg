@@ -2,7 +2,7 @@
 //!
 //! Implements the [`Mul`] trait for element-wise (Hadamard) multiplication of [`SMatrix<T, N, M>`]
 //! operands and for scalar–matrix scaling. This is *not* matrix multiplication; for that see
-//! [`matmul`]. Both operand combinations return a lazy [`BinopExpr`]. Const-generic dimensions
+//! `matmul`. Both operand combinations return a lazy `BinopExpr`. Const-generic dimensions
 //! ensure shape correctness at compile time.
 //--------------------------------------------------------------------------------------------------
 

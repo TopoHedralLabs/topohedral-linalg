@@ -1,8 +1,8 @@
 //! Element-wise division operators for [`SMatrix`]: matrix / scalar and matrix / matrix.
 //!
 //! Implements the [`Div`] trait for element-wise (Hadamard) division of [`SMatrix<T, N, M>`]
-//! operands and for matrix–scalar scaling. Like [`mulop`], this performs element-wise division
-//! rather than any matrix-theoretic inverse. Results are lazy [`BinopExpr`] values; shape
+//! operands and for matrix–scalar scaling. Like `mulop`, this performs element-wise division
+//! rather than any matrix-theoretic inverse. Results are lazy `BinopExpr` values; shape
 //! compatibility is enforced at compile time through the const-generic dimension parameters.
 //--------------------------------------------------------------------------------------------------
 

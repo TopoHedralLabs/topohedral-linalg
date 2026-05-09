@@ -304,7 +304,7 @@ apply_for_all_integer_types!(impl_abs);
 pub use num_complex::Complex;
 //}}}
 //{{{ trait: Float
-/// Extends [`Field`] with the full suite of floating-point mathematical operations required by
+/// Extends `<Field>` with the full suite of floating-point mathematical operations required by
 /// numeric algorithms in this crate (trigonometric, exponential, logarithmic, rounding, and
 /// algebraic relaxed-precision variants).
 pub trait Float: Field

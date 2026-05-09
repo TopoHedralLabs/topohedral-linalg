@@ -2,7 +2,7 @@
 //!
 //! Implements the [`MatMul`] trait for `&SMatrix<T, M, K>` × `&SMatrix<T, K, N>` pairs using
 //! BLAS routines, where the inner dimension K must match at compile time. The implementation
-//! dispatches to [`Gemm`] for the general matrix–matrix case and to [`Gemv`] for the special
+//! dispatches to `Gemm` for the general matrix–matrix case and to `Gemv` for the special
 //! cases where one operand is effectively a vector (M = 1 or N = 1), choosing the most efficient
 //! BLAS Level-2 or Level-3 call. All arithmetic is performed in column-major order.
 //--------------------------------------------------------------------------------------------------

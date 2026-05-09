@@ -2,7 +2,7 @@
 //!
 //! Provides the `SCVector<T, N>` type alias (`SMatrix<T, N, 1>`) along with implementations of
 //! [`VectorOps`] and [`FloatVectorOps`] for column vectors. A compile-time assertion requires
-//! N > 1. Like its row counterpart in [`srvector`], the alias approach means all [`SMatrix`]
+//! N > 1. Like its row counterpart in `srvector`, the alias approach means all [`SMatrix`]
 //! infrastructure is inherited automatically, and the vector-specific traits add only the
 //! operations that are conceptually distinct for 1-D objects.
 //!

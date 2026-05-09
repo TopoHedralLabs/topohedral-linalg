@@ -2,7 +2,7 @@
 //!
 //! Provides the `schur()` method on [`SMatrix<T, N, M>`], computing A = Q T Q^H. The static
 //! `Return<T, N, M>` struct carries Q and T as [`SMatrix`] instances with compile-time dimensions.
-//! The implementation delegates to [`Gees`] and is the static counterpart of the [`DMatrix`]
+//! The implementation delegates to `Gees` and is the static counterpart of the [`DMatrix`](crate::dmatrix::DMatrix)
 //! Schur decomposition.
 //--------------------------------------------------------------------------------------------------
 

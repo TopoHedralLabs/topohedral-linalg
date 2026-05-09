@@ -1,8 +1,8 @@
 //! Subtraction operators for [`SMatrix`]: matrix − matrix and matrix − scalar.
 //!
-//! Mirrors [`addop`] for subtraction. Implements [`Sub`] for all owned/borrowed combinations of
+//! Mirrors `addop` for subtraction. Implements [`Sub`] for all owned/borrowed combinations of
 //! [`SMatrix<T, N, M>`] and for mixed matrix–scalar operands. Compile-time dimension parameters
-//! enforce shape compatibility. Matrix–matrix subtraction is lazy, returning a [`BinopExpr`];
+//! enforce shape compatibility. Matrix–matrix subtraction is lazy, returning a `BinopExpr`;
 //! scalar subtraction is applied element-wise.
 //--------------------------------------------------------------------------------------------------
 

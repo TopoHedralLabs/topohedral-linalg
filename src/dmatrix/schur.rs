@@ -2,7 +2,7 @@
 //!
 //! Provides the `schur()` method on [`DMatrix<T>`], computing the Schur decomposition A = Q T Q^H
 //! where Q is orthogonal and T is quasi-upper-triangular (block upper-triangular with 1×1 and 2×2
-//! diagonal blocks for real inputs). The factorisation is computed by the [`Gees`] LAPACK driver.
+//! diagonal blocks for real inputs). The factorisation is computed by the `Gees` LAPACK driver.
 //! Results are returned in a `Return<T>` struct containing Q and T; LAPACK errors propagate as a
 //! typed `Error`.
 //--------------------------------------------------------------------------------------------------

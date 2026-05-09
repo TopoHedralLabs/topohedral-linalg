@@ -1,7 +1,7 @@
 //! Negation operator for [`SMatrix`]: unary minus on static matrices.
 //!
 //! Implements the [`Neg`] trait for both owned and borrowed [`SMatrix<T, N, M>`] values,
-//! returning a [`UnaryExpr`] that wraps the operand and applies `NegOp` element-wise when
+//! returning a `UnaryExpr` that wraps the operand and applies `NegOp` element-wise when
 //! materialised. Because [`SMatrix`] is `Copy`, the owned and borrowed paths are equivalent in
 //! cost; the lazy wrapper still avoids unnecessary allocation when negation is part of a larger
 //! expression chain.
