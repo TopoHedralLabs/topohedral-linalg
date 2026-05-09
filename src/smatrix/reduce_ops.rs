@@ -1,6 +1,10 @@
-//! Short Description of module
+//! Reduction operations for [`SMatrix`] and its views.
 //!
-//! Longer description of module
+//! Implements the [`ReduceOps`] trait for [`SMatrix<T, N, M>`] and [`MatrixView<T, N, M>`].
+//! `fold` reduces all elements with an accumulator closure; `fold_indexed` additionally passes
+//! the linear element index to the closure, enabling position-sensitive reductions such as
+//! computing the Frobenius norm or finding the index of the maximum element. Both methods
+//! traverse elements in column-major order.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

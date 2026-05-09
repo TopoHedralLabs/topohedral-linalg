@@ -1,6 +1,10 @@
-//! Short Description of module
+//! LAPACK `dsyev`/`ssyev` wrapper for symmetric (real) eigendecomposition.
 //!
-//! Longer description of module
+//! Provides the [`Syev`] trait, wrapping the LAPACK `?syev` routine for computing eigenvalues and
+//! eigenvectors of a real symmetric matrix. The `jobz` parameter controls whether eigenvectors are
+//! computed; `uplo` selects which triangle is used. Eigenvalues are written to a separate array in
+//! ascending order; eigenvectors (if requested) overwrite the input. This is the LAPACK driver used
+//! by both `DMatrix::symeig()` and `SMatrix::symeig()`.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

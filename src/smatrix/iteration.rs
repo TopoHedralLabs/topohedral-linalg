@@ -1,4 +1,10 @@
-//! This module contains functions for iterating over SMatrix objects.
+//! Iterator support for [`SMatrix`]: owned, shared, and mutable element iteration.
+//!
+//! Implements `IntoIterator` for owned [`SMatrix<T, N, M>`], `&SMatrix<T, N, M>`, and
+//! `&mut SMatrix<T, N, M>`, plus ergonomic `iter()` and `iter_mut()` methods. All iterators
+//! traverse elements in column-major order, consistent with the underlying fixed-size array
+//! layout, allowing the matrix to participate in standard Rust iterator chains without special
+//! adaptors.
 //!
 //--------------------------------------------------------------------------------------------------
 

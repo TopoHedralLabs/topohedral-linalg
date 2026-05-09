@@ -1,6 +1,12 @@
-//! Short Description of module
+//! Dynamic matrix type with heap-allocated, column-major storage.
 //!
-//! Longer description of module
+//! Defines [`DMatrix<T>`], a general-purpose 2-D matrix whose dimensions are determined at
+//! runtime and whose elements are stored in a contiguous `Vec<T>` in column-major (Fortran) order.
+//! Sub-modules add element-wise arithmetic ([`addop`], [`subop`], [`mulop`], [`divop`], [`negop`]),
+//! BLAS-backed matrix multiplication ([`matmul`]), standard linear-algebra decompositions
+//! ([`lu`], [`qr`], [`eig`], [`symeig`], [`schur`], [`solve`]), and supporting utilities for
+//! construction, indexing, iteration, I/O, sub-matrix views, and reduction/transformation
+//! operations.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

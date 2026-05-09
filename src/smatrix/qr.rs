@@ -1,6 +1,9 @@
-//! Short Description of module
+//! QR decomposition of an [`SMatrix`] via LAPACK `dgeqrf`/`sgeqrf` and `dorgqr`/`sorgqr`.
 //!
-//! Longer description of module
+//! Provides the `qr()` method on [`SMatrix<T, N, M>`], computing A = QR with Q orthogonal and R
+//! upper-triangular. The static `Return<T, N, M>` struct carries Q and R as [`SMatrix`] values
+//! with appropriate compile-time dimensions. The implementation mirrors its [`DMatrix`] counterpart
+//! but operates entirely on stack-allocated storage.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

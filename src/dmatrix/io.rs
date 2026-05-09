@@ -1,6 +1,10 @@
-//! Short Description of module
+//! Display formatting for [`DMatrix`].
 //!
-//! Longer description of module
+//! Implements the [`std::fmt::Display`] trait for [`DMatrix<T>`], producing a human-readable,
+//! row-by-row representation of the matrix. Each element is formatted using scientific notation
+//! to ensure consistent column widths across magnitudes. The implementation iterates in row-major
+//! order (transposing the underlying column-major layout) so that the printed output matches the
+//! conventional mathematical layout.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

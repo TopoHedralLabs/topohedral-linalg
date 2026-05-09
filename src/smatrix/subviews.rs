@@ -1,4 +1,10 @@
-//! This module provides subviews of a matrix.
+//! Non-owning sub-matrix views into [`SMatrix`] storage.
+//!
+//! Provides `MatrixView<'a, T, N, M>` and `MatrixViewMut<'a, T, N, M>`, which borrow a
+//! rectangular region of an [`SMatrix`] without copying data. The view dimensions N and M are
+//! const-generic parameters, so view shape is checked at compile time. Both types expose
+//! `Index<(usize, usize)>` and `IntoIterator` in column-major order; the mutable variant
+//! additionally implements `IndexMut`.
 //!
 //--------------------------------------------------------------------------------------------------
 

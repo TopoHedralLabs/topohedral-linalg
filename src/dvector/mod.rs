@@ -1,6 +1,11 @@
-//! Short Description of module
+//! Dynamic vector type built on [`DMatrix`], with row and column vector orientations.
 //!
-//! Longer description of module
+//! Defines the `DVector<T>` type alias (`DMatrix<T>` with a single column or row) along with the
+//! `VecType` discriminant that selects between `Row` and `Col` orientation. Factory methods —
+//! `zeros_cvec`, `ones_cvec`, `from_slice_vec`, `from_value_vec` — construct column vectors
+//! directly. When the element type implements [`Float`], the module also implements
+//! `FloatVectorOps`, which adds dot products, norms, and other vector-specific operations built
+//! on top of the underlying [`DMatrix`] arithmetic and BLAS routines.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

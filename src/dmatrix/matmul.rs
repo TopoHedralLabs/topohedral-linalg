@@ -1,7 +1,10 @@
-//! Matrix multiplication for dense, dynamically allocated matrices.
+//! BLAS-accelerated matrix multiplication for [`DMatrix`].
 //!
-//! This module provides functionality for performing matrix multiplication
-//! on dense matrices (`DMatrix`).
+//! Implements the [`MatMul`] trait for `&DMatrix<T>` pairs using BLAS routines. The
+//! implementation dispatches to [`Gemm`] for the general matrix–matrix case and to [`Gemv`] for
+//! the special cases where one operand is a column or row vector, choosing the most efficient
+//! BLAS Level-2 or Level-3 call automatically. All work is performed in column-major order to
+//! match LAPACK conventions.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

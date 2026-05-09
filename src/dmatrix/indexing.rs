@@ -1,4 +1,9 @@
-//! This module contains functions for indexing SMatrix objects.
+//! Index and IndexMut implementations for [`DMatrix`] using (row, col) pairs.
+//!
+//! Provides `Index<(usize, usize)>` and `IndexMut<(usize, usize)>` for [`DMatrix<T>`], converting
+//! the two-dimensional (row, column) subscript into the linear column-major offset
+//! `col * nrows + row`. This makes element access syntax idiomatic (`matrix[(i, j)]`) while
+//! preserving the underlying column-major layout that BLAS and LAPACK expect.
 //!
 //--------------------------------------------------------------------------------------------------
 

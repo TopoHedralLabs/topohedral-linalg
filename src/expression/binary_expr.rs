@@ -1,6 +1,12 @@
-//! Short Description of module
+//! Lazy binary expression node for element-wise operations on two matrix operands.
 //!
-//! Longer description of module
+//! Provides the [`BinopExpr`] struct, which captures two operands and a stateless [`BinOp`]
+//! descriptor without immediately evaluating the result. Concrete operators — [`AddOp`],
+//! [`SubOp`], [`MulOp`], [`DivOp`] — implement [`BinOp`] by applying the corresponding
+//! arithmetic operation element-by-element. Evaluation is deferred until the expression is
+//! consumed via [`EvalInto::eval_into`] or converted into a [`DMatrix`] / [`SMatrix`], at which
+//! point a single pass over the linear index range writes the result directly into the output
+//! buffer.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

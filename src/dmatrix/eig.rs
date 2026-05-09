@@ -1,6 +1,10 @@
-//! Short Description of module
+//! General (non-symmetric) eigendecomposition of a [`DMatrix`] via LAPACK `dgeev`/`sgeev`.
 //!
-//! Longer description of module
+//! Provides the `eig()` method on [`DMatrix<T>`], computing all eigenvalues and both the left
+//! and right eigenvectors of a general square matrix. The computation is delegated to the
+//! [`Geev`] LAPACK driver. Eigenvalues are returned as complex numbers even when the input is
+//! real-valued; eigenvector matrices are stored column-major in the `Return<T>` struct. LAPACK
+//! errors propagate as a typed `Error`.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

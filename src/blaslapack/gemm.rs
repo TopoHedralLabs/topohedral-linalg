@@ -1,6 +1,10 @@
-//! Short Description of module
+//! BLAS `dgemm`/`sgemm` wrapper for general matrix–matrix multiplication.
 //!
-//! Longer description of module
+//! Provides the [`Gemm`] trait, wrapping the BLAS Level-3 `?gemm` routine
+//! (C ← α · op(A) · op(B) + β · C). Parameters mirror the BLAS interface: transpose flags for
+//! A and B, leading dimensions, and scaling scalars α and β. Implementations for `f64` (via
+//! `cblas_dgemm`) and `f32` (via `cblas_sgemm`) dispatch to the system BLAS library. All
+//! matrices are assumed to be in column-major order.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

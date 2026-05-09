@@ -1,4 +1,10 @@
-//! This module implements the `Add` trait for the `DMatrix` struct.
+//! Addition operators for [`DMatrix`]: matrix + matrix and matrix + scalar.
+//!
+//! Implements the standard [`Add`] trait for all combinations of owned and borrowed
+//! [`DMatrix<T>`] operands, as well as mixed matrix–scalar and scalar–matrix overloads. For
+//! matrix–matrix addition the result is a lazy [`BinopExpr`] that defers allocation until the
+//! expression is converted into a concrete [`DMatrix`]; for scalar operands the addition is
+//! applied element-wise.
 //!
 //--------------------------------------------------------------------------------------------------
 

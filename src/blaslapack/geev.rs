@@ -1,6 +1,10 @@
-//! Short Description of module
+//! LAPACK `dgeev`/`sgeev` wrapper for general (non-symmetric) eigendecomposition.
 //!
-//! Longer description of module
+//! Provides the [`Geev`] trait, wrapping the LAPACK `?geev` routine that computes all eigenvalues
+//! and, optionally, the left and right eigenvectors of a general real matrix. Eigenvalues are
+//! returned as separate real and imaginary part arrays to match the LAPACK interface; callers in
+//! [`eig`] combine them into `Complex<T>` values. A workspace query is supported to obtain the
+//! optimal workspace size before the main computation.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

@@ -1,8 +1,10 @@
-//! Eigenvalue decomposition for symmetric matrices.
+//! Symmetric eigendecomposition of a [`DMatrix`] via LAPACK `dsyev`/`ssyev`.
 //!
-//! This module provides functionality to compute eigenvalues and eigenvectors
-//! of symmetric matrices, which is more efficient than the general eigenvalue
-//! decomposition for asymmetric matrices.
+//! Provides the `symeig()` method on [`DMatrix<T>`], computing all eigenvalues and eigenvectors
+//! of a real symmetric square matrix. The [`Syev`] LAPACK driver is used, which exploits symmetry
+//! for a significantly more efficient computation than the general [`eig`] path. Eigenvalues are
+//! returned as real scalars in ascending order in a `Vec<T>`; eigenvectors are stored column-major
+//! in the `Return<T>` struct. LAPACK errors propagate as a typed `Error`.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

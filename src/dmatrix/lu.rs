@@ -1,6 +1,11 @@
-//! Short Description of module
+//! LU decomposition of a [`DMatrix`] via LAPACK `dgetrf`/`sgetrf`.
 //!
-//! Longer description of module
+//! Provides the `lu()` method on [`DMatrix<T>`], factoring the matrix into lower-triangular L,
+//! upper-triangular U, and a row-permutation matrix P such that PA = LU. The factorisation is
+//! computed by the [`Getrf`] LAPACK routine using partial pivoting. Results are returned as a
+//! `Return<T>` struct containing the three factor matrices and the number of row swaps, which
+//! determines the sign of the determinant. Factorisation failures are reported through a typed
+//! `LUError`.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

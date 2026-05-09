@@ -1,4 +1,11 @@
-//! This module contains functions for constructing SMatrix objects.
+//! Construction helpers for [`SMatrix`]: zeros, ones, fill, and slice initialisation.
+//!
+//! Provides factory methods on [`SMatrix<T, N, M>`] for the most common initialisation patterns.
+//! `zeros` and `ones` fill every element with the additive and multiplicative identities.
+//! `from_value` fills with a caller-supplied constant. `from_col_slice` accepts a flat slice in
+//! column-major order; `from_row_slice` accepts row-major input and transposes it to the internal
+//! column-major layout. When the `rand` feature is enabled, additional constructors accept
+//! distributions from the `rand` crate to produce randomly populated matrices.
 //!
 //--------------------------------------------------------------------------------------------------
 

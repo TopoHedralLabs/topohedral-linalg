@@ -1,6 +1,9 @@
-//! Short Description of module
+//! Subtraction operators for [`DMatrix`]: matrix − matrix and matrix − scalar.
 //!
-//! Longer description of module
+//! Mirrors [`addop`] for subtraction. Implements [`Sub`] for all owned/borrowed combinations
+//! of [`DMatrix<T>`] and for mixed matrix–scalar operands. Matrix–matrix subtraction is lazy,
+//! returning a [`BinopExpr`] that defers allocation until the expression is materialised into
+//! a concrete [`DMatrix`]; scalar subtraction is applied element-wise.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

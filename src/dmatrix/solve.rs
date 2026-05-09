@@ -1,6 +1,9 @@
-//! Short Description of module
+//! Linear system solver for [`DMatrix`] via LAPACK `dgesv`/`sgesv`.
 //!
-//! Longer description of module
+//! Provides the `solve` method on [`DMatrix<T>`], solving the linear system A X = B for X given
+//! coefficient matrix A and right-hand-side matrix B. The system is solved using the [`Gesv`]
+//! LAPACK driver, which performs LU factorisation with partial pivoting in place. The solution
+//! matrix X is returned on success; failures produce a typed `Error`.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

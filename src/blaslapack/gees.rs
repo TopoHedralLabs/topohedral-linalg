@@ -1,6 +1,10 @@
-//! Short Description of module
+//! LAPACK `dgees`/`sgees` wrapper for the Schur decomposition.
 //!
-//! Longer description of module
+//! Provides the [`Gees`] trait, wrapping the LAPACK `?gees` routine that computes the Schur form
+//! of a real general matrix, optionally reordering the Schur form so that selected eigenvalues
+//! appear first. The `job` flag controls whether Schur vectors (Q) are computed; `sort` enables
+//! eigenvalue reordering. This is the LAPACK driver used by both `DMatrix::schur()` and
+//! `SMatrix::schur()`.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

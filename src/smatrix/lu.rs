@@ -1,6 +1,9 @@
-//! Short Description of module
+//! LU decomposition of an [`SMatrix`] via LAPACK `dgetrf`/`sgetrf`.
 //!
-//! Longer description of module
+//! Provides the `lu()` method on [`SMatrix<T, N, M>`], factoring the matrix into lower-triangular
+//! L, upper-triangular U, and a row-permutation matrix P (as a static matrix) such that PA = LU.
+//! The result is a const-generic `Return<T, N, M>` struct so that downstream code retains full
+//! compile-time shape information for all three factor matrices.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

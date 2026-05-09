@@ -1,6 +1,9 @@
-//! Short Description of module
+//! Element-wise multiplication operators for [`DMatrix`]: matrix * scalar and matrix * matrix.
 //!
-//! Longer description of module
+//! Implements the [`Mul`] trait for element-wise (Hadamard) multiplication of [`DMatrix<T>`]
+//! operands and for scalar–matrix scaling. This is *not* matrix multiplication; for that see
+//! [`matmul`]. Both matrix–matrix and scalar–matrix products are lazy, returning a
+//! [`BinopExpr`] that is evaluated on demand when converted into a concrete [`DMatrix`].
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

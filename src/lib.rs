@@ -1,6 +1,12 @@
-//! # Welcome to Topohedral-Linalg!
+//! # Welcome to TopoHedral-Linalg!
 //!
+//! `topohedral-linalg` is a Rust library for small, dense linear algebra. It provides
+//! two matrix types — a compile-time-sized `SMatrix` and a runtime-sized `DMatrix` —
+//! with BLAS/LAPACK acceleration for matrix multiplication and decompositions, and
+//! lazily-evaluated expression templates for elementwise arithmetic.
 //!
+//! For guides, tutorials, examples and developer documentation, see the
+//! [TopoHedral-Linalg documentation site](../../).
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

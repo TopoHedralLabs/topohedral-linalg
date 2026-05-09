@@ -1,6 +1,9 @@
-//! Short Description of module
+//! LAPACK `dorgqr`/`sorgqr` wrapper for explicit Q reconstruction from a QR factorisation.
 //!
-//! Longer description of module
+//! Provides the [`Orgqr`] trait, wrapping the LAPACK `?orgqr` routine that expands the compact
+//! Householder representation produced by [`Geqrf`] into an explicit orthogonal matrix Q.
+//! Parameters k (the number of reflectors), tau, and the workspace follow the LAPACK convention.
+//! This is the second of the two LAPACK calls in the QR decomposition path.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

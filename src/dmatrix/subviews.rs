@@ -1,4 +1,10 @@
-//! This module provides subviews of a matrix.
+//! Non-owning sub-matrix views into [`DMatrix`] storage.
+//!
+//! Provides `MatrixView<'a, T>` and `MatrixViewMut<'a, T>`, which borrow a rectangular region
+//! of a [`DMatrix`] without copying data. Both types expose `Index<(usize, usize)>` for element
+//! access and `IntoIterator` for column-major traversal, with lifetimes tied to the parent matrix
+//! to enforce borrow-checker safety. The mutable variant additionally implements `IndexMut`,
+//! enabling in-place modification of sub-regions.
 //!
 //--------------------------------------------------------------------------------------------------
 

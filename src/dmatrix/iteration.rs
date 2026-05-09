@@ -1,6 +1,9 @@
-//! Short Description of module
+//! Iterator support for [`DMatrix`]: owned, shared, and mutable element iteration.
 //!
-//! Longer description of module
+//! Implements `IntoIterator` for owned [`DMatrix<T>`], `&DMatrix<T>`, and `&mut DMatrix<T>`,
+//! as well as the ergonomic `iter()` and `iter_mut()` shorthand methods. All iterators traverse
+//! elements in column-major order, consistent with the underlying storage layout, enabling the
+//! matrix to participate in standard Rust iterator chains without any special adaptors.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

@@ -1,6 +1,9 @@
-//! Short Description of module
+//! General eigendecomposition of an [`SMatrix`] via LAPACK `dgeev`/`sgeev`.
 //!
-//! Longer description of module
+//! Provides the `eig()` method on square [`SMatrix<T, N, N>`] instances. Returns a const-generic
+//! `Return<T, N>` containing left and right eigenvector matrices (`SMatrix<T, N, N>`) and
+//! eigenvalues as a fixed-size array `[Complex<T>; N]`. Because the dimensions are compile-time
+//! constants, no heap allocation is needed for the result matrices.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

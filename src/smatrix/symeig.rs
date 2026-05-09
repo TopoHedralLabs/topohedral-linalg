@@ -1,8 +1,9 @@
-//! Eigenvalue decomposition for symmetric matrices.
+//! Symmetric eigendecomposition of an [`SMatrix`] via LAPACK `dsyev`/`ssyev`.
 //!
-//! This module provides functionality to compute eigenvalues and eigenvectors
-//! of symmetric matrices, which is more efficient than the general eigenvalue
-//! decomposition for asymmetric matrices.
+//! Provides the `symeig()` method on square symmetric [`SMatrix<T, N, N>`] instances. Returns a
+//! const-generic `Return<T, N>` with the eigenvector matrix (`SMatrix<T, N, N>`) and eigenvalues
+//! as a fixed-size array `[T; N]` in ascending order. Exploits symmetry via the [`Syev`] driver
+//! for a more efficient computation than the general [`eig`] path.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

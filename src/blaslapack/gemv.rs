@@ -1,6 +1,10 @@
-//! Short Description of module
+//! BLAS `dgemv`/`sgemv` wrapper for general matrix–vector multiplication.
 //!
-//! Longer description of module
+//! Provides the [`Gemv`] trait, wrapping the BLAS Level-2 `?gemv` routine
+//! (y ← α · op(A) · x + β · y). Used by the [`matmul`] modules to accelerate the common case
+//! where one operand is effectively a vector (one row or one column), avoiding the overhead of a
+//! full Level-3 `gemm` call. Implementations for `f64` and `f32` dispatch to the system BLAS
+//! library.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

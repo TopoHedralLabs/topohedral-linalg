@@ -1,6 +1,9 @@
-//! Short Description of module
+//! Serde serialisation and Display formatting for [`SMatrix`].
 //!
-//! Longer description of module
+//! Implements `Serialize` and `Deserialize` from the `serde` crate for [`SMatrix<T, N, M>`],
+//! enabling the matrix to be round-tripped through any serde-compatible format (JSON, TOML,
+//! bincode, etc.). Also implements [`std::fmt::Display`] to produce a human-readable row-by-row
+//! representation using scientific notation, consistent with the [`DMatrix`] display format.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

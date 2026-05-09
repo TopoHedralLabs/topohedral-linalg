@@ -1,6 +1,10 @@
-//! Short Description of module
+//! Addition operators for [`SMatrix`]: matrix + matrix and matrix + scalar.
 //!
-//! Longer description of module
+//! Implements the standard [`Add`] trait for all combinations of owned and borrowed
+//! [`SMatrix<T, N, M>`] operands, as well as mixed matrix–scalar and scalar–matrix overloads.
+//! Matrix–matrix addition returns a lazy [`BinopExpr`] that defers allocation until materialised;
+//! scalar addition is applied element-wise. Const-generic dimension parameters ensure that only
+//! shape-compatible matrices can be added at compile time.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

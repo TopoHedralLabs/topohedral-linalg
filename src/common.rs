@@ -1,4 +1,11 @@
-//! Collection of crate-wide types, traits and definitions.
+//! Crate-wide foundational traits, types, and index utilities.
+//!
+//! Defines the primitive abstractions shared by all matrix types in the crate. The [`Field`]
+//! trait bounds element types to those supporting arithmetic operations. [`Zero`] and [`One`]
+//! supply additive and multiplicative identities. [`Shape`] exposes runtime matrix dimensions.
+//! [`IndexValue`] and [`EvalInto`] power the lazy expression-template pipeline. [`LazyExpr`]
+//! marks a type as a deferred computation. Compile-time predicates such as [`GreaterThan`] and
+//! [`IsTrue`] enable dimension-checking assertions on static matrices.
 //!
 //--------------------------------------------------------------------------------------------------
 

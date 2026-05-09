@@ -1,6 +1,10 @@
-//! Short Description of module
+//! Negation operator for [`DMatrix`]: unary minus on matrices.
 //!
-//! Longer description of module
+//! Implements the [`Neg`] trait for both owned and borrowed [`DMatrix<T>`] values. Owned
+//! negation moves the matrix into a lazy [`UnaryExpr`] wrapper; borrowed negation also returns
+//! a [`UnaryExpr`], tying the result lifetime to the original matrix. No allocation occurs until
+//! the expression is materialised into a concrete [`DMatrix`], allowing negation to be fused
+//! into a larger expression chain.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

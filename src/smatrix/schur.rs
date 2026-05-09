@@ -1,6 +1,9 @@
-//! Short Description of module
+//! Schur decomposition of an [`SMatrix`] via LAPACK `dgees`/`sgees`.
 //!
-//! Longer description of module
+//! Provides the `schur()` method on [`SMatrix<T, N, M>`], computing A = Q T Q^H. The static
+//! `Return<T, N, M>` struct carries Q and T as [`SMatrix`] instances with compile-time dimensions.
+//! The implementation delegates to [`Gees`] and is the static counterpart of the [`DMatrix`]
+//! Schur decomposition.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

@@ -1,6 +1,10 @@
-//! Short Description of module
+//! LAPACK `dgesv`/`sgesv` wrapper for solving general linear systems.
 //!
-//! Longer description of module
+//! Provides the [`Gesv`] trait, wrapping the LAPACK `?gesv` routine that solves A X = B for X by
+//! performing LU factorisation with partial pivoting in place. The coefficient matrix A and
+//! right-hand-side B are overwritten on return; the solution X occupies the space originally held
+//! by B. A typed error is returned when the matrix is singular. This is the LAPACK driver used by
+//! both `DMatrix::solve()` and `SMatrix::solve()`.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
