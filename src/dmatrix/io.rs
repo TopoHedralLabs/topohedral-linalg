@@ -29,7 +29,7 @@ where
             write!(f, "|")?;
             for j in 0..self.ncols
             {
-                write!(f, " {:1.4e} ", self[(i, j)],)?;
+                write!(f, " {:.4e} ", self[(i, j)],)?;
             }
             writeln!(f, " |")?;
         }
