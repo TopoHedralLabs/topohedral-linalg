@@ -1,4 +1,11 @@
-//! Collection of crate-wide types, traits and definitions.
+//! Crate-wide foundational traits, types, and index utilities.
+//!
+//! Defines the primitive abstractions shared by all matrix types in the crate. The [`Field`]
+//! trait bounds element types to those supporting arithmetic operations. [`Zero`] and [`One`]
+//! supply additive and multiplicative identities. [`Shape`] exposes runtime matrix dimensions.
+//! [`IndexValue`] and [`EvalInto`] power the lazy expression-template pipeline. [`LazyExpr`]
+//! marks a type as a deferred computation. Compile-time predicates such as [`GreaterThan`] and
+//! [`IsTrue`] enable dimension-checking assertions on static matrices.
 //!
 //--------------------------------------------------------------------------------------------------
 
@@ -22,10 +29,14 @@ struct Assert<const CHECK: bool>;
 trait IsTrue {}
 impl IsTrue for Assert<true> {}
 
+/// Compile-time predicate that asserts `N > M`, used to enforce static dimension constraints.
 pub trait GreaterThan<const N: usize, const M: usize> {}
+/// Blanket implementation that satisfies [`GreaterThan`] whenever the compile-time check `N > M` holds.
 impl<const N: usize, const M: usize> GreaterThan<N, M> for () where Assert<{ N > M }>: IsTrue {}
 //}}}
 //{{{ trait: Field
+/// Algebraic field over which matrix operations are defined, requiring the four arithmetic
+/// operations, their assignment variants, negation, and a total order.
 pub trait Field:
     Sized
     + Add<Output = Self>
@@ -43,10 +54,12 @@ pub trait Field:
 }
 //}}}
 //{{{ trait: IndexValue
+/// Provides element access by linear index, used by the lazy expression-template pipeline.
 pub trait IndexValue<I>
 {
     type Output;
 
+    /// Returns the element at the given linear `index`.
     fn index_value(
         &self,
         index: usize,
@@ -88,6 +101,7 @@ where
 //}}}
 //{{{ macro: apply_for_all_types
 #[macro_export]
+#[doc(hidden)]
 macro_rules! apply_for_all_types {
     ($macro:ident) => {
         $macro!(f32);
@@ -109,6 +123,7 @@ macro_rules! apply_for_all_types {
 //}}}
 //{{{ macro: apply_for_all_integer_types
 #[macro_export]
+#[doc(hidden)]
 macro_rules! apply_for_all_integer_types {
     ($macro:ident) => {
         $macro!(i8);
@@ -169,8 +184,10 @@ macro_rules! impl_field {
 apply_for_all_types!(impl_field);
 //}}}
 //{{{ trait: Zero
+/// Supplies the additive identity element for a type.
 pub trait Zero
 {
+    /// Returns the additive identity (zero) value for this type.
     fn zero() -> Self;
 }
 //}}}
@@ -206,8 +223,10 @@ macro_rules! impl_zero {
 apply_for_all_integer_types!(impl_zero);
 //}}}
 //{{{ trait: One
+/// Supplies the multiplicative identity element for a type.
 pub trait One
 {
+    /// Returns the multiplicative identity (one) value for this type.
     fn one() -> Self;
 }
 //}}}
@@ -243,8 +262,10 @@ macro_rules! impl_zero {
 apply_for_all_integer_types!(impl_zero);
 //}}}
 //{{{ trait: Abs
+/// Provides an absolute-value operation for scalar types.
 pub trait Abs
 {
+    /// Returns the absolute value of `self`.
     fn abs(self) -> Self;
 }
 //}}}
@@ -283,6 +304,9 @@ apply_for_all_integer_types!(impl_abs);
 pub use num_complex::Complex;
 //}}}
 //{{{ trait: Float
+/// Extends `<Field>` with the full suite of floating-point mathematical operations required by
+/// numeric algorithms in this crate (trigonometric, exponential, logarithmic, rounding, and
+/// algebraic relaxed-precision variants).
 pub trait Float: Field
 {
     fn abs(self) -> Self;
@@ -860,6 +884,7 @@ impl_float!(f32);
 impl_float!(f64);
 //}}}
 //{{{ trait: MatrixOps
+/// Core linear-algebra operations common to all matrix types.
 pub trait MatrixOps
 where
     Self: Sized,
@@ -867,20 +892,27 @@ where
     type ScalarType: Field + Zero + One + Copy;
     type TransposeType;
 
+    /// Returns the transpose of the matrix.
     fn transpose(&self) -> Self::TransposeType;
+    /// Computes the determinant of the matrix using an LU factorisation.
     fn determinant(&self) -> Self::ScalarType
     where
         Self::ScalarType: Getrf + Float;
+    /// Computes the trace (sum of diagonal elements) of the matrix.
     fn trace(&self) -> Self::ScalarType;
 }
 //}}}
 //{{{ trait: Shape
+/// Exposes the runtime dimensions of a two-dimensional array or matrix.
 pub trait Shape
 where
     Self: Sized,
 {
+    /// Returns the number of rows.
     fn nrows(&self) -> usize;
+    /// Returns the number of columns.
     fn ncols(&self) -> usize;
+    /// Returns `(nrows, ncols)` as a tuple.
     fn size(&self) -> (usize, usize)
     {
         (self.nrows(), self.ncols())
@@ -916,6 +948,11 @@ where
 }
 //}}}
 //{{{ trait: LazyExpr
+/// Marker trait for types that represent a deferred (lazy) matrix computation.
+///
+/// Implementing types carry shape information via [`Shape`] and expose their
+/// element type through `ScalarType`, enabling the expression-template pipeline
+/// to compose operations without intermediate allocations.
 pub trait LazyExpr: Shape
 {
     type ScalarType: Field + Copy;
@@ -967,12 +1004,14 @@ where
 }
 //}}}
 //{{{ trait: MatMul
+/// Matrix multiplication, consuming both operands and producing an output matrix.
 pub trait MatMul<Rhs = Self>
 where
     Self: Sized,
 {
     type Output;
 
+    /// Multiplies `self` by `rhs` and returns the resulting matrix.
     fn matmul(
         self,
         rhs: Rhs,
@@ -980,6 +1019,7 @@ where
 }
 //}}}
 //{{{ trait: VectorOps
+/// Common geometric and algebraic operations for fixed- and dynamic-length vector types.
 #[allow(clippy::len_without_is_empty)]
 pub trait VectorOps:
     Index<usize, Output = Self::ScalarType> + IndexMut<usize, Output = Self::ScalarType> + Sized + Clone
@@ -987,6 +1027,7 @@ pub trait VectorOps:
     type ScalarType: Field + Zero + One + Copy + Default + Float;
 
     //{{{ fn: len
+    /// Returns the number of elements in the vector.
     fn len(&self) -> usize;
     //}}}
     //{{{ fn: norm
@@ -1008,6 +1049,7 @@ pub trait VectorOps:
     }
     //}}}
     //{{{ fn: dot
+    /// Computes the dot (inner) product of `self` and `other`.
     fn dot(
         &self,
         other: &Self,
@@ -1027,6 +1069,7 @@ pub trait VectorOps:
     }
     //}}}
     //{{{ fn: normalize
+    /// Returns a unit-length copy of the vector, or the zero vector if the norm is zero.
     fn normalize(&self) -> Self
     {
         let norm = self.norm();
@@ -1042,6 +1085,7 @@ pub trait VectorOps:
     }
     //}}}
     //{{{ fn: cross
+    /// Computes the cross product of two 3-D vectors.
     fn cross(
         &self,
         other: &Self,
@@ -1067,6 +1111,8 @@ pub trait VectorOps:
 }
 //}}}
 //{{{ trait: FloatVectorOps
+/// Extends [`VectorOps`] with operations that require floating-point scalars, such as computing
+/// the angle between two vectors.
 pub trait FloatVectorOps: VectorOps
 where
     Self::ScalarType: Float + Zero + One + Copy + Default,
@@ -1101,6 +1147,9 @@ where
 }
 //}}}
 //{{{ trait: TransformOps
+/// Element-wise transformation operations for matrix and vector types, providing in-place,
+/// cloning, and consuming variants for arbitrary closures as well as common special cases
+/// (shift, scale, fill).
 pub trait TransformOps
 where
     Self: Sized,
@@ -1149,6 +1198,7 @@ where
         self.transform(|element| element + value);
     }
 
+    /// Returns a cloned copy of `self` with every element shifted by `value`.
     fn shifted(
         &self,
         value: Self::ScalarType,
@@ -1159,6 +1209,7 @@ where
         self.transformed(|element| element + value)
     }
 
+    /// Consumes `self`, shifts every element by `value`, and returns it.
     fn into_shifted(
         self,
         value: Self::ScalarType,
@@ -1176,6 +1227,7 @@ where
         self.transform(|element| element * value);
     }
 
+    /// Returns a cloned copy of `self` with every element scaled by `value`.
     fn scaled(
         &self,
         value: Self::ScalarType,
@@ -1186,6 +1238,7 @@ where
         self.transformed(|element| element * value)
     }
 
+    /// Consumes `self`, scales every element by `value`, and returns it.
     fn into_scaled(
         self,
         value: Self::ScalarType,
@@ -1203,6 +1256,7 @@ where
         self.transform(|_| value);
     }
 
+    /// Returns a cloned copy of `self` with every element set to `value`.
     fn filled(
         &self,
         value: Self::ScalarType,
@@ -1213,6 +1267,7 @@ where
         self.transformed(|_| value)
     }
 
+    /// Consumes `self`, sets every element to `value`, and returns it.
     fn into_filled(
         self,
         value: Self::ScalarType,
@@ -1316,6 +1371,8 @@ macro_rules! float_transform_unary_with_two_args {
 }
 //}}}
 //{{{ trait: FloatTransformOps
+/// Extends [`TransformOps`] with element-wise versions of every [`Float`] method, providing
+/// in-place, cloning (`*ed`), and consuming (`into_*ed`) variants for each operation.
 pub trait FloatTransformOps: TransformOps
 where
     Self::ScalarType: Float,
@@ -1422,6 +1479,7 @@ where
         rhs: Self::ScalarType
     );
 
+    /// Clamps every element to the positive part in-place (negative values become zero).
     fn pos(&mut self)
     where
         Self::ScalarType: Zero,
@@ -1438,6 +1496,7 @@ where
         });
     }
 
+    /// Returns a cloned copy of `self` with every element clamped to its positive part.
     fn posed(&self) -> Self
     where
         Self: Clone,
@@ -1455,6 +1514,7 @@ where
         })
     }
 
+    /// Consumes `self`, clamps every element to its positive part, and returns it.
     fn into_posed(mut self) -> Self
     where
         Self::ScalarType: Zero,
@@ -1463,6 +1523,7 @@ where
         self
     }
 
+    /// Clamps every element to the non-positive part in-place (positive values become zero).
     fn neg(&mut self)
     where
         Self::ScalarType: Zero,
@@ -1479,6 +1540,7 @@ where
         });
     }
 
+    /// Returns a cloned copy of `self` with every element clamped to its non-positive part.
     fn neged(&self) -> Self
     where
         Self: Clone,
@@ -1496,6 +1558,7 @@ where
         })
     }
 
+    /// Consumes `self`, clamps every element to its non-positive part, and returns it.
     fn into_neged(mut self) -> Self
     where
         Self::ScalarType: Zero,
@@ -1514,6 +1577,7 @@ where
 }
 //}}}
 //{{{ fun: lin_index
+/// Converts a `(row, col)` index pair to a column-major linear index given `n` rows.
 #[inline]
 pub fn lin_index(
     idx: (usize, usize),
@@ -1524,6 +1588,7 @@ pub fn lin_index(
 }
 //}}}
 //{{{ fun: tuple_index
+/// Converts a column-major linear index to a `(row, col)` pair given `nrows`.
 #[inline]
 pub fn tuple_index(
     idx: usize,
@@ -1535,11 +1600,16 @@ pub fn tuple_index(
 
 //}}}
 //{{{ trait: ReduceOps
+/// Collection of reduction and aggregation operations built on a pair of primitive fold methods.
+///
+/// Implementors provide [`fold`](ReduceOps::fold) and [`fold_indexed`](ReduceOps::fold_indexed);
+/// all other methods (`sum`, `product`, `min`, `max`, etc.) are derived automatically.
 pub trait ReduceOps
 {
     type Item: Copy;
     type Index: Copy;
 
+    /// Folds every element into an accumulator using `f`, starting from `init`.
     fn fold<B, F>(
         &self,
         init: B,
@@ -1548,6 +1618,7 @@ pub trait ReduceOps
     where
         F: FnMut(B, Self::Item) -> B;
 
+    /// Folds every element together with its index into an accumulator using `f`.
     fn fold_indexed<B, F>(
         &self,
         init: B,
@@ -1556,11 +1627,13 @@ pub trait ReduceOps
     where
         F: FnMut(B, Self::Index, Self::Item) -> B;
 
+    /// Returns `true` if the collection contains no elements.
     fn is_empty(&self) -> bool
     {
         !self.fold(false, |_, _| true)
     }
 
+    /// Reduces the collection to a single value using `f`, returning `None` if empty.
     fn reduce<F>(
         &self,
         mut f: F,
@@ -1577,6 +1650,7 @@ pub trait ReduceOps
         })
     }
 
+    /// Returns the sum of all elements, starting from the additive identity.
     fn sum(&self) -> Self::Item
     where
         Self::Item: Add<Output = Self::Item> + Zero,
@@ -1584,6 +1658,7 @@ pub trait ReduceOps
         self.fold(Self::Item::zero(), |acc, value| acc + value)
     }
 
+    /// Returns the product of all elements, starting from the multiplicative identity.
     fn product(&self) -> Self::Item
     where
         Self::Item: Mul<Output = Self::Item> + One,
@@ -1591,6 +1666,7 @@ pub trait ReduceOps
         self.fold(Self::Item::one(), |acc, value| acc * value)
     }
 
+    /// Returns the minimum element, or `None` if the collection is empty.
     fn min(&self) -> Option<Self::Item>
     where
         Self::Item: PartialOrd,
@@ -1607,6 +1683,7 @@ pub trait ReduceOps
         })
     }
 
+    /// Returns the maximum element, or `None` if the collection is empty.
     fn max(&self) -> Option<Self::Item>
     where
         Self::Item: PartialOrd,
@@ -1623,6 +1700,7 @@ pub trait ReduceOps
         })
     }
 
+    /// Returns the element with the smallest key according to `key`, or `None` if empty.
     fn min_by_key<K, F>(
         &self,
         mut key: F,
@@ -1642,6 +1720,7 @@ pub trait ReduceOps
         .map(|(value, _)| value)
     }
 
+    /// Returns the element with the largest key according to `key`, or `None` if empty.
     fn max_by_key<K, F>(
         &self,
         mut key: F,
@@ -1661,6 +1740,7 @@ pub trait ReduceOps
         .map(|(value, _)| value)
     }
 
+    /// Returns the element whose value after applying `transform` is the smallest.
     fn transform_min<F>(
         &self,
         transform: F,
@@ -1672,6 +1752,7 @@ pub trait ReduceOps
         self.min_by_key(transform)
     }
 
+    /// Returns the element whose value after applying `transform` is the largest.
     fn transform_max<F>(
         &self,
         transform: F,
@@ -1683,6 +1764,7 @@ pub trait ReduceOps
         self.max_by_key(transform)
     }
 
+    /// Returns the element with the smallest absolute value, or `None` if empty.
     fn abs_min(&self) -> Option<Self::Item>
     where
         Self::Item: Abs + PartialOrd,
@@ -1697,6 +1779,7 @@ pub trait ReduceOps
         })
     }
 
+    /// Returns the element with the largest absolute value, or `None` if empty.
     fn abs_max(&self) -> Option<Self::Item>
     where
         Self::Item: Abs + PartialOrd,
@@ -1711,6 +1794,7 @@ pub trait ReduceOps
         })
     }
 
+    /// Returns the index and value of the minimum element, or `None` if empty.
     fn argmin(&self) -> Option<(Self::Index, Self::Item)>
     where
         Self::Item: PartialOrd,
@@ -1724,6 +1808,7 @@ pub trait ReduceOps
         })
     }
 
+    /// Returns the index and value of the maximum element, or `None` if empty.
     fn argmax(&self) -> Option<(Self::Index, Self::Item)>
     where
         Self::Item: PartialOrd,
@@ -1738,11 +1823,15 @@ pub trait ReduceOps
     }
 }
 //}}}
-//{{{ enum
+//{{{ enum: Dimension
+/// Selects which axis (or both axes) a reduction or transform operates over.
 pub enum Dimension
 {
+    /// Operate along the row axis (i.e., reduce or transform each column).
     Rows,
+    /// Operate along the column axis (i.e., reduce or transform each row).
     Cols,
+    /// Operate over all elements regardless of axis.
     All,
 }
 //}}}

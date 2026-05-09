@@ -1,4 +1,10 @@
-//! Provides a statically-sized column vector type
+//! Static column-vector type built as an N×1 specialisation of [`SMatrix`].
+//!
+//! Provides the `SCVector<T, N>` type alias (`SMatrix<T, N, 1>`) along with implementations of
+//! [`VectorOps`] and [`FloatVectorOps`] for column vectors. A compile-time assertion requires
+//! N > 1. Like its row counterpart in `srvector`, the alias approach means all [`SMatrix`]
+//! infrastructure is inherited automatically, and the vector-specific traits add only the
+//! operations that are conceptually distinct for 1-D objects.
 //!
 //--------------------------------------------------------------------------------------------------
 

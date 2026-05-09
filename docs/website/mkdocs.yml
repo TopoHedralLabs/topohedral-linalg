@@ -20,6 +20,10 @@ extra_javascript:
 extra_css:
   - https://unpkg.com/katex@0/dist/katex.min.css
 
+extra:
+  version:
+    provider: mike
+
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
@@ -28,3 +32,4 @@ nav:
   - Developers:
       - Overview: developers/index.md
       - Elementwise Vectorisation: developers/elementwise-vectorization.md
+      - Building Docs: developers/building-docs.md

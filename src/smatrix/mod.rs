@@ -1,6 +1,12 @@
-//! Short Description of module
+//! Static matrix type with compile-time dimensions and stack-allocated storage.
 //!
-//! Longer description of module
+//! Defines [`SMatrix<T, N, M>`], a 2-D matrix whose row count N and column count M are
+//! const-generic parameters baked into the type. Elements are stored in a fixed-size array
+//! `[T; N*M]` in column-major order, enabling `Copy` semantics and stack allocation for small
+//! matrices. Sub-modules add element-wise arithmetic, BLAS-backed matrix multiplication, standard
+//! decompositions (LU, QR, eigenvalue, Schur, linear solve), and supporting utilities for
+//! construction, indexing, iteration, serialisation, sub-views, and reduction/transformation
+//! operations.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -66,7 +72,9 @@ where
 {
     /// The data of the matrix, stored in column-major order.
     pub(crate) data: [T; N * M],
+    /// Number of rows (always equal to `N`).
     pub(crate) nrows: usize,
+    /// Number of columns (always equal to `M`).
     pub(crate) ncols: usize,
 }
 //}}}
@@ -77,6 +85,7 @@ where
     T: Field + Copy + Ord,
 {
     //{{{ fn: sort
+    /// Sorts the elements of the matrix in place along the given dimension.
     pub fn sort(
         &mut self,
         dim: Dimension,
@@ -117,6 +126,7 @@ where
     }
     //}}}
     //{{{ fn: sorted
+    /// Returns a copy of the matrix with elements sorted along the given dimension.
     pub fn sorted(
         &self,
         dim: Dimension,
@@ -128,6 +138,7 @@ where
     }
     //}}}
     //{{{ fn: into_sorted
+    /// Consumes the matrix and returns it with elements sorted along the given dimension.
     pub fn into_sorted(
         mut self,
         dim: Dimension,

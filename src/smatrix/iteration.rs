@@ -1,4 +1,10 @@
-//! This module contains functions for iterating over SMatrix objects.
+//! Iterator support for [`SMatrix`]: owned, shared, and mutable element iteration.
+//!
+//! Implements `IntoIterator` for owned [`SMatrix<T, N, M>`], `&SMatrix<T, N, M>`, and
+//! `&mut SMatrix<T, N, M>`, plus ergonomic `iter()` and `iter_mut()` methods. All iterators
+//! traverse elements in column-major order, consistent with the underlying fixed-size array
+//! layout, allowing the matrix to participate in standard Rust iterator chains without special
+//! adaptors.
 //!
 //--------------------------------------------------------------------------------------------------
 
@@ -46,23 +52,26 @@ where
     }
 }
 //}}}
-
+//{{{ impl: SMatrix
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
     T: Field + Copy,
 {
     //{{{ fun: iter
+    /// Returns an iterator over shared references to elements in column-major order.
     pub fn iter(&self) -> std::slice::Iter<'_, T>
     {
         self.data.iter()
     }
     //}}}
     //{{{ fun: iter_mut
+    /// Returns an iterator over mutable references to elements in column-major order.
     pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T>
     {
         self.data.iter_mut()
     }
     //}}}
 }
+//}}}
 //}}}

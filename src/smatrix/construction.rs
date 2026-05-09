@@ -1,4 +1,11 @@
-//! This module contains functions for constructing SMatrix objects.
+//! Construction helpers for [`SMatrix`]: zeros, ones, fill, and slice initialisation.
+//!
+//! Provides factory methods on [`SMatrix<T, N, M>`] for the most common initialisation patterns.
+//! `zeros` and `ones` fill every element with the additive and multiplicative identities.
+//! `from_value` fills with a caller-supplied constant. `from_col_slice` accepts a flat slice in
+//! column-major order; `from_row_slice` accepts row-major input and transposes it to the internal
+//! column-major layout. When the `rand` feature is enabled, additional constructors accept
+//! distributions from the `rand` crate to produce randomly populated matrices.
 //!
 //--------------------------------------------------------------------------------------------------
 
@@ -13,12 +20,14 @@ use rand::distr::{uniform::SampleUniform, Distribution, Uniform};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: SMatrix
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
     T: Field + Copy,
 {
     //{{{ fun: zeros
+    /// Creates a new matrix with all elements set to zero.
     pub fn zeros() -> Self
     where
         T: Zero,
@@ -31,6 +40,7 @@ where
     }
     //}}}
     //{{{ fun: ones
+    /// Creates a new matrix with all elements set to one.
     pub fn ones() -> Self
     where
         T: One,
@@ -43,6 +53,7 @@ where
     }
     //}}}
     //{{{ fun: from_value
+    /// Creates a new matrix with every element set to `value`.
     pub fn from_value(value: T) -> Self
     {
         Self {
@@ -132,3 +143,4 @@ where
     }
     //}}}
 }
+//}}}

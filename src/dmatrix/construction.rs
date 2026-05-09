@@ -1,6 +1,11 @@
-//! Short Description of module
+//! Construction helpers for [`DMatrix`]: zeros, ones, fill, and slice initialisation.
 //!
-//! Longer description of module
+//! Provides factory methods on [`DMatrix<T>`] for the most common initialisation patterns.
+//! `zeros` and `ones` fill every element with the additive and multiplicative identities.
+//! `from_value` fills with a caller-supplied constant. `from_col_slice` builds a matrix from
+//! a flat slice already in column-major order. When the `rand` feature is enabled, additional
+//! constructors accept arbitrary distributions from the `rand` crate to produce randomly
+//! populated matrices.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -65,8 +70,8 @@ where
         }
     }
     //}}}
-    //{{{ fun: from_row_slice
-    /// Creates a new `DMatrix` from a slice of values in row-major order.
+    //{{{ fun: from_col_slice
+    /// Creates a new `DMatrix` from a slice of values in column-major order.
     pub fn from_col_slice(
         slice: &[T],
         nrows: usize,
@@ -83,8 +88,8 @@ where
         }
     }
     //}}}
-    //{{{ fun: from_col_slice
-    /// Creates a new `DMatrix` from a slice of values in column-major order.
+    //{{{ fun: from_row_slice
+    /// Creates a new `DMatrix` from a slice of values in row-major order.
     pub fn from_row_slice(
         slice: &[T],
         nrows: usize,

@@ -1,6 +1,9 @@
-//! Short Description of module
+//! LAPACK `dorgqr`/`sorgqr` wrapper for explicit Q reconstruction from a QR factorisation.
 //!
-//! Longer description of module
+//! Provides the [`Orgqr`] trait, wrapping the LAPACK `?orgqr` routine that expands the compact
+//! Householder representation produced by [`Geqrf`] into an explicit orthogonal matrix Q.
+//! Parameters k (the number of reflectors), tau, and the workspace follow the LAPACK convention.
+//! This is the second of the two LAPACK calls in the QR decomposition path.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -12,17 +15,23 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ enum: Error
+/// Errors returned by the [`Orgqr`] LAPACK wrapper.
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// LAPACK returned a non-zero info code indicating an invalid argument.
     #[error("Error in orgqr, exited with code {0}")]
     LapackError(i32),
 }
+//}}}
 
 //{{{ trait: Orqr
+/// Trait for types that support explicit Q reconstruction from a QR factorisation.
 #[allow(clippy::too_many_arguments)]
 pub trait Orgqr: Copy
 {
+    /// Expands the compact Householder representation from [`Geqrf`] into an explicit orthogonal matrix Q.
     fn orgqr(
         m: i32,
         n: i32,

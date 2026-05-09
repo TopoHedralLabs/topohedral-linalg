@@ -1,6 +1,11 @@
-//! Short Description of module
+//! Dynamic vector type built on [`DMatrix`], with row and column vector orientations.
 //!
-//! Longer description of module
+//! Defines the `DVector<T>` type alias (`DMatrix<T>` with a single column or row) along with the
+//! `VecType` discriminant that selects between `Row` and `Col` orientation. Factory methods —
+//! `zeros_cvec`, `ones_cvec`, `from_slice_vec`, `from_value_vec` — construct column vectors
+//! directly. When the element type implements [`Float`], the module also implements
+//! `FloatVectorOps`, which adds dot products, norms, and other vector-specific operations built
+//! on top of the underlying [`DMatrix`] arithmetic and BLAS routines.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -14,14 +19,23 @@ use rand::distr::uniform::SampleUniform;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ type: DVector
+/// A dynamic vector stored as a single-row or single-column [`DMatrix`].
 pub type DVector<T> = DMatrix<T>;
+//}}}
 
+//{{{ enum: VecType
+/// Selects whether a `DVector` is oriented as a row vector or a column vector.
 pub enum VecType
 {
+    /// A 1×N row vector.
     Row,
+    /// An N×1 column vector.
     Col,
 }
+//}}}
 
+//{{{ impl: DVector<T>
 impl<T> DVector<T>
 where
     T: Field + Copy,
@@ -70,6 +84,7 @@ where
         }
     }
 
+    /// Creates a new `DVector` from a slice, copying `nelem` elements into the chosen orientation.
     pub fn from_slice_vec(
         slice: &[T],
         nelem: usize,
@@ -85,6 +100,7 @@ where
         }
     }
 
+    /// Creates a new `DVector` with elements drawn from a uniform random distribution over `[low, high)`.
     pub fn from_uniform_random_cvec(
         low: T,
         high: T,
@@ -101,7 +117,9 @@ where
         }
     }
 }
+//}}}
 
+//{{{ impl: VectorOps for DVector<T>
 impl<T> VectorOps for DVector<T>
 where
     T: Field + Default + Copy + Clone + Zero + One + Float,
@@ -125,5 +143,8 @@ where
         }
     }
 }
+//}}}
 
+//{{{ impl: FloatVectorOps for DVector<T>
 impl<T> FloatVectorOps for DVector<T> where T: Float + Default + Copy + Clone + Zero + One {}
+//}}}

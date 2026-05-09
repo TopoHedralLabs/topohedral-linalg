@@ -1,4 +1,10 @@
-//! Provides a statically-sized column vector type
+//! Static row-vector type built as a 1×N specialisation of [`SMatrix`].
+//!
+//! Provides the `SRVector<T, N>` type alias (`SMatrix<T, 1, N>`) along with implementations of
+//! [`VectorOps`] and [`FloatVectorOps`] for row vectors. A compile-time assertion requires N > 1.
+//! Using a type alias rather than a newtype means all [`SMatrix`] methods and trait implementations
+//! are available without duplication; the vector-specific traits add only the operations that are
+//! conceptually distinct for 1-D objects.
 //!
 //--------------------------------------------------------------------------------------------------
 

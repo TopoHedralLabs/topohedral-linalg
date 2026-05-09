@@ -1,6 +1,10 @@
-//! Short Description of module
+//! LAPACK `dgeev`/`sgeev` wrapper for general (non-symmetric) eigendecomposition.
 //!
-//! Longer description of module
+//! Provides the [`Geev`] trait, wrapping the LAPACK `?geev` routine that computes all eigenvalues
+//! and, optionally, the left and right eigenvectors of a general real matrix. Eigenvalues are
+//! returned as separate real and imaginary part arrays to match the LAPACK interface; callers in
+//! [`eig`] combine them into `Complex<T>` values. A workspace query is supported to obtain the
+//! optimal workspace size before the main computation.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -12,16 +16,23 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ enum: Error
+/// Errors returned by the [`Geev`] LAPACK wrapper.
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// LAPACK returned a non-zero info code indicating a failure in the QR algorithm.
     #[error("Error in geev, exited with code {0}")]
     LapackError(i32),
 }
+//}}}
 
+//{{{ trait: Geev
+/// Trait for types that support general (non-symmetric) eigendecomposition.
 #[allow(clippy::too_many_arguments)]
 pub trait Geev: Copy
 {
+    /// Computes all eigenvalues and optionally left/right eigenvectors of a general real matrix.
     fn geev(
         jobvl: u8,
         jobvr: u8,
@@ -38,7 +49,9 @@ pub trait Geev: Copy
         lwork: i32,
     ) -> Result<(), Error>;
 }
+//}}}
 
+//{{{ impl: Geev for f64
 impl Geev for f64
 {
     #[inline]
@@ -72,7 +85,9 @@ impl Geev for f64
         Ok(())
     }
 }
+//}}}
 
+//{{{ impl: Geev for f32
 impl Geev for f32
 {
     #[inline]
@@ -105,3 +120,4 @@ impl Geev for f32
         Ok(())
     }
 }
+//}}}

@@ -1,6 +1,10 @@
-//! Short Description of module
+//! Negation operator for [`DMatrix`]: unary minus on matrices.
 //!
-//! Longer description of module
+//! Implements the [`Neg`] trait for both owned and borrowed [`DMatrix<T>`] values. Owned
+//! negation moves the matrix into a lazy `UnaryExpr` wrapper; borrowed negation also returns
+//! a `UnaryExpr`, tying the result lifetime to the original matrix. No allocation occurs until
+//! the expression is materialised into a concrete [`DMatrix`], allowing negation to be fused
+//! into a larger expression chain.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -15,6 +19,7 @@ use std::ops::Neg;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: Neg for DMatrix
 impl<T> Neg for DMatrix<T>
 where
     T: Field + Zero + Default + Neg<Output = T> + Copy,
@@ -31,7 +36,9 @@ where
         result
     }
 }
+//}}}
 
+//{{{ impl: Neg for &'a DMatrix
 impl<'a, T> Neg for &'a DMatrix<T>
 where
     T: Field + Copy,
@@ -44,7 +51,9 @@ where
         UnaryExpr::new(self, NegOp)
     }
 }
+//}}}
 
+//{{{ impl: Neg for &'a mut DMatrix
 impl<'a, T> Neg for &'a mut DMatrix<T>
 where
     T: Field + Copy,
@@ -57,3 +66,4 @@ where
         UnaryExpr::new(self, NegOp)
     }
 }
+//}}}

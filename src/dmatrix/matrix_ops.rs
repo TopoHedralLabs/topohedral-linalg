@@ -1,6 +1,10 @@
-//! Short Description of module
+//! Core matrix operations for [`DMatrix`]: shape, transpose, trace, and determinant.
 //!
-//! Longer description of module
+//! Implements the [`Shape`] and [`MatrixOps`] traits for [`DMatrix<T>`]. [`Shape`] exposes
+//! runtime `nrows` and `ncols`. [`MatrixOps`] adds `transpose()`, which produces a new matrix
+//! with rows and columns exchanged, `trace()`, computed as the sum of diagonal elements, and
+//! `determinant()`, derived from the LU factorisation via the product of diagonal entries of U
+//! scaled by the sign of the permutation.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -14,6 +18,7 @@ use crate::common::{Field, Float, MatrixOps, One, Zero};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: Shape for DMatrix
 impl<T> Shape for DMatrix<T>
 where
     T: Field + Copy,
@@ -28,7 +33,9 @@ where
         self.ncols
     }
 }
+//}}}
 
+//{{{ impl: MatrixOps for DMatrix
 impl<T> MatrixOps for DMatrix<T>
 where
     T: Field + Zero + One + Copy,
@@ -77,3 +84,4 @@ where
         out
     }
 }
+//}}}

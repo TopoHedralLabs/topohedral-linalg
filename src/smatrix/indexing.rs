@@ -1,4 +1,9 @@
-//! This module contains functions for indexing SMatrix objects.
+//! Index and IndexMut implementations for [`SMatrix`] using (row, col) pairs.
+//!
+//! Provides `Index<(usize, usize)>` and `IndexMut<(usize, usize)>` for [`SMatrix<T, N, M>`],
+//! converting the two-dimensional subscript into the linear column-major offset `col * N + row`.
+//! The const-generic `N` (row count) is known at compile time, so the offset computation can
+//! often be optimised to a single multiply-add instruction.
 //!
 //--------------------------------------------------------------------------------------------------
 

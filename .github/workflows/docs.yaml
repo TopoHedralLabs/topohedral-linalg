@@ -39,16 +39,20 @@ jobs:
       - name: Deploy docs with mike
         run: |
           cd docs/website
-          mike deploy --no-push --update-aliases ${{ github.ref_name }} latest
+          mike deploy --update-aliases ${{ github.ref_name }} latest
 
       - name: Inject API docs into gh-pages
         run: |
+          CRATE_NAME=$(grep '^name' Cargo.toml | head -1 | sed 's/.*= *//' | tr -d '"' | tr '-' '_')
+          API_INDEX="<meta http-equiv='refresh' content='0;url=${CRATE_NAME}/index.html'>"
           git worktree add /tmp/gh-pages gh-pages
           VERSION="${{ github.ref_name }}"
           mkdir -p /tmp/gh-pages/${VERSION}/api /tmp/gh-pages/latest/api
           cp -r target/doc/. /tmp/gh-pages/${VERSION}/api/
           cp -r target/doc/. /tmp/gh-pages/latest/api/
+          echo "$API_INDEX" > /tmp/gh-pages/${VERSION}/api/index.html
+          echo "$API_INDEX" > /tmp/gh-pages/latest/api/index.html
           cd /tmp/gh-pages
           git add .
-          git commit -m "Add API docs for ${{ github.ref_name || 'dev' }}"
+          git commit -m "Add API docs for ${{ github.ref_name }}"
           git push origin gh-pages

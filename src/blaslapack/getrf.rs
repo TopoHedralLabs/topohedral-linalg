@@ -1,6 +1,9 @@
-//! Short Description of module
+//! LAPACK `dgetrf`/`sgetrf` wrapper for LU factorisation with partial pivoting.
 //!
-//! Longer description of module
+//! Provides the [`Getrf`] trait, wrapping the LAPACK `?getrf` routine that factors a general
+//! m×n matrix A into P·L·U using partial pivoting with row interchanges. The pivot array is
+//! returned alongside the factored storage; a typed error is produced when the matrix is singular.
+//! Implementations for `f64` and `f32` call the Fortran LAPACK ABI via the `lapack` crate.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -12,12 +15,16 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ enum: Error
+/// Errors returned by the [`Getrf`] LAPACK wrapper.
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// LAPACK returned a non-zero info code indicating a singular or invalid matrix.
     #[error("Error in getrf, exited with code {0}")]
     LapackError(i32),
 }
+//}}}
 
 //{{{ trait: Getrf
 /// Trait for types that support LU factorization.

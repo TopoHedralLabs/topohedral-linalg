@@ -1,6 +1,10 @@
-//! Short Description of module
+//! LAPACK `dgees`/`sgees` wrapper for the Schur decomposition.
 //!
-//! Longer description of module
+//! Provides the [`Gees`] trait, wrapping the LAPACK `?gees` routine that computes the Schur form
+//! of a real general matrix, optionally reordering the Schur form so that selected eigenvalues
+//! appear first. The `job` flag controls whether Schur vectors (Q) are computed; `sort` enables
+//! eigenvalue reordering. This is the LAPACK driver used by both `DMatrix::schur()` and
+//! `SMatrix::schur()`.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -12,16 +16,23 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ enum: Error
+/// Errors returned by the [`Gees`] LAPACK wrapper.
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// LAPACK returned a non-zero info code indicating the Schur decomposition failed.
     #[error("Error in gees, exited with code {0}")]
     LapackError(i32),
 }
+//}}}
 
+//{{{ trait: Gees
+/// Trait for types that support the Schur decomposition of a real general matrix.
 #[allow(clippy::too_many_arguments)]
 pub trait Gees: Copy
 {
+    /// Computes the Schur form of a real general matrix, optionally computing Schur vectors.
     fn gees(
         jobvs: u8,
         sort: u8,
@@ -38,7 +49,9 @@ pub trait Gees: Copy
         bwork: &mut [i32],
     ) -> Result<(), Error>;
 }
+//}}}
 
+//{{{ impl: Gees for f64
 impl Gees for f64
 {
     #[inline]
@@ -71,7 +84,9 @@ impl Gees for f64
         Ok(())
     }
 }
+//}}}
 
+//{{{ impl: Gees for f32
 impl Gees for f32
 {
     #[inline]
@@ -104,3 +119,4 @@ impl Gees for f32
         Ok(())
     }
 }
+//}}}

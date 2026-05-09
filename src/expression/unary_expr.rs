@@ -1,4 +1,10 @@
-//! Lazy unary expression support.
+//! Lazy unary expression node for single-operand element-wise transformations.
+//!
+//! Provides the [`UnaryExpr`] struct and the [`UnaryOp`] trait for deferred, zero-allocation
+//! element-wise transformations. The built-in operator is [`NegOp`], which negates each element.
+//! Like its binary counterpart in [`binary_expr`], evaluation is deferred until the expression is
+//! materialised into a concrete matrix, allowing negation to be fused into a larger chain of
+//! operations.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

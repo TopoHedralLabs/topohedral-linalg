@@ -1,6 +1,9 @@
-//! Short Description of module
+//! Core matrix operations for [`SMatrix`]: shape, transpose, trace, and determinant.
 //!
-//! Longer description of module
+//! Implements the [`Shape`] and [`MatrixOps`] traits for [`SMatrix<T, N, M>`]. `transpose()`
+//! produces an `SMatrix<T, M, N>` with rows and columns exchanged, encoded at the type level
+//! through swapped const-generic parameters. `trace()` sums diagonal elements; `determinant()`
+//! is derived from the LU factorisation.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -14,6 +17,7 @@ use crate::common::{Field, Float, MatrixOps, One, Zero};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: Shape for SMatrix
 impl<T, const N: usize, const M: usize> Shape for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -29,7 +33,8 @@ where
         N
     }
 }
-
+//}}}
+//{{{ impl: MatrixOps for SMatrix
 impl<T, const N: usize, const M: usize> MatrixOps for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -80,3 +85,4 @@ where
         out
     }
 }
+//}}}
