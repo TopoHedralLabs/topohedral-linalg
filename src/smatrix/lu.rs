@@ -29,6 +29,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// Wraps a LAPACK `getrf` error returned by the underlying factorisation routine.
     #[error("Error in lu(), exited with error:\n{0}")]
     GetrfError(#[from] getrf::Error),
 }
@@ -44,9 +45,13 @@ where
     [(); N * M]:,
     T: Field + Copy,
 {
+    /// Lower-triangular factor L with unit diagonal.
     pub l: SMatrix<T, N, M>,
+    /// Upper-triangular factor U.
     pub u: SMatrix<T, N, M>,
+    /// Row-permutation matrix P such that P A = L U.
     pub p: SMatrix<T, N, M>,
+    /// Number of row swaps applied during pivoting.
     pub num_swaps: usize,
 }
 //}}}
@@ -57,6 +62,13 @@ where
     [(); N * M]:,
     T: One + Zero + Getrf + Field + Copy,
 {
+    /// Computes the LU decomposition of the matrix with partial pivoting.
+    ///
+    /// Returns `(L, U, P, num_swaps)` such that `P * self = L * U`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the LAPACK `getrf` routine fails.
     pub fn lu(&self) -> Result<Return<T, N, M>, Error>
     {
         //{{{ com: call getrf and check for errors

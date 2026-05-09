@@ -16,15 +16,22 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ enum: Error
+/// Errors returned by the [`Gesv`] LAPACK wrapper.
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// LAPACK returned a non-zero info code indicating a singular coefficient matrix.
     #[error("Error in gesv, exited with code {0}")]
     LapackError(i32),
 }
+//}}}
 
+//{{{ trait: Gesv
+/// Trait for types that support solving a general linear system A X = B via LU factorisation.
 pub trait Gesv: Copy
 {
+    /// Solves the linear system A X = B, overwriting A with its LU factorisation and B with X.
     fn gesv(
         n: i32,
         nrhs: i32,
@@ -35,7 +42,9 @@ pub trait Gesv: Copy
         ldb: i32,
     ) -> Result<(), Error>;
 }
+//}}}
 
+//{{{ impl: Gesv for f64
 impl Gesv for f64
 {
     #[inline]
@@ -60,7 +69,9 @@ impl Gesv for f64
         Ok(())
     }
 }
+//}}}
 
+//{{{ impl: Gesv for f32
 impl Gesv for f32
 {
     #[inline]
@@ -85,3 +96,4 @@ impl Gesv for f32
         Ok(())
     }
 }
+//}}}

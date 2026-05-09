@@ -21,6 +21,7 @@ use crate::ReduceOps;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: ReduceOps for DMatrix
 impl<T: Field + Copy> ReduceOps for DMatrix<T>
 {
     type Item = T;
@@ -58,7 +59,9 @@ impl<T: Field + Copy> ReduceOps for DMatrix<T>
         acc
     }
 }
+//}}}
 
+//{{{ impl: ReduceOps for MatrixView
 impl<'a, T> ReduceOps for MatrixView<'a, T>
 where
     T: Field + Copy,
@@ -104,7 +107,9 @@ where
         acc
     }
 }
+//}}}
 
+//{{{ impl: ReduceOps for MatrixViewMut
 impl<'a, T> ReduceOps for MatrixViewMut<'a, T>
 where
     T: Field + Copy,
@@ -150,3 +155,4 @@ where
         acc
     }
 }
+//}}}

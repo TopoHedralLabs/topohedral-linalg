@@ -19,12 +19,16 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ enum: Error
+/// Errors that can occur during symmetric eigendecomposition.
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// Wraps a LAPACK `syev` error from the symmetric eigenvalue routine.
     #[error("Error in symeig(), exited with error:\n{0}")]
     SyevError(#[from] syev::Error),
 }
+//}}}
 
 //{{{ struct: Return
 /// Represents the eigenvalue decomposition of a symmetric matrix.
@@ -46,6 +50,7 @@ where
 }
 //}}}
 
+//{{{ impl: SMatrix<T, N, N>
 #[allow(private_bounds)]
 impl<T, const N: usize> SMatrix<T, N, N>
 where
@@ -100,3 +105,4 @@ where
         })
     }
 }
+//}}}

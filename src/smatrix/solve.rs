@@ -19,19 +19,28 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ enum: Error
+/// Errors that can occur when solving a linear system.
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// Wraps a LAPACK `gesv` error from the linear solve routine.
     #[error("Error in solve(), exited with error:\n{0}")]
     GesvError(#[from] gesv::Error),
 }
-
+//}}}
+//{{{ impl: SMatrix<T, N, M>
 #[allow(private_bounds)]
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
     T: Gesv + Field,
 {
+    /// Solves the linear system `self * X = b`, returning the solution matrix X.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the LAPACK `gesv` routine fails (e.g., singular matrix).
     pub fn solve(
         &self,
         b: &SMatrix<T, N, M>,
@@ -52,3 +61,4 @@ where
         Ok(x)
     }
 }
+//}}}

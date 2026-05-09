@@ -16,16 +16,22 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ enum: Error
+/// Errors returned by the [`Geqrf`] LAPACK wrapper.
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// LAPACK returned a non-zero info code indicating an invalid argument.
     #[error("Error in geqrf, exited with code {0}")]
     LapackError(i32),
 }
+//}}}
 
 //{{{ trait: Geqrf
+/// Trait for types that support QR factorisation via Householder reflectors.
 pub trait Geqrf: Copy
 {
+    /// Computes the QR factorisation of an M-by-N matrix A, storing the result in-place.
     fn geqrf(
         m: i32,
         n: i32,

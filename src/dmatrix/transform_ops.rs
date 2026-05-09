@@ -17,6 +17,7 @@ use crate::common::{Field, TransformOps};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: TransformOps for DMatrix
 impl<T> TransformOps for DMatrix<T>
 where
     T: Field + Copy,
@@ -35,7 +36,9 @@ where
         }
     }
 }
+//}}}
 
+//{{{ impl: TransformOps for MatrixViewMut
 impl<'a, T> TransformOps for MatrixViewMut<'a, T>
 where
     T: Field + Copy,
@@ -58,3 +61,4 @@ where
         }
     }
 }
+//}}}

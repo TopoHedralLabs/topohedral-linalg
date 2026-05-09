@@ -19,6 +19,7 @@ use std::ops::Neg;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: Neg for DMatrix
 impl<T> Neg for DMatrix<T>
 where
     T: Field + Zero + Default + Neg<Output = T> + Copy,
@@ -35,7 +36,9 @@ where
         result
     }
 }
+//}}}
 
+//{{{ impl: Neg for &'a DMatrix
 impl<'a, T> Neg for &'a DMatrix<T>
 where
     T: Field + Copy,
@@ -48,7 +51,9 @@ where
         UnaryExpr::new(self, NegOp)
     }
 }
+//}}}
 
+//{{{ impl: Neg for &'a mut DMatrix
 impl<'a, T> Neg for &'a mut DMatrix<T>
 where
     T: Field + Copy,
@@ -61,3 +66,4 @@ where
         UnaryExpr::new(self, NegOp)
     }
 }
+//}}}

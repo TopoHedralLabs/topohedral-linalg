@@ -25,21 +25,30 @@ use thiserror::Error;
 //--------------------------------------------------------------------------------------------------
 
 //{{{ enum: Error
+/// Errors that can occur during QR decomposition.
 #[derive(Error, Debug)]
 pub enum Error
 {
     #[error("Error in qr(), exited with error:\n{0}")]
+    /// LAPACK `geqrf` failed while computing the Householder QR factorisation.
     GetrfError(#[from] geqrf::Error),
     #[error("Error in qr(), exited with error:\n{0}")]
+    /// LAPACK `orgqr` failed while expanding the Householder reflectors into an explicit Q matrix.
     OrgqrError(#[from] orgqr::Error),
 }
 //}}}
 //{{{ struct: Return
+/// Represents the QR decomposition of a matrix.
+///
+/// The decomposition satisfies `A = QR` where `Q` is an orthogonal matrix and `R` is
+/// upper-triangular.
 pub struct Return<T>
 where
     T: Field + Copy,
 {
+    /// Orthogonal factor Q.
     pub q: DMatrix<T>,
+    /// Upper-triangular factor R.
     pub r: DMatrix<T>,
 }
 //}}}
@@ -48,6 +57,14 @@ impl<T> DMatrix<T>
 where
     T: One + Zero + Geqrf + Orgqr + Field + Copy + AsI32,
 {
+    /// Computes the QR decomposition of the matrix.
+    ///
+    /// Factors `self` into `Q` and `R` such that `A = QR`, where `Q` is orthogonal and `R` is
+    /// upper-triangular. An optimal BLAS workspace size is queried before the main computation.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::GetrfError`] if `geqrf` fails, or [`Error::OrgqrError`] if `orgqr` fails.
     pub fn qr(&self) -> Result<Return<T>, Error>
     {
         let n = self.nrows;

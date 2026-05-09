@@ -20,12 +20,16 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ enum: Error
+/// Errors that can occur during general eigendecomposition.
 #[derive(Error, Debug)]
 pub enum Error
 {
     #[error("Error in eig(), exited with error:\n{0}")]
+    /// LAPACK `geev` failed to compute eigenvalues or eigenvectors.
     GeevError(#[from] geev::Error),
 }
+//}}}
 
 //{{{ struct: Return
 /// Represents the eigenvalue decomposition of a square matrix of size `N`.
@@ -41,17 +45,29 @@ pub struct Return<T>
 where
     T: Field + Default + Copy,
 {
+    /// Matrix whose columns are the left eigenvectors of A.
     pub left_eigvecs: DMatrix<T>,
+    /// Matrix whose columns are the right eigenvectors of A.
     pub right_eigvecs: DMatrix<T>,
+    /// Eigenvalues as complex numbers (real part from `wr`, imaginary part from `wi`).
     pub eigvals: Vec<Complex<T>>,
 }
 //}}}
 
+//{{{ impl DMatrix<T>
 #[allow(private_bounds)]
 impl<T> DMatrix<T>
 where
     T: One + Zero + Geev + Field + Default + Copy + AsI32,
 {
+    /// Computes the eigendecomposition of a general square matrix.
+    ///
+    /// Returns all eigenvalues and both left and right eigenvectors of `self`. Eigenvalues are
+    /// represented as complex numbers even when the input matrix is real-valued.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::GeevError`] if the LAPACK `geev` routine fails.
     pub fn eig(&self) -> Result<Return<T>, Error>
     {
         let n = self.nrows;
@@ -113,3 +129,4 @@ where
         })
     }
 }
+//}}}

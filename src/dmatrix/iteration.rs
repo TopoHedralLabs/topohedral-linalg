@@ -49,17 +49,20 @@ where
 }
 //}}}
 
+//{{{ impl: DMatrix
 impl<T> DMatrix<T>
 where
     T: Field + Copy,
 {
     //{{{ fun: iter
+    /// Returns a column-major immutable iterator over all elements of the matrix.
     pub fn iter(&self) -> std::slice::Iter<'_, T>
     {
         self.data.iter()
     }
     //}}}
     //{{{ fun: iter_mut
+    /// Returns a column-major mutable iterator over all elements of the matrix.
     pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T>
     {
         self.data.iter_mut()
@@ -67,3 +70,4 @@ where
     //}}}
 }
 //}}}
+//}}} // collection: into iterator conversion

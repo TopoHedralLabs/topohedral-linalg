@@ -72,7 +72,9 @@ where
 {
     /// The data of the matrix, stored in column-major order.
     pub(crate) data: [T; N * M],
+    /// Number of rows (always equal to `N`).
     pub(crate) nrows: usize,
+    /// Number of columns (always equal to `M`).
     pub(crate) ncols: usize,
 }
 //}}}
@@ -83,6 +85,7 @@ where
     T: Field + Copy + Ord,
 {
     //{{{ fn: sort
+    /// Sorts the elements of the matrix in place along the given dimension.
     pub fn sort(
         &mut self,
         dim: Dimension,
@@ -123,6 +126,7 @@ where
     }
     //}}}
     //{{{ fn: sorted
+    /// Returns a copy of the matrix with elements sorted along the given dimension.
     pub fn sorted(
         &self,
         dim: Dimension,
@@ -134,6 +138,7 @@ where
     }
     //}}}
     //{{{ fn: into_sorted
+    /// Consumes the matrix and returns it with elements sorted along the given dimension.
     pub fn into_sorted(
         mut self,
         dim: Dimension,

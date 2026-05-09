@@ -17,6 +17,7 @@ use crate::common::{Field, Float, MatrixOps, One, Zero};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: Shape for SMatrix
 impl<T, const N: usize, const M: usize> Shape for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -32,7 +33,8 @@ where
         N
     }
 }
-
+//}}}
+//{{{ impl: MatrixOps for SMatrix
 impl<T, const N: usize, const M: usize> MatrixOps for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -83,3 +85,4 @@ where
         out
     }
 }
+//}}}

@@ -21,6 +21,7 @@ use crate::ReduceOps;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: ReduceOps for SMatrix
 impl<T, const N: usize, const M: usize> ReduceOps for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -61,7 +62,8 @@ where
         acc
     }
 }
-
+//}}}
+//{{{ impl: ReduceOps for MatrixView
 impl<'a, T, const N: usize, const M: usize> ReduceOps for MatrixView<'a, T, N, M>
 where
     [(); N * M]:,
@@ -108,7 +110,8 @@ where
         acc
     }
 }
-
+//}}}
+//{{{ impl: ReduceOps for MatrixViewMut
 impl<'a, T, const N: usize, const M: usize> ReduceOps for MatrixViewMut<'a, T, N, M>
 where
     [(); N * M]:,
@@ -155,3 +158,4 @@ where
         acc
     }
 }
+//}}}

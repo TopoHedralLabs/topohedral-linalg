@@ -32,10 +32,15 @@ where
     T: Field + Copy,
     [(); N * M]:,
 {
+    /// Reference to the parent matrix.
     pub(crate) matrix: &'a SMatrix<T, N, M>,
+    /// First row of the view within the parent matrix.
     pub(crate) start_row: usize,
+    /// First column of the view within the parent matrix.
     pub(crate) start_col: usize,
+    /// Number of rows in the view.
     pub(crate) nrows: usize,
+    /// Number of columns in the view.
     pub(crate) ncols: usize,
 }
 //}}}
@@ -76,12 +81,15 @@ where
 //}}}
 // Immutable iterator over immutable view
 //{{{ struct: MatrixViewIter
+/// Column-major iterator over the elements of a [`MatrixView`].
 pub struct MatrixViewIter<'a, T, const N: usize, const M: usize>
 where
     T: Field + Copy,
     [(); N * M]:,
 {
+    /// The view being iterated.
     pub(crate) matrix_view: &'a MatrixView<'a, T, N, M>,
+    /// Current linear index into the view (column-major).
     index: usize,
 }
 //}}}
@@ -116,6 +124,7 @@ where
     T: Field + Copy,
     [(); N * M]:,
 {
+    /// Returns a column-major iterator over the elements of this view.
     pub fn iter(&'a self) -> MatrixViewIter<'a, T, N, M>
     {
         MatrixViewIter {
@@ -124,6 +133,7 @@ where
         }
     }
 
+    /// Copies the view contents into a new heap-allocated [`DMatrix`].
     pub fn to_dmatrix(&self) -> DMatrix<T>
     {
         let mut data = Vec::with_capacity(self.nrows * self.ncols);
@@ -244,15 +254,21 @@ where
 
 // definition of the mutable view
 //{{{ struct: MatrixViewMut
+/// Mutable subview of an [`SMatrix`] that allows in-place modification of a rectangular region.
 pub struct MatrixViewMut<'a, T, const N: usize, const M: usize>
 where
     T: Field + Copy,
     [(); N * M]:,
 {
+    /// Mutable reference to the parent matrix.
     pub(crate) matrix: &'a mut SMatrix<T, N, M>,
+    /// First row of the view within the parent matrix.
     pub(crate) start_row: usize,
+    /// First column of the view within the parent matrix.
     pub(crate) start_col: usize,
+    /// Number of rows in the view.
     pub(crate) nrows: usize,
+    /// Number of columns in the view.
     pub(crate) ncols: usize,
 }
 //}}}
@@ -324,12 +340,15 @@ where
 //}}}
 // Immutable iterator over mutable view
 //{{{ struct: MatrixViewMutIter
+/// Shared iterator over the elements of a [`MatrixViewMut`].
 pub struct MatrixViewMutIter<'a, T, const N: usize, const M: usize>
 where
     T: Field + Copy,
     [(); N * M]:,
 {
+    /// The mutable view being iterated.
     pub(crate) matrix_view: &'a MatrixViewMut<'a, T, N, M>,
+    /// Current linear index into the view (column-major).
     index: usize,
 }
 //}}}
@@ -358,12 +377,15 @@ where
 //}}}
 // Mutable iterator over mutable view
 //{{{ struct: MatrixViewMutIterMut
+/// Mutable iterator over the elements of a [`MatrixViewMut`].
 pub struct MatrixViewMutIterMut<'a, T, const N: usize, const M: usize>
 where
     T: Field + Copy,
     [(); N * M]:,
 {
+    /// The mutable view being iterated.
     pub(crate) matrix_view: &'a mut MatrixViewMut<'a, T, N, M>,
+    /// Current linear index into the view (column-major).
     index: usize,
 }
 //}}}
@@ -401,6 +423,7 @@ where
     T: Field + Copy,
     [(); N * M]:,
 {
+    /// Returns a shared column-major iterator over the elements of this mutable view.
     pub fn iter(&'a self) -> MatrixViewMutIter<'a, T, N, M>
     {
         MatrixViewMutIter {
@@ -409,6 +432,7 @@ where
         }
     }
 
+    /// Returns a mutable column-major iterator over the elements of this mutable view.
     pub fn iter_mut(&'a mut self) -> MatrixViewMutIterMut<'a, T, N, M>
     {
         MatrixViewMutIterMut {
@@ -417,6 +441,7 @@ where
         }
     }
 
+    /// Copies the view contents into a new heap-allocated [`DMatrix`].
     pub fn to_dmatrix(&self) -> DMatrix<T>
     {
         let mut data = Vec::with_capacity(self.nrows * self.ncols);
@@ -498,6 +523,7 @@ where
     }
     //}}}
     //{{{ fun: row
+    /// Returns an immutable view of the single row at index `row`.
     pub fn row(
         &'a self,
         row: usize,
@@ -507,6 +533,7 @@ where
     }
     //}}}
     //{{{ fun: rows
+    /// Returns an immutable view of rows `start_row..=end_row`.
     pub fn rows(
         &'a self,
         start_row: usize,
@@ -517,6 +544,7 @@ where
     }
     //}}}
     //{{{ fun: col
+    /// Returns an immutable view of the single column at index `col`.
     pub fn col(
         &'a self,
         col: usize,
@@ -526,6 +554,7 @@ where
     }
     //}}}
     //{{{ fun: cols
+    /// Returns an immutable view of columns `start_col..=end_col`.
     pub fn cols(
         &'a self,
         start_col: usize,
@@ -559,6 +588,7 @@ where
     }
     //}}}
     //{{{ fun: row_mut
+    /// Returns a mutable view of the single row at index `row`.
     pub fn row_mut(
         &'a mut self,
         row: usize,
@@ -568,6 +598,7 @@ where
     }
     //}}}
     //{{{ fun: rows_mut
+    /// Returns a mutable view of rows `start_row..=end_row`.
     pub fn rows_mut(
         &'a mut self,
         start_row: usize,
@@ -578,6 +609,7 @@ where
     }
     //}}}
     //{{{ fun: col_mut
+    /// Returns a mutable view of the single column at index `col`.
     pub fn col_mut(
         &'a mut self,
         col: usize,
@@ -587,6 +619,7 @@ where
     }
     //}}}
     //{{{ fun: cols_mut
+    /// Returns a mutable view of columns `start_col..=end_col`.
     pub fn cols_mut(
         &'a mut self,
         start_col: usize,

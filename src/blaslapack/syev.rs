@@ -16,17 +16,23 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ enum: Error
+/// Errors returned by the [`Syev`] LAPACK wrapper.
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// LAPACK returned a non-zero info code indicating the algorithm failed to converge.
     #[error("Error in orgqr, exited with code {0}")]
     LapackError(i32),
 }
+//}}}
 
+//{{{ trait: Syev
 /// Trait for LAPACK's symmetric eigenvalue computation routine
 #[allow(clippy::too_many_arguments)]
 pub trait Syev: Copy
 {
+    /// Computes eigenvalues and optionally eigenvectors of a real symmetric matrix.
     fn syev(
         jobz: u8, // 'N' for eigenvalues only, 'V' for eigenvalues and eigenvectors
         uplo: u8, // 'U' for upper triangle, 'L' for lower triangle
@@ -38,8 +44,9 @@ pub trait Syev: Copy
         lwork: i32,
     ) -> Result<(), Error>;
 }
+//}}}
 
-// Implementation for f64
+//{{{ impl: Syev for f64
 impl Syev for f64
 {
     #[inline]
@@ -65,8 +72,9 @@ impl Syev for f64
         Ok(())
     }
 }
+//}}}
 
-// Implementation for f32
+//{{{ impl: Syev for f32
 impl Syev for f32
 {
     #[inline]
@@ -92,3 +100,4 @@ impl Syev for f32
         Ok(())
     }
 }
+//}}}

@@ -32,6 +32,7 @@ use thiserror::Error;
 pub enum Error
 {
     #[error("Error in lu(), exited with error:\n{0}")]
+    /// LAPACK `getrf` reported a failure, e.g. a zero pivot was encountered.
     GetrfError(#[from] getrf::Error),
 }
 //}}}
@@ -46,9 +47,13 @@ pub struct Return<T>
 where
     T: Field + Copy,
 {
+    /// Lower-triangular factor L with unit diagonal.
     pub l: DMatrix<T>,
+    /// Upper-triangular factor U.
     pub u: DMatrix<T>,
+    /// Row-permutation matrix P such that PA = LU.
     pub p: DMatrix<T>,
+    /// Number of row interchanges performed; determines the sign of the determinant.
     pub num_swaps: usize,
 }
 //}}}
@@ -58,6 +63,14 @@ impl<T> DMatrix<T>
 where
     T: One + Zero + Getrf + Field + Copy,
 {
+    /// Computes the LU decomposition of the matrix.
+    ///
+    /// Factors `self` into `P`, `L`, and `U` such that `PA = LU`, where `P` is a permutation
+    /// matrix, `L` is lower-triangular with unit diagonal, and `U` is upper-triangular.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`Error::GetrfError`] if the LAPACK `getrf` routine fails.
     pub fn lu(&self) -> Result<Return<T>, Error>
     {
         let n = self.nrows;

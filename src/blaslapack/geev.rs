@@ -16,16 +16,23 @@ use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ enum: Error
+/// Errors returned by the [`Geev`] LAPACK wrapper.
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// LAPACK returned a non-zero info code indicating a failure in the QR algorithm.
     #[error("Error in geev, exited with code {0}")]
     LapackError(i32),
 }
+//}}}
 
+//{{{ trait: Geev
+/// Trait for types that support general (non-symmetric) eigendecomposition.
 #[allow(clippy::too_many_arguments)]
 pub trait Geev: Copy
 {
+    /// Computes all eigenvalues and optionally left/right eigenvectors of a general real matrix.
     fn geev(
         jobvl: u8,
         jobvr: u8,
@@ -42,7 +49,9 @@ pub trait Geev: Copy
         lwork: i32,
     ) -> Result<(), Error>;
 }
+//}}}
 
+//{{{ impl: Geev for f64
 impl Geev for f64
 {
     #[inline]
@@ -76,7 +85,9 @@ impl Geev for f64
         Ok(())
     }
 }
+//}}}
 
+//{{{ impl: Geev for f32
 impl Geev for f32
 {
     #[inline]
@@ -109,3 +120,4 @@ impl Geev for f32
         Ok(())
     }
 }
+//}}}

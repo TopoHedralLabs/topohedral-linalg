@@ -52,23 +52,26 @@ where
     }
 }
 //}}}
-
+//{{{ impl: SMatrix
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
     T: Field + Copy,
 {
     //{{{ fun: iter
+    /// Returns an iterator over shared references to elements in column-major order.
     pub fn iter(&self) -> std::slice::Iter<'_, T>
     {
         self.data.iter()
     }
     //}}}
     //{{{ fun: iter_mut
+    /// Returns an iterator over mutable references to elements in column-major order.
     pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T>
     {
         self.data.iter_mut()
     }
     //}}}
 }
+//}}}
 //}}}

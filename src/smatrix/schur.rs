@@ -20,22 +20,29 @@ use thiserror::Error;
 //--------------------------------------------------------------------------------------------------
 
 //{{{ enum: Error
+/// Errors that can occur during Schur decomposition.
 #[derive(Error, Debug)]
 pub enum Error
 {
+    /// Wraps a LAPACK `gees` error from the Schur factorisation routine.
     #[error("Error in schur(), exited with error:\n{0}")]
     GeesError(#[from] gees::Error),
 }
-
+//}}}
+//{{{ struct: Return
+/// Result of a Schur decomposition: orthogonal factor Q and quasi-upper-triangular Schur matrix T.
 pub struct Return<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
     T: Field + Copy,
 {
+    /// Orthogonal (unitary) transformation matrix Q such that A = Q T Q^H.
     pub q: SMatrix<T, N, M>,
+    /// Quasi-upper-triangular Schur matrix T.
     pub t: SMatrix<T, N, M>,
 }
-
+//}}}
+//{{{ impl: SMatrix<T, N, M>
 #[allow(private_bounds)]
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
@@ -43,6 +50,11 @@ where
     [(); N * M]:,
     T: One + Zero + Gees + Field + Default + Copy,
 {
+    /// Computes the Schur decomposition A = Q T Q^H of the matrix.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the LAPACK `gees` routine fails.
     pub fn schur(&self) -> Result<Return<T, N, M>, Error>
     {
         let mut a = *self;
@@ -71,6 +83,7 @@ where
         Ok(Return { q: vs, t: a })
     }
 }
+//}}}
 
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests

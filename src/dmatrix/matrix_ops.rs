@@ -18,6 +18,7 @@ use crate::common::{Field, Float, MatrixOps, One, Zero};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: Shape for DMatrix
 impl<T> Shape for DMatrix<T>
 where
     T: Field + Copy,
@@ -32,7 +33,9 @@ where
         self.ncols
     }
 }
+//}}}
 
+//{{{ impl: MatrixOps for DMatrix
 impl<T> MatrixOps for DMatrix<T>
 where
     T: Field + Zero + One + Copy,
@@ -81,3 +84,4 @@ where
         out
     }
 }
+//}}}

@@ -70,8 +70,8 @@ where
         }
     }
     //}}}
-    //{{{ fun: from_row_slice
-    /// Creates a new `DMatrix` from a slice of values in row-major order.
+    //{{{ fun: from_col_slice
+    /// Creates a new `DMatrix` from a slice of values in column-major order.
     pub fn from_col_slice(
         slice: &[T],
         nrows: usize,
@@ -88,8 +88,8 @@ where
         }
     }
     //}}}
-    //{{{ fun: from_col_slice
-    /// Creates a new `DMatrix` from a slice of values in column-major order.
+    //{{{ fun: from_row_slice
+    /// Creates a new `DMatrix` from a slice of values in row-major order.
     pub fn from_row_slice(
         slice: &[T],
         nrows: usize,

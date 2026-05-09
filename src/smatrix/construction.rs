@@ -20,12 +20,14 @@ use rand::distr::{uniform::SampleUniform, Distribution, Uniform};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: SMatrix
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
     T: Field + Copy,
 {
     //{{{ fun: zeros
+    /// Creates a new matrix with all elements set to zero.
     pub fn zeros() -> Self
     where
         T: Zero,
@@ -38,6 +40,7 @@ where
     }
     //}}}
     //{{{ fun: ones
+    /// Creates a new matrix with all elements set to one.
     pub fn ones() -> Self
     where
         T: One,
@@ -50,6 +53,7 @@ where
     }
     //}}}
     //{{{ fun: from_value
+    /// Creates a new matrix with every element set to `value`.
     pub fn from_value(value: T) -> Self
     {
         Self {
@@ -139,3 +143,4 @@ where
     }
     //}}}
 }
+//}}}

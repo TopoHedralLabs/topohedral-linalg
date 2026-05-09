@@ -71,10 +71,13 @@ where
 {
     /// The data of the matrix, stored in column-major order.
     pub(crate) data: Vec<T>,
+    /// Number of rows in the matrix.
     pub(crate) nrows: usize,
+    /// Number of columns in the matrix.
     pub(crate) ncols: usize,
 }
 //}}}
+//{{{ impl: Clone for DMatrix
 impl<T> Clone for DMatrix<T>
 where
     T: Field + Copy,
@@ -98,6 +101,7 @@ where
         self.ncols = source.ncols;
     }
 }
+//}}}
 
 //{{{ impl: DMatrix
 impl<T> DMatrix<T>
@@ -105,6 +109,11 @@ where
     T: Field + Copy + Ord + Zero + One,
 {
     //{{{ fn: sort
+    /// Sorts the elements of the matrix in-place along the specified dimension.
+    ///
+    /// When `dim` is `Dimension::Rows`, each row is sorted independently.
+    /// When `dim` is `Dimension::Cols`, each column is sorted independently.
+    /// When `dim` is `Dimension::All`, all elements are sorted as a single sequence.
     pub fn sort(
         &mut self,
         dim: Dimension,
@@ -145,6 +154,9 @@ where
     }
     //}}}
     //{{{ fn: sorted
+    /// Returns a new matrix with elements sorted along the specified dimension, leaving `self` unchanged.
+    ///
+    /// See [`sort`](DMatrix::sort) for the semantics of `dim`.
     pub fn sorted(
         &self,
         dim: Dimension,
@@ -156,6 +168,10 @@ where
     }
     //}}}
     //{{{ fn: into_sorted
+    /// Consumes `self`, sorts its elements along the specified dimension, and returns the result.
+    ///
+    /// Prefer this over [`sorted`](DMatrix::sorted) when the original matrix is no longer needed,
+    /// as it avoids an extra allocation.
     pub fn into_sorted(
         mut self,
         dim: Dimension,

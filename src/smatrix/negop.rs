@@ -19,6 +19,7 @@ use std::ops::Neg;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: Neg for SMatrix
 impl<T, const N: usize, const M: usize> Neg for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -36,7 +37,8 @@ where
         result
     }
 }
-
+//}}}
+//{{{ impl: Neg for &SMatrix
 impl<'a, T, const N: usize, const M: usize> Neg for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -50,7 +52,8 @@ where
         UnaryExpr::new(self, NegOp)
     }
 }
-
+//}}}
+//{{{ impl: Neg for &mut SMatrix
 impl<'a, T, const N: usize, const M: usize> Neg for &'a mut SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -64,3 +67,4 @@ where
         UnaryExpr::new(self, NegOp)
     }
 }
+//}}}
