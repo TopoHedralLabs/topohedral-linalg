@@ -95,6 +95,7 @@ where
 //}}}
 //{{{ macro: apply_for_all_types
 #[macro_export]
+#[doc(hidden)]
 macro_rules! apply_for_all_types {
     ($macro:ident) => {
         $macro!(f32);
@@ -116,6 +117,7 @@ macro_rules! apply_for_all_types {
 //}}}
 //{{{ macro: apply_for_all_integer_types
 #[macro_export]
+#[doc(hidden)]
 macro_rules! apply_for_all_integer_types {
     ($macro:ident) => {
         $macro!(i8);

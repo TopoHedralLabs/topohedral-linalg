@@ -1,10 +1,15 @@
 # Welcome to Topohedral-Linalg
 
-A small-dense linear algebra crate which supports:
+This crate provides a Rust library for small, dense linear algebra. It provides two matrix types:
 
-- Both statically-sized and dynamically-sized matrices and vectors.
-- A choice of blas/lapack backend, with defaults set to OpenBLAS on linux and Accelerate on MacoOS.
-- Lazily-evaluated element-wise operations through expression templates.
+    a runtime-sized DMatrix
+    a compile-time-sized SMatrix
 
+Both use column-major memory layout and can hold both floating point and integral data. Both have the following features defined for them:
 
-
+    Accelerated matrix-matrix and matrix-mector multiplication via BLAS/LAPACK (floating point only)
+    Accelerated Matrix decompositions and linear system solution via BLAS/LAPACK (floating point only)
+    Lazily-evaluated, complex elementwide expressions.
+    Matrix subviews
+    Reductions and transformations
+    Elementwise functions which mirror those supported for primitive integral and floating point types.
