@@ -39,7 +39,7 @@ jobs:
       - name: Deploy docs with mike
         run: |
           cd docs/website
-          mike deploy --no-push --update-aliases ${{ github.ref_name }} latest
+          mike deploy --update-aliases ${{ github.ref_name }} latest
 
       - name: Inject API docs into gh-pages
         run: |
