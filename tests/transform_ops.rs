@@ -6,7 +6,7 @@ mod dmatrix_tests
     use approx::assert_relative_eq;
     use std::f64::consts::{FRAC_PI_2, PI};
     use topohedral_linalg::dmatrix::DMatrix;
-    use topohedral_linalg::{FloatTransformOps, Shape, TransformOps};
+    use topohedral_linalg::{FloatTransformOps, Shape, SubViewableMut, TransformOps};
 
     fn assert_matrix_eq(
         actual: &DMatrix<i32>,
@@ -371,7 +371,7 @@ mod smatrix_tests
     use approx::assert_relative_eq;
     use std::f64::consts::{FRAC_PI_2, PI};
     use topohedral_linalg::smatrix::SMatrix;
-    use topohedral_linalg::{FloatTransformOps, Shape, TransformOps};
+    use topohedral_linalg::{FloatTransformOps, Shape, SubViewableMut, TransformOps};
 
     fn assert_matrix_eq<const N: usize, const M: usize>(
         actual: &SMatrix<i32, N, M>,

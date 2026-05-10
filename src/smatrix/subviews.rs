@@ -1,15 +1,15 @@
 //! Sub-matrix view methods for [`SMatrix`].
 //!
-//! The view types themselves live in [`crate::subviews`]. This module provides the constructor
-//! methods (`subview`, `row`, `col`, etc.) on `SMatrix`, plus `to_dmatrix()` on the
-//! immutable and mutable view types when parameterised over `SMatrix`.
+//! The view types themselves live in [`crate::subviews`]. This module provides
+//! [`SubViewable`] and [`SubViewableMut`] implementations for [`SMatrix`], plus
+//! `to_dmatrix()` on the view types and the `copy_from` / `set_*` helpers.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
 use super::SMatrix;
 use crate::common::{Field, One, Shape, Zero};
 use crate::dmatrix::DMatrix;
-use crate::subviews::{MatrixView, MatrixViewMut};
+use crate::subviews::{MatrixView, MatrixViewMut, SubViewable, SubViewableMut};
 //}}}
 //{{{ std imports
 use std::ops::Index;
@@ -57,15 +57,14 @@ where
     }
 }
 //}}}
-//{{{ impl: SMatrix subview methods
-impl<'a, T, const N: usize, const M: usize> SMatrix<T, N, M>
+
+//{{{ impl: SubViewable for SMatrix
+impl<T, const N: usize, const M: usize> SubViewable for SMatrix<T, N, M>
 where
-    T: Field + Copy + Zero + One,
     [(); N * M]:,
+    T: Field + Copy + Zero + One,
 {
-    //{{{ fun: subview
-    /// Creates a subview of the matrix.
-    pub fn subview(
+    fn subview<'a>(
         &'a self,
         start_row: usize,
         end_row: usize,
@@ -81,52 +80,15 @@ where
             ncols: end_col - start_col + 1,
         }
     }
-    //}}}
-    //{{{ fun: row
-    /// Returns an immutable view of the single row at index `row`.
-    pub fn row(
-        &'a self,
-        row: usize,
-    ) -> MatrixView<'a, SMatrix<T, N, M>>
-    {
-        self.subview(row, row, 0, self.ncols - 1)
-    }
-    //}}}
-    //{{{ fun: rows
-    /// Returns an immutable view of rows `start_row..=end_row`.
-    pub fn rows(
-        &'a self,
-        start_row: usize,
-        end_row: usize,
-    ) -> MatrixView<'a, SMatrix<T, N, M>>
-    {
-        self.subview(start_row, end_row, 0, self.ncols - 1)
-    }
-    //}}}
-    //{{{ fun: col
-    /// Returns an immutable view of the single column at index `col`.
-    pub fn col(
-        &'a self,
-        col: usize,
-    ) -> MatrixView<'a, SMatrix<T, N, M>>
-    {
-        self.subview(0, self.nrows - 1, col, col)
-    }
-    //}}}
-    //{{{ fun: cols
-    /// Returns an immutable view of columns `start_col..=end_col`.
-    pub fn cols(
-        &'a self,
-        start_col: usize,
-        end_col: usize,
-    ) -> MatrixView<'a, SMatrix<T, N, M>>
-    {
-        self.subview(0, self.nrows - 1, start_col, end_col)
-    }
-    //}}}
-    //{{{ fun: subview_mut
-    /// Creates a mutable subview of the matrix.
-    pub fn subview_mut(
+}
+//}}}
+//{{{ impl: SubViewableMut for SMatrix
+impl<T, const N: usize, const M: usize> SubViewableMut for SMatrix<T, N, M>
+where
+    [(); N * M]:,
+    T: Field + Copy + Zero + One,
+{
+    fn subview_mut<'a>(
         &'a mut self,
         start_row: usize,
         end_row: usize,
@@ -142,49 +104,15 @@ where
             ncols: end_col - start_col + 1,
         }
     }
-    //}}}
-    //{{{ fun: row_mut
-    /// Returns a mutable view of the single row at index `row`.
-    pub fn row_mut(
-        &'a mut self,
-        row: usize,
-    ) -> MatrixViewMut<'a, SMatrix<T, N, M>>
-    {
-        self.subview_mut(row, row, 0, self.ncols - 1)
-    }
-    //}}}
-    //{{{ fun: rows_mut
-    /// Returns a mutable view of rows `start_row..=end_row`.
-    pub fn rows_mut(
-        &'a mut self,
-        start_row: usize,
-        end_row: usize,
-    ) -> MatrixViewMut<'a, SMatrix<T, N, M>>
-    {
-        self.subview_mut(start_row, end_row, 0, self.ncols - 1)
-    }
-    //}}}
-    //{{{ fun: col_mut
-    /// Returns a mutable view of the single column at index `col`.
-    pub fn col_mut(
-        &'a mut self,
-        col: usize,
-    ) -> MatrixViewMut<'a, SMatrix<T, N, M>>
-    {
-        self.subview_mut(0, self.nrows - 1, col, col)
-    }
-    //}}}
-    //{{{ fun: cols_mut
-    /// Returns a mutable view of columns `start_col..=end_col`.
-    pub fn cols_mut(
-        &'a mut self,
-        start_col: usize,
-        end_col: usize,
-    ) -> MatrixViewMut<'a, SMatrix<T, N, M>>
-    {
-        self.subview_mut(0, self.nrows - 1, start_col, end_col)
-    }
-    //}}}
+}
+//}}}
+
+//{{{ impl: SMatrix copy and set helpers
+impl<'a, T, const N: usize, const M: usize> SMatrix<T, N, M>
+where
+    T: Field + Copy + Zero + One,
+    [(); N * M]:,
+{
     //{{{ fun: copy_from
     /// Copies entries from `rhs` into this matrix.
     ///

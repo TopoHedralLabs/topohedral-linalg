@@ -399,3 +399,113 @@ where
     }
 }
 //}}}
+
+//{{{ trait: SubViewable
+/// Immutable subview constructor methods for any matrix type.
+///
+/// Requires `Shape + Index<(usize, usize)> + Sized` as supertraits so that
+/// `MatrixView<'a, Self>` is a valid return type. Only `subview` must be
+/// provided; `row`, `rows`, `col`, and `cols` have default implementations
+/// that delegate to it.
+pub trait SubViewable: Shape + Index<(usize, usize)> + Sized
+{
+    fn subview<'a>(
+        &'a self,
+        start_row: usize,
+        end_row: usize,
+        start_col: usize,
+        end_col: usize,
+    ) -> MatrixView<'a, Self>;
+
+    fn row<'a>(
+        &'a self,
+        row: usize,
+    ) -> MatrixView<'a, Self>
+    {
+        self.subview(row, row, 0, self.ncols() - 1)
+    }
+
+    fn rows<'a>(
+        &'a self,
+        start_row: usize,
+        end_row: usize,
+    ) -> MatrixView<'a, Self>
+    {
+        self.subview(start_row, end_row, 0, self.ncols() - 1)
+    }
+
+    fn col<'a>(
+        &'a self,
+        col: usize,
+    ) -> MatrixView<'a, Self>
+    {
+        self.subview(0, self.nrows() - 1, col, col)
+    }
+
+    fn cols<'a>(
+        &'a self,
+        start_col: usize,
+        end_col: usize,
+    ) -> MatrixView<'a, Self>
+    {
+        self.subview(0, self.nrows() - 1, start_col, end_col)
+    }
+}
+//}}}
+//{{{ trait: SubViewableMut
+/// Mutable subview constructor methods for any matrix type.
+///
+/// Extends [`SubViewable`] with `IndexMut<(usize, usize)>`. Only
+/// `subview_mut` must be provided; the remaining methods have defaults.
+///
+/// Default methods bind dimension reads to locals before the `&mut self`
+/// call to avoid simultaneous shared + exclusive borrow of `self`.
+pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)>
+{
+    fn subview_mut<'a>(
+        &'a mut self,
+        start_row: usize,
+        end_row: usize,
+        start_col: usize,
+        end_col: usize,
+    ) -> MatrixViewMut<'a, Self>;
+
+    fn row_mut<'a>(
+        &'a mut self,
+        row: usize,
+    ) -> MatrixViewMut<'a, Self>
+    {
+        let ncols = self.ncols();
+        self.subview_mut(row, row, 0, ncols - 1)
+    }
+
+    fn rows_mut<'a>(
+        &'a mut self,
+        start_row: usize,
+        end_row: usize,
+    ) -> MatrixViewMut<'a, Self>
+    {
+        let ncols = self.ncols();
+        self.subview_mut(start_row, end_row, 0, ncols - 1)
+    }
+
+    fn col_mut<'a>(
+        &'a mut self,
+        col: usize,
+    ) -> MatrixViewMut<'a, Self>
+    {
+        let nrows = self.nrows();
+        self.subview_mut(0, nrows - 1, col, col)
+    }
+
+    fn cols_mut<'a>(
+        &'a mut self,
+        start_col: usize,
+        end_col: usize,
+    ) -> MatrixViewMut<'a, Self>
+    {
+        let nrows = self.nrows();
+        self.subview_mut(0, nrows - 1, start_col, end_col)
+    }
+}
+//}}}
