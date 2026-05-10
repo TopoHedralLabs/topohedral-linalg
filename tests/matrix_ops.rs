@@ -7,7 +7,7 @@ mod smatrix_tests
     use approx::assert_relative_eq;
     use topohedral_linalg::smatrix::*;
     use topohedral_linalg::{
-        dvector::{DVector, VecType},
+        dmatrix::{DVector, VecType},
         Complex, MatMul, MatrixOps, Shape,
     };
 
@@ -583,7 +583,7 @@ mod dmatrix_tests
 
     use approx::assert_relative_eq;
     use topohedral_linalg::dmatrix::*;
-    use topohedral_linalg::dvector::{DVector, VecType};
+    use topohedral_linalg::dmatrix::{DVector, VecType};
     use topohedral_linalg::smatrix::SCVector;
     use topohedral_linalg::smatrix::SMatrix;
     use topohedral_linalg::smatrix::SRVector;

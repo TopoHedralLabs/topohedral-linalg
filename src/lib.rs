@@ -56,6 +56,5 @@ pub use expression::unary_expr::{
     to_degrees, to_radians, trunc,
 };
 pub mod dmatrix;
-pub mod dvector;
 pub mod smatrix;
 //}}}
