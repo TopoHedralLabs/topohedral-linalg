@@ -1,55 +1,54 @@
-//! Subtraction operators for [`DMatrix`]: matrix − matrix and matrix − scalar.
+//! Element-wise division operators for [`DMatrix`]: matrix / scalar and matrix / matrix.
 //!
-//! Mirrors `addop` for subtraction. Implements [`Sub`] for all owned/borrowed combinations
-//! of [`DMatrix<T>`] and for mixed matrix–scalar operands. Matrix–matrix subtraction is lazy,
-//! returning a `BinopExpr` that defers allocation until the expression is materialised into
-//! a concrete [`DMatrix`]; scalar subtraction is applied element-wise.
+//! Implements the [`Div`] trait for element-wise (Hadamard) division of [`DMatrix<T>`] operands
+//! and for matrix–scalar scaling. Like `mulop`, this performs element-wise division rather than
+//! any matrix-theoretic inverse. Results are lazy `BinopExpr` values evaluated on demand when
+//! converted into a concrete [`DMatrix`].
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::DMatrix;
+use crate::dmatrix::DMatrix;
 use crate::apply_for_all_types;
 #[cfg(feature = "enable_checks")]
 use crate::common::Shape;
 use crate::common::{Field, IndexValue, LazyExpr};
-use crate::expression::binary_expr::{BinopExpr, SubOp};
+use crate::expression::binary_expr::{BinopExpr, DivOp};
 //}}}
 //{{{ std imports
-use std::ops::{Sub, SubAssign};
+use std::ops::{Div, DivAssign};
 //}}}
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
-
 //{{{ collection: eagerly evaluated expressions
-//{{{ impl: Sub<T> for DMatrix
-impl<T> Sub<T> for DMatrix<T>
+//{{{ impl: Div<T> for DMatrix
+impl<T> Div<T> for DMatrix<T>
 where
     T: Field + Copy,
 {
     type Output = DMatrix<T>;
 
     #[inline]
-    fn sub(
+    fn div(
         self,
         rhs: T,
     ) -> Self::Output
     {
         let mut out = self.clone();
-        out.iter_mut().for_each(|x| *x -= rhs);
+        out.iter_mut().for_each(|x| *x /= rhs);
         out
     }
 }
 //}}}
-//{{{ impl: Sub<DMatrix> for DMatrix
-impl<T> Sub for DMatrix<T>
+//{{{ impl: Div<DMatrix> for DMatrix
+impl<T> Div for DMatrix<T>
 where
     T: Field + Copy + IndexValue<usize, Output = T>,
 {
     type Output = DMatrix<T>;
 
     #[inline]
-    fn sub(
+    fn div(
         self,
         rhs: DMatrix<T>,
     ) -> Self::Output
@@ -65,58 +64,58 @@ where
         out.iter_mut()
             .zip(rhs.iter())
             .for_each(|(out_elem, rhs_elem)| {
-                *out_elem -= *rhs_elem;
+                *out_elem /= *rhs_elem;
             });
 
         out
     }
 }
 //}}}
-//{{{ impl Sub<DMatrix<T>> for T
-macro_rules! impl_dmatrix_sub {
+//{{{ impl Div<DMatrix<T>> for T
+macro_rules! impl_dmatrix_div_scalar {
     ($type: ty) => {
         #[doc(hidden)]
-        impl Sub<DMatrix<$type>> for $type
+        impl Div<DMatrix<$type>> for $type
         {
             type Output = DMatrix<$type>;
 
             #[inline]
-            fn sub(
+            fn div(
                 self,
                 rhs: DMatrix<$type>,
             ) -> Self::Output
             {
                 let mut out = rhs.clone();
-                out.iter_mut().for_each(|x| *x = self - *x);
+                out.iter_mut().for_each(|x| *x = self / *x);
                 out
             }
         }
     };
 }
-apply_for_all_types!(impl_dmatrix_sub);
+apply_for_all_types!(impl_dmatrix_div_scalar);
 //}}}
-//{{{ impl SubAssign<T> for DMatrix
-impl<T> SubAssign<T> for DMatrix<T>
+//{{{ impl DivAssign<T> for DMatrix
+impl<T> DivAssign<T> for DMatrix<T>
 where
     T: Field + Copy,
 {
     #[inline]
-    fn sub_assign(
+    fn div_assign(
         &mut self,
         rhs: T,
     )
     {
-        self.iter_mut().for_each(|x| *x -= rhs);
+        self.iter_mut().for_each(|x| *x /= rhs);
     }
 }
 //}}}
-//{{{ impl: SubAssign<DMatrix> for DMatrix
-impl<T> SubAssign for DMatrix<T>
+//{{{ impl: DivAssign<DMatrix> for DMatrix
+impl<T> DivAssign for DMatrix<T>
 where
     T: Field + Copy,
 {
     #[inline]
-    fn sub_assign(
+    fn div_assign(
         &mut self,
         rhs: DMatrix<T>,
     )
@@ -131,23 +130,23 @@ where
         self.iter_mut()
             .zip(rhs.iter())
             .for_each(|(out_elem, rhs_elem)| {
-                *out_elem = *out_elem - *rhs_elem;
+                *out_elem /= *rhs_elem;
             });
     }
 }
 //}}}
 //}}}
-//{{{ collection: SubOp for DMatrix
-//{{{ impl: Sub<T> for DMatrix
-macro_rules! impl_dmatrix_sub_scalar_rhs {
+//{{{ collection: DivOp for DMatrix
+//{{{ impl: Div<T> for DMatrix
+macro_rules! impl_dmatrix_div_scalar_rhs {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Sub<$type> for &'a DMatrix<$type>
+        impl<'a> Div<$type> for &'a DMatrix<$type>
         {
-            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, SubOp>;
+            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, DivOp>;
 
             #[inline]
-            fn sub(
+            fn div(
                 self,
                 rhs: $type,
             ) -> Self::Output
@@ -165,35 +164,35 @@ macro_rules! impl_dmatrix_sub_scalar_rhs {
         }
 
         #[doc(hidden)]
-        impl<'a> Sub<$type> for &'a mut DMatrix<$type>
+        impl<'a> Div<$type> for &'a mut DMatrix<$type>
         {
-            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, SubOp>;
+            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, DivOp>;
 
             #[inline]
-            fn sub(
+            fn div(
                 self,
                 rhs: $type,
             ) -> Self::Output
             {
-                (&*self).sub(rhs)
+                (&*self).div(rhs)
             }
         }
     };
 }
 
-apply_for_all_types!(impl_dmatrix_sub_scalar_rhs);
+apply_for_all_types!(impl_dmatrix_div_scalar_rhs);
 
 //}}}
-//{{{ impl: Sub<DMatrix> for $type
-macro_rules! impl_dmatrix_sub {
+//{{{ impl: Div<DMatrix> for $type
+macro_rules! impl_dmatrix_div {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Sub<&'a DMatrix<$type>> for $type
+        impl<'a> Div<&'a DMatrix<$type>> for $type
         {
-            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, SubOp>;
+            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, DivOp>;
 
             #[inline]
-            fn sub(
+            fn div(
                 self,
                 rhs: &'a DMatrix<$type>,
             ) -> Self::Output
@@ -211,39 +210,39 @@ macro_rules! impl_dmatrix_sub {
         }
     };
 }
-apply_for_all_types!(impl_dmatrix_sub);
+apply_for_all_types!(impl_dmatrix_div);
 //}}}
-//{{{ impl: Sub<&mut DMatrix> for $type
-macro_rules! impl_dmatrix_ref_mut_sub {
+//{{{ impl: Div<&mut DMatrix> for $type
+macro_rules! impl_dmatrix_ref_mut_div {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Sub<&'a mut DMatrix<$type>> for $type
+        impl<'a> Div<&'a mut DMatrix<$type>> for $type
         {
-            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, SubOp>;
+            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, DivOp>;
 
             #[inline]
-            fn sub(
+            fn div(
                 self,
                 rhs: &'a mut DMatrix<$type>,
             ) -> Self::Output
             {
-                self.sub(&*rhs)
+                self.div(&*rhs)
             }
         }
     };
 }
-apply_for_all_types!(impl_dmatrix_ref_mut_sub);
+apply_for_all_types!(impl_dmatrix_ref_mut_div);
 //}}}
-//{{{ impl: Sub<Rhs> for &'a DMatrix
-impl<'a, T, Rhs> Sub<Rhs> for &'a DMatrix<T>
+//{{{ impl: Div<Rhs> for &'a DMatrix
+impl<'a, T, Rhs> Div<Rhs> for &'a DMatrix<T>
 where
     T: Field + Copy,
     Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
 {
-    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, SubOp>;
+    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, DivOp>;
 
     #[inline]
-    fn sub(
+    fn div(
         self,
         rhs: Rhs,
     ) -> Self::Output
@@ -267,21 +266,21 @@ where
 }
 
 //}}}
-//{{{ impl: Sub<Rhs> for &'a mut DMatrix
-impl<'a, T, Rhs> Sub<Rhs> for &'a mut DMatrix<T>
+//{{{ impl: Div<Rhs> for &'a mut DMatrix
+impl<'a, T, Rhs> Div<Rhs> for &'a mut DMatrix<T>
 where
     T: Field + Copy,
     Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
 {
-    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, SubOp>;
+    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, DivOp>;
 
     #[inline]
-    fn sub(
+    fn div(
         self,
         rhs: Rhs,
     ) -> Self::Output
     {
-        (&*self).sub(rhs)
+        (&*self).div(rhs)
     }
 }
 

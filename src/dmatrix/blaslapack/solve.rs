@@ -7,9 +7,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::DMatrix;
-use crate::blaslapack::gesv::solve_raw;
-use crate::blaslapack::gesv::{self, Gesv};
+use crate::dmatrix::DMatrix;
+use crate::blaslapack::{solve_raw, SolveRawError, Gesv};
 use crate::common::Field;
 //}}}
 //{{{ dep imports
@@ -24,7 +23,7 @@ pub enum Error
 {
     #[error("Error in solve(), exited with error:\n{0}")]
     /// LAPACK `gesv` failed, e.g. because the coefficient matrix is singular.
-    GesvError(#[from] gesv::Error),
+    GesvError(#[from] SolveRawError),
 }
 //}}}
 

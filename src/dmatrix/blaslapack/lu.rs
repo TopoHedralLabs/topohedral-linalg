@@ -9,9 +9,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::DMatrix;
-use crate::blaslapack::getrf::lu_raw;
-use crate::blaslapack::getrf::{self, Getrf};
+use crate::dmatrix::DMatrix;
+use crate::blaslapack::{lu_raw, LuRawError, Getrf};
 use crate::common::{Field, One, Zero};
 //}}}
 //{{{ dep imports
@@ -26,7 +25,7 @@ pub enum Error
 {
     #[error("Error in lu(), exited with error:\n{0}")]
     /// LAPACK `getrf` reported a failure, e.g. a zero pivot was encountered.
-    GetrfError(#[from] getrf::Error),
+    GetrfError(#[from] LuRawError),
 }
 //}}}
 //{{{ struct: Return

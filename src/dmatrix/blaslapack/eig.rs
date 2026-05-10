@@ -8,10 +8,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::DMatrix;
-use crate::blaslapack::common::AsI32;
-use crate::blaslapack::geev::eig_raw;
-use crate::blaslapack::geev::{self, Geev};
+use crate::dmatrix::DMatrix;
+use crate::blaslapack::AsI32;
+use crate::blaslapack::{eig_raw, Geev, EigRawError};
 use crate::common::{Complex, Field, One, Zero};
 //}}}
 //{{{ dep imports
@@ -26,7 +25,7 @@ pub enum Error
 {
     #[error("Error in eig(), exited with error:\n{0}")]
     /// LAPACK `geev` failed to compute eigenvalues or eigenvectors.
-    GeevError(#[from] geev::Error),
+    GeevError(#[from] EigRawError),
 }
 //}}}
 

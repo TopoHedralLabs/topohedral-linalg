@@ -1,57 +1,55 @@
-//! Addition operators for [`DMatrix`]: matrix + matrix and matrix + scalar.
+//! Subtraction operators for [`DMatrix`]: matrix − matrix and matrix − scalar.
 //!
-//! Implements the standard [`Add`] trait for all combinations of owned and borrowed
-//! [`DMatrix<T>`] operands, as well as mixed matrix–scalar and scalar–matrix overloads. For
-//! matrix–matrix addition the result is a lazy `BinopExpr` that defers allocation until the
-//! expression is converted into a concrete [`DMatrix`]; for scalar operands the addition is
-//! applied element-wise.
-//!
+//! Mirrors `addop` for subtraction. Implements [`Sub`] for all owned/borrowed combinations
+//! of [`DMatrix<T>`] and for mixed matrix–scalar operands. Matrix–matrix subtraction is lazy,
+//! returning a `BinopExpr` that defers allocation until the expression is materialised into
+//! a concrete [`DMatrix`]; scalar subtraction is applied element-wise.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::DMatrix;
+use crate::dmatrix::DMatrix;
 use crate::apply_for_all_types;
 #[cfg(feature = "enable_checks")]
 use crate::common::Shape;
 use crate::common::{Field, IndexValue, LazyExpr};
-use crate::expression::binary_expr::{AddOp, BinopExpr};
+use crate::expression::binary_expr::{BinopExpr, SubOp};
 //}}}
 //{{{ std imports
-use std::ops::{Add, AddAssign};
+use std::ops::{Sub, SubAssign};
 //}}}
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 //{{{ collection: eagerly evaluated expressions
-//{{{ impl: Add<T> for DMatrix
-impl<T> Add<T> for DMatrix<T>
+//{{{ impl: Sub<T> for DMatrix
+impl<T> Sub<T> for DMatrix<T>
 where
     T: Field + Copy,
 {
     type Output = DMatrix<T>;
 
     #[inline]
-    fn add(
+    fn sub(
         self,
         rhs: T,
     ) -> Self::Output
     {
         let mut out = self.clone();
-        out.iter_mut().for_each(|x| *x += rhs);
+        out.iter_mut().for_each(|x| *x -= rhs);
         out
     }
 }
 //}}}
-//{{{ impl: Add<DMatrix> for DMatrix
-impl<T> Add for DMatrix<T>
+//{{{ impl: Sub<DMatrix> for DMatrix
+impl<T> Sub for DMatrix<T>
 where
     T: Field + Copy + IndexValue<usize, Output = T>,
 {
     type Output = DMatrix<T>;
 
     #[inline]
-    fn add(
+    fn sub(
         self,
         rhs: DMatrix<T>,
     ) -> Self::Output
@@ -67,58 +65,58 @@ where
         out.iter_mut()
             .zip(rhs.iter())
             .for_each(|(out_elem, rhs_elem)| {
-                *out_elem += *rhs_elem;
+                *out_elem -= *rhs_elem;
             });
 
         out
     }
 }
 //}}}
-//{{{ impl Add<DMatrix<T>> for T
-macro_rules! impl_dmatrix_add {
+//{{{ impl Sub<DMatrix<T>> for T
+macro_rules! impl_dmatrix_sub {
     ($type: ty) => {
         #[doc(hidden)]
-        impl Add<DMatrix<$type>> for $type
+        impl Sub<DMatrix<$type>> for $type
         {
             type Output = DMatrix<$type>;
 
             #[inline]
-            fn add(
+            fn sub(
                 self,
                 rhs: DMatrix<$type>,
             ) -> Self::Output
             {
                 let mut out = rhs.clone();
-                out.iter_mut().for_each(|x| *x += self);
+                out.iter_mut().for_each(|x| *x = self - *x);
                 out
             }
         }
     };
 }
-apply_for_all_types!(impl_dmatrix_add);
+apply_for_all_types!(impl_dmatrix_sub);
 //}}}
-//{{{ impl AddAssign<T> for DMatrix
-impl<T> AddAssign<T> for DMatrix<T>
+//{{{ impl SubAssign<T> for DMatrix
+impl<T> SubAssign<T> for DMatrix<T>
 where
     T: Field + Copy,
 {
     #[inline]
-    fn add_assign(
+    fn sub_assign(
         &mut self,
         rhs: T,
     )
     {
-        self.iter_mut().for_each(|x| *x += rhs);
+        self.iter_mut().for_each(|x| *x -= rhs);
     }
 }
 //}}}
-//{{{ impl: AddAssign<DMatrix> for DMatrix
-impl<T> AddAssign for DMatrix<T>
+//{{{ impl: SubAssign<DMatrix> for DMatrix
+impl<T> SubAssign for DMatrix<T>
 where
     T: Field + Copy,
 {
     #[inline]
-    fn add_assign(
+    fn sub_assign(
         &mut self,
         rhs: DMatrix<T>,
     )
@@ -133,23 +131,23 @@ where
         self.iter_mut()
             .zip(rhs.iter())
             .for_each(|(out_elem, rhs_elem)| {
-                *out_elem += *rhs_elem;
+                *out_elem = *out_elem - *rhs_elem;
             });
     }
 }
 //}}}
 //}}}
-//{{{ collection: Lazily evaluated expressions
-//{{{ impl: Add<T> for &'a DMatrix
-macro_rules! impl_dmatrix_add_scalar_rhs {
+//{{{ collection: SubOp for DMatrix
+//{{{ impl: Sub<T> for DMatrix
+macro_rules! impl_dmatrix_sub_scalar_rhs {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Add<$type> for &'a DMatrix<$type>
+        impl<'a> Sub<$type> for &'a DMatrix<$type>
         {
-            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, AddOp>;
+            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, SubOp>;
 
             #[inline]
-            fn add(
+            fn sub(
                 self,
                 rhs: $type,
             ) -> Self::Output
@@ -167,35 +165,35 @@ macro_rules! impl_dmatrix_add_scalar_rhs {
         }
 
         #[doc(hidden)]
-        impl<'a> Add<$type> for &'a mut DMatrix<$type>
+        impl<'a> Sub<$type> for &'a mut DMatrix<$type>
         {
-            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, AddOp>;
+            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, SubOp>;
 
             #[inline]
-            fn add(
+            fn sub(
                 self,
                 rhs: $type,
             ) -> Self::Output
             {
-                (&*self).add(rhs)
+                (&*self).sub(rhs)
             }
         }
     };
 }
 
-apply_for_all_types!(impl_dmatrix_add_scalar_rhs);
+apply_for_all_types!(impl_dmatrix_sub_scalar_rhs);
 
 //}}}
-//{{{ impl: Add<Dmatrix> for $type
-macro_rules! impl_dmatrix_ref_add {
+//{{{ impl: Sub<DMatrix> for $type
+macro_rules! impl_dmatrix_sub {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Add<&'a DMatrix<$type>> for $type
+        impl<'a> Sub<&'a DMatrix<$type>> for $type
         {
-            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, AddOp>;
+            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, SubOp>;
 
             #[inline]
-            fn add(
+            fn sub(
                 self,
                 rhs: &'a DMatrix<$type>,
             ) -> Self::Output
@@ -213,39 +211,39 @@ macro_rules! impl_dmatrix_ref_add {
         }
     };
 }
-apply_for_all_types!(impl_dmatrix_ref_add);
+apply_for_all_types!(impl_dmatrix_sub);
 //}}}
-//{{{ impl: Add<&mut Dmatrix> for $type
-macro_rules! impl_dmatrix_ref_mut_add {
+//{{{ impl: Sub<&mut DMatrix> for $type
+macro_rules! impl_dmatrix_ref_mut_sub {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Add<&'a mut DMatrix<$type>> for $type
+        impl<'a> Sub<&'a mut DMatrix<$type>> for $type
         {
-            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, AddOp>;
+            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, SubOp>;
 
             #[inline]
-            fn add(
+            fn sub(
                 self,
                 rhs: &'a mut DMatrix<$type>,
             ) -> Self::Output
             {
-                self.add(&*rhs)
+                self.sub(&*rhs)
             }
         }
     };
 }
-apply_for_all_types!(impl_dmatrix_ref_mut_add);
+apply_for_all_types!(impl_dmatrix_ref_mut_sub);
 //}}}
-//{{{ impl: Add<Rhs> for &'a DMatrix
-impl<'a, T, Rhs> Add<Rhs> for &'a DMatrix<T>
+//{{{ impl: Sub<Rhs> for &'a DMatrix
+impl<'a, T, Rhs> Sub<Rhs> for &'a DMatrix<T>
 where
     T: Field + Copy,
     Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
 {
-    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, AddOp>;
+    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, SubOp>;
 
     #[inline]
-    fn add(
+    fn sub(
         self,
         rhs: Rhs,
     ) -> Self::Output
@@ -269,21 +267,21 @@ where
 }
 
 //}}}
-//{{{ impl: Add<Rhs> for &'a mut DMatrix
-impl<'a, T, Rhs> Add<Rhs> for &'a mut DMatrix<T>
+//{{{ impl: Sub<Rhs> for &'a mut DMatrix
+impl<'a, T, Rhs> Sub<Rhs> for &'a mut DMatrix<T>
 where
     T: Field + Copy,
     Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
 {
-    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, AddOp>;
+    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, SubOp>;
 
     #[inline]
-    fn add(
+    fn sub(
         self,
         rhs: Rhs,
     ) -> Self::Output
     {
-        (&*self).add(rhs)
+        (&*self).sub(rhs)
     }
 }
 
