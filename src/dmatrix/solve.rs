@@ -8,11 +8,9 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::blaslapack::gesv;
-use crate::blaslapack::gesv::Gesv;
+use crate::blaslapack::gesv::{self, Gesv};
 use crate::common::Field;
-//}}}
-//{{{ std imports
+use crate::ops::solve::solve_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -50,20 +48,9 @@ where
     ) -> Result<DMatrix<T>, Error>
     {
         let n = self.nrows;
-        let m = self.ncols;
-        let mut a = self.clone();
-        let mut x = b.clone();
-        let mut ipiv = vec![0; n];
-        T::gesv(
-            n as i32,
-            m as i32,
-            &mut a.data,
-            n as i32,
-            &mut ipiv,
-            &mut x.data,
-            m as i32,
-        )?;
-        Ok(x)
+        let nrhs = b.ncols;
+        let data = solve_raw(self.data.clone(), b.data.clone(), n, nrhs)?;
+        Ok(DMatrix { data, nrows: n, ncols: nrhs })
     }
 }
 //}}}

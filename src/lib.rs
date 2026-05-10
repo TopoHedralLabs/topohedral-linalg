@@ -40,6 +40,8 @@
 mod blaslapack;
 mod common;
 mod expression;
+mod ops;
+mod subviews;
 //}}}
 //{{{ collection: public API
 pub use common::{

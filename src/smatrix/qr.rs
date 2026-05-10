@@ -8,14 +8,11 @@
 
 //{{{ crate imports
 use crate::blaslapack::common::AsI32;
-use crate::blaslapack::geqrf;
-use crate::blaslapack::geqrf::Geqrf;
-use crate::blaslapack::orgqr;
-use crate::blaslapack::orgqr::Orgqr;
+use crate::blaslapack::geqrf::{self, Geqrf};
+use crate::blaslapack::orgqr::{self, Orgqr};
 use crate::common::{Field, One, Zero};
+use crate::ops::qr::{self, qr_raw};
 use crate::smatrix::SMatrix;
-//}}}
-//{{{ std imports
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -33,6 +30,18 @@ pub enum Error
     /// Wraps a LAPACK `orgqr` error from the Q matrix generation step.
     #[error("Error in qr(), exited with error:\n{0}")]
     OrgqrError(#[from] orgqr::Error),
+}
+
+impl From<qr::Error> for Error
+{
+    fn from(e: qr::Error) -> Self
+    {
+        match e
+        {
+            qr::Error::Geqrf(e) => Error::GetrfError(e),
+            qr::Error::Orgqr(e) => Error::OrgqrError(e),
+        }
+    }
 }
 //}}}
 //{{{ struct: Return
@@ -62,58 +71,13 @@ where
     /// Returns an error if either the LAPACK `geqrf` or `orgqr` routine fails.
     pub fn qr(&self) -> Result<Return<T, N, M>, Error>
     {
-        let mut a = *self;
-        let k = N.min(M);
-        let mut tau = vec![T::zero(); k];
-
-        // Query optimal workspace
-        let mut work = vec![T::zero(); 1];
-        T::geqrf(
-            N as i32,
-            M as i32,
-            &mut a.data,
-            N as i32,
-            &mut tau,
-            &mut work,
-            -1,
-        )?;
-
-        // Perform QR factorization
-        let lwork = work[0].as_i32();
-        let mut work = vec![T::zero(); lwork as usize];
-        T::geqrf(
-            N as i32,
-            M as i32,
-            &mut a.data,
-            N as i32,
-            &mut tau,
-            &mut work,
-            lwork,
-        )?;
-
-        // Extract R matrix (upper triangular part)
-        let mut r = SMatrix::<T, N, M>::zeros();
-        for i in 0..N
-        {
-            for j in i..M
-            {
-                r[(i, j)] = a[(i, j)];
-            }
-        }
-
-        // Generate Q matrix
-        T::orgqr(
-            N as i32,
-            N.min(M) as i32,
-            k as i32,
-            &mut a.data,
-            N as i32,
-            &tau,
-            &mut work,
-            lwork,
-        )?;
-        let q = a;
-        Ok(Return { q, r })
+        let raw = qr_raw(self.data.to_vec(), N, M)?;
+        let q_arr: [T; N * M] = raw.q_data.try_into().unwrap_or_else(|_| unreachable!());
+        let r_arr: [T; N * M] = raw.r_data.try_into().unwrap_or_else(|_| unreachable!());
+        Ok(Return {
+            q: SMatrix { data: q_arr, nrows: N, ncols: M },
+            r: SMatrix { data: r_arr, nrows: N, ncols: M },
+        })
     }
 }
 //}}}

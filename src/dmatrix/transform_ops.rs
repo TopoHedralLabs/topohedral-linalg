@@ -8,7 +8,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::{subviews::MatrixViewMut, DMatrix};
+use super::DMatrix;
+use crate::subviews::MatrixViewMut;
 use crate::common::{Field, TransformOps};
 //}}}
 //{{{ std imports
@@ -39,7 +40,7 @@ where
 //}}}
 
 //{{{ impl: TransformOps for MatrixViewMut
-impl<'a, T> TransformOps for MatrixViewMut<'a, T>
+impl<'a, T> TransformOps for MatrixViewMut<'a, DMatrix<T>>
 where
     T: Field + Copy,
 {

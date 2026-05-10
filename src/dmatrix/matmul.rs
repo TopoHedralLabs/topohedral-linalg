@@ -12,9 +12,8 @@ use super::DMatrix;
 use crate::blaslapack::gemm::Gemm;
 use crate::blaslapack::gemv::Gemv;
 use crate::common::{Field, MatMul, One, Zero};
+use crate::ops::matmul::matmul_dispatch;
 use crate::smatrix::SMatrix;
-//}}}
-//{{{ std imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -33,69 +32,13 @@ where
         let m = self.nrows;
         let k = self.ncols;
         let n = rhs.ncols;
-
         assert_eq!(
             k, rhs.nrows,
             "Matrix dimensions are incompatible for multiplication: {}x{} and {}x{}",
             self.nrows, self.ncols, rhs.nrows, rhs.ncols
         );
-
         let mut result = DMatrix::<T>::zeros(m, n);
-
-        if n == 1
-        {
-            // Vector-matrix multiplication
-            T::gemv(
-                cblas::Transpose::None,
-                m as i32,
-                k as i32,
-                T::one(),
-                &self.data,
-                m as i32,
-                &rhs.data,
-                1,
-                T::zero(),
-                &mut result.data,
-                1,
-            );
-        }
-        else if m == 1
-        {
-            // Matrix-vector multiplication
-            T::gemv(
-                cblas::Transpose::Ordinary,
-                k as i32,
-                n as i32,
-                T::one(),
-                &rhs.data,
-                k as i32,
-                &self.data,
-                1,
-                T::zero(),
-                &mut result.data,
-                1,
-            );
-        }
-        else
-        {
-            // General matrix-matrix multiplication
-            T::gemm(
-                cblas::Transpose::None, // transa: transpose left matrix
-                cblas::Transpose::None, // transb: transpose right matrix
-                m as i32,               // m: rows of result/left matrix
-                n as i32,               // n: columns of result/right matrix
-                k as i32,               // k: columns of left/rows of right
-                T::one(),               // alpha: scaling factor for multiplication
-                &self.data,             // a: left matrix data
-                m as i32,               // lda: leading dimension of left matrix
-                &rhs.data,              // b: right matrix data
-                k as i32,               // ldb: leading dimension of right matrix
-                T::zero(),              // beta: scaling factor for result matrix
-                &mut result.data,       // c: result matrix data
-                m as i32,               // ldc: leading dimension of result matrix
-            );
-        }
-
+        matmul_dispatch(m, k, n, &self.data, &rhs.data, &mut result.data);
         result
     }
 }
@@ -201,66 +144,13 @@ where
         let m = self.nrows;
         let k = self.ncols;
         let n = rhs.ncols;
-
         assert_eq!(
             k, rhs.nrows,
             "Matrix dimensions are incompatible for multiplication: {}x{} and {}x{}",
             self.nrows, self.ncols, rhs.nrows, rhs.ncols
         );
-
         let mut result = DMatrix::<T>::zeros(m, n);
-
-        if n == 1
-        {
-            T::gemv(
-                cblas::Transpose::None,
-                m as i32,
-                k as i32,
-                T::one(),
-                &self.data,
-                m as i32,
-                &rhs.data,
-                1,
-                T::zero(),
-                &mut result.data,
-                1,
-            );
-        }
-        else if m == 1
-        {
-            T::gemv(
-                cblas::Transpose::Ordinary,
-                k as i32,
-                n as i32,
-                T::one(),
-                &rhs.data,
-                k as i32,
-                &self.data,
-                1,
-                T::zero(),
-                &mut result.data,
-                1,
-            );
-        }
-        else
-        {
-            T::gemm(
-                cblas::Transpose::None,
-                cblas::Transpose::None,
-                m as i32,
-                n as i32,
-                k as i32,
-                T::one(),
-                &self.data,
-                m as i32,
-                &rhs.data,
-                k as i32,
-                T::zero(),
-                &mut result.data,
-                m as i32,
-            );
-        }
-
+        matmul_dispatch(m, k, n, &self.data, &rhs.data, &mut result.data);
         result
     }
 }

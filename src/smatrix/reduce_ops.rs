@@ -8,10 +8,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::{
-    subviews::{MatrixView, MatrixViewMut},
-    SMatrix,
-};
+use super::SMatrix;
+use crate::subviews::{MatrixView, MatrixViewMut};
 use crate::common::{tuple_index, Field};
 use crate::ReduceOps;
 //}}}
@@ -64,7 +62,7 @@ where
 }
 //}}}
 //{{{ impl: ReduceOps for MatrixView
-impl<'a, T, const N: usize, const M: usize> ReduceOps for MatrixView<'a, T, N, M>
+impl<'a, T, const N: usize, const M: usize> ReduceOps for MatrixView<'a, SMatrix<T, N, M>>
 where
     [(); N * M]:,
     T: Field + Copy,
@@ -112,7 +110,7 @@ where
 }
 //}}}
 //{{{ impl: ReduceOps for MatrixViewMut
-impl<'a, T, const N: usize, const M: usize> ReduceOps for MatrixViewMut<'a, T, N, M>
+impl<'a, T, const N: usize, const M: usize> ReduceOps for MatrixViewMut<'a, SMatrix<T, N, M>>
 where
     [(); N * M]:,
     T: Field + Copy,

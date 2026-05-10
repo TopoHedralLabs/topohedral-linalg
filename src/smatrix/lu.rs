@@ -8,24 +8,17 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::blaslapack::getrf;
-use crate::blaslapack::getrf::Getrf;
+use crate::blaslapack::getrf::{self, Getrf};
 use crate::common::{Field, One, Zero};
-//}}}
-//{{{ std imports
+use crate::ops::lu::lu_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-//{{{ enum: LUError
+//{{{ enum: Error
 /// Errors that can occur during LU decomposition.
-///
-/// The `LUError` enum represents the different types of errors that can occur during the LU decomposition
-/// of a matrix. The `InvalidArgument` variant indicates that one of the arguments passed to the LU
-/// decomposition function was invalid, while the `DiagonalZero` variant indicates that the diagonal
-/// element of the matrix became zero during the decomposition, which is not allowed.
 #[derive(Error, Debug)]
 pub enum Error
 {
@@ -34,12 +27,8 @@ pub enum Error
     GetrfError(#[from] getrf::Error),
 }
 //}}}
-//{{{ sturct: Return
+//{{{ struct: Return
 /// Represents the LU decomposition of a matrix.
-///
-/// The LU decomposition is a factorization of a matrix into the product of a lower triangular matrix
-/// and an upper triangular matrix. This struct stores the L, U, and permutation matrices resulting
-/// from the LU decomposition.
 pub struct Return<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
@@ -71,52 +60,16 @@ where
     /// Returns an error if the LAPACK `getrf` routine fails.
     pub fn lu(&self) -> Result<Return<T, N, M>, Error>
     {
-        //{{{ com: call getrf and check for errors
-        let mut a = *self;
-        let mut ipiv = vec![0; N.min(M)];
-        T::getrf(N as i32, M as i32, &mut a.data, N as i32, &mut ipiv)?;
-        //}}}
-        //{{{ com:  Extract L and U matrices from the factorized matrix
-        let mut l = SMatrix::<T, N, M>::zeros();
-        let mut u = SMatrix::<T, N, M>::zeros();
-
-        for i in 0..N
-        {
-            for j in 0..M
-            {
-                if i > j
-                {
-                    l[(i, j)] = a[(i, j)];
-                }
-                else if i == j
-                {
-                    l[(i, j)] = T::one();
-                    u[(i, j)] = a[(i, j)];
-                }
-                else
-                {
-                    u[(i, j)] = a[(i, j)];
-                }
-            }
-        }
-        //}}}
-        //{{{ com: Create permutation matrix from ipiv
-        let mut p = SMatrix::<T, N, M>::identity();
-        let mut num_swaps = 0;
-        for (k, &pivot) in ipiv.iter().enumerate()
-        {
-            let pivot = (pivot - 1) as usize;
-            if k != pivot
-            {
-                for j in 0..M
-                {
-                    p.data.swap(k + j * N, pivot + j * N);
-                    num_swaps += 1;
-                }
-            }
-        }
-        //}}}
-        Ok(Return { l, u, p, num_swaps })
+        let raw = lu_raw(self.data.to_vec(), N, M)?;
+        let l_arr: [T; N * M] = raw.l_data.try_into().unwrap_or_else(|_| unreachable!());
+        let u_arr: [T; N * M] = raw.u_data.try_into().unwrap_or_else(|_| unreachable!());
+        let p_arr: [T; N * M] = raw.p_data.try_into().unwrap_or_else(|_| unreachable!());
+        Ok(Return {
+            l:         SMatrix { data: l_arr, nrows: N, ncols: M },
+            u:         SMatrix { data: u_arr, nrows: N, ncols: M },
+            p:         SMatrix { data: p_arr, nrows: N, ncols: M },
+            num_swaps: raw.num_swaps,
+        })
     }
 }
 //}}}

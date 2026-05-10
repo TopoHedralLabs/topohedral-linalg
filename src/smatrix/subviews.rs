@@ -1,143 +1,31 @@
-//! Non-owning sub-matrix views into [`SMatrix`] storage.
+//! Sub-matrix view methods for [`SMatrix`].
 //!
-//! Provides `MatrixView<'a, T, N, M>` and `MatrixViewMut<'a, T, N, M>`, which borrow a
-//! rectangular region of an [`SMatrix`] without copying data. The view dimensions N and M are
-//! const-generic parameters, so view shape is checked at compile time. Both types expose
-//! `Index<(usize, usize)>` and `IntoIterator` in column-major order; the mutable variant
-//! additionally implements `IndexMut`.
-//!
+//! The view types themselves live in [`crate::subviews`]. This module provides the constructor
+//! methods (`subview`, `row`, `col`, etc.) on `SMatrix`, plus `to_dmatrix()` on the
+//! immutable and mutable view types when parameterised over `SMatrix`.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::common::{tuple_index, Field, One, Shape, Zero};
+use crate::common::{Field, One, Shape, Zero};
 use crate::dmatrix::DMatrix;
+use crate::subviews::{MatrixView, MatrixViewMut};
 //}}}
 //{{{ std imports
-use std::ops::{Index, IndexMut};
-//}}}
-//{{{ dep imports
+use std::ops::Index;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-// definition of the immutable view
-//{{{ struct: MatrixView
-/// Immutable subview of a matrix designed to provide access to a submatrix without copying the
-/// data. I behaves like a normal Dmatrix but does not own its data. Therefore, the matrix to which
-/// it refers must outlive the view. Currently supports:
-/// - Indexing by (row, col) tuple and by single index
-/// - Iteration over the elements of the view, iteration is performed in column-major order
-pub struct MatrixView<'a, T, const N: usize, const M: usize>
+//{{{ impl: to_dmatrix for SMatrix views
+impl<'a, T, const N: usize, const M: usize> MatrixView<'a, SMatrix<T, N, M>>
 where
-    T: Field + Copy,
     [(); N * M]:,
-{
-    /// Reference to the parent matrix.
-    pub(crate) matrix: &'a SMatrix<T, N, M>,
-    /// First row of the view within the parent matrix.
-    pub(crate) start_row: usize,
-    /// First column of the view within the parent matrix.
-    pub(crate) start_col: usize,
-    /// Number of rows in the view.
-    pub(crate) nrows: usize,
-    /// Number of columns in the view.
-    pub(crate) ncols: usize,
-}
-//}}}
-// Indexing for immutable view
-//{{{ impl: Index for MatrixView
-impl<'a, T, const N: usize, const M: usize> Index<(usize, usize)> for MatrixView<'a, T, N, M>
-where
     T: Field + Copy,
-    [(); N * M]:,
 {
-    type Output = T;
-
-    fn index(
-        &self,
-        index: (usize, usize),
-    ) -> &Self::Output
-    {
-        let (row_loc, col_loc) = index;
-        &self.matrix[(self.start_row + row_loc, self.start_col + col_loc)]
-    }
-}
-impl<'a, T, const N: usize, const M: usize> Index<usize> for MatrixView<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    type Output = T;
-
-    fn index(
-        &self,
-        index: usize,
-    ) -> &Self::Output
-    {
-        let (row_loc, col_loc) = tuple_index(index, self.nrows);
-        &self.matrix[(self.start_row + row_loc, self.start_col + col_loc)]
-    }
-}
-//}}}
-// Immutable iterator over immutable view
-//{{{ struct: MatrixViewIter
-/// Column-major iterator over the elements of a [`MatrixView`].
-pub struct MatrixViewIter<'a, T, const N: usize, const M: usize>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    /// The view being iterated.
-    pub(crate) matrix_view: &'a MatrixView<'a, T, N, M>,
-    /// Current linear index into the view (column-major).
-    index: usize,
-}
-//}}}
-// Immutable iterator over immutable view
-//{{{ impl: Iterator for MatrixViewIter
-impl<'a, T, const N: usize, const M: usize> Iterator for MatrixViewIter<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    type Item = &'a T;
-
-    fn next(&mut self) -> Option<Self::Item>
-    {
-        if self.index < self.matrix_view.nrows * self.matrix_view.ncols
-        {
-            let (row, col) = tuple_index(self.index, self.matrix_view.nrows);
-            self.index += 1;
-            Some(&(*self.matrix_view)[(row, col)])
-        }
-        else
-        {
-            None
-        }
-    }
-}
-//}}}
-// Implementation of the MatrixView struct
-//{{{ impl: MatrixView
-impl<'a, T, const N: usize, const M: usize> MatrixView<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    /// Returns a column-major iterator over the elements of this view.
-    pub fn iter(&'a self) -> MatrixViewIter<'a, T, N, M>
-    {
-        MatrixViewIter {
-            matrix_view: self,
-            index: 0,
-        }
-    }
-
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
     pub fn to_dmatrix(&self) -> DMatrix<T>
     {
         let mut data = Vec::with_capacity(self.nrows * self.ncols);
-
         for j in 0..self.ncols
         {
             for i in 0..self.nrows
@@ -145,307 +33,19 @@ where
                 data.push(self[(i, j)]);
             }
         }
-        DMatrix {
-            data,
-            nrows: self.nrows,
-            ncols: self.ncols,
-        }
-    }
-}
-//}}}
-//{{{ impl: Shape/Index wrappers for views
-impl<'a, T, const N: usize, const M: usize> Shape for MatrixView<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    fn nrows(&self) -> usize
-    {
-        self.nrows
-    }
-
-    fn ncols(&self) -> usize
-    {
-        self.ncols
+        DMatrix { data, nrows: self.nrows, ncols: self.ncols }
     }
 }
 
-impl<'a, T, const N: usize, const M: usize> Shape for MatrixViewMut<'a, T, N, M>
+impl<'a, T, const N: usize, const M: usize> MatrixViewMut<'a, SMatrix<T, N, M>>
 where
-    T: Field + Copy,
     [(); N * M]:,
-{
-    fn nrows(&self) -> usize
-    {
-        self.nrows
-    }
-
-    fn ncols(&self) -> usize
-    {
-        self.ncols
-    }
-}
-
-impl<'a, T, const N: usize, const M: usize> Index<(usize, usize)> for &MatrixView<'a, T, N, M>
-where
     T: Field + Copy,
-    [(); N * M]:,
 {
-    type Output = T;
-
-    fn index(
-        &self,
-        index: (usize, usize),
-    ) -> &Self::Output
-    {
-        &(**self)[index]
-    }
-}
-
-impl<'a, T, const N: usize, const M: usize> Index<(usize, usize)> for &mut MatrixView<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    type Output = T;
-
-    fn index(
-        &self,
-        index: (usize, usize),
-    ) -> &Self::Output
-    {
-        &(**self)[index]
-    }
-}
-
-impl<'a, T, const N: usize, const M: usize> Index<(usize, usize)> for &MatrixViewMut<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    type Output = T;
-
-    fn index(
-        &self,
-        index: (usize, usize),
-    ) -> &Self::Output
-    {
-        &(**self)[index]
-    }
-}
-
-impl<'a, T, const N: usize, const M: usize> Index<(usize, usize)>
-    for &mut MatrixViewMut<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    type Output = T;
-
-    fn index(
-        &self,
-        index: (usize, usize),
-    ) -> &Self::Output
-    {
-        &(**self)[index]
-    }
-}
-//}}}
-
-// definition of the mutable view
-//{{{ struct: MatrixViewMut
-/// Mutable subview of an [`SMatrix`] that allows in-place modification of a rectangular region.
-pub struct MatrixViewMut<'a, T, const N: usize, const M: usize>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    /// Mutable reference to the parent matrix.
-    pub(crate) matrix: &'a mut SMatrix<T, N, M>,
-    /// First row of the view within the parent matrix.
-    pub(crate) start_row: usize,
-    /// First column of the view within the parent matrix.
-    pub(crate) start_col: usize,
-    /// Number of rows in the view.
-    pub(crate) nrows: usize,
-    /// Number of columns in the view.
-    pub(crate) ncols: usize,
-}
-//}}}
-// Indexing for mutable view
-//{{{ impl: Index for MatrixViewMut
-impl<'a, T, const N: usize, const M: usize> Index<(usize, usize)> for MatrixViewMut<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    type Output = T;
-
-    fn index(
-        &self,
-        index: (usize, usize),
-    ) -> &Self::Output
-    {
-        let (row_loc, col_loc) = index;
-        &self.matrix[(self.start_row + row_loc, self.start_col + col_loc)]
-    }
-}
-impl<'a, T, const N: usize, const M: usize> Index<usize> for MatrixViewMut<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    type Output = T;
-
-    fn index(
-        &self,
-        index: usize,
-    ) -> &Self::Output
-    {
-        let (row_loc, col_loc) = tuple_index(index, self.nrows);
-        &self.matrix[(self.start_row + row_loc, self.start_col + col_loc)]
-    }
-}
-//}}}
-//{{{ impl IndexMut for MatrixViewMut
-impl<'a, T, const N: usize, const M: usize> IndexMut<(usize, usize)> for MatrixViewMut<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    fn index_mut(
-        &mut self,
-        index: (usize, usize),
-    ) -> &mut Self::Output
-    {
-        let (row_loc, col_loc) = index;
-        &mut (*self.matrix)[(self.start_row + row_loc, self.start_col + col_loc)]
-    }
-}
-
-impl<'a, T, const N: usize, const M: usize> IndexMut<usize> for MatrixViewMut<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    fn index_mut(
-        &mut self,
-        index: usize,
-    ) -> &mut Self::Output
-    {
-        let (row_loc, col_loc) = tuple_index(index, self.nrows);
-        &mut (*self.matrix)[(self.start_row + row_loc, self.start_col + col_loc)]
-    }
-}
-//}}}
-// Immutable iterator over mutable view
-//{{{ struct: MatrixViewMutIter
-/// Shared iterator over the elements of a [`MatrixViewMut`].
-pub struct MatrixViewMutIter<'a, T, const N: usize, const M: usize>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    /// The mutable view being iterated.
-    pub(crate) matrix_view: &'a MatrixViewMut<'a, T, N, M>,
-    /// Current linear index into the view (column-major).
-    index: usize,
-}
-//}}}
-//{{{ impl: Iterator for MatrixViewMutIter
-impl<'a, T, const N: usize, const M: usize> Iterator for MatrixViewMutIter<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    type Item = &'a T;
-
-    fn next(&mut self) -> Option<Self::Item>
-    {
-        if self.index < self.matrix_view.nrows * self.matrix_view.ncols
-        {
-            let (row, col) = tuple_index(self.index, self.matrix_view.nrows);
-            self.index += 1;
-            Some(&(*self.matrix_view)[(row, col)])
-        }
-        else
-        {
-            None
-        }
-    }
-}
-//}}}
-// Mutable iterator over mutable view
-//{{{ struct: MatrixViewMutIterMut
-/// Mutable iterator over the elements of a [`MatrixViewMut`].
-pub struct MatrixViewMutIterMut<'a, T, const N: usize, const M: usize>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    /// The mutable view being iterated.
-    pub(crate) matrix_view: &'a mut MatrixViewMut<'a, T, N, M>,
-    /// Current linear index into the view (column-major).
-    index: usize,
-}
-//}}}
-//{{{ impl: Iterator for MatrixViewMutIterMut
-impl<'a, T, const N: usize, const M: usize> Iterator for MatrixViewMutIterMut<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    type Item = &'a mut T;
-
-    fn next(&mut self) -> Option<Self::Item>
-    {
-        if self.index < self.matrix_view.nrows * self.matrix_view.ncols
-        {
-            let (row, col) = tuple_index(self.index, self.matrix_view.nrows);
-            self.index += 1;
-            unsafe {
-                // Convert to a raw pointer and then back to a reference with lifetime 'a
-                let ptr = &mut (*self.matrix_view)[(row, col)] as *mut T;
-                Some(&mut *ptr)
-            }
-        }
-        else
-        {
-            None
-        }
-    }
-}
-//}}}
-// Implementation of the MatrixViewMut struct
-//{{{ impl: MatrixViewMut
-impl<'a, T, const N: usize, const M: usize> MatrixViewMut<'a, T, N, M>
-where
-    T: Field + Copy,
-    [(); N * M]:,
-{
-    /// Returns a shared column-major iterator over the elements of this mutable view.
-    pub fn iter(&'a self) -> MatrixViewMutIter<'a, T, N, M>
-    {
-        MatrixViewMutIter {
-            matrix_view: self,
-            index: 0,
-        }
-    }
-
-    /// Returns a mutable column-major iterator over the elements of this mutable view.
-    pub fn iter_mut(&'a mut self) -> MatrixViewMutIterMut<'a, T, N, M>
-    {
-        MatrixViewMutIterMut {
-            matrix_view: self,
-            index: 0,
-        }
-    }
-
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
     pub fn to_dmatrix(&self) -> DMatrix<T>
     {
         let mut data = Vec::with_capacity(self.nrows * self.ncols);
-
         for j in 0..self.ncols
         {
             for i in 0..self.nrows
@@ -453,54 +53,17 @@ where
                 data.push(self[(i, j)]);
             }
         }
-        DMatrix {
-            data,
-            nrows: self.nrows,
-            ncols: self.ncols,
-        }
-    }
-
-    /// Copies entries from `rhs` into this mutable view.
-    ///
-    /// # Panics
-    ///
-    /// Panics when `rhs` dimensions do not match this view's dimensions.
-    pub fn copy_from<Rhs>(
-        &mut self,
-        rhs: Rhs,
-    ) where
-        Rhs: Shape + Index<(usize, usize), Output = T>,
-    {
-        let rhs_nrows = rhs.nrows();
-        let rhs_ncols = rhs.ncols();
-
-        if self.nrows != rhs_nrows || self.ncols != rhs_ncols
-        {
-            panic!(
-                "MatrixViewMut::copy_from dimension mismatch: lhs is {}x{}, rhs is {}x{}",
-                self.nrows, self.ncols, rhs_nrows, rhs_ncols
-            );
-        }
-
-        for i in 0..self.nrows
-        {
-            for j in 0..self.ncols
-            {
-                (*self)[(i, j)] = rhs[(i, j)];
-            }
-        }
+        DMatrix { data, nrows: self.nrows, ncols: self.ncols }
     }
 }
 //}}}
 
-// Accessing of subviews the DMatrix struct
-//{{{ impl: DMatrix
+//{{{ impl: SMatrix subview methods
 impl<'a, T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     T: Field + Copy + Zero + One,
     [(); N * M]:,
 {
-    // Immutable subview of the matrix
     //{{{ fun: subview
     /// Creates a subview of the matrix.
     pub fn subview(
@@ -509,16 +72,14 @@ where
         end_row: usize,
         start_col: usize,
         end_col: usize,
-    ) -> MatrixView<'a, T, N, M>
+    ) -> MatrixView<'a, SMatrix<T, N, M>>
     {
-        let nrows = end_row - start_row + 1;
-        let ncols = end_col - start_col + 1;
         MatrixView {
             matrix: self,
             start_row,
             start_col,
-            nrows,
-            ncols,
+            nrows: end_row - start_row + 1,
+            ncols: end_col - start_col + 1,
         }
     }
     //}}}
@@ -527,7 +88,7 @@ where
     pub fn row(
         &'a self,
         row: usize,
-    ) -> MatrixView<'a, T, N, M>
+    ) -> MatrixView<'a, SMatrix<T, N, M>>
     {
         self.subview(row, row, 0, self.ncols - 1)
     }
@@ -538,7 +99,7 @@ where
         &'a self,
         start_row: usize,
         end_row: usize,
-    ) -> MatrixView<'a, T, N, M>
+    ) -> MatrixView<'a, SMatrix<T, N, M>>
     {
         self.subview(start_row, end_row, 0, self.ncols - 1)
     }
@@ -548,7 +109,7 @@ where
     pub fn col(
         &'a self,
         col: usize,
-    ) -> MatrixView<'a, T, N, M>
+    ) -> MatrixView<'a, SMatrix<T, N, M>>
     {
         self.subview(0, self.nrows - 1, col, col)
     }
@@ -559,13 +120,11 @@ where
         &'a self,
         start_col: usize,
         end_col: usize,
-    ) -> MatrixView<'a, T, N, M>
+    ) -> MatrixView<'a, SMatrix<T, N, M>>
     {
         self.subview(0, self.nrows - 1, start_col, end_col)
     }
     //}}}
-
-    // Mutable subview of the matrix
     //{{{ fun: subview_mut
     /// Creates a mutable subview of the matrix.
     pub fn subview_mut(
@@ -574,16 +133,14 @@ where
         end_row: usize,
         start_col: usize,
         end_col: usize,
-    ) -> MatrixViewMut<'a, T, N, M>
+    ) -> MatrixViewMut<'a, SMatrix<T, N, M>>
     {
-        let nrows = end_row - start_row + 1;
-        let ncols = end_col - start_col + 1;
         MatrixViewMut {
             matrix: self,
             start_row,
             start_col,
-            nrows,
-            ncols,
+            nrows: end_row - start_row + 1,
+            ncols: end_col - start_col + 1,
         }
     }
     //}}}
@@ -592,7 +149,7 @@ where
     pub fn row_mut(
         &'a mut self,
         row: usize,
-    ) -> MatrixViewMut<'a, T, N, M>
+    ) -> MatrixViewMut<'a, SMatrix<T, N, M>>
     {
         self.subview_mut(row, row, 0, self.ncols - 1)
     }
@@ -603,7 +160,7 @@ where
         &'a mut self,
         start_row: usize,
         end_row: usize,
-    ) -> MatrixViewMut<'a, T, N, M>
+    ) -> MatrixViewMut<'a, SMatrix<T, N, M>>
     {
         self.subview_mut(start_row, end_row, 0, self.ncols - 1)
     }
@@ -613,7 +170,7 @@ where
     pub fn col_mut(
         &'a mut self,
         col: usize,
-    ) -> MatrixViewMut<'a, T, N, M>
+    ) -> MatrixViewMut<'a, SMatrix<T, N, M>>
     {
         self.subview_mut(0, self.nrows - 1, col, col)
     }
@@ -624,7 +181,7 @@ where
         &'a mut self,
         start_col: usize,
         end_col: usize,
-    ) -> MatrixViewMut<'a, T, N, M>
+    ) -> MatrixViewMut<'a, SMatrix<T, N, M>>
     {
         self.subview_mut(0, self.nrows - 1, start_col, end_col)
     }
@@ -643,7 +200,6 @@ where
     {
         let rhs_nrows = rhs.nrows();
         let rhs_ncols = rhs.ncols();
-
         if self.nrows != rhs_nrows || self.ncols != rhs_ncols
         {
             panic!(
@@ -651,7 +207,6 @@ where
                 self.nrows, self.ncols, rhs_nrows, rhs_ncols
             );
         }
-
         for i in 0..self.nrows
         {
             for j in 0..self.ncols
@@ -663,8 +218,6 @@ where
     //}}}
     //{{{ fun: set_row
     /// Copies `rhs` into the row view at `row`.
-    ///
-    /// This is the assignment-style alternative to the unsupported syntax `m.row(row) = rhs`.
     pub fn set_row<Rhs>(
         &'a mut self,
         row: usize,
@@ -691,9 +244,6 @@ where
     //}}}
     //{{{ fun: set_subview
     /// Copies `rhs` into the subview described by `[start_row..=end_row, start_col..=end_col]`.
-    ///
-    /// Rust does not allow assignment to method-call temporaries, so use this or
-    /// `subview_mut(...).copy_from(...)` instead of `m.subview(...) = rhs`.
     pub fn set_subview<Rhs>(
         &'a mut self,
         start_row: usize,

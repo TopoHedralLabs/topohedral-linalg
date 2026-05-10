@@ -9,11 +9,9 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::blaslapack::gees;
-use crate::blaslapack::gees::Gees;
+use crate::blaslapack::gees::{self, Gees};
 use crate::common::{Field, One, Zero};
-//}}}
-//{{{ std imports
+use crate::ops::schur::schur_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -26,7 +24,7 @@ pub enum Error
 {
     #[error("Error in schur(), exited with error:\n{0}")]
     /// LAPACK `gees` failed to compute the Schur decomposition.
-    GeesfError(#[from] gees::Error),
+    GeesError(#[from] gees::Error),
 }
 //}}}
 
@@ -59,35 +57,16 @@ where
     ///
     /// # Errors
     ///
-    /// Returns [`Error::GeesfError`] if the LAPACK `gees` routine fails.
+    /// Returns [`Error::GeesError`] if the LAPACK `gees` routine fails.
     pub fn schur(&self) -> Result<Return<T>, Error>
     {
         let n = self.nrows;
         let m = self.ncols;
-        let mut a = self.clone();
-        let mut vs = DMatrix::<T>::zeros(n, m);
-        let mut wr = vec![T::zero(); n];
-        let mut wi = vec![T::zero(); n];
-        let mut sdim = 0;
-        let mut work = vec![T::zero(); n * 5];
-        let lwork = (n * 5) as i32;
-        let mut bwork = vec![0; n];
-        T::gees(
-            b'V',
-            b'N',
-            n as i32,
-            &mut a.data,
-            n as i32,
-            &mut sdim,
-            &mut wr,
-            &mut wi,
-            &mut vs.data,
-            n as i32,
-            &mut work,
-            lwork,
-            &mut bwork,
-        )?;
-        Ok(Return { q: vs, t: a })
+        let raw = schur_raw(self.data.clone(), n, m)?;
+        Ok(Return {
+            q: DMatrix { data: raw.q_data, nrows: n, ncols: m },
+            t: DMatrix { data: raw.t_data, nrows: n, ncols: m },
+        })
     }
 }
 //}}}
