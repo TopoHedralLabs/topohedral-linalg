@@ -10,31 +10,29 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{
-    Dimension, Field, Float, FloatVectorOps, GreaterThan, IndexValue, LazyExpr, One, VectorOps,
-    Zero,
-};
-use crate::expression::binary_expr::{BinOp, BinopExpr};
-use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
+use crate::common::{Dimension, Field, Float, FloatVectorOps, GreaterThan, One, VectorOps, Zero};
 //}}}
 //{{{ std imports
-use std::convert::From;
 //}}}
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-// elementwise expressions
-mod elementwise;
 mod blaslapack;
-mod matrix_ops;
-mod reduce_ops;
-mod transform_ops;
 mod construction;
+mod elementwise;
 mod indexing;
 mod io;
 mod iteration;
+mod matrix_ops;
+mod reduce_ops;
 mod subviews;
+mod transform_ops;
+
+pub use blaslapack::{
+    SEigError, SEigReturn, SLuError, SLuReturn, SQrError, SQrReturn, SSchurError, SSchurReturn,
+    SSolveError, SSymEigError, SSymEigReturn,
+};
 
 //{{{ collection: SMatrix
 //{{{ struct: SMatrix
@@ -141,60 +139,9 @@ where
     //}}}
 }
 //}}}
-//{{{ impl: LazyExpr for SMatrix
-impl<T, const N: usize, const M: usize> LazyExpr for SMatrix<T, N, M>
-where
-    [(); N * M]:,
-    T: Field + Copy,
-{
-    type ScalarType = T;
-}
-
 //}}}
-//{{{ impl: From<BinopExpr> for SMatrix
-impl<A, B, T, Op, const N: usize, const M: usize> From<BinopExpr<A, B, T, Op>> for SMatrix<T, N, M>
-where
-    [(); N * M]:,
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    T: Field + Copy + Zero,
-    Op: BinOp,
-{
-    fn from(expr: BinopExpr<A, B, T, Op>) -> Self
-    {
-        let mut out = SMatrix::<T, N, M>::zeros();
-
-        for i in 0..N * M
-        {
-            out[i] = expr.index_value(i);
-        }
-
-        out
-    }
-} //}}}
-  //{{{ impl: From<UnaryExpr> for SMatrix
-impl<A, T, Op, const N: usize, const M: usize> From<UnaryExpr<A, T, Op>> for SMatrix<T, N, M>
-where
-    [(); N * M]:,
-    A: IndexValue<usize, Output = T> + crate::common::Shape,
-    T: Field + Copy + Zero,
-    Op: UnaryOp<T>,
-{
-    fn from(expr: UnaryExpr<A, T, Op>) -> Self
-    {
-        let mut out = SMatrix::<T, N, M>::zeros();
-
-        for i in 0..N * M
-        {
-            out[i] = expr.index_value(i);
-        }
-
-        out
-    }
-} //}}}
-  //}}}
-  //{{{ collection: SRVector
-  //{{{ type: SRVector
+//{{{ collection: SRVector
+//{{{ type: SRVector
 /// A type alias for a row vector of size N.
 pub type SRVector<T, const N: usize> = SMatrix<T, 1, N>;
 //}}}

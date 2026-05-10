@@ -6,7 +6,7 @@
 //{{{ crate imports
 use super::DMatrix;
 use crate::common::{
-    Dimension, EvalInto, Field, Float, FloatVectorOps, IndexValue, LazyExpr, One, VectorOps, Zero,
+    EvalInto, Field, IndexValue, LazyExpr, Zero,
 };
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
