@@ -24,30 +24,17 @@ use std::convert::From;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-// binary operations
-pub mod addop;
-pub mod divop;
-pub mod mulop;
-pub mod subop;
-// unary operations
-pub mod negop;
-// matrix operations
-pub mod eig;
-pub mod lu;
-pub mod matmul;
-pub mod matrix_ops;
-pub mod qr;
-pub mod reduce_ops;
-pub mod schur;
-pub mod solve;
-pub mod symeig;
-pub mod transform_ops;
-// everything else
-pub mod construction;
-pub mod indexing;
-pub mod io;
-pub mod iteration;
-pub mod subviews;
+// elementwise expressions
+mod elementwise;
+mod blaslapack;
+mod matrix_ops;
+mod reduce_ops;
+mod transform_ops;
+mod construction;
+mod indexing;
+mod io;
+mod iteration;
+mod subviews;
 
 //{{{ collection: SMatrix
 //{{{ struct: SMatrix

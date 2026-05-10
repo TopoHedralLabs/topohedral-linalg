@@ -7,9 +7,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::SMatrix;
-use crate::blaslapack::gees::schur_raw;
-use crate::blaslapack::gees::{self, Gees};
+use crate::smatrix::SMatrix;
+use crate::blaslapack::{schur_raw, ShurRawError, Gees};
 use crate::common::{Field, One, Zero};
 //}}}
 //{{{ dep imports
@@ -24,7 +23,7 @@ pub enum Error
 {
     /// Wraps a LAPACK `gees` error from the Schur factorisation routine.
     #[error("Error in schur(), exited with error:\n{0}")]
-    GeesError(#[from] gees::Error),
+    GeesError(#[from] ShurRawError),
 }
 //}}}
 //{{{ struct: Return

@@ -104,28 +104,15 @@ pub(crate) struct QrRaw<T>
 }
 //}}}
 //{{{ enum: QrRawError
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub(crate) enum QrRawError
 {
-    Geqrf(Error),
-    Orgqr(super::orgqr::Error),
+    #[error(transparent)]
+    Geqrf(#[from] Error),
+    #[error(transparent)]
+    Orgqr(#[from] super::orgqr::Error),
 }
 
-impl From<Error> for QrRawError
-{
-    fn from(e: Error) -> Self
-    {
-        QrRawError::Geqrf(e)
-    }
-}
-
-impl From<super::orgqr::Error> for QrRawError
-{
-    fn from(e: super::orgqr::Error) -> Self
-    {
-        QrRawError::Orgqr(e)
-    }
-}
 //}}}
 //{{{ fun: qr_raw
 /// Shared GEQRF + ORGQR algorithm. Consumes the cloned matrix data; returns raw Q/R buffers.

@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::getrf::Getrf;
+use crate::blaslapack::Getrf;
 //}}}
 //{{{ std imports
 use ::std::ops::{Add, Div, Mul, Neg, Sub};

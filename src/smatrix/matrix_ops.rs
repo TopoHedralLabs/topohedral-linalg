@@ -7,9 +7,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::lu;
-use super::SMatrix;
-use crate::blaslapack::getrf::Getrf;
+use crate::smatrix::blaslapack::lu;
+use crate::smatrix::SMatrix;
+use crate::blaslapack::Getrf;
 use crate::common::Shape;
 use crate::common::{Field, Float, MatrixOps, One, Zero};
 //}}}

@@ -7,9 +7,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::SMatrix;
-use crate::blaslapack::getrf::lu_raw;
-use crate::blaslapack::getrf::{self, Getrf};
+use crate::smatrix::SMatrix;
+use crate::blaslapack::{lu_raw, LuRawError, Getrf};
 use crate::common::{Field, One, Zero};
 //}}}
 //{{{ dep imports
@@ -24,7 +23,7 @@ pub enum Error
 {
     /// Wraps a LAPACK `getrf` error returned by the underlying factorisation routine.
     #[error("Error in lu(), exited with error:\n{0}")]
-    GetrfError(#[from] getrf::Error),
+    GetrfError(#[from] LuRawError),
 }
 //}}}
 //{{{ struct: Return

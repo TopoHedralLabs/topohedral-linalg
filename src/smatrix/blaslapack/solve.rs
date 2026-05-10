@@ -7,9 +7,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::SMatrix;
-use crate::blaslapack::gesv::solve_raw;
-use crate::blaslapack::gesv::{self, Gesv};
+use crate::smatrix::SMatrix;
+use crate::blaslapack::{solve_raw, SolveRawError, Gesv};
 use crate::common::Field;
 //}}}
 //{{{ dep imports
@@ -24,7 +23,7 @@ pub enum Error
 {
     /// Wraps a LAPACK `gesv` error from the linear solve routine.
     #[error("Error in solve(), exited with error:\n{0}")]
-    GesvError(#[from] gesv::Error),
+    GesvError(#[from] SolveRawError),
 }
 //}}}
 //{{{ impl: SMatrix<T, N, M>

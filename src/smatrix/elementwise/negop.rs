@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::SMatrix;
+use crate::smatrix::SMatrix;
 use crate::common::{Field, Zero};
 use crate::expression::unary_expr::{NegOp, UnaryExpr};
 //}}}
