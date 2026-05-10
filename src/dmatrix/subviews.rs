@@ -54,7 +54,6 @@ where
     }
 }
 //}}}
-
 //{{{ impl: DMatrix subview methods
 impl<'a, T> DMatrix<T>
 where

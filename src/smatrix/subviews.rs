@@ -57,7 +57,6 @@ where
     }
 }
 //}}}
-
 //{{{ impl: SMatrix subview methods
 impl<'a, T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
