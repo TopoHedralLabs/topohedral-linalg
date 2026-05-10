@@ -105,7 +105,7 @@ pub(crate) struct QrRaw<T>
 //}}}
 //{{{ enum: QrRawError
 #[derive(Error, Debug)]
-pub(crate) enum QrRawError
+pub enum QrRawError
 {
     #[error(transparent)]
     Geqrf(#[from] Error),

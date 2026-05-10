@@ -11,10 +11,8 @@
 
 //{{{ crate imports
 use crate::common::{
-    Dimension, EvalInto, Field, Float, FloatVectorOps, IndexValue, LazyExpr, One, VectorOps, Zero,
+    Dimension, Field, Float, FloatVectorOps, One, VectorOps, Zero,
 };
-use crate::expression::binary_expr::BinOp;
-use crate::expression::unary_expr::UnaryOp;
 //}}}
 //{{{ std imports
 use serde::{Deserialize, Serialize};
