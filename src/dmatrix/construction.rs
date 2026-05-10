@@ -177,7 +177,7 @@ where
     }
 
     /// Creates a new `DVector` initialized with zeros.
-    pub fn zeros_cvec(
+    pub fn zeros_vec(
         nelem: usize,
         vec_type: VecType,
     ) -> Self
@@ -192,7 +192,7 @@ where
     }
 
     /// Creates a new `DVector` initialized with ones.
-    pub fn ones_cvec(
+    pub fn ones_vec(
         nelem: usize,
         vec_type: VecType,
     ) -> Self
@@ -223,7 +223,7 @@ where
     }
 
     /// Creates a new `DVector` with elements drawn from a uniform random distribution over `[low, high)`.
-    pub fn from_uniform_random_cvec(
+    pub fn from_uniform_random_vec(
         low: T,
         high: T,
         nelem: usize,
