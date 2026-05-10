@@ -121,3 +121,43 @@ impl Geev for f32
     }
 }
 //}}}
+
+//{{{ struct: EigRaw
+pub(crate) struct EigRaw<T>
+{
+    pub vl:      Vec<T>,
+    pub vr:      Vec<T>,
+    pub eigvals: Vec<crate::common::Complex<T>>,
+}
+//}}}
+//{{{ fun: eig_raw
+/// Shared GEEV algorithm. Consumes the cloned matrix data; returns raw eigenvector/eigenvalue buffers.
+pub(crate) fn eig_raw<T>(
+    mut a_data: Vec<T>,
+    n: usize,
+) -> Result<EigRaw<T>, Error>
+where
+    T: Geev
+        + crate::common::One
+        + crate::common::Zero
+        + crate::common::Field
+        + Default
+        + Copy
+        + super::common::AsI32,
+{
+    let mut vl = vec![T::zero(); n * n];
+    let mut vr = vec![T::zero(); n * n];
+    let mut wr = vec![T::zero(); n];
+    let mut wi = vec![T::zero(); n];
+
+    let mut work = vec![T::zero(); 1];
+    T::geev(b'V', b'V', n as i32, &mut a_data, n as i32, &mut wr, &mut wi, &mut vl, n as i32, &mut vr, n as i32, &mut work, -1)?;
+
+    let lwork = work[0].as_i32();
+    let mut work = vec![T::zero(); lwork as usize];
+    T::geev(b'V', b'V', n as i32, &mut a_data, n as i32, &mut wr, &mut wi, &mut vl, n as i32, &mut vr, n as i32, &mut work, lwork)?;
+
+    let eigvals: Vec<crate::common::Complex<T>> = wr.iter().zip(wi.iter()).take(n).map(|(&r, &i)| crate::common::Complex::new(r, i)).collect();
+    Ok(EigRaw { vl, vr, eigvals })
+}
+//}}}

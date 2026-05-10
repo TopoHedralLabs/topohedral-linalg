@@ -95,3 +95,74 @@ impl Geqrf for f32
     }
 }
 //}}}
+
+//{{{ struct: QrRaw
+pub(crate) struct QrRaw<T>
+{
+    pub q_data: Vec<T>,
+    pub r_data: Vec<T>,
+}
+//}}}
+//{{{ enum: QrRawError
+#[derive(Debug)]
+pub(crate) enum QrRawError
+{
+    Geqrf(Error),
+    Orgqr(super::orgqr::Error),
+}
+
+impl From<Error> for QrRawError
+{
+    fn from(e: Error) -> Self
+    {
+        QrRawError::Geqrf(e)
+    }
+}
+
+impl From<super::orgqr::Error> for QrRawError
+{
+    fn from(e: super::orgqr::Error) -> Self
+    {
+        QrRawError::Orgqr(e)
+    }
+}
+//}}}
+//{{{ fun: qr_raw
+/// Shared GEQRF + ORGQR algorithm. Consumes the cloned matrix data; returns raw Q/R buffers.
+pub(crate) fn qr_raw<T>(
+    mut a_data: Vec<T>,
+    n: usize,
+    m: usize,
+) -> Result<QrRaw<T>, QrRawError>
+where
+    T: Geqrf
+        + super::orgqr::Orgqr
+        + crate::common::One
+        + crate::common::Zero
+        + crate::common::Field
+        + Copy
+        + super::common::AsI32,
+{
+    let k = n.min(m);
+    let mut tau = vec![T::zero(); k];
+
+    let mut work = vec![T::zero(); 1];
+    T::geqrf(n as i32, m as i32, &mut a_data, n as i32, &mut tau, &mut work, -1)?;
+
+    let lwork = work[0].as_i32();
+    let mut work = vec![T::zero(); lwork as usize];
+    T::geqrf(n as i32, m as i32, &mut a_data, n as i32, &mut tau, &mut work, lwork)?;
+
+    let mut r_data = vec![T::zero(); n * m];
+    for i in 0..n
+    {
+        for j in i..m
+        {
+            r_data[i + j * n] = a_data[i + j * n];
+        }
+    }
+
+    T::orgqr(n as i32, n.min(m) as i32, k as i32, &mut a_data, n as i32, &tau, &mut work, lwork)?;
+    Ok(QrRaw { q_data: a_data, r_data })
+}
+//}}}

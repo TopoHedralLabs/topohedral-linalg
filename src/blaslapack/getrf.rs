@@ -95,3 +95,70 @@ impl Getrf for f32
     }
 }
 //}}}
+
+//{{{ struct: LuRaw
+pub(crate) struct LuRaw<T>
+{
+    pub l_data:    Vec<T>,
+    pub u_data:    Vec<T>,
+    pub p_data:    Vec<T>,
+    pub num_swaps: usize,
+}
+//}}}
+//{{{ fun: lu_raw
+/// Shared GETRF algorithm. Consumes the cloned matrix data; returns raw L/U/P buffers.
+pub(crate) fn lu_raw<T>(
+    mut a_data: Vec<T>,
+    n: usize,
+    m: usize,
+) -> Result<LuRaw<T>, Error>
+where
+    T: Getrf + crate::common::One + crate::common::Zero + crate::common::Field + Copy,
+{
+    let mut ipiv = vec![0; n.min(m)];
+    T::getrf(n as i32, m as i32, &mut a_data, n as i32, &mut ipiv)?;
+
+    let mut l_data = vec![T::zero(); n * m];
+    let mut u_data = vec![T::zero(); n * m];
+    for i in 0..n
+    {
+        for j in 0..m
+        {
+            let idx = i + j * n;
+            if i > j
+            {
+                l_data[idx] = a_data[idx];
+            }
+            else if i == j
+            {
+                l_data[idx] = T::one();
+                u_data[idx] = a_data[idx];
+            }
+            else
+            {
+                u_data[idx] = a_data[idx];
+            }
+        }
+    }
+
+    let mut p_data = vec![T::zero(); n * m];
+    for i in 0..n.min(m)
+    {
+        p_data[i + i * n] = T::one();
+    }
+    let mut num_swaps = 0;
+    for (k, &pivot) in ipiv.iter().enumerate()
+    {
+        let pivot = (pivot - 1) as usize;
+        if k != pivot
+        {
+            for j in 0..m
+            {
+                p_data.swap(k + j * n, pivot + j * n);
+                num_swaps += 1;
+            }
+        }
+    }
+    Ok(LuRaw { l_data, u_data, p_data, num_swaps })
+}
+//}}}

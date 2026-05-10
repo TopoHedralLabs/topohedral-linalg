@@ -12,7 +12,7 @@ use super::DMatrix;
 use crate::blaslapack::common::AsI32;
 use crate::blaslapack::syev::{self, Syev};
 use crate::common::{Field, One, Zero};
-use crate::ops::symeig::symeig_raw;
+use crate::blaslapack::syev::symeig_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;

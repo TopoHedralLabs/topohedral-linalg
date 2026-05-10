@@ -13,7 +13,7 @@ use crate::blaslapack::gemm::Gemm;
 use crate::blaslapack::gemv::Gemv;
 use crate::common::{Field, MatMul, One, Zero};
 use crate::dmatrix::DMatrix;
-use crate::ops::matmul::matmul_dispatch;
+use crate::blaslapack::gemm::matmul_dispatch;
 //}}}
 //--------------------------------------------------------------------------------------------------
 

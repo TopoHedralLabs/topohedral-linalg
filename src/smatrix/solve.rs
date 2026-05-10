@@ -10,7 +10,7 @@
 use super::SMatrix;
 use crate::blaslapack::gesv::{self, Gesv};
 use crate::common::Field;
-use crate::ops::solve::solve_raw;
+use crate::blaslapack::gesv::solve_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;

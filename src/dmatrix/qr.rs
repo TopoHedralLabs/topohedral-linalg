@@ -14,7 +14,7 @@ use crate::blaslapack::common::AsI32;
 use crate::blaslapack::geqrf::{self, Geqrf};
 use crate::blaslapack::orgqr::{self, Orgqr};
 use crate::common::{Field, One, Zero};
-use crate::ops::qr::{self, qr_raw};
+use crate::blaslapack::geqrf::{QrRawError, qr_raw};
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -34,14 +34,14 @@ pub enum Error
     OrgqrError(#[from] orgqr::Error),
 }
 
-impl From<qr::Error> for Error
+impl From<QrRawError> for Error
 {
-    fn from(e: qr::Error) -> Self
+    fn from(e: QrRawError) -> Self
     {
         match e
         {
-            qr::Error::Geqrf(e) => Error::GetrfError(e),
-            qr::Error::Orgqr(e) => Error::OrgqrError(e),
+            QrRawError::Geqrf(e) => Error::GetrfError(e),
+            QrRawError::Orgqr(e) => Error::OrgqrError(e),
         }
     }
 }

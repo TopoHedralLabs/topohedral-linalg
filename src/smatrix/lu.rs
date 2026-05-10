@@ -10,7 +10,7 @@
 use super::SMatrix;
 use crate::blaslapack::getrf::{self, Getrf};
 use crate::common::{Field, One, Zero};
-use crate::ops::lu::lu_raw;
+use crate::blaslapack::getrf::lu_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;

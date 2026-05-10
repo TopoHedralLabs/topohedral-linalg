@@ -12,7 +12,7 @@ use super::DMatrix;
 use crate::blaslapack::common::AsI32;
 use crate::blaslapack::geev::{self, Geev};
 use crate::common::{Complex, Field, One, Zero};
-use crate::ops::eig::eig_raw;
+use crate::blaslapack::geev::eig_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;

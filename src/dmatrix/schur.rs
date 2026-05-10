@@ -11,7 +11,7 @@
 use super::DMatrix;
 use crate::blaslapack::gees::{self, Gees};
 use crate::common::{Field, One, Zero};
-use crate::ops::schur::schur_raw;
+use crate::blaslapack::gees::schur_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
