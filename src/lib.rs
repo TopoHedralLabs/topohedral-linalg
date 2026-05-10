@@ -40,6 +40,7 @@
 mod blaslapack;
 mod common;
 mod expression;
+mod subviews;
 //}}}
 //{{{ collection: public API
 pub use common::{
@@ -54,9 +55,7 @@ pub use expression::unary_expr::{
     powi, recip, rem_euclid, round, round_ties_even, signum, sin, sinh, sqrt, tan, tanh,
     to_degrees, to_radians, trunc,
 };
+pub use subviews::{SubViewable, SubViewableMut};
 pub mod dmatrix;
-pub mod dvector;
-pub mod scvector;
 pub mod smatrix;
-pub mod srvector;
 //}}}

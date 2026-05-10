@@ -27,3 +27,12 @@ pub mod gesv;
 pub mod getrf;
 pub mod orgqr;
 pub mod syev;
+
+/// Abstracts over matrix storage for generic LAPACK dispatch.
+#[allow(dead_code)]
+pub(crate) trait MatrixBuffer: crate::common::Shape
+{
+    type Scalar: crate::common::Field + Copy;
+    fn as_slice(&self) -> &[Self::Scalar];
+    fn as_mut_slice(&mut self) -> &mut [Self::Scalar];
+}

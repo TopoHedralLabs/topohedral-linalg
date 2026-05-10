@@ -10,7 +10,10 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Dimension, Field, IndexValue, LazyExpr, Zero};
+use crate::common::{
+    Dimension, Field, Float, FloatVectorOps, GreaterThan, IndexValue, LazyExpr, One, VectorOps,
+    Zero,
+};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
 //}}}
@@ -46,6 +49,7 @@ pub mod io;
 pub mod iteration;
 pub mod subviews;
 
+//{{{ collection: SMatrix
 //{{{ struct: SMatrix
 /// A fixed-size $N \times M$ matrix type that stores its elements in a static, contiguous array.
 ///
@@ -181,8 +185,7 @@ where
         out
     }
 } //}}}
-
-//{{{ impl: From<UnaryExpr> for SMatrix
+  //{{{ impl: From<UnaryExpr> for SMatrix
 impl<A, T, Op, const N: usize, const M: usize> From<UnaryExpr<A, T, Op>> for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -202,3 +205,68 @@ where
         out
     }
 } //}}}
+  //}}}
+  //{{{ collection: SRVector
+  //{{{ type: SRVector
+/// A type alias for a row vector of size N.
+pub type SRVector<T, const N: usize> = SMatrix<T, 1, N>;
+//}}}
+//{{{ impl: VectorOps for SRVector
+#[allow(clippy::identity_op)]
+impl<T, const N: usize> VectorOps for SRVector<T, N>
+where
+    [(); 1usize * N]:,
+    T: Field + Default + Copy + Clone + Zero + One + Float,
+    (): GreaterThan<N, 1>,
+{
+    type ScalarType = T;
+
+    fn len(&self) -> usize
+    {
+        N
+    }
+}
+//}}}
+//{{{ impl: FloatVectorOps for SRVector
+#[allow(clippy::identity_op)]
+impl<T, const N: usize> FloatVectorOps for SRVector<T, N>
+where
+    [(); 1usize * N]:,
+    T: Float + Default + Copy + Clone + Zero + One,
+    (): GreaterThan<N, 1>,
+{
+}
+//}}}
+//}}}
+//{{{ collection: SCVector
+//{{{ type: SCVector
+/// A type alias for a column vector of size N.
+pub type SCVector<T, const N: usize> = SMatrix<T, N, 1>;
+//}}}
+//{{{ impl: VectorOps for SCVector
+#[allow(clippy::identity_op)]
+impl<T, const N: usize> VectorOps for SCVector<T, N>
+where
+    [(); N * 1]:,
+    T: Field + Default + Copy + Clone + Zero + One + Float,
+    (): GreaterThan<N, 1>,
+{
+    type ScalarType = T;
+
+    fn len(&self) -> usize
+    {
+        N
+    }
+}
+//}}}
+//{{{ impl: FloatVectorOps for SCVector
+#[allow(clippy::identity_op)]
+impl<T, const N: usize> FloatVectorOps for SCVector<T, N>
+where
+    [(); N * 1]:,
+    T: Float + Default + Copy + Clone + Zero + One,
+    (): GreaterThan<N, 1>,
+{
+}
+//}}}
+//}}}

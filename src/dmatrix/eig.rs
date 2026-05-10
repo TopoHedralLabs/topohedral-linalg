@@ -10,10 +10,9 @@
 //{{{ crate imports
 use super::DMatrix;
 use crate::blaslapack::common::AsI32;
+use crate::blaslapack::geev::eig_raw;
 use crate::blaslapack::geev::{self, Geev};
 use crate::common::{Complex, Field, One, Zero};
-//}}}
-//{{{ std imports
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -71,61 +70,19 @@ where
     pub fn eig(&self) -> Result<Return<T>, Error>
     {
         let n = self.nrows;
-        let mut a = self.clone();
-        let mut vl = DMatrix::<T>::zeros(n, n);
-        let mut vr = DMatrix::<T>::zeros(n, n);
-        let nelem = self.nrows * self.ncols;
-        let mut wr = vec![T::zero(); nelem];
-        let mut wi = vec![T::zero(); nelem];
-
-        // Query optimal workspace
-        let mut work = vec![T::zero(); 1];
-        T::geev(
-            b'V',
-            b'V',
-            n as i32,
-            &mut a.data,
-            n as i32,
-            &mut wr,
-            &mut wi,
-            &mut vl.data,
-            n as i32,
-            &mut vr.data,
-            n as i32,
-            &mut work,
-            -1,
-        )?;
-
-        // Perform eigenvalue decomposition
-        let lwork = work[0].as_i32();
-        let mut work = vec![T::zero(); lwork as usize];
-        T::geev(
-            b'V',
-            b'V',
-            n as i32,
-            &mut a.data,
-            n as i32,
-            &mut wr,
-            &mut wi,
-            &mut vl.data,
-            n as i32,
-            &mut vr.data,
-            n as i32,
-            &mut work,
-            lwork,
-        )?;
-
-        let eigvals: Vec<Complex<T>> = wr
-            .iter()
-            .zip(wi.iter())
-            .map(|(&wr_val, &wi_val)| Complex::new(wr_val, wi_val))
-            .take(n)
-            .collect();
-
+        let raw = eig_raw(self.data.clone(), n)?;
         Ok(Return {
-            left_eigvecs: vl,
-            right_eigvecs: vr,
-            eigvals,
+            left_eigvecs: DMatrix {
+                data: raw.vl,
+                nrows: n,
+                ncols: n,
+            },
+            right_eigvecs: DMatrix {
+                data: raw.vr,
+                nrows: n,
+                ncols: n,
+            },
+            eigvals: raw.eigvals,
         })
     }
 }

@@ -10,10 +10,9 @@
 //{{{ crate imports
 use super::DMatrix;
 use crate::blaslapack::common::AsI32;
+use crate::blaslapack::syev::symeig_raw;
 use crate::blaslapack::syev::{self, Syev};
 use crate::common::{Field, One, Zero};
-//}}}
-//{{{ std imports
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -27,7 +26,7 @@ pub enum Error
 {
     #[error("Error in symeig(), exited with error:\n{0}")]
     /// LAPACK `syev` failed to compute eigenvalues or eigenvectors.
-    GeevError(#[from] syev::Error),
+    SyevError(#[from] syev::Error),
 }
 //}}}
 
@@ -71,40 +70,14 @@ where
         {
             panic!("Matrix must be square for eigenvalue decomposition");
         }
-
-        let mut a = self.clone();
-        let mut eigvals = vec![T::zero(); n];
-
-        // Query optimal workspace
-        let mut work = vec![T::zero(); 1];
-        T::syev(
-            b'V', // Compute both eigenvalues and eigenvectors
-            b'L', // Use lower triangular part of the matrix
-            n as i32,
-            &mut a.data,
-            n as i32,
-            &mut eigvals,
-            &mut work,
-            -1, // Workspace query
-        )?;
-
-        // Perform eigenvalue decomposition
-        let lwork = work[0].as_i32();
-        let mut work = vec![T::zero(); lwork as usize];
-        T::syev(
-            b'V',
-            b'L',
-            n as i32,
-            &mut a.data,
-            n as i32,
-            &mut eigvals,
-            &mut work,
-            lwork,
-        )?;
-
+        let raw = symeig_raw(self.data.clone(), n)?;
         Ok(Return {
-            eigvecs: a,
-            eigvals,
+            eigvecs: DMatrix {
+                data: raw.eigvecs_data,
+                nrows: n,
+                ncols: n,
+            },
+            eigvals: raw.eigvals,
         })
     }
 }

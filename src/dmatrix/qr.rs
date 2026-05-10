@@ -11,13 +11,10 @@
 //{{{ crate imports
 use super::DMatrix;
 use crate::blaslapack::common::AsI32;
-use crate::blaslapack::geqrf;
-use crate::blaslapack::geqrf::Geqrf;
-use crate::blaslapack::orgqr;
-use crate::blaslapack::orgqr::Orgqr;
+use crate::blaslapack::geqrf::{self, Geqrf};
+use crate::blaslapack::geqrf::{qr_raw, QrRawError};
+use crate::blaslapack::orgqr::{self, Orgqr};
 use crate::common::{Field, One, Zero};
-//}}}
-//{{{ std imports
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -36,12 +33,21 @@ pub enum Error
     /// LAPACK `orgqr` failed while expanding the Householder reflectors into an explicit Q matrix.
     OrgqrError(#[from] orgqr::Error),
 }
+
+impl From<QrRawError> for Error
+{
+    fn from(e: QrRawError) -> Self
+    {
+        match e
+        {
+            QrRawError::Geqrf(e) => Error::GetrfError(e),
+            QrRawError::Orgqr(e) => Error::OrgqrError(e),
+        }
+    }
+}
 //}}}
 //{{{ struct: Return
 /// Represents the QR decomposition of a matrix.
-///
-/// The decomposition satisfies `A = QR` where `Q` is an orthogonal matrix and `R` is
-/// upper-triangular.
 pub struct Return<T>
 where
     T: Field + Copy,
@@ -52,7 +58,7 @@ where
     pub r: DMatrix<T>,
 }
 //}}}
-//{{{ impl: SMatrix<T, N, M>
+//{{{ impl DMatrix<T>
 impl<T> DMatrix<T>
 where
     T: One + Zero + Geqrf + Orgqr + Field + Copy + AsI32,
@@ -60,7 +66,7 @@ where
     /// Computes the QR decomposition of the matrix.
     ///
     /// Factors `self` into `Q` and `R` such that `A = QR`, where `Q` is orthogonal and `R` is
-    /// upper-triangular. An optimal BLAS workspace size is queried before the main computation.
+    /// upper-triangular.
     ///
     /// # Errors
     ///
@@ -69,58 +75,19 @@ where
     {
         let n = self.nrows;
         let m = self.ncols;
-        let mut a = self.clone();
-        let k = self.nrows.min(self.ncols);
-        let mut tau = vec![T::zero(); k];
-
-        // Query optimal workspace
-        let mut work = vec![T::zero(); 1];
-        T::geqrf(
-            n as i32,
-            m as i32,
-            &mut a.data,
-            n as i32,
-            &mut tau,
-            &mut work,
-            -1,
-        )?;
-
-        // Perform QR factorization
-        let lwork = work[0].as_i32();
-        let mut work = vec![T::zero(); lwork as usize];
-        T::geqrf(
-            n as i32,
-            m as i32,
-            &mut a.data,
-            n as i32,
-            &mut tau,
-            &mut work,
-            lwork,
-        )?;
-
-        // Extract R matrix (upper triangular part)
-        let mut r = DMatrix::<T>::zeros(n, m);
-        for i in 0..n
-        {
-            for j in i..m
-            {
-                r[(i, j)] = a[(i, j)];
-            }
-        }
-
-        // Generate Q matrix
-        T::orgqr(
-            n as i32,
-            n.min(m) as i32,
-            k as i32,
-            &mut a.data,
-            n as i32,
-            &tau,
-            &mut work,
-            lwork,
-        )?;
-        let q = a;
-        Ok(Return { q, r })
+        let raw = qr_raw(self.data.clone(), n, m)?;
+        Ok(Return {
+            q: DMatrix {
+                data: raw.q_data,
+                nrows: n,
+                ncols: m,
+            },
+            r: DMatrix {
+                data: raw.r_data,
+                nrows: n,
+                ncols: m,
+            },
+        })
     }
 }
 //}}}

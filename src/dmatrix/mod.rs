@@ -10,7 +10,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Dimension, EvalInto, Field, IndexValue, LazyExpr, One, Zero};
+use crate::common::{
+    Dimension, EvalInto, Field, Float, FloatVectorOps, IndexValue, LazyExpr, One, VectorOps, Zero,
+};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
 //}}}
@@ -46,6 +48,7 @@ pub mod io;
 pub mod iteration;
 pub mod subviews;
 
+//{{{ collection: DMatrix
 //{{{ struct: DMatrix
 /// A dynamic-size $N \times M$ matrix type that stores its elements in a dynamic, contiguous array.
 ///
@@ -102,7 +105,6 @@ where
     }
 }
 //}}}
-
 //{{{ impl: DMatrix
 impl<T> DMatrix<T>
 where
@@ -218,8 +220,7 @@ where
         DMatrix { data, nrows, ncols }
     }
 } //}}}
-
-//{{{ impl: From<UnaryExpr> for DMatrix
+  //{{{ impl: From<UnaryExpr> for DMatrix
 impl<A, T, Op> From<UnaryExpr<A, T, Op>> for DMatrix<T>
 where
     A: IndexValue<usize, Output = T> + crate::common::Shape,
@@ -241,3 +242,48 @@ where
         DMatrix { data, nrows, ncols }
     }
 } //}}}
+  //}}}
+  //{{{ collection: DVector
+  //{{{ type: DVector
+/// A dynamic vector stored as a single-row or single-column [`DMatrix`].
+pub type DVector<T> = DMatrix<T>;
+//}}}
+//{{{ enum: VecType
+/// Selects whether a `DVector` is oriented as a row vector or a column vector.
+pub enum VecType
+{
+    /// A 1×N row vector.
+    Row,
+    /// An N×1 column vector.
+    Col,
+}
+//}}}
+//{{{ impl: VectorOps for DVector<T>
+impl<T> VectorOps for DVector<T>
+where
+    T: Field + Default + Copy + Clone + Zero + One + Float,
+{
+    type ScalarType = T;
+
+    fn len(&self) -> usize
+    {
+        if self.nrows != 1 && self.ncols != 1
+        {
+            panic!("Vector must be either a row or column vector");
+        }
+
+        if self.nrows == 1
+        {
+            self.ncols
+        }
+        else
+        {
+            self.nrows
+        }
+    }
+}
+//}}}
+//{{{ impl: FloatVectorOps for DVector<T>
+impl<T> FloatVectorOps for DVector<T> where T: Float + Default + Copy + Clone + Zero + One {}
+//}}}
+//}}}

@@ -4,7 +4,7 @@
 mod dmatrix_tests
 {
     use topohedral_linalg::dmatrix::*;
-    use topohedral_linalg::ReduceOps;
+    use topohedral_linalg::{ReduceOps, SubViewable, SubViewableMut};
 
     fn assert_rectangular_view_reductions<R>(view: &R)
     where
@@ -129,7 +129,7 @@ mod dmatrix_tests
 mod smatrix_tests
 {
     use topohedral_linalg::smatrix::*;
-    use topohedral_linalg::ReduceOps;
+    use topohedral_linalg::{ReduceOps, SubViewable, SubViewableMut};
 
     fn assert_rectangular_view_reductions<R>(view: &R)
     where

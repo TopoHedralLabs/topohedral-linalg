@@ -97,3 +97,28 @@ impl Gesv for f32
     }
 }
 //}}}
+
+//{{{ fun: solve_raw
+/// Shared GESV algorithm. Returns the solution data (overwrites the rhs).
+pub(crate) fn solve_raw<T>(
+    mut a_data: Vec<T>,
+    mut b_data: Vec<T>,
+    n: usize,
+    nrhs: usize,
+) -> Result<Vec<T>, Error>
+where
+    T: Gesv + crate::common::Field,
+{
+    let mut ipiv = vec![0; n];
+    T::gesv(
+        n as i32,
+        nrhs as i32,
+        &mut a_data,
+        n as i32,
+        &mut ipiv,
+        &mut b_data,
+        n as i32,
+    )?;
+    Ok(b_data)
+}
+//}}}

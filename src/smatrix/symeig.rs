@@ -9,10 +9,9 @@
 //{{{ crate imports
 use super::SMatrix;
 use crate::blaslapack::common::AsI32;
+use crate::blaslapack::syev::symeig_raw;
 use crate::blaslapack::syev::{self, Syev};
 use crate::common::{Field, One, Zero};
-//}}}
-//{{{ std imports
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -32,10 +31,6 @@ pub enum Error
 
 //{{{ struct: Return
 /// Represents the eigenvalue decomposition of a symmetric matrix.
-///
-/// For symmetric matrices, the eigenvalues are always real, and the eigenvectors
-/// form an orthogonal basis. The decomposition is of the form `A = QDQ^T`,
-/// where `Q` is the matrix of eigenvectors, and `D` is the diagonal matrix of eigenvalues.
 #[derive(Debug)]
 pub struct Return<T, const N: usize>
 where
@@ -67,40 +62,18 @@ where
     /// Returns an error if the LAPACK routine fails.
     pub fn symeig(&self) -> Result<Return<T, N>, Error>
     {
-        // SMatrix is always square, so no need to check for squareness
-
-        let mut a = *self;
-        let mut eigvals = [T::zero(); N];
-
-        // Query optimal workspace
-        let mut work = vec![T::zero(); 1];
-        T::syev(
-            b'V', // Compute both eigenvalues and eigenvectors
-            b'L', // Use lower triangular part of the matrix
-            N as i32,
-            &mut a.data,
-            N as i32,
-            &mut eigvals,
-            &mut work,
-            -1, // Workspace query
-        )?;
-
-        // Perform eigenvalue decomposition
-        let lwork = work[0].as_i32();
-        let mut work = vec![T::zero(); lwork as usize];
-        T::syev(
-            b'V',
-            b'L',
-            N as i32,
-            &mut a.data,
-            N as i32,
-            &mut eigvals,
-            &mut work,
-            lwork,
-        )?;
-
+        let raw = symeig_raw(self.data.to_vec(), N)?;
+        let eigvecs_arr: [T; N * N] = raw
+            .eigvecs_data
+            .try_into()
+            .unwrap_or_else(|_| unreachable!());
+        let eigvals: [T; N] = raw.eigvals.try_into().unwrap_or_else(|_| unreachable!());
         Ok(Return {
-            eigvecs: a,
+            eigvecs: SMatrix {
+                data: eigvecs_arr,
+                nrows: N,
+                ncols: N,
+            },
             eigvals,
         })
     }

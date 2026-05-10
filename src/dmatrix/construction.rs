@@ -9,7 +9,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::DMatrix;
+use super::{DMatrix, DVector, VecType};
 use crate::common::{Field, One, Zero};
 //}}}
 //{{{ std imports
@@ -19,6 +19,7 @@ use rand::distr::{uniform::SampleUniform, Distribution, Uniform};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: DMatrix<T>
 impl<T> DMatrix<T>
 where
     T: Field + Copy,
@@ -155,3 +156,87 @@ where
     }
     //}}}
 }
+//}}}
+//{{{ impl: DVector<T>
+impl<T> DVector<T>
+where
+    T: Field + Copy,
+{
+    /// Creates a new `DVector` initialized with the given value.
+    pub fn from_value_vec(
+        value: T,
+        nelem: usize,
+        vec_type: VecType,
+    ) -> Self
+    {
+        match vec_type
+        {
+            VecType::Row => Self::from_value(value, 1, nelem),
+            VecType::Col => Self::from_value(value, nelem, 1),
+        }
+    }
+
+    /// Creates a new `DVector` initialized with zeros.
+    pub fn zeros_vec(
+        nelem: usize,
+        vec_type: VecType,
+    ) -> Self
+    where
+        T: Zero,
+    {
+        match vec_type
+        {
+            VecType::Row => Self::zeros(1, nelem),
+            VecType::Col => Self::zeros(nelem, 1),
+        }
+    }
+
+    /// Creates a new `DVector` initialized with ones.
+    pub fn ones_vec(
+        nelem: usize,
+        vec_type: VecType,
+    ) -> Self
+    where
+        T: One,
+    {
+        match vec_type
+        {
+            VecType::Row => Self::ones(1, nelem),
+            VecType::Col => Self::ones(nelem, 1),
+        }
+    }
+
+    /// Creates a new `DVector` from a slice, copying `nelem` elements into the chosen orientation.
+    pub fn from_slice_vec(
+        slice: &[T],
+        nelem: usize,
+        vec_type: VecType,
+    ) -> Self
+    where
+        T: Zero,
+    {
+        match vec_type
+        {
+            VecType::Row => Self::from_col_slice(slice, 1, nelem),
+            VecType::Col => Self::from_col_slice(slice, nelem, 1),
+        }
+    }
+
+    /// Creates a new `DVector` with elements drawn from a uniform random distribution over `[low, high)`.
+    pub fn from_uniform_random_vec(
+        low: T,
+        high: T,
+        nelem: usize,
+        vec_type: VecType,
+    ) -> Self
+    where
+        T: SampleUniform + Field + Copy + Zero,
+    {
+        match vec_type
+        {
+            VecType::Row => Self::from_uniform_random(low, high, 1, nelem),
+            VecType::Col => Self::from_uniform_random(low, high, nelem, 1),
+        }
+    }
+}
+//}}}

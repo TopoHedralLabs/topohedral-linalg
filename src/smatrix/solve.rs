@@ -8,11 +8,9 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::blaslapack::gesv;
-use crate::blaslapack::gesv::Gesv;
+use crate::blaslapack::gesv::solve_raw;
+use crate::blaslapack::gesv::{self, Gesv};
 use crate::common::Field;
-//}}}
-//{{{ std imports
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -46,19 +44,13 @@ where
         b: &SMatrix<T, N, M>,
     ) -> Result<SMatrix<T, N, M>, Error>
     {
-        let mut a = *self;
-        let mut x = *b;
-        let mut ipiv = vec![0; N];
-        T::gesv(
-            N as i32,
-            M as i32,
-            &mut a.data,
-            N as i32,
-            &mut ipiv,
-            &mut x.data,
-            N as i32,
-        )?;
-        Ok(x)
+        let data = solve_raw(self.data.to_vec(), b.data.to_vec(), N, M)?;
+        let x_arr: [T; N * M] = data.try_into().unwrap_or_else(|_| unreachable!());
+        Ok(SMatrix {
+            data: x_arr,
+            nrows: N,
+            ncols: M,
+        })
     }
 }
 //}}}

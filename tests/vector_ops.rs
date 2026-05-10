@@ -4,7 +4,7 @@
 mod scvector_tests
 {
     use approx::assert_relative_eq;
-    use topohedral_linalg::scvector::SCVector;
+    use topohedral_linalg::smatrix::SCVector;
     use topohedral_linalg::{FloatVectorOps, VectorOps};
 
     #[test]
@@ -62,7 +62,7 @@ mod srvector_tests
 {
 
     use approx::assert_relative_eq;
-    use topohedral_linalg::srvector::SRVector;
+    use topohedral_linalg::smatrix::SRVector;
     use topohedral_linalg::{FloatVectorOps, VectorOps};
 
     #[test]
@@ -118,7 +118,7 @@ mod srvector_tests
 mod dvector_tests
 {
     use approx::assert_relative_eq;
-    use topohedral_linalg::dvector::{DVector, VecType};
+    use topohedral_linalg::dmatrix::{DVector, VecType};
     use topohedral_linalg::{FloatVectorOps, VectorOps};
 
     #[test]
