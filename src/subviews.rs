@@ -21,11 +21,11 @@ pub struct MatrixView<'a, Mat>
 where
     Mat: Shape + Index<(usize, usize)>,
 {
-    pub(crate) matrix:    &'a Mat,
+    pub(crate) matrix: &'a Mat,
     pub(crate) start_row: usize,
     pub(crate) start_col: usize,
-    pub(crate) nrows:     usize,
-    pub(crate) ncols:     usize,
+    pub(crate) nrows: usize,
+    pub(crate) ncols: usize,
 }
 //}}}
 //{{{ impl: Shape for MatrixView
@@ -113,7 +113,7 @@ where
     Mat: Shape + Index<(usize, usize)>,
 {
     pub(crate) matrix_view: &'a MatrixView<'a, Mat>,
-    index:                  usize,
+    index: usize,
 }
 //}}}
 //{{{ impl: Iterator for MatrixViewIter
@@ -162,11 +162,11 @@ pub struct MatrixViewMut<'a, Mat>
 where
     Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
 {
-    pub(crate) matrix:    &'a mut Mat,
+    pub(crate) matrix: &'a mut Mat,
     pub(crate) start_row: usize,
     pub(crate) start_col: usize,
-    pub(crate) nrows:     usize,
-    pub(crate) ncols:     usize,
+    pub(crate) nrows: usize,
+    pub(crate) ncols: usize,
 }
 //}}}
 //{{{ impl: Shape for MatrixViewMut
@@ -281,7 +281,7 @@ where
     Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
 {
     pub(crate) matrix_view: &'a MatrixViewMut<'a, Mat>,
-    index:                  usize,
+    index: usize,
 }
 //}}}
 //{{{ impl: Iterator for MatrixViewMutIter
@@ -314,7 +314,7 @@ where
     Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
 {
     pub(crate) matrix_view: &'a mut MatrixViewMut<'a, Mat>,
-    index:                  usize,
+    index: usize,
 }
 //}}}
 //{{{ impl: Iterator for MatrixViewMutIterMut

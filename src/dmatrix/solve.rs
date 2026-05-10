@@ -8,9 +8,9 @@
 
 //{{{ crate imports
 use super::DMatrix;
+use crate::blaslapack::gesv::solve_raw;
 use crate::blaslapack::gesv::{self, Gesv};
 use crate::common::Field;
-use crate::blaslapack::gesv::solve_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -50,7 +50,11 @@ where
         let n = self.nrows;
         let nrhs = b.ncols;
         let data = solve_raw(self.data.clone(), b.data.clone(), n, nrhs)?;
-        Ok(DMatrix { data, nrows: n, ncols: nrhs })
+        Ok(DMatrix {
+            data,
+            nrows: n,
+            ncols: nrhs,
+        })
     }
 }
 //}}}

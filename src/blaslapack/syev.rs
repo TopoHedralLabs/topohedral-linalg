@@ -106,7 +106,7 @@ impl Syev for f32
 pub(crate) struct SymEigRaw<T>
 {
     pub eigvecs_data: Vec<T>,
-    pub eigvals:      Vec<T>,
+    pub eigvals: Vec<T>,
 }
 //}}}
 //{{{ fun: symeig_raw
@@ -127,12 +127,33 @@ where
     let mut eigvals = vec![T::zero(); n];
 
     let mut work = vec![T::zero(); 1];
-    T::syev(b'V', b'L', n as i32, &mut a_data, n as i32, &mut eigvals, &mut work, -1)?;
+    T::syev(
+        b'V',
+        b'L',
+        n as i32,
+        &mut a_data,
+        n as i32,
+        &mut eigvals,
+        &mut work,
+        -1,
+    )?;
 
     let lwork = work[0].as_i32();
     let mut work = vec![T::zero(); lwork as usize];
-    T::syev(b'V', b'L', n as i32, &mut a_data, n as i32, &mut eigvals, &mut work, lwork)?;
+    T::syev(
+        b'V',
+        b'L',
+        n as i32,
+        &mut a_data,
+        n as i32,
+        &mut eigvals,
+        &mut work,
+        lwork,
+    )?;
 
-    Ok(SymEigRaw { eigvecs_data: a_data, eigvals })
+    Ok(SymEigRaw {
+        eigvecs_data: a_data,
+        eigvals,
+    })
 }
 //}}}

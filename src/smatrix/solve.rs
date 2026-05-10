@@ -8,9 +8,9 @@
 
 //{{{ crate imports
 use super::SMatrix;
+use crate::blaslapack::gesv::solve_raw;
 use crate::blaslapack::gesv::{self, Gesv};
 use crate::common::Field;
-use crate::blaslapack::gesv::solve_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -46,7 +46,11 @@ where
     {
         let data = solve_raw(self.data.to_vec(), b.data.to_vec(), N, M)?;
         let x_arr: [T; N * M] = data.try_into().unwrap_or_else(|_| unreachable!());
-        Ok(SMatrix { data: x_arr, nrows: N, ncols: M })
+        Ok(SMatrix {
+            data: x_arr,
+            nrows: N,
+            ncols: M,
+        })
     }
 }
 //}}}

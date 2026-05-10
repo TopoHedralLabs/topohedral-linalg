@@ -147,11 +147,27 @@ where
     let mut tau = vec![T::zero(); k];
 
     let mut work = vec![T::zero(); 1];
-    T::geqrf(n as i32, m as i32, &mut a_data, n as i32, &mut tau, &mut work, -1)?;
+    T::geqrf(
+        n as i32,
+        m as i32,
+        &mut a_data,
+        n as i32,
+        &mut tau,
+        &mut work,
+        -1,
+    )?;
 
     let lwork = work[0].as_i32();
     let mut work = vec![T::zero(); lwork as usize];
-    T::geqrf(n as i32, m as i32, &mut a_data, n as i32, &mut tau, &mut work, lwork)?;
+    T::geqrf(
+        n as i32,
+        m as i32,
+        &mut a_data,
+        n as i32,
+        &mut tau,
+        &mut work,
+        lwork,
+    )?;
 
     let mut r_data = vec![T::zero(); n * m];
     for i in 0..n
@@ -162,7 +178,19 @@ where
         }
     }
 
-    T::orgqr(n as i32, n.min(m) as i32, k as i32, &mut a_data, n as i32, &tau, &mut work, lwork)?;
-    Ok(QrRaw { q_data: a_data, r_data })
+    T::orgqr(
+        n as i32,
+        n.min(m) as i32,
+        k as i32,
+        &mut a_data,
+        n as i32,
+        &tau,
+        &mut work,
+        lwork,
+    )?;
+    Ok(QrRaw {
+        q_data: a_data,
+        r_data,
+    })
 }
 //}}}

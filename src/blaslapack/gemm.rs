@@ -213,19 +213,62 @@ pub(crate) fn matmul_dispatch<T>(
     b: &[T],
     c: &mut [T],
 ) where
-    T: Gemm + super::gemv::Gemv + crate::common::Field + crate::common::Zero + crate::common::One + Copy,
+    T: Gemm
+        + super::gemv::Gemv
+        + crate::common::Field
+        + crate::common::Zero
+        + crate::common::One
+        + Copy,
 {
     if n == 1
     {
-        T::gemv(cblas::Transpose::None, m as i32, k as i32, T::one(), a, m as i32, b, 1, T::zero(), c, 1);
+        T::gemv(
+            cblas::Transpose::None,
+            m as i32,
+            k as i32,
+            T::one(),
+            a,
+            m as i32,
+            b,
+            1,
+            T::zero(),
+            c,
+            1,
+        );
     }
     else if m == 1
     {
-        T::gemv(cblas::Transpose::Ordinary, k as i32, n as i32, T::one(), b, k as i32, a, 1, T::zero(), c, 1);
+        T::gemv(
+            cblas::Transpose::Ordinary,
+            k as i32,
+            n as i32,
+            T::one(),
+            b,
+            k as i32,
+            a,
+            1,
+            T::zero(),
+            c,
+            1,
+        );
     }
     else
     {
-        T::gemm(cblas::Transpose::None, cblas::Transpose::None, m as i32, n as i32, k as i32, T::one(), a, m as i32, b, k as i32, T::zero(), c, m as i32);
+        T::gemm(
+            cblas::Transpose::None,
+            cblas::Transpose::None,
+            m as i32,
+            n as i32,
+            k as i32,
+            T::one(),
+            a,
+            m as i32,
+            b,
+            k as i32,
+            T::zero(),
+            c,
+            m as i32,
+        );
     }
 }
 //}}}

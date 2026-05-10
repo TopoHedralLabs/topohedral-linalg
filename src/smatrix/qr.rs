@@ -8,7 +8,7 @@
 
 //{{{ crate imports
 use crate::blaslapack::common::AsI32;
-use crate::blaslapack::geqrf::{self, Geqrf, QrRawError, qr_raw};
+use crate::blaslapack::geqrf::{self, qr_raw, Geqrf, QrRawError};
 use crate::blaslapack::orgqr::{self, Orgqr};
 use crate::common::{Field, One, Zero};
 use crate::smatrix::SMatrix;
@@ -74,8 +74,16 @@ where
         let q_arr: [T; N * M] = raw.q_data.try_into().unwrap_or_else(|_| unreachable!());
         let r_arr: [T; N * M] = raw.r_data.try_into().unwrap_or_else(|_| unreachable!());
         Ok(Return {
-            q: SMatrix { data: q_arr, nrows: N, ncols: M },
-            r: SMatrix { data: r_arr, nrows: N, ncols: M },
+            q: SMatrix {
+                data: q_arr,
+                nrows: N,
+                ncols: M,
+            },
+            r: SMatrix {
+                data: r_arr,
+                nrows: N,
+                ncols: M,
+            },
         })
     }
 }

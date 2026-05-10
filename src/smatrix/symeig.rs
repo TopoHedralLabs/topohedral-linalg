@@ -9,9 +9,9 @@
 //{{{ crate imports
 use super::SMatrix;
 use crate::blaslapack::common::AsI32;
+use crate::blaslapack::syev::symeig_raw;
 use crate::blaslapack::syev::{self, Syev};
 use crate::common::{Field, One, Zero};
-use crate::blaslapack::syev::symeig_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -63,11 +63,17 @@ where
     pub fn symeig(&self) -> Result<Return<T, N>, Error>
     {
         let raw = symeig_raw(self.data.to_vec(), N)?;
-        let eigvecs_arr: [T; N * N] =
-            raw.eigvecs_data.try_into().unwrap_or_else(|_| unreachable!());
+        let eigvecs_arr: [T; N * N] = raw
+            .eigvecs_data
+            .try_into()
+            .unwrap_or_else(|_| unreachable!());
         let eigvals: [T; N] = raw.eigvals.try_into().unwrap_or_else(|_| unreachable!());
         Ok(Return {
-            eigvecs: SMatrix { data: eigvecs_arr, nrows: N, ncols: N },
+            eigvecs: SMatrix {
+                data: eigvecs_arr,
+                nrows: N,
+                ncols: N,
+            },
             eigvals,
         })
     }

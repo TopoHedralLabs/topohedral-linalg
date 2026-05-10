@@ -99,9 +99,9 @@ impl Getrf for f32
 //{{{ struct: LuRaw
 pub(crate) struct LuRaw<T>
 {
-    pub l_data:    Vec<T>,
-    pub u_data:    Vec<T>,
-    pub p_data:    Vec<T>,
+    pub l_data: Vec<T>,
+    pub u_data: Vec<T>,
+    pub p_data: Vec<T>,
     pub num_swaps: usize,
 }
 //}}}
@@ -159,6 +159,11 @@ where
             }
         }
     }
-    Ok(LuRaw { l_data, u_data, p_data, num_swaps })
+    Ok(LuRaw {
+        l_data,
+        u_data,
+        p_data,
+        num_swaps,
+    })
 }
 //}}}

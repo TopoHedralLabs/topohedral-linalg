@@ -9,8 +9,8 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::subviews::MatrixViewMut;
 use crate::common::{Field, TransformOps};
+use crate::subviews::MatrixViewMut;
 //}}}
 //{{{ std imports
 //}}}

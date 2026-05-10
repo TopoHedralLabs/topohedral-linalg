@@ -10,9 +10,9 @@
 //{{{ crate imports
 use super::DMatrix;
 use crate::blaslapack::common::AsI32;
+use crate::blaslapack::geev::eig_raw;
 use crate::blaslapack::geev::{self, Geev};
 use crate::common::{Complex, Field, One, Zero};
-use crate::blaslapack::geev::eig_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -72,9 +72,17 @@ where
         let n = self.nrows;
         let raw = eig_raw(self.data.clone(), n)?;
         Ok(Return {
-            left_eigvecs:  DMatrix { data: raw.vl, nrows: n, ncols: n },
-            right_eigvecs: DMatrix { data: raw.vr, nrows: n, ncols: n },
-            eigvals:       raw.eigvals,
+            left_eigvecs: DMatrix {
+                data: raw.vl,
+                nrows: n,
+                ncols: n,
+            },
+            right_eigvecs: DMatrix {
+                data: raw.vr,
+                nrows: n,
+                ncols: n,
+            },
+            eigvals: raw.eigvals,
         })
     }
 }

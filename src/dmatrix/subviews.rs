@@ -31,7 +31,11 @@ where
                 data.push(self[(i, j)]);
             }
         }
-        DMatrix { data, nrows: self.nrows, ncols: self.ncols }
+        DMatrix {
+            data,
+            nrows: self.nrows,
+            ncols: self.ncols,
+        }
     }
 }
 
@@ -50,7 +54,11 @@ where
                 data.push(self[(i, j)]);
             }
         }
-        DMatrix { data, nrows: self.nrows, ncols: self.ncols }
+        DMatrix {
+            data,
+            nrows: self.nrows,
+            ncols: self.ncols,
+        }
     }
 }
 //}}}

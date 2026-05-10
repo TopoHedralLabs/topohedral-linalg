@@ -10,7 +10,10 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Dimension, Field, IndexValue, LazyExpr, Zero, Float, FloatVectorOps, GreaterThan, One, VectorOps};
+use crate::common::{
+    Dimension, Field, Float, FloatVectorOps, GreaterThan, IndexValue, LazyExpr, One, VectorOps,
+    Zero,
+};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
 //}}}
@@ -182,7 +185,7 @@ where
         out
     }
 } //}}}
-//{{{ impl: From<UnaryExpr> for SMatrix
+  //{{{ impl: From<UnaryExpr> for SMatrix
 impl<A, T, Op, const N: usize, const M: usize> From<UnaryExpr<A, T, Op>> for SMatrix<T, N, M>
 where
     [(); N * M]:,
@@ -202,9 +205,9 @@ where
         out
     }
 } //}}}
-//}}}
-//{{{ collection: SRVector
-//{{{ type: SRVector
+  //}}}
+  //{{{ collection: SRVector
+  //{{{ type: SRVector
 /// A type alias for a row vector of size N.
 pub type SRVector<T, const N: usize> = SMatrix<T, 1, N>;
 //}}}
@@ -267,4 +270,3 @@ where
 }
 //}}}
 //}}}
-

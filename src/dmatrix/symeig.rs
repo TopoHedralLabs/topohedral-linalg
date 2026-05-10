@@ -10,9 +10,9 @@
 //{{{ crate imports
 use super::DMatrix;
 use crate::blaslapack::common::AsI32;
+use crate::blaslapack::syev::symeig_raw;
 use crate::blaslapack::syev::{self, Syev};
 use crate::common::{Field, One, Zero};
-use crate::blaslapack::syev::symeig_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -72,7 +72,11 @@ where
         }
         let raw = symeig_raw(self.data.clone(), n)?;
         Ok(Return {
-            eigvecs: DMatrix { data: raw.eigvecs_data, nrows: n, ncols: n },
+            eigvecs: DMatrix {
+                data: raw.eigvecs_data,
+                nrows: n,
+                ncols: n,
+            },
             eigvals: raw.eigvals,
         })
     }

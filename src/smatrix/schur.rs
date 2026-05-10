@@ -8,9 +8,9 @@
 
 //{{{ crate imports
 use super::SMatrix;
+use crate::blaslapack::gees::schur_raw;
 use crate::blaslapack::gees::{self, Gees};
 use crate::common::{Field, One, Zero};
-use crate::blaslapack::gees::schur_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -59,8 +59,16 @@ where
         let q_arr: [T; N * M] = raw.q_data.try_into().unwrap_or_else(|_| unreachable!());
         let t_arr: [T; N * M] = raw.t_data.try_into().unwrap_or_else(|_| unreachable!());
         Ok(Return {
-            q: SMatrix { data: q_arr, nrows: N, ncols: M },
-            t: SMatrix { data: t_arr, nrows: N, ncols: M },
+            q: SMatrix {
+                data: q_arr,
+                nrows: N,
+                ncols: M,
+            },
+            t: SMatrix {
+                data: t_arr,
+                nrows: N,
+                ncols: M,
+            },
         })
     }
 }

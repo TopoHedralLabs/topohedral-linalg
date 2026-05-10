@@ -145,7 +145,24 @@ where
     let mut work = vec![T::zero(); n * 5];
     let lwork = (n * 5) as i32;
     let mut bwork = vec![0; n];
-    T::gees(b'V', b'N', n as i32, &mut a_data, n as i32, &mut sdim, &mut wr, &mut wi, &mut vs, n as i32, &mut work, lwork, &mut bwork)?;
-    Ok(SchurRaw { q_data: vs, t_data: a_data })
+    T::gees(
+        b'V',
+        b'N',
+        n as i32,
+        &mut a_data,
+        n as i32,
+        &mut sdim,
+        &mut wr,
+        &mut wi,
+        &mut vs,
+        n as i32,
+        &mut work,
+        lwork,
+        &mut bwork,
+    )?;
+    Ok(SchurRaw {
+        q_data: vs,
+        t_data: a_data,
+    })
 }
 //}}}

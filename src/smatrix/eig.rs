@@ -9,9 +9,9 @@
 //{{{ crate imports
 use super::SMatrix;
 use crate::blaslapack::common::AsI32;
+use crate::blaslapack::geev::eig_raw;
 use crate::blaslapack::geev::{self, Geev};
 use crate::common::{Complex, Field, One, Zero};
-use crate::blaslapack::geev::eig_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -67,8 +67,16 @@ where
         let vr_arr: [T; N * N] = raw.vr.try_into().unwrap_or_else(|_| unreachable!());
         let eigvals: [Complex<T>; N] = std::array::from_fn(|i| raw.eigvals[i]);
         Ok(Return {
-            left_eigvecs:  SMatrix { data: vl_arr, nrows: N, ncols: N },
-            right_eigvecs: SMatrix { data: vr_arr, nrows: N, ncols: N },
+            left_eigvecs: SMatrix {
+                data: vl_arr,
+                nrows: N,
+                ncols: N,
+            },
+            right_eigvecs: SMatrix {
+                data: vr_arr,
+                nrows: N,
+                ncols: N,
+            },
             eigvals,
         })
     }

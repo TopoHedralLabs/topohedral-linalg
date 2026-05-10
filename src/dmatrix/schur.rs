@@ -9,9 +9,9 @@
 
 //{{{ crate imports
 use super::DMatrix;
+use crate::blaslapack::gees::schur_raw;
 use crate::blaslapack::gees::{self, Gees};
 use crate::common::{Field, One, Zero};
-use crate::blaslapack::gees::schur_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -64,8 +64,16 @@ where
         let m = self.ncols;
         let raw = schur_raw(self.data.clone(), n, m)?;
         Ok(Return {
-            q: DMatrix { data: raw.q_data, nrows: n, ncols: m },
-            t: DMatrix { data: raw.t_data, nrows: n, ncols: m },
+            q: DMatrix {
+                data: raw.q_data,
+                nrows: n,
+                ncols: m,
+            },
+            t: DMatrix {
+                data: raw.t_data,
+                nrows: n,
+                ncols: m,
+            },
         })
     }
 }

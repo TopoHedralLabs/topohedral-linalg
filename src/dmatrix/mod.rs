@@ -10,7 +10,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Dimension, EvalInto, Field, IndexValue, LazyExpr, One, Zero, Float, VectorOps, FloatVectorOps};
+use crate::common::{
+    Dimension, EvalInto, Field, Float, FloatVectorOps, IndexValue, LazyExpr, One, VectorOps, Zero,
+};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
 //}}}
@@ -218,7 +220,7 @@ where
         DMatrix { data, nrows, ncols }
     }
 } //}}}
-//{{{ impl: From<UnaryExpr> for DMatrix
+  //{{{ impl: From<UnaryExpr> for DMatrix
 impl<A, T, Op> From<UnaryExpr<A, T, Op>> for DMatrix<T>
 where
     A: IndexValue<usize, Output = T> + crate::common::Shape,
@@ -240,9 +242,9 @@ where
         DMatrix { data, nrows, ncols }
     }
 } //}}}
-//}}}
-//{{{ collection: DVector
-//{{{ type: DVector
+  //}}}
+  //{{{ collection: DVector
+  //{{{ type: DVector
 /// A dynamic vector stored as a single-row or single-column [`DMatrix`].
 pub type DVector<T> = DMatrix<T>;
 //}}}

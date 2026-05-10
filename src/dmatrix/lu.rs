@@ -10,9 +10,9 @@
 
 //{{{ crate imports
 use super::DMatrix;
+use crate::blaslapack::getrf::lu_raw;
 use crate::blaslapack::getrf::{self, Getrf};
 use crate::common::{Field, One, Zero};
-use crate::blaslapack::getrf::lu_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -66,9 +66,21 @@ where
         let m = self.ncols;
         let raw = lu_raw(self.data.clone(), n, m)?;
         Ok(Return {
-            l:         DMatrix { data: raw.l_data, nrows: n, ncols: m },
-            u:         DMatrix { data: raw.u_data, nrows: n, ncols: m },
-            p:         DMatrix { data: raw.p_data, nrows: n, ncols: m },
+            l: DMatrix {
+                data: raw.l_data,
+                nrows: n,
+                ncols: m,
+            },
+            u: DMatrix {
+                data: raw.u_data,
+                nrows: n,
+                ncols: m,
+            },
+            p: DMatrix {
+                data: raw.p_data,
+                nrows: n,
+                ncols: m,
+            },
             num_swaps: raw.num_swaps,
         })
     }

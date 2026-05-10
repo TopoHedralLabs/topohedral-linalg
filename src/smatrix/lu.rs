@@ -8,9 +8,9 @@
 
 //{{{ crate imports
 use super::SMatrix;
+use crate::blaslapack::getrf::lu_raw;
 use crate::blaslapack::getrf::{self, Getrf};
 use crate::common::{Field, One, Zero};
-use crate::blaslapack::getrf::lu_raw;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -65,9 +65,21 @@ where
         let u_arr: [T; N * M] = raw.u_data.try_into().unwrap_or_else(|_| unreachable!());
         let p_arr: [T; N * M] = raw.p_data.try_into().unwrap_or_else(|_| unreachable!());
         Ok(Return {
-            l:         SMatrix { data: l_arr, nrows: N, ncols: M },
-            u:         SMatrix { data: u_arr, nrows: N, ncols: M },
-            p:         SMatrix { data: p_arr, nrows: N, ncols: M },
+            l: SMatrix {
+                data: l_arr,
+                nrows: N,
+                ncols: M,
+            },
+            u: SMatrix {
+                data: u_arr,
+                nrows: N,
+                ncols: M,
+            },
+            p: SMatrix {
+                data: p_arr,
+                nrows: N,
+                ncols: M,
+            },
             num_swaps: raw.num_swaps,
         })
     }

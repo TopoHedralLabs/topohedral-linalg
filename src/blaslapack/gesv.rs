@@ -110,7 +110,15 @@ where
     T: Gesv + crate::common::Field,
 {
     let mut ipiv = vec![0; n];
-    T::gesv(n as i32, nrhs as i32, &mut a_data, n as i32, &mut ipiv, &mut b_data, n as i32)?;
+    T::gesv(
+        n as i32,
+        nrhs as i32,
+        &mut a_data,
+        n as i32,
+        &mut ipiv,
+        &mut b_data,
+        n as i32,
+    )?;
     Ok(b_data)
 }
 //}}}

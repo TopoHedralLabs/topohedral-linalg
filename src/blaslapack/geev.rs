@@ -125,8 +125,8 @@ impl Geev for f32
 //{{{ struct: EigRaw
 pub(crate) struct EigRaw<T>
 {
-    pub vl:      Vec<T>,
-    pub vr:      Vec<T>,
+    pub vl: Vec<T>,
+    pub vr: Vec<T>,
     pub eigvals: Vec<crate::common::Complex<T>>,
 }
 //}}}
@@ -151,13 +151,46 @@ where
     let mut wi = vec![T::zero(); n];
 
     let mut work = vec![T::zero(); 1];
-    T::geev(b'V', b'V', n as i32, &mut a_data, n as i32, &mut wr, &mut wi, &mut vl, n as i32, &mut vr, n as i32, &mut work, -1)?;
+    T::geev(
+        b'V',
+        b'V',
+        n as i32,
+        &mut a_data,
+        n as i32,
+        &mut wr,
+        &mut wi,
+        &mut vl,
+        n as i32,
+        &mut vr,
+        n as i32,
+        &mut work,
+        -1,
+    )?;
 
     let lwork = work[0].as_i32();
     let mut work = vec![T::zero(); lwork as usize];
-    T::geev(b'V', b'V', n as i32, &mut a_data, n as i32, &mut wr, &mut wi, &mut vl, n as i32, &mut vr, n as i32, &mut work, lwork)?;
+    T::geev(
+        b'V',
+        b'V',
+        n as i32,
+        &mut a_data,
+        n as i32,
+        &mut wr,
+        &mut wi,
+        &mut vl,
+        n as i32,
+        &mut vr,
+        n as i32,
+        &mut work,
+        lwork,
+    )?;
 
-    let eigvals: Vec<crate::common::Complex<T>> = wr.iter().zip(wi.iter()).take(n).map(|(&r, &i)| crate::common::Complex::new(r, i)).collect();
+    let eigvals: Vec<crate::common::Complex<T>> = wr
+        .iter()
+        .zip(wi.iter())
+        .take(n)
+        .map(|(&r, &i)| crate::common::Complex::new(r, i))
+        .collect();
     Ok(EigRaw { vl, vr, eigvals })
 }
 //}}}

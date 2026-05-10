@@ -12,9 +12,9 @@
 use super::DMatrix;
 use crate::blaslapack::common::AsI32;
 use crate::blaslapack::geqrf::{self, Geqrf};
+use crate::blaslapack::geqrf::{qr_raw, QrRawError};
 use crate::blaslapack::orgqr::{self, Orgqr};
 use crate::common::{Field, One, Zero};
-use crate::blaslapack::geqrf::{QrRawError, qr_raw};
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -77,8 +77,16 @@ where
         let m = self.ncols;
         let raw = qr_raw(self.data.clone(), n, m)?;
         Ok(Return {
-            q: DMatrix { data: raw.q_data, nrows: n, ncols: m },
-            r: DMatrix { data: raw.r_data, nrows: n, ncols: m },
+            q: DMatrix {
+                data: raw.q_data,
+                nrows: n,
+                ncols: m,
+            },
+            r: DMatrix {
+                data: raw.r_data,
+                nrows: n,
+                ncols: m,
+            },
         })
     }
 }
