@@ -4,7 +4,7 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use nalgebra::DMatrix as NADMatrix;
 use rand::prelude::*;
-use topohedral_linalg::dmatrix;
+use topohedral_linalg::DMatrix;
 
 // fn somethin() {
 
@@ -25,29 +25,29 @@ macro_rules! add_benches_dmatrix {
     ($dim: expr, $name1: ident, $name2: ident, $name3: ident) => {
         pub fn $name1(crit: &mut Criterion)
         {
-            let a = dmatrix::DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
+            let a = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
 
-            let b = dmatrix::DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
+            let b = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
 
-            let c = dmatrix::DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
+            let c = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
 
-            let d = dmatrix::DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
+            let d = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
 
-            let e = dmatrix::DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
+            let e = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
 
-            let f = dmatrix::DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
+            let f = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
 
-            let g = dmatrix::DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
+            let g = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
 
-            let h = dmatrix::DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
+            let h = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
 
-            let i = dmatrix::DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
+            let i = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
 
             crit.bench_function(
                 format!("topohedral-linalg_dmatrix{}", $dim).as_str(),
                 |be| {
                     be.iter(|| {
-                        let j: dmatrix::DMatrix<f64> =
+                        let j: DMatrix<f64> =
                             (&a + &b + &c + &d + &e + &f + &g + &h + &i).into();
                         std::hint::black_box(j);
                     })

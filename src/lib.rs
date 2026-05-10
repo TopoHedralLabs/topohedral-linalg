@@ -39,8 +39,10 @@
 //{{{ collection: private modules
 mod blaslapack;
 mod common;
+mod dmatrix;
 mod expression;
 mod subviews;
+mod smatrix;
 //}}}
 //{{{ collection: public API
 pub use common::{
@@ -56,6 +58,6 @@ pub use expression::unary_expr::{
     to_degrees, to_radians, trunc,
 };
 pub use subviews::{SubViewable, SubViewableMut};
-pub mod dmatrix;
-pub mod smatrix;
+pub use dmatrix::*;
+pub use smatrix::*;
 //}}}

@@ -24,16 +24,21 @@ use serde::{Deserialize, Serialize};
 //--------------------------------------------------------------------------------------------------
 
 // elementwise expressions
-mod elementwise;
 mod blaslapack;
-mod matrix_ops;
-mod reduce_ops;
-mod transform_ops;
 mod construction;
+mod elementwise;
 mod indexing;
 mod io;
 mod iteration;
+mod matrix_ops;
+mod reduce_ops;
 mod subviews;
+mod transform_ops;
+
+pub use blaslapack::{
+    DEigError, DEigReturn, DLuError, DLuReturn, DQrError, DQrReturn, DSchurError, DSchurReturn,
+    DSolveError, DSymEigError, SymEigReturn,
+};
 
 //{{{ collection: DMatrix
 //{{{ struct: DMatrix
@@ -65,31 +70,6 @@ where
     pub(crate) nrows: usize,
     /// Number of columns in the matrix.
     pub(crate) ncols: usize,
-}
-//}}}
-//{{{ impl: Clone for DMatrix
-impl<T> Clone for DMatrix<T>
-where
-    T: Field + Copy,
-{
-    fn clone(&self) -> Self
-    {
-        Self {
-            data: self.data.clone(),
-            nrows: self.nrows,
-            ncols: self.ncols,
-        }
-    }
-
-    fn clone_from(
-        &mut self,
-        source: &Self,
-    )
-    {
-        self.data.clone_from(&source.data);
-        self.nrows = source.nrows;
-        self.ncols = source.ncols;
-    }
 }
 //}}}
 //{{{ impl: DMatrix
@@ -172,67 +152,9 @@ where
     //}}}
 }
 //}}}
-//{{{ impl: LazyExpr for DMatrix
-impl<T> LazyExpr for DMatrix<T>
-where
-    T: Field + Copy,
-{
-    type ScalarType = T;
-}
-
 //}}}
-//{{{ impl: From<BinopExpr> for DMatrix
-impl<A, B, T, Op> From<BinopExpr<A, B, T, Op>> for DMatrix<T>
-where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    T: Field + Copy + Zero,
-    Op: BinOp,
-{
-    fn from(expr: BinopExpr<A, B, T, Op>) -> DMatrix<T>
-    {
-        let nrows = expr.nrows;
-        let ncols = expr.ncols;
-        let total = nrows * ncols;
-        // Allocate uninitialised storage, then drive evaluation through
-        // EvalInto::eval_into.  That method writes through `&mut [T]` which
-        // LLVM marks `noalias`, letting it prove the output slice doesn't overlap
-        // the input DMatrix struct fields and enabling SIMD auto-vectorisation.
-        let mut data: Vec<T> = Vec::with_capacity(total);
-        #[allow(clippy::uninit_vec)]
-        unsafe {
-            data.set_len(total)
-        };
-        expr.eval_into(&mut data);
-        DMatrix { data, nrows, ncols }
-    }
-} //}}}
-//{{{ impl: From<UnaryExpr> for DMatrix
-impl<A, T, Op> From<UnaryExpr<A, T, Op>> for DMatrix<T>
-where
-    A: IndexValue<usize, Output = T> + crate::common::Shape,
-    T: Field + Copy + Zero,
-    Op: UnaryOp<T>,
-{
-    fn from(expr: UnaryExpr<A, T, Op>) -> DMatrix<T>
-    {
-        let nrows = expr.nrows;
-        let ncols = expr.ncols;
-        let total = nrows * ncols;
-        let mut data: Vec<T> = Vec::with_capacity(total);
-        let out_ptr: *mut T = data.as_mut_ptr();
-        for i in 0..total
-        {
-            unsafe { out_ptr.add(i).write(expr.index_value(i)) };
-        }
-        unsafe { data.set_len(total) };
-        DMatrix { data, nrows, ncols }
-    }
-}
-//}}}
-//}}}
-  //{{{ collection: DVector
-  //{{{ type: DVector
+//{{{ collection: DVector
+//{{{ type: DVector
 /// A dynamic vector stored as a single-row or single-column [`DMatrix`].
 pub type DVector<T> = DMatrix<T>;
 //}}}

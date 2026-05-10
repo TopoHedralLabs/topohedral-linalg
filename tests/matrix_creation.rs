@@ -4,8 +4,7 @@
 //{{{  mod: smatrix_tests
 mod smatrix_tests
 {
-    use topohedral_linalg::smatrix::*;
-    use topohedral_linalg::*;
+    use topohedral_linalg::{SMatrix, MatrixOps};
 
     #[test]
     fn test_default()
@@ -138,8 +137,7 @@ mod smatrix_tests
 mod dmatrix_tests
 {
 
-    use topohedral_linalg::dmatrix::DMatrix;
-    use topohedral_linalg::{MatrixOps, Shape};
+    use topohedral_linalg::{DMatrix, MatrixOps, Shape};
 
     #[test]
     fn test_matrix_zeros()

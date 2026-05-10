@@ -5,10 +5,9 @@ mod smatrix_tests
 {
 
     use approx::assert_relative_eq;
-    use topohedral_linalg::smatrix::*;
     use topohedral_linalg::{
-        dmatrix::{DVector, VecType},
-        Complex, MatMul, MatrixOps, Shape,
+        DMatrix, SMatrix, DQrReturn,
+        DVector, VecType, Complex, MatMul, MatrixOps, Shape,
     };
 
     //{{{ collection: eig tests
@@ -439,7 +438,7 @@ mod smatrix_tests
             12.0, -51.0, 4.0, 6.0, 167.0, -68.0, -4.0, 24.0, -41.0,
         ]);
 
-        let qr::Return { q, r } = a.qr().unwrap();
+        let DQrReturn{ q, r } = a.qr().unwrap();
 
         // Verify Q*R = A
         let reconstructed: SMatrix<f64, 3, 3> = q.matmul(&r);
@@ -582,12 +581,8 @@ mod dmatrix_tests
 {
 
     use approx::assert_relative_eq;
-    use topohedral_linalg::dmatrix::*;
-    use topohedral_linalg::dmatrix::{DVector, VecType};
-    use topohedral_linalg::smatrix::SCVector;
-    use topohedral_linalg::smatrix::SMatrix;
-    use topohedral_linalg::smatrix::SRVector;
-    use topohedral_linalg::{Complex, MatMul, MatrixOps};
+
+    use topohedral_linalg::*;
 
     //{{{ collection: eig tests
     #[test]
@@ -1101,7 +1096,7 @@ mod dmatrix_tests
             3,
         );
 
-        let qr::Return { q, r } = a.qr().unwrap();
+        let DQrReturn { q, r } = a.qr().unwrap();
 
         // Verify Q*R = A
         let reconstructed: DMatrix<f64> = q.matmul(&r);
@@ -1138,7 +1133,7 @@ mod dmatrix_tests
         let a =
             DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], 3, 3);
 
-        let schur::Return { q, t } = a.schur().unwrap();
+        let DSchurReturn { q, t } = a.schur().unwrap();
 
         // Verify Q*T*Q^T = A
         let q_t = q.matmul(&t);

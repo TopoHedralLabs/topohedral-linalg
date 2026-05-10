@@ -5,8 +5,7 @@
 mod dmatrix_tests
 {
 
-    use topohedral_linalg::dmatrix::DMatrix;
-    use topohedral_linalg::{SubViewable, SubViewableMut};
+    use topohedral_linalg::*;
 
     #[test]
     fn test_submatrix()
@@ -616,8 +615,7 @@ mod dmatrix_tests
 mod smatrix_tests
 {
 
-    use topohedral_linalg::smatrix::SMatrix;
-    use topohedral_linalg::{SubViewable, SubViewableMut};
+    use topohedral_linalg::*;
 
     #[test]
     fn test_submatrix()

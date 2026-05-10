@@ -19,6 +19,31 @@ use rand::distr::{uniform::SampleUniform, Distribution, Uniform};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ impl: Clone for DMatrix
+impl<T> Clone for DMatrix<T>
+where
+    T: Field + Copy,
+{
+    fn clone(&self) -> Self
+    {
+        Self {
+            data: self.data.clone(),
+            nrows: self.nrows,
+            ncols: self.ncols,
+        }
+    }
+
+    fn clone_from(
+        &mut self,
+        source: &Self,
+    )
+    {
+        self.data.clone_from(&source.data);
+        self.nrows = source.nrows;
+        self.ncols = source.ncols;
+    }
+}
+//}}}
 //{{{ impl: DMatrix<T>
 impl<T> DMatrix<T>
 where
