@@ -58,7 +58,5 @@ pub use expression::unary_expr::{
 };
 pub mod dmatrix;
 pub mod dvector;
-pub mod scvector;
 pub mod smatrix;
-pub mod srvector;
 //}}}
