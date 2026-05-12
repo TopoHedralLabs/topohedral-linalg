@@ -25,4 +25,4 @@ pub use lu::{Error as DLuError, Return as DLuReturn};
 pub use qr::{Error as DQrError, Return as DQrReturn};
 pub use schur::{Error as DSchurError, Return as DSchurReturn};
 pub use solve::{Error as DSolveError};
-pub use symeig::{Error as DSymEigError, Return as SymEigReturn};
+pub use symeig::{Error as DSymEigError, Return as DSymEigReturn};
