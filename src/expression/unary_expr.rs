@@ -9,8 +9,9 @@
 
 //{{{ crate imports
 use crate::apply_for_all_types;
-use crate::common::{EvalInto, Field, Float, IndexValue, LazyExpr, Shape};
+use crate::common::{EvalInto, Field, IndexValue, LazyExpr, Shape};
 use crate::expression::binary_expr::{AddOp, BinopExpr, DivOp, MulOp, SubOp};
+use crate::float::Float;
 //}}}
 //{{{ std imports
 use std::ops::{Add, Div, Mul, Neg, Sub};

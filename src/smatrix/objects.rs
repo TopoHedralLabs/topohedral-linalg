@@ -4,7 +4,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Field, Float, FloatVectorOps, GreaterThan, One, VectorOps, Zero};
+use crate::common::{Field, GreaterThan, One, VectorOps, Zero};
+use crate::float::{Float, FloatVectorOps};
 //}}}
 //{{{ std imports
 //}}}

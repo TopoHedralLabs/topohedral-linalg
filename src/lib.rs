@@ -41,13 +41,15 @@ mod blaslapack;
 mod common;
 mod dmatrix;
 mod expression;
+mod float;
 mod smatrix;
 mod subviews;
 //}}}
 //{{{ collection: public API
+pub use crate::float::{Float, FloatTransformOps, FloatVectorOps};
 pub use common::{
-    Abs, Complex, Dimension, Float, FloatTransformOps, FloatVectorOps, GreaterThan, MatMul,
-    MatrixOps, ReduceOps, Shape, TransformOps, VectorOps,
+    Abs, Complex, Dimension, GreaterThan, MatMul, MatrixOps, ReduceOps, Shape, TransformOps,
+    VectorOps,
 };
 pub use dmatrix::*;
 pub use expression::unary_expr::{
