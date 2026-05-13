@@ -10,7 +10,8 @@
 use super::blaslapack::SLuReturn;
 use crate::blaslapack::Getrf;
 use crate::common::Shape;
-use crate::common::{Field, Float, MatrixOps, One, Zero};
+use crate::common::{Field, MatrixOps, One, Zero};
+use crate::float::Float;
 use crate::smatrix::SMatrix;
 //}}}
 //{{{ dep imports

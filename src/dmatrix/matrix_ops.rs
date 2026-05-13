@@ -11,8 +11,9 @@
 use super::blaslapack::DLuReturn;
 use crate::blaslapack::Getrf;
 use crate::common::Shape;
-use crate::common::{Field, Float, MatrixOps, One, Zero};
+use crate::common::{Field, MatrixOps, One, Zero};
 use crate::dmatrix::DMatrix;
+use crate::float::Float;
 //}}}
 //{{{ dep imports
 //}}}
