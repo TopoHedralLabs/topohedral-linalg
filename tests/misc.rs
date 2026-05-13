@@ -3,8 +3,8 @@
 
 mod dmatrix_tests
 {
-    use topohedral_linalg::*;
     use topohedral_linalg::Dimension;
+    use topohedral_linalg::*;
 
     fn assert_matrix_eq(
         actual: &DMatrix<i32>,

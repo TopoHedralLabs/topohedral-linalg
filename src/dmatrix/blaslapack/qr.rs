@@ -9,9 +9,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::dmatrix::DMatrix;
-use crate::blaslapack::{AsI32, Geqrf, Orgqr, QrRawError, qr_raw};
+use crate::blaslapack::{qr_raw, AsI32, Geqrf, Orgqr, QrRawError};
 use crate::common::{Field, One, Zero};
+use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
 use thiserror::Error;

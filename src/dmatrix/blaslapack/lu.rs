@@ -9,9 +9,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::dmatrix::DMatrix;
-use crate::blaslapack::{lu_raw, LuRawError, Getrf};
+use crate::blaslapack::{lu_raw, Getrf, LuRawError};
 use crate::common::{Field, One, Zero};
+use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
 use thiserror::Error;

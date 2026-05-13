@@ -8,9 +8,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::dmatrix::DMatrix;
-use crate::blaslapack::{Gemm, Gemv, matmul_dispatch};
+use crate::blaslapack::{matmul_dispatch, Gemm, Gemv};
 use crate::common::{Field, MatMul, One, Zero};
+use crate::dmatrix::DMatrix;
 use crate::smatrix::SMatrix;
 //}}}
 //--------------------------------------------------------------------------------------------------

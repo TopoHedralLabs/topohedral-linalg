@@ -3,9 +3,7 @@
 //! Longer description of module
 //--------------------------------------------------------------------------------------------------
 //{{{ crate imports
-use crate::common::{
-    Dimension, Field, Float, FloatVectorOps, One, VectorOps, Zero,
-};
+use crate::common::{Field, Float, FloatVectorOps, One, VectorOps, Zero};
 //}}}
 //{{{ std imports
 use serde::{Deserialize, Serialize};

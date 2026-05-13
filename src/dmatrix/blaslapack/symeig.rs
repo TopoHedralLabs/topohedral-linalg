@@ -8,9 +8,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::dmatrix::DMatrix;
-use crate::blaslapack::{AsI32, symeig_raw, Syev, SymEigRawError};
+use crate::blaslapack::{symeig_raw, AsI32, Syev, SymEigRawError};
 use crate::common::{Field, One, Zero};
+use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
 use thiserror::Error;

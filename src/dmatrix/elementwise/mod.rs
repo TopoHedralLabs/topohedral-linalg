@@ -5,9 +5,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{
-    EvalInto, Field, IndexValue, LazyExpr, Zero,
-};
+use crate::common::{EvalInto, Field, IndexValue, LazyExpr, Zero};
 use crate::expression::binary_expr::{BinOp, BinopExpr};
 use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
 //}}}
@@ -58,7 +56,7 @@ where
         DMatrix { data, nrows, ncols }
     }
 } //}}}
-//{{{ impl: From<UnaryExpr> for DMatrix
+  //{{{ impl: From<UnaryExpr> for DMatrix
 impl<A, T, Op> From<UnaryExpr<A, T, Op>> for DMatrix<T>
 where
     A: IndexValue<usize, Output = T> + crate::common::Shape,

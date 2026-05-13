@@ -8,9 +8,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::smatrix::SMatrix;
 use crate::common::{Field, Zero};
 use crate::expression::unary_expr::{NegOp, UnaryExpr};
+use crate::smatrix::SMatrix;
 //}}}
 //{{{ std imports
 use std::ops::Neg;

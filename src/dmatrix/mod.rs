@@ -10,12 +10,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{
-    Dimension, Field, Float, FloatVectorOps, One, VectorOps, Zero,
-};
 //}}}
 //{{{ std imports
-use serde::{Deserialize, Serialize};
 //}}}
 //{{{ dep imports
 //}}}

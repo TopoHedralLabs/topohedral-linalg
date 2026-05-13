@@ -47,8 +47,7 @@ macro_rules! add_benches_dmatrix {
                 format!("topohedral-linalg_dmatrix{}", $dim).as_str(),
                 |be| {
                     be.iter(|| {
-                        let j: DMatrix<f64> =
-                            (&a + &b + &c + &d + &e + &f + &g + &h + &i).into();
+                        let j: DMatrix<f64> = (&a + &b + &c + &d + &e + &f + &g + &h + &i).into();
                         std::hint::black_box(j);
                     })
                 },

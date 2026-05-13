@@ -4,7 +4,7 @@
 //{{{  mod: smatrix_tests
 mod smatrix_tests
 {
-    use topohedral_linalg::{SMatrix, MatrixOps};
+    use topohedral_linalg::{MatrixOps, SMatrix};
 
     #[test]
     fn test_default()

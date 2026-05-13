@@ -8,9 +8,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::dmatrix::DMatrix;
-use crate::blaslapack::{Gees, ShurRawError, schur_raw};
+use crate::blaslapack::{schur_raw, Gees, ShurRawError};
 use crate::common::{Field, One, Zero};
+use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
 use thiserror::Error;

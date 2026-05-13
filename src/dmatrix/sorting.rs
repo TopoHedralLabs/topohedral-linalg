@@ -4,10 +4,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{
-    Dimension, Field, Float, FloatVectorOps, One, VectorOps, Zero,
-};
 use super::DMatrix;
+use crate::common::{Dimension, Field, One, Zero};
 //}}}
 //{{{ std imports
 //}}}

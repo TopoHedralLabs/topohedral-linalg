@@ -37,14 +37,13 @@ pub(crate) trait MatrixBuffer: crate::common::Shape
     fn as_mut_slice(&mut self) -> &mut [Self::Scalar];
 }
 
-
 pub(crate) use common::AsI32;
-pub(crate) use gees::{Error as ShurRawError, schur_raw, Gees};
-pub(crate) use geev::{Error as EigRawError, eig_raw, Geev};
+pub(crate) use gees::{schur_raw, Error as ShurRawError, Gees};
+pub(crate) use geev::{eig_raw, Error as EigRawError, Geev};
 pub(crate) use gemm::{matmul_dispatch, Gemm};
-pub(crate) use gemv::{Gemv};
-pub(crate) use geqrf::{QrRawError, qr_raw, Geqrf};
-pub(crate) use gesv::{Error as SolveRawError, solve_raw, Gesv};
-pub(crate) use getrf::{Error as LuRawError, lu_raw, Getrf};
-pub(crate) use orgqr::{Orgqr};
-pub(crate) use syev::{Error as SymEigRawError, symeig_raw, Syev};
+pub(crate) use gemv::Gemv;
+pub(crate) use geqrf::{qr_raw, Geqrf, QrRawError};
+pub(crate) use gesv::{solve_raw, Error as SolveRawError, Gesv};
+pub(crate) use getrf::{lu_raw, Error as LuRawError, Getrf};
+pub(crate) use orgqr::Orgqr;
+pub(crate) use syev::{symeig_raw, Error as SymEigRawError, Syev};

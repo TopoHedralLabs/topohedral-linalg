@@ -8,12 +8,12 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::smatrix::SMatrix;
 use crate::apply_for_all_types;
 #[cfg(feature = "enable_checks")]
 use crate::common::Shape;
 use crate::common::{Field, IndexValue, LazyExpr};
 use crate::expression::binary_expr::{AddOp, BinopExpr};
+use crate::smatrix::SMatrix;
 //}}}
 //{{{ std imports
 use std::ops::{Add, AddAssign};

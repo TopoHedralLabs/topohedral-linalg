@@ -7,9 +7,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::dmatrix::DMatrix;
-use crate::blaslapack::{solve_raw, SolveRawError, Gesv};
+use crate::blaslapack::{solve_raw, Gesv, SolveRawError};
 use crate::common::Field;
+use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
 use thiserror::Error;

@@ -7,10 +7,10 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::smatrix::SMatrix;
 use crate::blaslapack::AsI32;
 use crate::blaslapack::{eig_raw, EigRawError, Geev};
 use crate::common::{Complex, Field, One, Zero};
+use crate::smatrix::SMatrix;
 //}}}
 //{{{ dep imports
 use thiserror::Error;

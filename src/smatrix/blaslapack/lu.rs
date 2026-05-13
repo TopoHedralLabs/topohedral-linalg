@@ -7,9 +7,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::smatrix::SMatrix;
-use crate::blaslapack::{lu_raw, LuRawError, Getrf};
+use crate::blaslapack::{lu_raw, Getrf, LuRawError};
 use crate::common::{Field, One, Zero};
+use crate::smatrix::SMatrix;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
