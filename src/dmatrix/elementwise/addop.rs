@@ -1,18 +1,19 @@
-//! Addition operators for [`SMatrix`]: matrix + matrix and matrix + scalar.
+//! Addition operators for [`DMatrix`]: matrix + matrix and matrix + scalar.
 //!
 //! Implements the standard [`Add`] trait for all combinations of owned and borrowed
-//! [`SMatrix<T, N, M>`] operands, as well as mixed matrix–scalar and scalar–matrix overloads.
-//! Matrix–matrix addition returns a lazy `BinopExpr` that defers allocation until materialised;
-//! scalar addition is applied element-wise. Const-generic dimension parameters ensure that only
-//! shape-compatible matrices can be added at compile time.
+//! [`DMatrix<T>`] operands, as well as mixed matrix–scalar and scalar–matrix overloads. For
+//! matrix–matrix addition the result is a lazy `BinopExpr` that defers allocation until the
+//! expression is converted into a concrete [`DMatrix`]; for scalar operands the addition is
+//! applied element-wise.
+//!
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::SMatrix;
 use crate::apply_for_all_types;
 #[cfg(feature = "enable_checks")]
 use crate::common::Shape;
 use crate::common::{Field, IndexValue, LazyExpr};
+use crate::dmatrix::DMatrix;
 use crate::expression::binary_expr::{AddOp, BinopExpr};
 //}}}
 //{{{ std imports
@@ -21,14 +22,14 @@ use std::ops::{Add, AddAssign};
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
+
 //{{{ collection: eagerly evaluated expressions
-//{{{ impl: Add<T> for SMatrix
-impl<T, const N: usize, const M: usize> Add<T> for SMatrix<T, N, M>
+//{{{ impl: Add<T> for DMatrix
+impl<T> Add<T> for DMatrix<T>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
-    type Output = SMatrix<T, N, M>;
+    type Output = DMatrix<T>;
 
     #[inline]
     fn add(
@@ -36,24 +37,23 @@ where
         rhs: T,
     ) -> Self::Output
     {
-        let mut out = self;
+        let mut out = self.clone();
         out.iter_mut().for_each(|x| *x += rhs);
         out
     }
 }
 //}}}
-//{{{ impl: Add<SMatrix> for SMatrix
-impl<T, const N: usize, const M: usize> Add for SMatrix<T, N, M>
+//{{{ impl: Add<DMatrix> for DMatrix
+impl<T> Add for DMatrix<T>
 where
-    [(); N * M]:,
     T: Field + Copy + IndexValue<usize, Output = T>,
 {
-    type Output = SMatrix<T, N, M>;
+    type Output = DMatrix<T>;
 
     #[inline]
     fn add(
         self,
-        rhs: SMatrix<T, N, M>,
+        rhs: DMatrix<T>,
     ) -> Self::Output
     {
         //{{{ check: assert dimensions are equal
@@ -63,7 +63,7 @@ where
             assert_eq!(self.ncols, rhs.ncols);
         }
         //}}}
-        let mut out = self;
+        let mut out = self.clone();
         out.iter_mut()
             .zip(rhs.iter())
             .for_each(|(out_elem, rhs_elem)| {
@@ -74,35 +74,32 @@ where
     }
 }
 //}}}
-//{{{ impl Add<SMatrix<T, N, M>> for T
-macro_rules! impl_smatrix_add_owned {
+//{{{ impl Add<DMatrix<T>> for T
+macro_rules! impl_dmatrix_add {
     ($type: ty) => {
         #[doc(hidden)]
-        impl<const N: usize, const M: usize> Add<SMatrix<$type, N, M>> for $type
-        where
-            [(); N * M]:,
+        impl Add<DMatrix<$type>> for $type
         {
-            type Output = SMatrix<$type, N, M>;
+            type Output = DMatrix<$type>;
 
             #[inline]
             fn add(
                 self,
-                rhs: SMatrix<$type, N, M>,
+                rhs: DMatrix<$type>,
             ) -> Self::Output
             {
-                let mut out = rhs;
+                let mut out = rhs.clone();
                 out.iter_mut().for_each(|x| *x += self);
                 out
             }
         }
     };
 }
-apply_for_all_types!(impl_smatrix_add_owned);
+apply_for_all_types!(impl_dmatrix_add);
 //}}}
-//{{{ impl AddAssign<T> for SMatrix
-impl<T, const N: usize, const M: usize> AddAssign<T> for SMatrix<T, N, M>
+//{{{ impl AddAssign<T> for DMatrix
+impl<T> AddAssign<T> for DMatrix<T>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
     #[inline]
@@ -115,16 +112,15 @@ where
     }
 }
 //}}}
-//{{{ impl: AddAssign<SMatrix> for SMatrix
-impl<T, const N: usize, const M: usize> AddAssign for SMatrix<T, N, M>
+//{{{ impl: AddAssign<DMatrix> for DMatrix
+impl<T> AddAssign for DMatrix<T>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
     #[inline]
     fn add_assign(
         &mut self,
-        rhs: SMatrix<T, N, M>,
+        rhs: DMatrix<T>,
     )
     {
         //{{{ check: assert dimensions are equal
@@ -143,16 +139,14 @@ where
 }
 //}}}
 //}}}
-//{{{ collection: AddOp for SMatrix
-//{{{ impl: Add<T> for SMatrix
-macro_rules! impl_smatrix_add_scalar_rhs {
+//{{{ collection: Lazily evaluated expressions
+//{{{ impl: Add<T> for &'a DMatrix
+macro_rules! impl_dmatrix_add_scalar_rhs {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Add<$type> for &'a SMatrix<$type, N, M>
-        where
-            [(); N * M]:,
+        impl<'a> Add<$type> for &'a DMatrix<$type>
         {
-            type Output = BinopExpr<&'a SMatrix<$type, N, M>, $type, $type, AddOp>;
+            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, AddOp>;
 
             #[inline]
             fn add(
@@ -173,11 +167,9 @@ macro_rules! impl_smatrix_add_scalar_rhs {
         }
 
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Add<$type> for &'a mut SMatrix<$type, N, M>
-        where
-            [(); N * M]:,
+        impl<'a> Add<$type> for &'a mut DMatrix<$type>
         {
-            type Output = BinopExpr<&'a SMatrix<$type, N, M>, $type, $type, AddOp>;
+            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, AddOp>;
 
             #[inline]
             fn add(
@@ -191,23 +183,21 @@ macro_rules! impl_smatrix_add_scalar_rhs {
     };
 }
 
-apply_for_all_types!(impl_smatrix_add_scalar_rhs);
+apply_for_all_types!(impl_dmatrix_add_scalar_rhs);
 
 //}}}
-//{{{ impl: Add<Smatrix> for $type
-macro_rules! impl_smatrix_add {
+//{{{ impl: Add<Dmatrix> for $type
+macro_rules! impl_dmatrix_ref_add {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Add<&'a SMatrix<$type, N, M>> for $type
-        where
-            [(); N * M]:,
+        impl<'a> Add<&'a DMatrix<$type>> for $type
         {
-            type Output = BinopExpr<$type, &'a SMatrix<$type, N, M>, $type, AddOp>;
+            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, AddOp>;
 
             #[inline]
             fn add(
                 self,
-                rhs: &'a SMatrix<$type, N, M>,
+                rhs: &'a DMatrix<$type>,
             ) -> Self::Output
             {
                 let nr = rhs.nrows;
@@ -223,23 +213,20 @@ macro_rules! impl_smatrix_add {
         }
     };
 }
-
-apply_for_all_types!(impl_smatrix_add);
+apply_for_all_types!(impl_dmatrix_ref_add);
 //}}}
-//{{{ impl: Add<&mut Smatrix> for $type
-macro_rules! impl_smatrix_add_mut {
+//{{{ impl: Add<&mut Dmatrix> for $type
+macro_rules! impl_dmatrix_ref_mut_add {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Add<&'a mut SMatrix<$type, N, M>> for $type
-        where
-            [(); N * M]:,
+        impl<'a> Add<&'a mut DMatrix<$type>> for $type
         {
-            type Output = BinopExpr<$type, &'a SMatrix<$type, N, M>, $type, AddOp>;
+            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, AddOp>;
 
             #[inline]
             fn add(
                 self,
-                rhs: &'a mut SMatrix<$type, N, M>,
+                rhs: &'a mut DMatrix<$type>,
             ) -> Self::Output
             {
                 self.add(&*rhs)
@@ -247,18 +234,15 @@ macro_rules! impl_smatrix_add_mut {
         }
     };
 }
-
-apply_for_all_types!(impl_smatrix_add_mut);
-
+apply_for_all_types!(impl_dmatrix_ref_mut_add);
 //}}}
-//{{{ impl: Add<Rhs> for &'a SMatrix
-impl<'a, T, Rhs, const N: usize, const M: usize> Add<Rhs> for &'a SMatrix<T, N, M>
+//{{{ impl: Add<Rhs> for &'a DMatrix
+impl<'a, T, Rhs> Add<Rhs> for &'a DMatrix<T>
 where
-    [(); N * M]:,
     T: Field + Copy,
     Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
 {
-    type Output = BinopExpr<&'a SMatrix<T, N, M>, Rhs, T, AddOp>;
+    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, AddOp>;
 
     #[inline]
     fn add(
@@ -285,14 +269,13 @@ where
 }
 
 //}}}
-//{{{ impl: Add<Rhs> for &'a mut SMatrix
-impl<'a, T, Rhs, const N: usize, const M: usize> Add<Rhs> for &'a mut SMatrix<T, N, M>
+//{{{ impl: Add<Rhs> for &'a mut DMatrix
+impl<'a, T, Rhs> Add<Rhs> for &'a mut DMatrix<T>
 where
-    [(); N * M]:,
     T: Field + Copy,
     Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
 {
-    type Output = BinopExpr<&'a SMatrix<T, N, M>, Rhs, T, AddOp>;
+    type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, AddOp>;
 
     #[inline]
     fn add(

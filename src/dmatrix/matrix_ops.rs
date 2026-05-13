@@ -8,11 +8,11 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::lu;
-use super::DMatrix;
-use crate::blaslapack::getrf::Getrf;
+use super::blaslapack::DLuReturn;
+use crate::blaslapack::Getrf;
 use crate::common::Shape;
 use crate::common::{Field, Float, MatrixOps, One, Zero};
+use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
 //}}}
@@ -65,7 +65,7 @@ where
         {
             panic!("Determinant is only defined for square matrices");
         }
-        let lu::Return {
+        let DLuReturn {
             l: _,
             u,
             p: _,

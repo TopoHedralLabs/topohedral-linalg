@@ -5,7 +5,7 @@
 mod smatrix_tests
 {
     use approx::assert_relative_eq;
-    use topohedral_linalg::smatrix::SMatrix;
+    use topohedral_linalg::SMatrix;
     use topohedral_linalg::{abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps};
 
     //{{{ collection: mixed tests
@@ -809,7 +809,7 @@ mod smatrix_tests
 mod dmatrix_tests
 {
     use approx::assert_relative_eq;
-    use topohedral_linalg::dmatrix::DMatrix;
+    use topohedral_linalg::DMatrix;
     use topohedral_linalg::{abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps};
 
     //{{{ collection: addition tests

@@ -8,8 +8,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::DMatrix;
 use crate::common::{Field, Zero};
+use crate::dmatrix::DMatrix;
 use crate::expression::unary_expr::{NegOp, UnaryExpr};
 //}}}
 //{{{ std imports

@@ -39,7 +39,9 @@
 //{{{ collection: private modules
 mod blaslapack;
 mod common;
+mod dmatrix;
 mod expression;
+mod smatrix;
 mod subviews;
 //}}}
 //{{{ collection: public API
@@ -47,6 +49,7 @@ pub use common::{
     Abs, Complex, Dimension, Float, FloatTransformOps, FloatVectorOps, GreaterThan, MatMul,
     MatrixOps, ReduceOps, Shape, TransformOps, VectorOps,
 };
+pub use dmatrix::*;
 pub use expression::unary_expr::{
     abs, abs_sub, acos, acosh, algebraic_add, algebraic_div, algebraic_mul, algebraic_rem,
     algebraic_sub, asin, asinh, atan, atan2, atanh, cbrt, ceil, clamp, clamp_magnitude, copysign,
@@ -55,7 +58,6 @@ pub use expression::unary_expr::{
     powi, recip, rem_euclid, round, round_ties_even, signum, sin, sinh, sqrt, tan, tanh,
     to_degrees, to_radians, trunc,
 };
+pub use smatrix::*;
 pub use subviews::{SubViewable, SubViewableMut};
-pub mod dmatrix;
-pub mod smatrix;
 //}}}

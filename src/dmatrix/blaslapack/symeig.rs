@@ -8,11 +8,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::DMatrix;
-use crate::blaslapack::common::AsI32;
-use crate::blaslapack::syev::symeig_raw;
-use crate::blaslapack::syev::{self, Syev};
+use crate::blaslapack::{symeig_raw, AsI32, Syev, SymEigRawError};
 use crate::common::{Field, One, Zero};
+use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -26,7 +24,7 @@ pub enum Error
 {
     #[error("Error in symeig(), exited with error:\n{0}")]
     /// LAPACK `syev` failed to compute eigenvalues or eigenvectors.
-    SyevError(#[from] syev::Error),
+    SyevError(#[from] SymEigRawError),
 }
 //}}}
 

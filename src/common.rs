@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::getrf::Getrf;
+use crate::blaslapack::Getrf;
 //}}}
 //{{{ std imports
 use ::std::ops::{Add, Div, Mul, Neg, Sub};
@@ -1667,7 +1667,7 @@ pub trait ReduceOps
     }
 
     /// Returns the minimum element, or `None` if the collection is empty.
-    fn min(&self) -> Option<Self::Item>
+    fn allmin(&self) -> Option<Self::Item>
     where
         Self::Item: PartialOrd,
     {
@@ -1684,7 +1684,7 @@ pub trait ReduceOps
     }
 
     /// Returns the maximum element, or `None` if the collection is empty.
-    fn max(&self) -> Option<Self::Item>
+    fn allmax(&self) -> Option<Self::Item>
     where
         Self::Item: PartialOrd,
     {
@@ -1701,7 +1701,7 @@ pub trait ReduceOps
     }
 
     /// Returns the element with the smallest key according to `key`, or `None` if empty.
-    fn min_by_key<K, F>(
+    fn allmin_by_key<K, F>(
         &self,
         mut key: F,
     ) -> Option<Self::Item>
@@ -1721,7 +1721,7 @@ pub trait ReduceOps
     }
 
     /// Returns the element with the largest key according to `key`, or `None` if empty.
-    fn max_by_key<K, F>(
+    fn allmax_by_key<K, F>(
         &self,
         mut key: F,
     ) -> Option<Self::Item>
@@ -1749,7 +1749,7 @@ pub trait ReduceOps
         Self::Item: PartialOrd,
         F: FnMut(Self::Item) -> Self::Item,
     {
-        self.min_by_key(transform)
+        self.allmin_by_key(transform)
     }
 
     /// Returns the element whose value after applying `transform` is the largest.
@@ -1761,7 +1761,7 @@ pub trait ReduceOps
         Self::Item: PartialOrd,
         F: FnMut(Self::Item) -> Self::Item,
     {
-        self.max_by_key(transform)
+        self.allmax_by_key(transform)
     }
 
     /// Returns the element with the smallest absolute value, or `None` if empty.

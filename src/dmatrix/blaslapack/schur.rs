@@ -8,10 +8,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::DMatrix;
-use crate::blaslapack::gees::schur_raw;
-use crate::blaslapack::gees::{self, Gees};
+use crate::blaslapack::{schur_raw, Gees, ShurRawError};
 use crate::common::{Field, One, Zero};
+use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -24,7 +23,7 @@ pub enum Error
 {
     #[error("Error in schur(), exited with error:\n{0}")]
     /// LAPACK `gees` failed to compute the Schur decomposition.
-    GeesError(#[from] gees::Error),
+    GeesError(#[from] ShurRawError),
 }
 //}}}
 

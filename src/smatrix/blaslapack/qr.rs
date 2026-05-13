@@ -7,9 +7,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::common::AsI32;
-use crate::blaslapack::geqrf::{self, qr_raw, Geqrf, QrRawError};
-use crate::blaslapack::orgqr::{self, Orgqr};
+use crate::blaslapack::AsI32;
+use crate::blaslapack::{qr_raw, Geqrf, Orgqr, QrRawError};
 use crate::common::{Field, One, Zero};
 use crate::smatrix::SMatrix;
 //}}}
@@ -23,24 +22,9 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum Error
 {
-    /// Wraps a LAPACK `geqrf` error from the Householder factorisation step.
+    /// Wraps a LAPACK `geqrf`/`orgqr` error from the QR factorisation steps.
     #[error("Error in qr(), exited with error:\n{0}")]
-    GetrfError(#[from] geqrf::Error),
-    /// Wraps a LAPACK `orgqr` error from the Q matrix generation step.
-    #[error("Error in qr(), exited with error:\n{0}")]
-    OrgqrError(#[from] orgqr::Error),
-}
-
-impl From<QrRawError> for Error
-{
-    fn from(e: QrRawError) -> Self
-    {
-        match e
-        {
-            QrRawError::Geqrf(e) => Error::GetrfError(e),
-            QrRawError::Orgqr(e) => Error::OrgqrError(e),
-        }
-    }
+    GetrfError(#[from] QrRawError),
 }
 //}}}
 //{{{ struct: Return

@@ -3,8 +3,7 @@
 
 mod dmatrix_tests
 {
-    use topohedral_linalg::dmatrix::*;
-    use topohedral_linalg::{ReduceOps, SubViewable, SubViewableMut};
+    use topohedral_linalg::*;
 
     fn assert_rectangular_view_reductions<R>(view: &R)
     where
@@ -33,8 +32,8 @@ mod dmatrix_tests
         );
         assert_eq!(view.sum(), 63);
         assert_eq!(view.product(), 970200);
-        assert_eq!(view.min(), Some(6));
-        assert_eq!(view.max(), Some(15));
+        assert_eq!(view.allmin(), Some(6));
+        assert_eq!(view.allmax(), Some(15));
         assert_eq!(view.argmin(), Some(((0, 0), 6)));
         assert_eq!(view.argmax(), Some(((2, 1), 15)));
     }
@@ -66,8 +65,8 @@ mod dmatrix_tests
     {
         let a = DMatrix::<i32>::from_row_slice(&[3, -2, 5, 4, -7, 1], 2, 3);
 
-        assert_eq!(a.min(), Some(-7));
-        assert_eq!(a.max(), Some(5));
+        assert_eq!(a.allmin(), Some(-7));
+        assert_eq!(a.allmax(), Some(5));
         assert_eq!(a.argmin(), Some(((1, 1), -7)));
         assert_eq!(a.argmax(), Some(((0, 2), 5)));
     }
@@ -93,8 +92,8 @@ mod dmatrix_tests
         assert!(a.is_empty());
         assert_eq!(a.sum(), 0);
         assert_eq!(a.product(), 1);
-        assert_eq!(a.min(), None);
-        assert_eq!(a.max(), None);
+        assert_eq!(a.allmin(), None);
+        assert_eq!(a.allmax(), None);
         assert_eq!(a.argmin(), None);
         assert_eq!(a.argmax(), None);
     }
@@ -128,8 +127,7 @@ mod dmatrix_tests
 
 mod smatrix_tests
 {
-    use topohedral_linalg::smatrix::*;
-    use topohedral_linalg::{ReduceOps, SubViewable, SubViewableMut};
+    use topohedral_linalg::*;
 
     fn assert_rectangular_view_reductions<R>(view: &R)
     where
@@ -158,8 +156,8 @@ mod smatrix_tests
         );
         assert_eq!(view.sum(), 63);
         assert_eq!(view.product(), 970200);
-        assert_eq!(view.min(), Some(6));
-        assert_eq!(view.max(), Some(15));
+        assert_eq!(view.allmin(), Some(6));
+        assert_eq!(view.allmax(), Some(15));
         assert_eq!(view.argmin(), Some(((0, 0), 6)));
         assert_eq!(view.argmax(), Some(((2, 1), 15)));
     }
@@ -191,8 +189,8 @@ mod smatrix_tests
     {
         let a = SMatrix::<i32, 2, 3>::from_row_slice(&[3, -2, 5, 4, -7, 1]);
 
-        assert_eq!(a.min(), Some(-7));
-        assert_eq!(a.max(), Some(5));
+        assert_eq!(a.allmin(), Some(-7));
+        assert_eq!(a.allmax(), Some(5));
         assert_eq!(a.argmin(), Some(((1, 1), -7)));
         assert_eq!(a.argmax(), Some(((0, 2), 5)));
     }
@@ -218,8 +216,8 @@ mod smatrix_tests
         assert!(a.is_empty());
         assert_eq!(a.sum(), 0);
         assert_eq!(a.product(), 1);
-        assert_eq!(a.min(), None);
-        assert_eq!(a.max(), None);
+        assert_eq!(a.allmin(), None);
+        assert_eq!(a.allmax(), None);
         assert_eq!(a.argmin(), None);
         assert_eq!(a.argmax(), None);
     }

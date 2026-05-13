@@ -17,16 +17,16 @@
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-pub mod common;
-pub mod gees;
-pub mod geev;
-pub mod gemm;
-pub mod gemv;
-pub mod geqrf;
-pub mod gesv;
-pub mod getrf;
-pub mod orgqr;
-pub mod syev;
+mod common;
+mod gees;
+mod geev;
+mod gemm;
+mod gemv;
+mod geqrf;
+mod gesv;
+mod getrf;
+mod orgqr;
+mod syev;
 
 /// Abstracts over matrix storage for generic LAPACK dispatch.
 #[allow(dead_code)]
@@ -36,3 +36,14 @@ pub(crate) trait MatrixBuffer: crate::common::Shape
     fn as_slice(&self) -> &[Self::Scalar];
     fn as_mut_slice(&mut self) -> &mut [Self::Scalar];
 }
+
+pub(crate) use common::AsI32;
+pub(crate) use gees::{schur_raw, Error as ShurRawError, Gees};
+pub(crate) use geev::{eig_raw, Error as EigRawError, Geev};
+pub(crate) use gemm::{matmul_dispatch, Gemm};
+pub(crate) use gemv::Gemv;
+pub(crate) use geqrf::{qr_raw, Geqrf, QrRawError};
+pub(crate) use gesv::{solve_raw, Error as SolveRawError, Gesv};
+pub(crate) use getrf::{lu_raw, Error as LuRawError, Getrf};
+pub(crate) use orgqr::Orgqr;
+pub(crate) use syev::{symeig_raw, Error as SymEigRawError, Syev};

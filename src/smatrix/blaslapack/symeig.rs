@@ -7,11 +7,10 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::SMatrix;
-use crate::blaslapack::common::AsI32;
-use crate::blaslapack::syev::symeig_raw;
-use crate::blaslapack::syev::{self, Syev};
+use crate::blaslapack::AsI32;
+use crate::blaslapack::{symeig_raw, Syev, SymEigRawError};
 use crate::common::{Field, One, Zero};
+use crate::smatrix::SMatrix;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -25,7 +24,7 @@ pub enum Error
 {
     /// Wraps a LAPACK `syev` error from the symmetric eigenvalue routine.
     #[error("Error in symeig(), exited with error:\n{0}")]
-    SyevError(#[from] syev::Error),
+    SyevError(#[from] SymEigRawError),
 }
 //}}}
 

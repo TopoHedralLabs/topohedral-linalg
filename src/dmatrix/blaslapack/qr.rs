@@ -9,12 +9,9 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::DMatrix;
-use crate::blaslapack::common::AsI32;
-use crate::blaslapack::geqrf::{self, Geqrf};
-use crate::blaslapack::geqrf::{qr_raw, QrRawError};
-use crate::blaslapack::orgqr::{self, Orgqr};
+use crate::blaslapack::{qr_raw, AsI32, Geqrf, Orgqr, QrRawError};
 use crate::common::{Field, One, Zero};
+use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
 use thiserror::Error;
@@ -28,22 +25,7 @@ pub enum Error
 {
     #[error("Error in qr(), exited with error:\n{0}")]
     /// LAPACK `geqrf` failed while computing the Householder QR factorisation.
-    GetrfError(#[from] geqrf::Error),
-    #[error("Error in qr(), exited with error:\n{0}")]
-    /// LAPACK `orgqr` failed while expanding the Householder reflectors into an explicit Q matrix.
-    OrgqrError(#[from] orgqr::Error),
-}
-
-impl From<QrRawError> for Error
-{
-    fn from(e: QrRawError) -> Self
-    {
-        match e
-        {
-            QrRawError::Geqrf(e) => Error::GetrfError(e),
-            QrRawError::Orgqr(e) => Error::OrgqrError(e),
-        }
-    }
+    GetrfError(#[from] QrRawError),
 }
 //}}}
 //{{{ struct: Return

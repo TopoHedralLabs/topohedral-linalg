@@ -3,7 +3,7 @@
 
 use criterion::{criterion_group, criterion_main, Criterion};
 
-use topohedral_linalg::smatrix;
+use topohedral_linalg::SMatrix;
 
 use nalgebra::SMatrix as NASMatrix;
 
@@ -14,29 +14,29 @@ macro_rules! add_benches_smatrix {
     ($dim: expr, $name1: ident, $name2: ident, $name3: ident) => {
         pub fn $name1(crit: &mut Criterion)
         {
-            let a = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let a = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let b = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let b = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let c = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let c = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let d = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let d = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let e = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let e = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let f = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let f = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let g = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let g = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let h = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let h = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
-            let i = smatrix::SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
+            let i = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
             crit.bench_function(
                 format!("topohedral-linalg_smatrix{}", $dim).as_str(),
                 |be| {
                     be.iter(|| {
-                        let j: smatrix::SMatrix<f64, $dim, $dim> =
+                        let j: SMatrix<f64, $dim, $dim> =
                             (&a + &b + &c + &d + &e + &f + &g + &h + &i).into();
 
                         std::hint::black_box(j);
