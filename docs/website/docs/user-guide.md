@@ -5,22 +5,24 @@ both `SMatrix` (fixed size) and `DMatrix` (dynamic size).
 
 ## Imports
 
-There is no prelude — import what you need. The module structure is:
+There is no prelude — import what you need. Everything is re-exported from the crate root:
 
 | What you need | Import path |
 |---|---|
-| `SMatrix` | `topohedral_linalg::smatrix::SMatrix` |
-| `DMatrix` | `topohedral_linalg::dmatrix::DMatrix` |
+| `SMatrix` | `topohedral_linalg::SMatrix` |
+| `DMatrix` | `topohedral_linalg::DMatrix` |
+| `SRVector`, `SCVector` (static row/column vector aliases) | `topohedral_linalg::{SRVector, SCVector}` |
+| `DVector`, `VecType` (dynamic vector alias and orientation) | `topohedral_linalg::{DVector, VecType}` |
 | Traits (`MatMul`, `MatrixOps`, `ReduceOps`, `TransformOps`, `FloatTransformOps`, `Shape`, `VectorOps`, …) | `topohedral_linalg::{TraitName}` |
+| `SubViewable`, `SubViewableMut` (subview traits) | `topohedral_linalg::{SubViewable, SubViewableMut}` |
 | `Dimension` (for sorting) | `topohedral_linalg::Dimension` |
 | Lazy unary functions (`sin`, `cos`, `sqrt`, …) | `topohedral_linalg::{fn_name}` |
 
 A typical set of imports for general use:
 
 ```rust
-use topohedral_linalg::smatrix::SMatrix;
-use topohedral_linalg::dmatrix::DMatrix;
 use topohedral_linalg::{
+    DMatrix, SMatrix,
     Dimension, MatMul, MatrixOps, ReduceOps, Shape,
     TransformOps, FloatTransformOps,
 };
@@ -89,6 +91,43 @@ let a = DMatrix::<f64>::from_col_slice(&[1.0, 4.0, 2.0, 5.0, 3.0, 6.0], 2, 3);
 ```rust
 let r = SMatrix::<f64, 3, 3>::from_uniform_random(0.0, 1.0);
 let r = DMatrix::<f64>::from_uniform_random(0.0, 1.0, 3, 3);
+```
+
+---
+
+## Vector types
+
+The library provides type aliases for 1-D vectors on top of the matrix types.
+
+### Static vectors (`SRVector` and `SCVector`)
+
+`SRVector<T, N>` is a 1×N row vector (`SMatrix<T, 1, N>`).  
+`SCVector<T, N>` is an N×1 column vector (`SMatrix<T, N, 1>`).  
+All `SMatrix` methods are available on these types automatically.
+
+```rust
+use topohedral_linalg::{SRVector, SCVector};
+
+let row: SRVector<f64, 3> = SRVector::<f64, 3>::from_row_slice(&[1.0, 2.0, 3.0]);
+let col: SCVector<f64, 3> = SCVector::<f64, 3>::from_col_slice(&[1.0, 2.0, 3.0]);
+```
+
+### Dynamic vector (`DVector`)
+
+`DVector<T>` is a type alias for `DMatrix<T>`. Use `VecType` to select orientation when constructing:
+
+```rust
+use topohedral_linalg::{DVector, VecType};
+
+// Column vector (N×1)
+let col = DVector::<f64>::zeros_vec(5, VecType::Col);
+let col = DVector::<f64>::ones_vec(5, VecType::Col);
+let col = DVector::<f64>::from_value_vec(3.14, 5, VecType::Col);
+let col = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0], VecType::Col);
+let col = DVector::<f64>::from_uniform_random_vec(0.0, 1.0, 5, VecType::Col);
+
+// Row vector (1×N)
+let row = DVector::<f64>::zeros_vec(5, VecType::Row);
 ```
 
 ---
@@ -333,6 +372,21 @@ let m3 = m.into_sorted(Dimension::Cols);  // consumes m, returns sorted copy
 All decompositions are methods on the matrix and return `Result` structs.
 They are backed by LAPACK routines.
 
+Return and error types follow a prefixed naming convention: `D` for `DMatrix` results,
+`S` for `SMatrix` results. For example, `DMatrix::lu()` returns `Result<DLuReturn<T>, DLuError>`
+and `SMatrix::lu()` returns `Result<SLuReturn<T, N, M>, SLuError>`. The full set:
+
+| Decomposition | `DMatrix` types | `SMatrix` types |
+|---|---|---|
+| LU | `DLuReturn<T>`, `DLuError` | `SLuReturn<T, N, M>`, `SLuError` |
+| QR | `DQrReturn<T>`, `DQrError` | `SQrReturn<T, N, M>`, `SQrError` |
+| Eigenvalue (general) | `DEigReturn<T>`, `DEigError` | `SEigReturn<T, N, M>`, `SEigError` |
+| Eigenvalue (symmetric) | `DSymEigReturn<T>`, `DSymEigError` | `SSymEigReturn<T, N, M>`, `SSymEigError` |
+| Schur | `DSchurReturn<T>`, `DSchurError` | `SSchurReturn<T, N, M>`, `SSchurError` |
+| Linear solve | `DSolveError` | `SSolveError` |
+
+All of these are re-exported from the crate root.
+
 ### LU decomposition
 
 Performs the LU decomposition with partial pivoting, which for matrix $\mathbf{A}$
@@ -484,23 +538,169 @@ LAPACK routine: `dgesv` / `sgesv`
 
 ## Subviews
 
-A subview provides a zero-copy window into a rectangular region of a matrix.
-The view borrows the original matrix for its lifetime.
+A subview is a zero-copy, borrowed window into a rectangular region of a matrix.
+All subview indices are **inclusive** on both ends: `subview(r0, r1, c0, c1)` covers
+rows `r0..=r1` and columns `c0..=c1`.
+
+### Immutable views
+
+The `SubViewable` trait provides methods that return a `MatrixView` borrowing `&self`:
 
 ```rust
+use topohedral_linalg::SubViewable;
+
 let m = DMatrix::<f64>::from_uniform_random(0.0, 1.0, 6, 6);
 
-// Immutable view of rows 1..3, cols 2..4 (exclusive end)
-let view = m.subview(1, 2, 2, 2);  // (start_row, start_col, nrows, ncols)
-let v = view[(0, 1)];              // relative (row, col) within the view
+// Arbitrary rectangular block: rows 1..=3, cols 2..=4
+let view = m.subview(1, 3, 2, 4);
+let v = view[(0, 1)];   // relative indices within the view
 
-// Mutable view
-let mut m = DMatrix::<f64>::zeros(4, 4);
-let mut view = m.subview_mut(1, 1, 2, 2);
-view[(0, 0)] = 42.0;
+// Convenience shortcuts
+let row2  = m.row(2);           // entire row 2  (1 × ncols view)
+let rows  = m.rows(1, 3);       // rows 1..=3    (3 × ncols view)
+let col1  = m.col(1);           // entire col 1  (nrows × 1 view)
+let cols  = m.cols(2, 4);       // cols 2..=4    (nrows × 3 view)
 ```
 
-Subviews support iteration and `fold` / `fold_indexed` reductions.
+### Mutable views
+
+The `SubViewableMut` trait mirrors `SubViewable` with `&mut self` variants that return
+a `MatrixViewMut`. Writing through a `MatrixViewMut` writes directly into the parent matrix.
+
+```rust
+use topohedral_linalg::SubViewableMut;
+
+let mut m = DMatrix::<f64>::zeros(6, 6);
+
+// Element-by-element writes using (row, col) or linear index
+{
+    let mut view = m.subview_mut(1, 3, 2, 4);
+    view[(0, 0)] = 1.0;   // row 0, col 0 of the view → m[(1, 2)]
+    view[(1, 2)] = 5.0;   // row 1, col 2 of the view → m[(2, 4)]
+    view[0]      = 9.0;   // linear index 0 (column-major) → m[(1, 2)]
+}
+
+// Mutable convenience shortcuts
+let mut row_view = m.row_mut(2);       // entire row 2
+let mut col_view = m.col_mut(1);       // entire col 1
+let mut rows_view = m.rows_mut(1, 3);  // rows 1..=3
+let mut cols_view = m.cols_mut(2, 4);  // cols 2..=4
+```
+
+#### Iterating over a mutable view
+
+`MatrixViewMut` provides both a shared and a mutable column-major iterator:
+
+```rust
+let mut m = DMatrix::<f64>::from_uniform_random(0.0, 1.0, 4, 4);
+let mut view = m.subview_mut(0, 1, 0, 1);  // top-left 2×2 block
+
+// Read-only pass
+for val in view.iter() {
+    println!("{val}");
+}
+
+// Mutating pass — doubles every element in the block
+for val in view.iter_mut() {
+    *val *= 2.0;
+}
+```
+
+#### Bulk copy into a mutable view
+
+`copy_from` writes all elements of a same-sized matrix or view into the mutable view:
+
+```rust
+let src = DMatrix::<f64>::ones(2, 2);
+let mut dst = DMatrix::<f64>::zeros(4, 4);
+
+// Copy src into the bottom-right 2×2 block of dst
+let mut view = dst.subview_mut(2, 3, 2, 3);
+view.copy_from(src);
+```
+
+### Write-helper methods on `DMatrix` and `SMatrix`
+
+Both `DMatrix` and `SMatrix` provide the same three higher-level helpers that skip
+constructing the view explicitly:
+
+| Method | Effect |
+|---|---|
+| `set_row(row, rhs)` | Overwrites a single row |
+| `set_col(col, rhs)` | Overwrites a single column |
+| `set_subview(r0, r1, c0, c1, rhs)` | Overwrites a rectangular block (inclusive indices) |
+
+`rhs` can be any matrix or view type with matching dimensions.
+
+```rust
+// DMatrix example
+let mut m  = DMatrix::<f64>::zeros(4, 4);
+let row    = DMatrix::<f64>::ones(1, 4);
+let col    = DMatrix::<f64>::ones(4, 1);
+let block  = DMatrix::<f64>::ones(2, 2);
+
+m.set_row(1, row);                // overwrite row 1
+m.set_col(2, col);                // overwrite col 2
+m.set_subview(1, 2, 1, 2, block); // overwrite rows 1..=2, cols 1..=2
+
+// SMatrix example — identical API
+let mut s   = SMatrix::<f64, 4, 4>::zeros();
+let s_row   = SMatrix::<f64, 1, 4>::ones();
+let s_block = SMatrix::<f64, 2, 2>::ones();
+
+s.set_row(1, s_row);
+s.set_subview(1, 2, 1, 2, s_block);
+```
+
+Both types also have a top-level `copy_from` that replaces the entire matrix contents
+from any same-sized source:
+
+```rust
+let src = DMatrix::<f64>::identity(4, 4);
+let mut dst = DMatrix::<f64>::zeros(4, 4);
+dst.copy_from(src);
+
+let s_src = SMatrix::<f64, 3, 3>::identity();
+let mut s_dst = SMatrix::<f64, 3, 3>::zeros();
+s_dst.copy_from(s_src);
+```
+
+### Converting a view to an owned matrix
+
+`MatrixView` and `MatrixViewMut` over either `DMatrix` or `SMatrix` can be
+materialised into a new heap-allocated `DMatrix` via `.to_dmatrix()`. Note that
+views over an `SMatrix` always produce a `DMatrix` — there is no `to_smatrix()`:
+
+```rust
+// From a DMatrix view
+let m = DMatrix::<f64>::from_uniform_random(0.0, 1.0, 6, 6);
+let owned: DMatrix<f64> = m.subview(1, 3, 1, 3).to_dmatrix();
+
+// From an SMatrix view — result is always DMatrix
+let s = SMatrix::<f64, 6, 6>::from_uniform_random(0.0, 1.0);
+let owned: DMatrix<f64> = s.subview(1, 3, 1, 3).to_dmatrix();
+```
+
+### Using subview traits in generic code
+
+`SubViewable` and `SubViewableMut` are re-exported from the crate root and can be used
+as bounds in generic functions:
+
+```rust
+use topohedral_linalg::{SubViewable, SubViewableMut};
+
+fn sum_block<M: SubViewable<Output = f64>>(mat: &M, r0: usize, r1: usize, c0: usize, c1: usize) -> f64 {
+    let view = mat.subview(r0, r1, c0, c1);
+    view.iter().copied().sum()
+}
+
+fn zero_block<M: SubViewableMut<Output = f64>>(mat: &mut M, r0: usize, r1: usize, c0: usize, c1: usize) {
+    let mut view = mat.subview_mut(r0, r1, c0, c1);
+    for val in view.iter_mut() {
+        *val = 0.0;
+    }
+}
+```
 
 ---
 
