@@ -13,6 +13,7 @@ There is no prelude — import what you need. Everything is re-exported from the
 | `DMatrix` | `topohedral_linalg::DMatrix` |
 | `SRVector`, `SCVector` (static row/column vector aliases) | `topohedral_linalg::{SRVector, SCVector}` |
 | `DVector`, `VecType` (dynamic vector alias and orientation) | `topohedral_linalg::{DVector, VecType}` |
+| `Field` (scalar element bound) | `topohedral_linalg::Field` |
 | Traits (`MatMul`, `MatrixOps`, `ReduceOps`, `TransformOps`, `FloatTransformOps`, `Shape`, `VectorOps`, …) | `topohedral_linalg::{TraitName}` |
 | `SubViewable`, `SubViewableMut` (subview traits) | `topohedral_linalg::{SubViewable, SubViewableMut}` |
 | `Dimension` (for sorting) | `topohedral_linalg::Dimension` |
@@ -31,6 +32,37 @@ use topohedral_linalg::{
 Add individual trait imports only when the methods they provide are actually needed;
 the Rust compiler will tell you which trait to bring into scope if a method call
 fails to resolve.
+
+---
+
+## The `Field` trait
+
+`Field` is the scalar element bound used throughout the library. It requires the four
+arithmetic operators and their assignment variants, negation, and a partial order:
+
+```
+Field = Add + Sub + Mul + Div + AddAssign + SubAssign + MulAssign + DivAssign + Neg + PartialOrd + PartialEq
+```
+
+The following primitive types implement `Field`:
+
+| Type | Kind |
+|---|---|
+| `f32`, `f64` | Floating point |
+| `i8`, `i16`, `i32`, `i64`, `i128` | Signed integer |
+
+Use `Field` as a bound when writing generic code over any matrix element type:
+
+```rust
+use topohedral_linalg::{DMatrix, Field};
+
+fn scale_matrix<T: Field + Copy>(m: &DMatrix<T>, factor: T) -> DMatrix<T> {
+    m.clone() * factor
+}
+```
+
+For floating-point-only operations (decompositions, transcendental functions, norms),
+use `Float` instead, which is a stricter bound that implies `Field`.
 
 ---
 
