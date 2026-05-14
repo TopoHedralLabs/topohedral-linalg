@@ -7,7 +7,7 @@ add it to your project with:
 
 ```toml
 [dependencies]
-topohedral-linalg = "2.0"
+topohedral-linalg = "3.0"
 ```
 
 ---
@@ -21,7 +21,7 @@ topohedral-linalg = "2.0"
 
 ```toml
 [dependencies]
-topohedral-linalg = { version = "2.0", features = ["enable_checks"] }
+topohedral-linalg = { version = "3.0", features = ["enable_checks"] }
 ```
 
 ---
@@ -55,7 +55,7 @@ Both types store data in **column-major** (Fortran) order for BLAS compatibility
 ## Quick example
 
 ```rust
-use topohedral_linalg::{SMatrix, DMatrix, MatMul, MatrixOps, ReduceOps};
+use topohedral_linalg::{DMatrix, SMatrix, MatMul, MatrixOps, ReduceOps};
 
 // Static 3×3 identity matrix
 let eye = SMatrix::<f64, 3, 3>::identity();

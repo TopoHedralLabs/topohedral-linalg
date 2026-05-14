@@ -48,7 +48,7 @@ mod subviews;
 //{{{ collection: public API
 pub use crate::float::{Float, FloatTransformOps, FloatVectorOps};
 pub use common::{
-    Abs, Complex, Dimension, GreaterThan, MatMul, MatrixOps, ReduceOps, Shape, TransformOps,
+    Abs, Complex, Dimension, Field, GreaterThan, MatMul, MatrixOps, ReduceOps, Shape, TransformOps,
     VectorOps,
 };
 pub use dmatrix::*;
