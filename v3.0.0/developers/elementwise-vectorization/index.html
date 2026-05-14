@@ -1,0 +1,1171 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://topohedrallabs.github.io/topohedral-linalg/v3.0.0/developers/elementwise-vectorization/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../building-docs/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Elementwise Vectorisation - TopoHedral-Linalg Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="https://unpkg.com/katex@0/dist/katex.min.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dmatrix-vectorisation-diagnosis-and-fix" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="TopoHedral-Linalg Documentation" class="md-header__button md-logo" aria-label="TopoHedral-Linalg Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            TopoHedral-Linalg Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Elementwise Vectorisation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="TopoHedral-Linalg Documentation" class="md-nav__button md-logo" aria-label="TopoHedral-Linalg Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    TopoHedral-Linalg Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Docs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Developers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Developers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Elementwise Vectorisation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Elementwise Vectorisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#background" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Background
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-problem-llvm-could-not-vectorise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Problem: LLVM Could Not Vectorise
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Problem: LLVM Could Not Vectorise">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problem-1-bounds-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem 1 — Bounds Checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#problem-2-aliasing-the-deeper-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem 2 — Aliasing (the deeper issue)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-nalgebra-was-faster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why nalgebra Was Faster
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-fix-three-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Fix: Three Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Fix: Three Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fix-1-get_unchecked-on-leaf-reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fix 1 — get_unchecked on Leaf Reads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fix-2-the-evalintot-trait-the-key-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fix 2 — The EvalInto&lt;T&gt; Trait (the key change)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fix-3-single-pass-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fix 3 — Single-Pass Evaluation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-beats-nalgebra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Beats nalgebra
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why This Beats nalgebra">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#benchmark-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benchmark Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../building-docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building Docs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#background" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Background
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-problem-llvm-could-not-vectorise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Problem: LLVM Could Not Vectorise
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Problem: LLVM Could Not Vectorise">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problem-1-bounds-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem 1 — Bounds Checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#problem-2-aliasing-the-deeper-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem 2 — Aliasing (the deeper issue)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-nalgebra-was-faster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why nalgebra Was Faster
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-fix-three-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Fix: Three Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Fix: Three Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fix-1-get_unchecked-on-leaf-reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fix 1 — get_unchecked on Leaf Reads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fix-2-the-evalintot-trait-the-key-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fix 2 — The EvalInto&lt;T&gt; Trait (the key change)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fix-3-single-pass-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fix 3 — Single-Pass Evaluation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-beats-nalgebra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Beats nalgebra
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why This Beats nalgebra">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#benchmark-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benchmark Results
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="dmatrix-vectorisation-diagnosis-and-fix">DMatrix Vectorisation: Diagnosis and Fix</h1>
+<h2 id="background">Background</h2>
+<p>The <code>DMatrix</code> benchmark adds nine matrices together using a lazy expression tree:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kd">let</span><span class="w"> </span><span class="n">j</span><span class="p">:</span><span class="w"> </span><span class="nc">DMatrix</span><span class="o">&lt;</span><span class="kt">f64</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">&amp;</span><span class="n">b</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">&amp;</span><span class="n">c</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">&amp;</span><span class="n">d</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">&amp;</span><span class="n">e</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">&amp;</span><span class="n">f</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">&amp;</span><span class="n">g</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">&amp;</span><span class="n">h</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="o">&amp;</span><span class="n">i</span><span class="p">).</span><span class="n">into</span><span class="p">();</span>
+</code></pre></div>
+<p>Each <code>+</code> operator builds a zero-cost <code>BinopExpr</code> node (no computation, just stores
+references). The <code>.into()</code> call triggers a single <code>From&lt;BinopExpr&gt;::from</code> that walks
+the tree and writes results into a freshly allocated output matrix.</p>
+<p>Despite this theoretically optimal structure — one allocation, one pass — the
+original implementation was <strong>2–3× slower than nalgebra</strong> and matched only raw scalar
+<code>Vec</code> performance.</p>
+<hr />
+<h2 id="the-problem-llvm-could-not-vectorise">The Problem: LLVM Could Not Vectorise</h2>
+<p>The original evaluation loop in <code>From&lt;BinopExpr&gt;</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">..</span><span class="n">total</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">out</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expr</span><span class="p">.</span><span class="n">index_value</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">}</span>
+</code></pre></div>
+<p>looks like a candidate for SIMD vectorisation: a counted loop, contiguous memory,
+no control flow. Yet the generated assembly on aarch64 was entirely scalar:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nl">LBB_loop:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">x3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x10</span><span class="p">,</span><span class="w"> </span><span class="mi">#8</span><span class="p">]</span><span class="w">          </span><span class="c1">; reload Vec.ptr from DMatrix struct — EVERY ITERATION</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">d0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x3</span><span class="p">,</span><span class="w"> </span><span class="no">x11</span><span class="p">,</span><span class="w"> </span><span class="no">lsl</span><span class="w"> </span><span class="mi">#3</span><span class="p">]</span><span class="w">  </span><span class="c1">; load data[i] through that pointer</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">x3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x12</span><span class="p">,</span><span class="w"> </span><span class="mi">#8</span><span class="p">]</span><span class="w">          </span><span class="c1">; reload for matrix b</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">d1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x3</span><span class="p">,</span><span class="w"> </span><span class="no">x11</span><span class="p">,</span><span class="w"> </span><span class="no">lsl</span><span class="w"> </span><span class="mi">#3</span><span class="p">]</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nf">fadd</span><span class="w"> </span><span class="no">d0</span><span class="p">,</span><span class="w"> </span><span class="no">d0</span><span class="p">,</span><span class="w"> </span><span class="no">d1</span><span class="w">             </span><span class="c1">; scalar add — 1 double per iteration</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="na">...</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nf">str</span><span class="w"> </span><span class="no">d0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x8</span><span class="p">,</span><span class="w"> </span><span class="no">x11</span><span class="p">,</span><span class="w"> </span><span class="no">lsl</span><span class="w"> </span><span class="mi">#3</span><span class="p">]</span><span class="w">  </span><span class="c1">; write output</span>
+</code></pre></div>
+<p>Two distinct problems are visible here.</p>
+<h3 id="problem-1-bounds-checks">Problem 1 — Bounds Checks</h3>
+<p><code>out.data[i]</code> and each <code>self.data[index]</code> in <code>index_value</code> compile to a checked Vec
+index. With nine input matrices there are ten runtime bounds checks per element (nine
+reads + one write). Each check branches on a length loaded from a heap-allocated Vec
+struct. LLVM cannot prove these lengths are constant across iterations, so it cannot
+hoist, unroll, or vectorise the loop.</p>
+<h3 id="problem-2-aliasing-the-deeper-issue">Problem 2 — Aliasing (the deeper issue)</h3>
+<p>Even with bounds checks removed, LLVM still reloaded <code>[x10, #8]</code> — the Vec's
+internal data pointer — on every iteration. The reason:</p>
+<p><code>DMatrix&lt;T&gt;</code> stores its data in a <code>Vec&lt;T&gt;</code>. To read <code>data[i]</code>, LLVM must first load
+the Vec's raw heap pointer from the DMatrix struct, then dereference it at offset <code>i</code>.
+The write destination (<code>out.data[i]</code>) is reached through the same kind of indirection.</p>
+<p>LLVM asks: <em>can the write to <code>out.data[i]</code> modify the memory at <code>[x10 + 8]</code> (the Vec
+pointer field of an input DMatrix)?</em> Both are heap allocations. Without being able to
+prove they are disjoint, LLVM conservatively reloads every pointer every iteration —
+and a loop with nine unprovable pointer reloads per element cannot be vectorised.</p>
+<p>This is a failure of <strong>alias analysis</strong>, not arithmetic. The data itself is perfectly
+suited to SIMD; LLVM simply cannot prove the memory regions do not overlap.</p>
+<hr />
+<h2 id="why-nalgebra-was-faster">Why nalgebra Was Faster</h2>
+<p>nalgebra evaluates <code>&amp;a + &amp;b + ... + &amp;i</code> eagerly and pairwise. <code>&amp;Matrix + &amp;Matrix</code>
+allocates a new <code>Matrix</code> and fills it; subsequent additions consume the accumulator
+in-place via <code>Matrix + &amp;Matrix</code>. Each individual addition is a simple two-slice zip:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nl">LBB_nalgebra:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nf">ldp</span><span class="w"> </span><span class="no">q0</span><span class="p">,</span><span class="w"> </span><span class="no">q1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x15</span><span class="p">,</span><span class="w"> </span><span class="mi">#-32</span><span class="p">]</span><span class="w">   </span><span class="c1">; load 4 doubles from input</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nf">ldp</span><span class="w"> </span><span class="no">q2</span><span class="p">,</span><span class="w"> </span><span class="no">q3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x15</span><span class="p">],</span><span class="w"> </span><span class="mi">#64</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nf">ldp</span><span class="w"> </span><span class="no">q4</span><span class="p">,</span><span class="w"> </span><span class="no">q5</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x14</span><span class="p">,</span><span class="w"> </span><span class="mi">#-32</span><span class="p">]</span><span class="w">   </span><span class="c1">; load 4 doubles from accumulator</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nf">ldp</span><span class="w"> </span><span class="no">q6</span><span class="p">,</span><span class="w"> </span><span class="no">q7</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x14</span><span class="p">]</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nf">fadd.2d</span><span class="w"> </span><span class="no">v0</span><span class="p">,</span><span class="w"> </span><span class="no">v0</span><span class="p">,</span><span class="w"> </span><span class="no">v4</span><span class="w">         </span><span class="c1">; 2 doubles at once × 4 = 8 doubles per iteration</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nf">fadd.2d</span><span class="w"> </span><span class="no">v1</span><span class="p">,</span><span class="w"> </span><span class="no">v1</span><span class="p">,</span><span class="w"> </span><span class="no">v5</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nf">fadd.2d</span><span class="w"> </span><span class="no">v2</span><span class="p">,</span><span class="w"> </span><span class="no">v2</span><span class="p">,</span><span class="w"> </span><span class="no">v6</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="nf">fadd.2d</span><span class="w"> </span><span class="no">v3</span><span class="p">,</span><span class="w"> </span><span class="no">v3</span><span class="p">,</span><span class="w"> </span><span class="no">v7</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">    </span><span class="nf">stp</span><span class="w"> </span><span class="no">q0</span><span class="p">,</span><span class="w"> </span><span class="no">q1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x14</span><span class="p">,</span><span class="w"> </span><span class="mi">#-32</span><span class="p">]</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="nf">stp</span><span class="w"> </span><span class="no">q2</span><span class="p">,</span><span class="w"> </span><span class="no">q3</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x14</span><span class="p">],</span><span class="w"> </span><span class="mi">#64</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">    </span><span class="nf">subs</span><span class="w"> </span><span class="no">x16</span><span class="p">,</span><span class="w"> </span><span class="no">x16</span><span class="p">,</span><span class="w"> </span><span class="mi">#8</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span><span class="nf">b.ne</span><span class="w"> </span><span class="no">LBB_nalgebra</span>
+</code></pre></div>
+<p>Because each call to <code>Add::add</code> takes two <code>&amp;Matrix</code> parameters — annotated <code>noalias
+readonly</code> in LLVM IR — and writes to a freshly allocated <code>*mut f64</code>, LLVM trivially
+proves non-aliasing and generates fully vectorised code.</p>
+<p>The cost: nalgebra makes eight passes over the data and moves roughly 2 400 doubles in
+total for a 10×10 addition chain. The lazy tree approach should need only one pass and
+move only ~1 000 doubles — but only if it can be vectorised.</p>
+<hr />
+<h2 id="the-fix-three-changes">The Fix: Three Changes</h2>
+<h3 id="fix-1-get_unchecked-on-leaf-reads">Fix 1 — <code>get_unchecked</code> on Leaf Reads</h3>
+<p><strong>File:</strong> <a href="https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/dmatrix/indexing.rs"><code>src/dmatrix/indexing.rs</code></a></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// Before</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">fn</span><span class="w"> </span><span class="nf">index_value</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">Self</span><span class="p">::</span><span class="n">Output</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="bp">self</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">}</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1">// After</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">fn</span><span class="w"> </span><span class="nf">index_value</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">index</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">Self</span><span class="p">::</span><span class="n">Output</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">*</span><span class="bp">self</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get_unchecked</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">}</span>
+</code></pre></div>
+<p>Removing the ten bounds checks per element is necessary but not sufficient. The
+expression tree is constructed with matching dimensions (asserted at build time) and
+<code>From&lt;BinopExpr&gt;</code> iterates exactly <code>0..nrows*ncols</code>, so the invariant holds.</p>
+<p>This alone produced a measurable improvement (from ~313 ns to a lower figure) but
+still left LLVM generating scalar code due to the aliasing problem.</p>
+<h3 id="fix-2-the-evalintot-trait-the-key-change">Fix 2 — The <code>EvalInto&lt;T&gt;</code> Trait (the key change)</h3>
+<p><strong>Files:</strong> <a href="https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/common.rs"><code>src/common.rs</code></a>, <a href="https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/expression/binary_expr.rs"><code>src/expression/binary_expr.rs</code></a>, <a href="https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/dmatrix/mod.rs"><code>src/dmatrix/mod.rs</code></a></p>
+<p>The root cause of the aliasing failure was <strong>where the output was written through</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// OLD — write through Vec internals; LLVM loses noalias provenance</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">get_unchecked_mut</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expr</span><span class="p">.</span><span class="n">index_value</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p><code>out.data</code> is a <code>Vec&lt;T&gt;</code>. LLVM loads the Vec's raw pointer from a struct field and
+writes through it. That raw <code>*mut T</code> carries no <code>noalias</code> annotation, so LLVM cannot
+rule out aliasing with the input DMatrix structs.</p>
+<p>The fix is a new trait:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">pub</span><span class="w"> </span><span class="k">trait</span><span class="w"> </span><span class="n">EvalInto</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span><span class="w"> </span><span class="nc">Field</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">Copy</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">eval_into</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">out</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">mut</span><span class="w"> </span><span class="p">[</span><span class="n">T</span><span class="p">]);</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="p">}</span>
+</code></pre></div>
+<p>A Rust <code>&amp;mut [T]</code> slice reference is annotated <code>noalias</code> in LLVM IR. This is the
+language's aliasing guarantee: a mutable reference cannot coexist with any other
+reference to the same memory. The nine input DMatrices are accessed through <code>&amp;DMatrix</code>
+(annotated <code>noalias readonly</code>). LLVM therefore knows:</p>
+<ul>
+<li>The output slice <strong>cannot overlap</strong> with any input DMatrix struct.</li>
+<li>Writing to <code>out[i]</code> <strong>cannot modify</strong> the Vec pointer fields inside any DMatrix.</li>
+<li>Those Vec pointer loads can be <strong>hoisted once</strong>, before the loop body.</li>
+</ul>
+<p><code>From&lt;BinopExpr&gt;</code> is updated to call <code>eval_into</code> rather than indexing through <code>out.data</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">from</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span><span class="w"> </span><span class="nc">BinopExpr</span><span class="o">&lt;</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">Op</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">DMatrix</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">nrows</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expr</span><span class="p">.</span><span class="n">nrows</span><span class="p">;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">ncols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">expr</span><span class="p">.</span><span class="n">ncols</span><span class="p">;</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nrows</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ncols</span><span class="p">;</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Vec</span><span class="p">::</span><span class="n">with_capacity</span><span class="p">(</span><span class="n">total</span><span class="p">);</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">set_len</span><span class="p">(</span><span class="n">total</span><span class="p">)</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="n">expr</span><span class="p">.</span><span class="n">eval_into</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span><span class="w"> </span><span class="n">data</span><span class="p">);</span><span class="w">   </span><span class="c1">// out: &amp;mut [T] — noalias parameter</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="n">DMatrix</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">nrows</span><span class="p">,</span><span class="w"> </span><span class="n">ncols</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="fix-3-single-pass-evaluation">Fix 3 — Single-Pass Evaluation</h3>
+<p><strong>File:</strong> <a href="https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/expression/binary_expr.rs"><code>src/expression/binary_expr.rs</code></a></p>
+<p>With aliasing now provable, the natural implementation of <code>BinopExpr::eval_into</code> uses
+<code>index_value</code> for <strong>both</strong> operands in a single loop:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">fn</span><span class="w"> </span><span class="nf">eval_into</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">out</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">mut</span><span class="w"> </span><span class="p">[</span><span class="n">T</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">out</span><span class="p">.</span><span class="n">len</span><span class="p">();</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">..</span><span class="n">len</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">        </span><span class="k">unsafe</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">            </span><span class="o">*</span><span class="n">out</span><span class="p">.</span><span class="n">get_unchecked_mut</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">                </span><span class="n">Op</span><span class="p">::</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">index_value</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="bp">self</span><span class="p">.</span><span class="n">b</span><span class="p">.</span><span class="n">index_value</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="p">}</span>
+</code></pre></div>
+<p>For the full eight-level nested <code>BinopExpr</code> representing nine matrices, LLVM inlines
+all the <code>#[inline]</code> <code>index_value</code> calls and sees the flattened computation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>out[i] = a[i] + b[i] + c[i] + d[i] + e[i] + f[i] + g[i] + h[i] + i[i]
+</code></pre></div>
+<p>With all nine reads proven <code>noalias readonly</code> and the write proven <code>noalias</code>, LLVM
+hoists all nine Vec data pointers into registers before the loop and generates a
+<strong>single vectorised loop</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1">; All 9 data pointers loaded ONCE, outside the loop:</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nf">ldr</span><span class="w"> </span><span class="no">x10</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x10</span><span class="p">,</span><span class="w"> </span><span class="mi">#8</span><span class="p">]</span><span class="w">   </span><span class="c1">; DMatrix_a.data.ptr</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nf">ldr</span><span class="w"> </span><span class="no">x11</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x11</span><span class="p">,</span><span class="w"> </span><span class="mi">#8</span><span class="p">]</span><span class="w">   </span><span class="c1">; DMatrix_b.data.ptr</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="na">...</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="c1">; One SIMD loop — 2 doubles per iteration:</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="nl">LBB_11:</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x3</span><span class="p">],</span><span class="w"> </span><span class="mi">#16</span><span class="w">    </span><span class="c1">; load 2 doubles from a, advance pointer</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x4</span><span class="p">],</span><span class="w"> </span><span class="mi">#16</span><span class="w">    </span><span class="c1">; load 2 doubles from b</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="nf">fadd.2d</span><span class="w"> </span><span class="no">v0</span><span class="p">,</span><span class="w"> </span><span class="no">v0</span><span class="p">,</span><span class="w"> </span><span class="no">v1</span><span class="w">   </span><span class="c1">; a + b</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x5</span><span class="p">],</span><span class="w"> </span><span class="mi">#16</span><span class="w">    </span><span class="c1">; load from c</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="w">    </span><span class="nf">fadd.2d</span><span class="w"> </span><span class="no">v0</span><span class="p">,</span><span class="w"> </span><span class="no">v0</span><span class="p">,</span><span class="w"> </span><span class="no">v1</span><span class="w">   </span><span class="c1">; + c</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="nf">ldr</span><span class="w"> </span><span class="no">q1</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x6</span><span class="p">],</span><span class="w"> </span><span class="mi">#16</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">    </span><span class="nf">fadd.2d</span><span class="w"> </span><span class="no">v0</span><span class="p">,</span><span class="w"> </span><span class="no">v0</span><span class="p">,</span><span class="w"> </span><span class="no">v1</span><span class="w">   </span><span class="c1">; + d</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">    </span><span class="na">...</span><span class="w">                  </span><span class="c1">; 8 adds total</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">    </span><span class="nf">str</span><span class="w"> </span><span class="no">q0</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="no">x26</span><span class="p">],</span><span class="w"> </span><span class="mi">#16</span><span class="w">   </span><span class="c1">; store 2 doubles to output</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="w">    </span><span class="nf">subs</span><span class="w"> </span><span class="no">x27</span><span class="p">,</span><span class="w"> </span><span class="no">x27</span><span class="p">,</span><span class="w"> </span><span class="mi">#2</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="w">    </span><span class="nf">b.ne</span><span class="w"> </span><span class="no">LBB_11</span>
+</code></pre></div>
+<hr />
+<h2 id="why-this-beats-nalgebra">Why This Beats nalgebra</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Passes</th>
+<th>Doubles moved (10×10)</th>
+<th>Loop structure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nalgebra</td>
+<td>8</td>
+<td>~2 400</td>
+<td>8 × 2-input SIMD (8 doubles/iter)</td>
+</tr>
+<tr>
+<td>topohedral (final)</td>
+<td>1</td>
+<td>~1 000</td>
+<td>1 × 9-input SIMD (2 doubles/iter)</td>
+</tr>
+</tbody>
+</table>
+<p>nalgebra's pairwise approach re-reads and re-writes the accumulator eight times. The
+lazy expression tree describes the whole computation at once, so after the aliasing
+proof is in place LLVM can fuse all nine operands into a single scan through memory.</p>
+<p>The per-iteration instruction mix is different — nalgebra unrolls to 8 doubles per
+SIMD iteration while ours processes 2 — but the dominant cost at these matrix sizes
+is <strong>memory bandwidth, not arithmetic throughput</strong>. Moving 2.4× less data wins.</p>
+<h3 id="benchmark-results">Benchmark Results</h3>
+<table>
+<thead>
+<tr>
+<th>Size</th>
+<th>Before</th>
+<th>After</th>
+<th>nalgebra</th>
+<th>raw <code>Vec</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10×10</td>
+<td>313 ns</td>
+<td><strong>91 ns</strong></td>
+<td>149 ns</td>
+<td>312 ns</td>
+</tr>
+<tr>
+<td>20×20</td>
+<td>1.2 µs</td>
+<td><strong>242 ns</strong></td>
+<td>395 ns</td>
+<td>1.19 µs</td>
+</tr>
+<tr>
+<td>30×30</td>
+<td>2.7 µs</td>
+<td><strong>526 ns</strong></td>
+<td>889 ns</td>
+<td>2.68 µs</td>
+</tr>
+<tr>
+<td>40×40</td>
+<td>4.9 µs</td>
+<td><strong>950 ns</strong></td>
+<td>1.58 µs</td>
+<td>4.75 µs</td>
+</tr>
+</tbody>
+</table>
+<p>Final result: <strong>1.6–1.7× faster than nalgebra</strong>, <strong>3.5–5× faster than raw <code>Vec</code></strong>.</p>
+<hr />
+<h2 id="summary">Summary</h2>
+<p>The lazy expression tree was never the problem — it was always the right design.
+The issue was entirely in how LLVM received information about memory ownership:</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>What changed</th>
+<th>Why it mattered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get_unchecked</code></td>
+<td>Removed 10 bounds checks per element</td>
+<td>Unblocked loop analysis</td>
+</tr>
+<tr>
+<td><code>EvalInto&lt;T&gt;</code> + <code>&amp;mut [T]</code></td>
+<td>Output goes through a <code>noalias</code> parameter</td>
+<td>Proved output ∩ inputs = ∅; Vec ptrs hoistable</td>
+</tr>
+<tr>
+<td>Single-pass <code>eval_into</code></td>
+<td>Both operands read via <code>index_value</code> in one loop</td>
+<td>One memory pass instead of N−1 fold passes</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../../javascripts/katex.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/katex.min.js"></script>
+      
+        <script src="https://unpkg.com/katex@0/dist/contrib/auto-render.min.js"></script>
+      
+    
+  </body>
+</html>
