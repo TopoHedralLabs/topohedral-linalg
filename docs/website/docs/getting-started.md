@@ -33,8 +33,9 @@ The library delegates heavy computation to a BLAS/LAPACK backend:
 - **macOS** — Apple Accelerate (selected automatically, zero extra setup)
 - **Linux** — OpenBLAS (link against `libopenblas-dev` or equivalent)
 
-Matrix multiplication and all decompositions route through BLAS `gemm`/`gemv` and
-the corresponding LAPACK routines.
+Matrix multiplication and decompositions such as LU, QR, Cholesky, eigendecomposition,
+and Schur factorization route through BLAS `gemm`/`gemv` and the corresponding LAPACK
+routines.
 
 ---
 

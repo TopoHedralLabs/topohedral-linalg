@@ -9,7 +9,7 @@ Both use column-major memory layout and can hold both floating point and integra
 the following features defined for them:
 
 - Accelerated matrix-matrix and matrix-mector multiplication via BLAS/LAPACK (floating point only)
-- Accelerated Matrix decompositions and linear system solution via BLAS/LAPACK (floating point only)
+- Accelerated Matrix decompositions, including Cholesky, and linear system solution via BLAS/LAPACK (floating point only)
 - Lazily-evaluated, complex elementwide expressions.
 - Matrix subviews
 - Reductions and transformations
