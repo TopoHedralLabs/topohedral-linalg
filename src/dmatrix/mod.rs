@@ -32,7 +32,7 @@ mod subviews;
 mod transform_ops;
 
 pub use blaslapack::{
-    DEigError, DEigReturn, DLuError, DLuReturn, DQrError, DQrReturn, DSchurError, DSchurReturn,
-    DSolveError, DSymEigError, DSymEigReturn,
+    DCholeskyError, DCholeskyReturn, DEigError, DEigReturn, DLuError, DLuReturn, DQrError,
+    DQrReturn, DSchurError, DSchurReturn, DSolveError, DSymEigError, DSymEigReturn,
 };
 pub use objects::{DMatrix, DVector, VecType};

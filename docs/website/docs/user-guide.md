@@ -412,6 +412,7 @@ and `SMatrix::lu()` returns `Result<SLuReturn<T, N, M>, SLuError>`. The full set
 |---|---|---|
 | LU | `DLuReturn<T>`, `DLuError` | `SLuReturn<T, N, M>`, `SLuError` |
 | QR | `DQrReturn<T>`, `DQrError` | `SQrReturn<T, N, M>`, `SQrError` |
+| Cholesky | `DCholeskyReturn<T>`, `DCholeskyError` | `SCholeskyReturn<T, N>`, `SCholeskyError` |
 | Eigenvalue (general) | `DEigReturn<T>`, `DEigError` | `SEigReturn<T, N, M>`, `SEigError` |
 | Eigenvalue (symmetric) | `DSymEigReturn<T>`, `DSymEigError` | `SSymEigReturn<T, N, M>`, `SSymEigError` |
 | Schur | `DSchurReturn<T>`, `DSchurError` | `SSchurReturn<T, N, M>`, `SSchurError` |
@@ -457,6 +458,57 @@ let r = &qr.r;  // upper-triangular factor
 ```
 
 LAPACK routine: `dgeqrf` + `dorgqr` / single-precision equivalents
+
+### Cholesky decomposition
+
+For a real symmetric positive-definite matrix $\mathbf{A}$, computes a lower-triangular
+factor $\mathbf{L}$ such that:
+
+$$\mathbf{A} = \mathbf{L}\mathbf{L}^T$$
+
+Cholesky is often the preferred factorization for covariance matrices, Gram matrices,
+normal equations, and other symmetric positive-definite systems because it is faster and
+uses less storage than a general LU decomposition.
+
+!!! note
+    Only the lower triangular part of the input is read; the upper triangle is ignored.
+    If the matrix is not positive definite, `cholesky()` returns an error from LAPACK.
+
+```rust
+use topohedral_linalg::{DMatrix, MatMul, MatrixOps};
+
+let a = DMatrix::<f64>::from_row_slice(
+    &[
+        4.0, 12.0, -16.0,
+        12.0, 37.0, -43.0,
+        -16.0, -43.0, 98.0,
+    ],
+    3,
+    3,
+);
+
+let chol = a.cholesky().unwrap();
+
+let l = &chol.l;                 // lower-triangular factor
+let reconstructed = l.matmul(l.transpose()); // reconstructed ≈ a
+```
+
+The same method is available on static matrices:
+
+```rust
+use topohedral_linalg::SMatrix;
+
+let a = SMatrix::<f64, 3, 3>::from_row_slice(&[
+    4.0, 12.0, -16.0,
+    12.0, 37.0, -43.0,
+    -16.0, -43.0, 98.0,
+]);
+
+let chol = a.cholesky().unwrap();
+let l = &chol.l;
+```
+
+LAPACK routine: `dpotrf` / `spotrf`
 
 ### Eigenvalue decomposition (general)
 
