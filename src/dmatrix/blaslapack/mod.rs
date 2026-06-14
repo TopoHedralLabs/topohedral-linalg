@@ -11,6 +11,7 @@
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+mod cholesky;
 mod eig;
 mod lu;
 mod matmul;
@@ -19,6 +20,7 @@ mod schur;
 mod solve;
 mod symeig;
 
+pub use cholesky::{Error as DCholeskyError, Return as DCholeskyReturn};
 pub use eig::{Error as DEigError, Return as DEigReturn};
 pub use lu::{Error as DLuError, Return as DLuReturn};
 pub use qr::{Error as DQrError, Return as DQrReturn};

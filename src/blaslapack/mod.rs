@@ -4,9 +4,9 @@
 //! corresponding to a single subroutine family. The wrappers expose Rust traits rather than raw
 //! `unsafe` function pointers, so callers work with typed inputs and outputs and `unsafe` blocks
 //! are confined to the implementation files. Sub-modules: [`common`] (shared types), [`gemm`]
-//! (matrix–matrix multiply), [`gemv`] (matrix–vector multiply), [`getrf`] (LU), [`geqrf`] +
-//! [`orgqr`] (QR), [`geev`] (general eigenvalues), [`syev`] (symmetric eigenvalues), [`gees`]
-//! (Schur), [`gesv`] (linear solve).
+//! (matrix–matrix multiply), [`gemv`] (matrix–vector multiply), [`getrf`] (LU), [`potrf`]
+//! (Cholesky), [`geqrf`] + [`orgqr`] (QR), [`geev`] (general eigenvalues), [`syev`] (symmetric
+//! eigenvalues), [`gees`] (Schur), [`gesv`] (linear solve).
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
@@ -26,6 +26,7 @@ mod geqrf;
 mod gesv;
 mod getrf;
 mod orgqr;
+mod potrf;
 mod syev;
 
 /// Abstracts over matrix storage for generic LAPACK dispatch.
@@ -46,4 +47,5 @@ pub(crate) use geqrf::{qr_raw, Geqrf, QrRawError};
 pub(crate) use gesv::{solve_raw, Error as SolveRawError, Gesv};
 pub(crate) use getrf::{lu_raw, Error as LuRawError, Getrf};
 pub(crate) use orgqr::Orgqr;
+pub(crate) use potrf::{cholesky_raw, Error as CholeskyRawError, Potrf};
 pub(crate) use syev::{symeig_raw, Error as SymEigRawError, Syev};

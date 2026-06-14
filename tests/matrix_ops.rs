@@ -161,6 +161,34 @@ mod smatrix_tests
         }
     }
     //}}}
+    //{{{ collection: cholesky tests
+    #[test]
+    fn test_cholesky_spd()
+    {
+        let a = SMatrix::<f64, 3, 3>::from_row_slice(&[
+            4.0, 12.0, -16.0, 12.0, 37.0, -43.0, -16.0, -43.0, 98.0,
+        ]);
+
+        let chol = a.cholesky().unwrap();
+        let expected_l =
+            SMatrix::<f64, 3, 3>::from_row_slice(&[2.0, 0.0, 0.0, 6.0, 1.0, 0.0, -8.0, 5.0, 3.0]);
+        let reconstructed = (&chol.l).matmul(chol.l.transpose());
+
+        for i in 0..9
+        {
+            assert_relative_eq!(chol.l[i], expected_l[i], epsilon = 1e-10);
+            assert_relative_eq!(reconstructed[i], a[i], epsilon = 1e-10);
+        }
+    }
+
+    #[test]
+    fn test_cholesky_non_positive_definite_errors()
+    {
+        let a = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 2.0, 2.0, 1.0]);
+
+        assert!(a.cholesky().is_err());
+    }
+    //}}}
     //{{{ collection: matmul tests
     #[test]
     fn test_matmul_f64_general()
@@ -761,6 +789,36 @@ mod dmatrix_tests
             assert_relative_eq!(lu_ret.l[i], exp_l[i], max_relative = 1.0e-8);
             assert_relative_eq!(lu_ret.u[i], exp_u[i], max_relative = 1.0e-8);
         }
+    }
+    //}}}
+    //{{{ collection: cholesky tests
+    #[test]
+    fn test_cholesky_spd()
+    {
+        let a = DMatrix::<f64>::from_row_slice(
+            &[4.0, 12.0, -16.0, 12.0, 37.0, -43.0, -16.0, -43.0, 98.0],
+            3,
+            3,
+        );
+
+        let chol = a.cholesky().unwrap();
+        let expected_l =
+            DMatrix::<f64>::from_row_slice(&[2.0, 0.0, 0.0, 6.0, 1.0, 0.0, -8.0, 5.0, 3.0], 3, 3);
+        let reconstructed = (&chol.l).matmul(chol.l.transpose());
+
+        for i in 0..9
+        {
+            assert_relative_eq!(chol.l[i], expected_l[i], epsilon = 1e-10);
+            assert_relative_eq!(reconstructed[i], a[i], epsilon = 1e-10);
+        }
+    }
+
+    #[test]
+    fn test_cholesky_non_positive_definite_errors()
+    {
+        let a = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 2.0, 1.0], 2, 2);
+
+        assert!(a.cholesky().is_err());
     }
     //}}}
     //{{{ collection: matmul tests

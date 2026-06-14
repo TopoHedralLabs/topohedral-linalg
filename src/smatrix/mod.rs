@@ -23,7 +23,7 @@ mod subviews;
 mod transform_ops;
 
 pub use blaslapack::{
-    SEigError, SEigReturn, SLuError, SLuReturn, SQrError, SQrReturn, SSchurError, SSchurReturn,
-    SSolveError, SSymEigError, SSymEigReturn,
+    SCholeskyError, SCholeskyReturn, SEigError, SEigReturn, SLuError, SLuReturn, SQrError,
+    SQrReturn, SSchurError, SSchurReturn, SSolveError, SSymEigError, SSymEigReturn,
 };
 pub use objects::{SCVector, SMatrix, SRVector};
