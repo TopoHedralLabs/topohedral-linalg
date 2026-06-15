@@ -975,7 +975,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 3, 5>::zeros();
         let borrowed_rhs = SMatrix::<i32, 1, 5>::from_row_slice(&[1, 2, 3, 4, 5]);
-        m.row_mut(0).copy_from(&borrowed_rhs);
+        m.row_mut(0).copy_from(borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 1, 5>::from_row_slice(&[6, 7, 8, 9, 10]);
         m.row_mut(1).copy_from(moved_rhs);
@@ -1003,7 +1003,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 5, 3>::zeros();
         let borrowed_rhs = SMatrix::<i32, 5, 1>::from_col_slice(&[1, 2, 3, 4, 5]);
-        m.col_mut(0).copy_from(&borrowed_rhs);
+        m.col_mut(0).copy_from(borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 5, 1>::from_col_slice(&[6, 7, 8, 9, 10]);
         m.col_mut(1).copy_from(moved_rhs);
@@ -1031,7 +1031,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 4, 4>::zeros();
         let borrowed_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
-        m.subview_mut(0, 1, 0, 1).copy_from(&borrowed_rhs);
+        m.subview_mut(0, 1, 0, 1).copy_from(borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
         m.subview_mut(2, 3, 2, 3).copy_from(moved_rhs);
@@ -1091,7 +1091,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 2, 3>::zeros();
         let borrowed_rhs = SMatrix::<i32, 2, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6]);
-        m.copy_from(&borrowed_rhs);
+        m.copy_from(borrowed_rhs);
 
         for (val, exp) in m.iter().zip([1, 4, 2, 5, 3, 6].iter())
         {
@@ -1197,7 +1197,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 3, 4>::zeros();
         let borrowed_rhs = SMatrix::<i32, 1, 4>::from_row_slice(&[1, 2, 3, 4]);
-        m.set_row(0, &borrowed_rhs);
+        m.set_row(0, borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 1, 4>::from_row_slice(&[5, 6, 7, 8]);
         m.set_row(1, moved_rhs);
@@ -1217,7 +1217,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 4, 3>::zeros();
         let borrowed_rhs = SMatrix::<i32, 4, 1>::from_col_slice(&[1, 2, 3, 4]);
-        m.set_col(0, &borrowed_rhs);
+        m.set_col(0, borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 4, 1>::from_col_slice(&[5, 6, 7, 8]);
         m.set_col(1, moved_rhs);
@@ -1237,7 +1237,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 4, 4>::zeros();
         let borrowed_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
-        m.set_subview(0, 1, 0, 1, &borrowed_rhs);
+        m.set_subview(0, 1, 0, 1, borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
         m.set_subview(2, 3, 2, 3, moved_rhs);
