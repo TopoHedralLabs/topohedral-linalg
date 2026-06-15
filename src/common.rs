@@ -368,6 +368,84 @@ where
     }
 }
 //}}}
+//{{{ trait: MatrixCopySource
+/// Source of matrix values that can be copied into existing storage.
+///
+/// Implementors expose their values in column-major order.  Contiguous
+/// destinations can use [`write_column_major`] directly; strided destinations
+/// such as subviews can pull values with [`linear_value`] without allocating.
+pub trait MatrixCopySource<T: Field + Copy>: Shape
+{
+    /// Returns the value at `index` in column-major order.
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> T;
+
+    /// Writes all values into `out` in column-major order.
+    fn write_column_major(
+        &self,
+        out: &mut [T],
+    )
+    {
+        debug_assert_eq!(out.len(), self.nrows() * self.ncols());
+        for i in 0..out.len()
+        {
+            unsafe {
+                *out.get_unchecked_mut(i) = self.linear_value(i);
+            }
+        }
+    }
+}
+
+impl<X, T> MatrixCopySource<T> for &X
+where
+    X: MatrixCopySource<T>,
+    T: Field + Copy,
+{
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> T
+    {
+        (**self).linear_value(index)
+    }
+
+    #[inline]
+    fn write_column_major(
+        &self,
+        out: &mut [T],
+    )
+    {
+        (**self).write_column_major(out);
+    }
+}
+
+impl<X, T> MatrixCopySource<T> for &mut X
+where
+    X: MatrixCopySource<T>,
+    T: Field + Copy,
+{
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> T
+    {
+        (**self).linear_value(index)
+    }
+
+    #[inline]
+    fn write_column_major(
+        &self,
+        out: &mut [T],
+    )
+    {
+        (**self).write_column_major(out);
+    }
+}
+//}}}
 //{{{ trait: LazyExpr
 /// Marker trait for types that represent a deferred (lazy) matrix computation.
 ///

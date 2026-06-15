@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use crate::apply_for_all_types;
-use crate::common::{EvalInto, Field, IndexValue, LazyExpr, Shape};
+use crate::common::{EvalInto, Field, IndexValue, LazyExpr, MatrixCopySource, Shape};
 use crate::expression::binary_expr::{AddOp, BinopExpr, DivOp, MulOp, SubOp};
 use crate::float::Float;
 //}}}
@@ -160,6 +160,24 @@ where
     ) -> Self::Output
     {
         self.op.apply(self.a.index_value(index))
+    }
+}
+
+//}}}
+//{{{ impl: MatrixCopySource for UnaryExpr
+impl<A, T, Op> MatrixCopySource<T> for UnaryExpr<A, T, Op>
+where
+    A: Shape + IndexValue<usize, Output = T>,
+    T: Field + Copy,
+    Op: UnaryOp<T>,
+{
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> T
+    {
+        self.index_value(index)
     }
 }
 

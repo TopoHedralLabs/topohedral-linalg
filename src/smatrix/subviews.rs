@@ -7,12 +7,9 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::common::{Field, One, Shape, Zero};
+use crate::common::{Field, MatrixCopySource};
 use crate::dmatrix::DMatrix;
 use crate::subviews::{MatrixView, MatrixViewMut, SubViewable, SubViewableMut};
-//}}}
-//{{{ std imports
-use std::ops::Index;
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -70,7 +67,7 @@ where
 impl<T, const N: usize, const M: usize> SubViewable for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy + Zero + One,
+    T: Field + Copy,
 {
     fn subview<'a>(
         &'a self,
@@ -94,7 +91,7 @@ where
 impl<T, const N: usize, const M: usize> SubViewableMut for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy + Zero + One,
+    T: Field + Copy,
 {
     fn subview_mut<'a>(
         &'a mut self,
@@ -118,7 +115,7 @@ where
 //{{{ impl: SMatrix copy and set helpers
 impl<'a, T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    T: Field + Copy + Zero + One,
+    T: Field + Copy,
     [(); N * M]:,
 {
     //{{{ fun: copy_from
@@ -131,7 +128,7 @@ where
         &mut self,
         rhs: Rhs,
     ) where
-        Rhs: Shape + Index<(usize, usize), Output = T>,
+        Rhs: MatrixCopySource<T>,
     {
         let rhs_nrows = rhs.nrows();
         let rhs_ncols = rhs.ncols();
@@ -142,13 +139,7 @@ where
                 self.nrows, self.ncols, rhs_nrows, rhs_ncols
             );
         }
-        for i in 0..self.nrows
-        {
-            for j in 0..self.ncols
-            {
-                (*self)[(i, j)] = rhs[(i, j)];
-            }
-        }
+        rhs.write_column_major(&mut self.data);
     }
     //}}}
     //{{{ fun: set_row
@@ -158,7 +149,7 @@ where
         row: usize,
         rhs: Rhs,
     ) where
-        Rhs: Shape + Index<(usize, usize), Output = T>,
+        Rhs: MatrixCopySource<T>,
     {
         let mut row_view = self.row_mut(row);
         row_view.copy_from(rhs);
@@ -171,7 +162,7 @@ where
         col: usize,
         rhs: Rhs,
     ) where
-        Rhs: Shape + Index<(usize, usize), Output = T>,
+        Rhs: MatrixCopySource<T>,
     {
         let mut col_view = self.col_mut(col);
         col_view.copy_from(rhs);
@@ -187,7 +178,7 @@ where
         end_col: usize,
         rhs: Rhs,
     ) where
-        Rhs: Shape + Index<(usize, usize), Output = T>,
+        Rhs: MatrixCopySource<T>,
     {
         let mut subview = self.subview_mut(start_row, end_row, start_col, end_col);
         subview.copy_from(rhs);

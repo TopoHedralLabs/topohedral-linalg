@@ -11,7 +11,7 @@
 
 //{{{ crate imports
 use crate::apply_for_all_types;
-use crate::common::{EvalInto, Field, IndexValue, LazyExpr, Shape};
+use crate::common::{EvalInto, Field, IndexValue, LazyExpr, MatrixCopySource, Shape};
 //}}}
 //{{{ std imports
 use std::ops::{Add, Div, Mul, Sub};
@@ -216,6 +216,33 @@ where
                 *out.get_unchecked_mut(i) = Op::apply(self.a.index_value(i), self.b.index_value(i));
             }
         }
+    }
+}
+//}}}
+//{{{ impl: MatrixCopySource for BinopExpr
+impl<A, B, T, Op> MatrixCopySource<T> for BinopExpr<A, B, T, Op>
+where
+    A: IndexValue<usize, Output = T>,
+    B: IndexValue<usize, Output = T>,
+    T: Field + Copy,
+    Op: BinOp,
+{
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> T
+    {
+        self.index_value(index)
+    }
+
+    #[inline]
+    fn write_column_major(
+        &self,
+        out: &mut [T],
+    )
+    {
+        self.eval_into(out);
     }
 }
 //}}}

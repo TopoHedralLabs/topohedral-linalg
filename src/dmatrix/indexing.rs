@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{lin_index, EvalInto, Field, IndexValue};
+use crate::common::{lin_index, EvalInto, Field, IndexValue, MatrixCopySource};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -184,6 +184,30 @@ where
 {
     #[inline]
     fn eval_into(
+        &self,
+        out: &mut [T],
+    )
+    {
+        out.copy_from_slice(&self.data);
+    }
+}
+//}}}
+//{{{ impl: MatrixCopySource<T> for DMatrix
+impl<T> MatrixCopySource<T> for DMatrix<T>
+where
+    T: Field + Copy,
+{
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> T
+    {
+        self.index_value(index)
+    }
+
+    #[inline]
+    fn write_column_major(
         &self,
         out: &mut [T],
     )
