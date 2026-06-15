@@ -537,6 +537,27 @@ mod dmatrix_tests
         {
             assert_eq!(out[i], -(a[i] + b[i]));
         }
+
+        out.copy_from(&a + 2.0);
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], a[i] + 2.0);
+        }
+
+        out.copy_from(2.0 + &a);
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], 2.0 + a[i]);
+        }
+
+        out.copy_from((&a + 1.0) * (2.0 - &b));
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], (a[i] + 1.0) * (2.0 - b[i]));
+        }
     }
 
     #[test]
@@ -1156,6 +1177,27 @@ mod smatrix_tests
         for i in 0..4
         {
             assert_eq!(out[i], -(a[i] + b[i]));
+        }
+
+        out.copy_from(&a + 2.0);
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], a[i] + 2.0);
+        }
+
+        out.copy_from(2.0 + &a);
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], 2.0 + a[i]);
+        }
+
+        out.copy_from((&a + 1.0) * (2.0 - &b));
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], (a[i] + 1.0) * (2.0 - b[i]));
         }
     }
 

@@ -10,7 +10,7 @@
 use crate::apply_for_all_types;
 #[cfg(feature = "enable_checks")]
 use crate::common::Shape;
-use crate::common::{Field, IndexValue, LazyExpr};
+use crate::common::{Field, MatrixExpr, ScalarExpr};
 use crate::expression::binary_expr::{BinopExpr, SubOp};
 use crate::smatrix::SMatrix;
 //}}}
@@ -43,7 +43,7 @@ where
 impl<T, const N: usize, const M: usize> Sub for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy + IndexValue<usize, Output = T>,
+    T: Field + Copy,
 {
     type Output = SMatrix<T, N, M>;
 
@@ -149,7 +149,7 @@ macro_rules! impl_smatrix_sub_scalar_rhs {
         where
             [(); N * M]:,
         {
-            type Output = BinopExpr<&'a SMatrix<$type, N, M>, $type, $type, SubOp>;
+            type Output = BinopExpr<&'a SMatrix<$type, N, M>, ScalarExpr<$type>, $type, SubOp>;
 
             fn sub(
                 self,
@@ -160,7 +160,7 @@ macro_rules! impl_smatrix_sub_scalar_rhs {
                 let nc = self.ncols;
                 BinopExpr {
                     a: self,
-                    b: rhs,
+                    b: ScalarExpr::new(rhs, nr, nc),
                     nrows: nr,
                     ncols: nc,
                     _marker: std::marker::PhantomData,
@@ -173,7 +173,7 @@ macro_rules! impl_smatrix_sub_scalar_rhs {
         where
             [(); N * M]:,
         {
-            type Output = BinopExpr<&'a SMatrix<$type, N, M>, $type, $type, SubOp>;
+            type Output = BinopExpr<&'a SMatrix<$type, N, M>, ScalarExpr<$type>, $type, SubOp>;
 
             #[inline]
             fn sub(
@@ -198,7 +198,7 @@ macro_rules! impl_smatrix_sub {
         where
             [(); N * M]:,
         {
-            type Output = BinopExpr<$type, &'a SMatrix<$type, N, M>, $type, SubOp>;
+            type Output = BinopExpr<ScalarExpr<$type>, &'a SMatrix<$type, N, M>, $type, SubOp>;
 
             fn sub(
                 self,
@@ -208,7 +208,7 @@ macro_rules! impl_smatrix_sub {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
-                    a: self,
+                    a: ScalarExpr::new(self, nr, nc),
                     b: rhs,
                     nrows: nr,
                     ncols: nc,
@@ -229,7 +229,7 @@ macro_rules! impl_smatrix_sub_mut {
         where
             [(); N * M]:,
         {
-            type Output = BinopExpr<$type, &'a SMatrix<$type, N, M>, $type, SubOp>;
+            type Output = BinopExpr<ScalarExpr<$type>, &'a SMatrix<$type, N, M>, $type, SubOp>;
 
             #[inline]
             fn sub(
@@ -251,7 +251,7 @@ impl<'a, T, Rhs, const N: usize, const M: usize> Sub<Rhs> for &'a SMatrix<T, N, 
 where
     [(); N * M]:,
     T: Field + Copy,
-    Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
+    Rhs: MatrixExpr<ScalarType = T>,
 {
     type Output = BinopExpr<&'a SMatrix<T, N, M>, Rhs, T, SubOp>;
 
@@ -285,7 +285,7 @@ impl<'a, T, Rhs, const N: usize, const M: usize> Sub<Rhs> for &'a mut SMatrix<T,
 where
     [(); N * M]:,
     T: Field + Copy,
-    Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
+    Rhs: MatrixExpr<ScalarType = T>,
 {
     type Output = BinopExpr<&'a SMatrix<T, N, M>, Rhs, T, SubOp>;
 

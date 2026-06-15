@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use crate::apply_for_all_types;
-use crate::common::{EvalInto, Field, IndexValue, LazyExpr, MatrixCopySource, Shape};
+use crate::common::{Field, MatrixExpr, ScalarExpr, Shape};
 use crate::expression::binary_expr::{AddOp, BinopExpr, DivOp, MulOp, SubOp};
 use crate::float::Float;
 //}}}
@@ -54,7 +54,7 @@ where
 #[doc(hidden)]
 pub struct UnaryExpr<A, T, Op>
 where
-    A: Shape + IndexValue<usize, Output = T>,
+    A: MatrixExpr<ScalarType = T>,
     T: Field + Copy,
     Op: UnaryOp<T>,
 {
@@ -67,7 +67,7 @@ where
 
 impl<A, T, Op> UnaryExpr<A, T, Op>
 where
-    A: Shape + IndexValue<usize, Output = T>,
+    A: MatrixExpr<ScalarType = T>,
     T: Field + Copy,
     Op: UnaryOp<T>,
 {
@@ -93,7 +93,7 @@ where
 //{{{ impl: Shape for UnaryExpr
 impl<A, T, Op> Shape for UnaryExpr<A, T, Op>
 where
-    A: Shape + IndexValue<usize, Output = T>,
+    A: MatrixExpr<ScalarType = T>,
     T: Field + Copy,
     Op: UnaryOp<T>,
 {
@@ -111,24 +111,24 @@ where
 }
 
 //}}}
-//{{{ impl: LazyExpr for UnaryExpr
-impl<A, T, Op> LazyExpr for UnaryExpr<A, T, Op>
+//{{{ impl: MatrixExpr for UnaryExpr
+impl<A, T, Op> MatrixExpr for UnaryExpr<A, T, Op>
 where
-    A: Shape + IndexValue<usize, Output = T>,
+    A: MatrixExpr<ScalarType = T>,
     T: Field + Copy,
     Op: UnaryOp<T>,
 {
     type ScalarType = T;
-}
 
-//}}}
-//{{{ impl: EvalInto for UnaryExpr
-impl<A, T, Op> EvalInto<T> for UnaryExpr<A, T, Op>
-where
-    A: Shape + IndexValue<usize, Output = T> + EvalInto<T>,
-    T: Field + Copy,
-    Op: UnaryOp<T>,
-{
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> Self::ScalarType
+    {
+        self.op.apply(self.a.linear_value(index))
+    }
+
     #[inline]
     fn eval_into(
         &self,
@@ -144,54 +144,16 @@ where
     }
 }
 //}}}
-//{{{ impl: IndexValue for UnaryExpr
-impl<A, T, Op> IndexValue<usize> for UnaryExpr<A, T, Op>
-where
-    A: Shape + IndexValue<usize, Output = T>,
-    T: Field + Copy,
-    Op: UnaryOp<T>,
-{
-    type Output = T;
-
-    #[inline]
-    fn index_value(
-        &self,
-        index: usize,
-    ) -> Self::Output
-    {
-        self.op.apply(self.a.index_value(index))
-    }
-}
-
-//}}}
-//{{{ impl: MatrixCopySource for UnaryExpr
-impl<A, T, Op> MatrixCopySource<T> for UnaryExpr<A, T, Op>
-where
-    A: Shape + IndexValue<usize, Output = T>,
-    T: Field + Copy,
-    Op: UnaryOp<T>,
-{
-    #[inline]
-    fn linear_value(
-        &self,
-        index: usize,
-    ) -> T
-    {
-        self.index_value(index)
-    }
-}
-
-//}}}
 //{{{ macro: impl_unary_expr_binary_op
 macro_rules! impl_unary_expr_binary_op {
     ($trait:ident, $method:ident, $op:ty) => {
         #[doc(hidden)]
         impl<A, T, Op, Rhs> $trait<Rhs> for UnaryExpr<A, T, Op>
         where
-            A: Shape + IndexValue<usize, Output = T>,
+            A: MatrixExpr<ScalarType = T>,
             T: Field + Copy,
             Op: UnaryOp<T>,
-            Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
+            Rhs: MatrixExpr<ScalarType = T>,
         {
             type Output = BinopExpr<Self, Rhs, T, $op>;
 
@@ -224,10 +186,10 @@ macro_rules! impl_unary_expr_scalar_rhs_op {
         #[doc(hidden)]
         impl<A, Op> $trait<$type> for UnaryExpr<A, $type, Op>
         where
-            A: Shape + IndexValue<usize, Output = $type>,
+            A: MatrixExpr<ScalarType = $type>,
             Op: UnaryOp<$type>,
         {
-            type Output = BinopExpr<Self, $type, $type, $op>;
+            type Output = BinopExpr<Self, ScalarExpr<$type>, $type, $op>;
 
             #[inline]
             fn $method(
@@ -239,7 +201,7 @@ macro_rules! impl_unary_expr_scalar_rhs_op {
                 let nc = self.ncols;
                 BinopExpr {
                     a: self,
-                    b: rhs,
+                    b: ScalarExpr::new(rhs, nr, nc),
                     nrows: nr,
                     ncols: nc,
                     _marker: std::marker::PhantomData,
@@ -280,10 +242,10 @@ macro_rules! impl_scalar_lhs_unary_expr_op {
         #[doc(hidden)]
         impl<A, Op> $trait<UnaryExpr<A, $type, Op>> for $type
         where
-            A: Shape + IndexValue<usize, Output = $type>,
+            A: MatrixExpr<ScalarType = $type>,
             Op: UnaryOp<$type>,
         {
-            type Output = BinopExpr<Self, UnaryExpr<A, $type, Op>, $type, $op>;
+            type Output = BinopExpr<ScalarExpr<$type>, UnaryExpr<A, $type, Op>, $type, $op>;
 
             #[inline]
             fn $method(
@@ -294,7 +256,7 @@ macro_rules! impl_scalar_lhs_unary_expr_op {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
-                    a: self,
+                    a: ScalarExpr::new(self, nr, nc),
                     b: rhs,
                     nrows: nr,
                     ncols: nc,
@@ -350,7 +312,7 @@ apply_for_all_types!(impl_div_unary_expr);
 //{{{ impl: Neg for UnaryExpr
 impl<A, T, Op> Neg for UnaryExpr<A, T, Op>
 where
-    A: Shape + IndexValue<usize, Output = T>,
+    A: MatrixExpr<ScalarType = T>,
     T: Field + Copy,
     Op: UnaryOp<T>,
 {
@@ -367,8 +329,8 @@ where
 //{{{ impl: Neg for BinopExpr
 impl<A, B, T, Op> Neg for BinopExpr<A, B, T, Op>
 where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
+    A: MatrixExpr<ScalarType = T>,
+    B: MatrixExpr<ScalarType = T>,
     T: Field + Copy,
     Op: crate::expression::binary_expr::BinOp,
 {
@@ -405,7 +367,7 @@ macro_rules! define_float_unary_op {
         #[inline]
         pub fn $func_name<A, T>(expr: A) -> UnaryExpr<A, T, $op_name>
         where
-            A: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
+            A: MatrixExpr<ScalarType = T>,
             T: Float + Copy,
         {
             UnaryExpr::new(expr, $op_name)
@@ -445,7 +407,7 @@ macro_rules! define_float_unary_op_with_same_arg {
             $arg_name: T,
         ) -> UnaryExpr<A, T, $op_name<T>>
         where
-            A: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
+            A: MatrixExpr<ScalarType = T>,
             T: Float + Copy,
         {
             UnaryExpr::new(expr, $op_name { $arg_name })
@@ -487,7 +449,7 @@ macro_rules! define_float_unary_op_with_two_same_args {
             $arg2: T,
         ) -> UnaryExpr<A, T, $op_name<T>>
         where
-            A: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
+            A: MatrixExpr<ScalarType = T>,
             T: Float + Copy,
         {
             UnaryExpr::new(expr, $op_name { $arg1, $arg2 })
@@ -564,7 +526,7 @@ pub fn powi<A, T>(
     exp: i32,
 ) -> UnaryExpr<A, T, PowiOp>
 where
-    A: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
+    A: MatrixExpr<ScalarType = T>,
     T: Float + Copy,
 {
     UnaryExpr::new(expr, PowiOp { exp })

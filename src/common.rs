@@ -3,9 +3,8 @@
 //! Defines the primitive abstractions shared by all matrix types in the crate. The [`Field`]
 //! trait bounds element types to those supporting arithmetic operations. [`Zero`] and [`One`]
 //! supply additive and multiplicative identities. [`Shape`] exposes runtime matrix dimensions.
-//! [`IndexValue`] and [`EvalInto`] power the lazy expression-template pipeline. [`LazyExpr`]
-//! marks a type as a deferred computation. Compile-time predicates such as [`GreaterThan`] and
-//! [`IsTrue`] enable dimension-checking assertions on static matrices.
+//! [`MatrixExpr`] powers the lazy expression-template pipeline. Compile-time predicates such as
+//! [`GreaterThan`] and [`IsTrue`] enable dimension-checking assertions on static matrices.
 //!
 //--------------------------------------------------------------------------------------------------
 
@@ -54,52 +53,6 @@ pub trait Field:
 {
 }
 //}}}
-//{{{ trait: IndexValue
-/// Provides element access by linear index, used by the lazy expression-template pipeline.
-pub trait IndexValue<I>
-{
-    type Output;
-
-    /// Returns the element at the given linear `index`.
-    fn index_value(
-        &self,
-        index: usize,
-    ) -> Self::Output;
-}
-
-impl<I, T> IndexValue<I> for &T
-where
-    T: IndexValue<I>,
-{
-    type Output = T::Output;
-
-    #[inline]
-    fn index_value(
-        &self,
-        index: usize,
-    ) -> Self::Output
-    {
-        (*self).index_value(index)
-    }
-}
-
-impl<I, T> IndexValue<I> for &mut T
-where
-    T: IndexValue<I>,
-{
-    type Output = T::Output;
-
-    #[inline]
-    fn index_value(
-        &self,
-        index: usize,
-    ) -> Self::Output
-    {
-        (**self).index_value(index)
-    }
-}
-
-//}}}
 //{{{ macro: apply_for_all_types
 #[macro_export]
 #[doc(hidden)]
@@ -140,43 +93,10 @@ macro_rules! apply_for_all_integer_types {
 }
 
 //}}}
-//{{{ macro: impl_scalar_eval_into
-macro_rules! impl_scalar_eval_into {
-    ($type:ty) => {
-        impl EvalInto<$type> for $type
-        {
-            #[inline]
-            fn eval_into(
-                &self,
-                out: &mut [$type],
-            )
-            {
-                out.fill(*self);
-            }
-        }
-    };
-}
-
-apply_for_all_types!(impl_scalar_eval_into);
-//}}}
 //{{{ macro: impl_field
 macro_rules! impl_field {
     ($type:ty) => {
         impl Field for $type {}
-
-        impl IndexValue<usize> for $type
-        {
-            type Output = Self;
-
-            #[inline]
-            fn index_value(
-                &self,
-                _index: usize,
-            ) -> Self::Output
-            {
-                *self
-            }
-        }
     };
 }
 
@@ -340,137 +260,6 @@ where
     }
 }
 //}}}
-//{{{ trait: EvalInto
-/// Evaluates `self` into a pre-allocated output slice.
-///
-/// Implementing types write their element-wise values into `out` in linear
-/// (column-major) order.  The default implementation falls back to
-/// `IndexValue` so leaf types only need to implement one path.
-pub trait EvalInto<T: Field + Copy>
-{
-    fn eval_into(
-        &self,
-        out: &mut [T],
-    );
-}
-
-impl<X, T: Field + Copy> EvalInto<T> for &X
-where
-    X: EvalInto<T>,
-{
-    #[inline]
-    fn eval_into(
-        &self,
-        out: &mut [T],
-    )
-    {
-        (**self).eval_into(out);
-    }
-}
-//}}}
-//{{{ trait: MatrixCopySource
-/// Source of matrix values that can be copied into existing storage.
-///
-/// Implementors expose their values in column-major order.  Contiguous
-/// destinations can use [`write_column_major`] directly; strided destinations
-/// such as subviews can pull values with [`linear_value`] without allocating.
-pub trait MatrixCopySource<T: Field + Copy>: Shape
-{
-    /// Returns the value at `index` in column-major order.
-    fn linear_value(
-        &self,
-        index: usize,
-    ) -> T;
-
-    /// Writes all values into `out` in column-major order.
-    fn write_column_major(
-        &self,
-        out: &mut [T],
-    )
-    {
-        debug_assert_eq!(out.len(), self.nrows() * self.ncols());
-        for i in 0..out.len()
-        {
-            unsafe {
-                *out.get_unchecked_mut(i) = self.linear_value(i);
-            }
-        }
-    }
-}
-
-impl<X, T> MatrixCopySource<T> for &X
-where
-    X: MatrixCopySource<T>,
-    T: Field + Copy,
-{
-    #[inline]
-    fn linear_value(
-        &self,
-        index: usize,
-    ) -> T
-    {
-        (**self).linear_value(index)
-    }
-
-    #[inline]
-    fn write_column_major(
-        &self,
-        out: &mut [T],
-    )
-    {
-        (**self).write_column_major(out);
-    }
-}
-
-impl<X, T> MatrixCopySource<T> for &mut X
-where
-    X: MatrixCopySource<T>,
-    T: Field + Copy,
-{
-    #[inline]
-    fn linear_value(
-        &self,
-        index: usize,
-    ) -> T
-    {
-        (**self).linear_value(index)
-    }
-
-    #[inline]
-    fn write_column_major(
-        &self,
-        out: &mut [T],
-    )
-    {
-        (**self).write_column_major(out);
-    }
-}
-//}}}
-//{{{ trait: LazyExpr
-/// Marker trait for types that represent a deferred (lazy) matrix computation.
-///
-/// Implementing types carry shape information via [`Shape`] and expose their
-/// element type through `ScalarType`, enabling the expression-template pipeline
-/// to compose operations without intermediate allocations.
-pub trait LazyExpr: Shape
-{
-    type ScalarType: Field + Copy;
-}
-
-impl<T> LazyExpr for &T
-where
-    T: LazyExpr,
-{
-    type ScalarType = T::ScalarType;
-}
-
-impl<T> LazyExpr for &mut T
-where
-    T: LazyExpr,
-{
-    type ScalarType = T::ScalarType;
-}
-//}}}
 //{{{ impl: Shape for references
 impl<T> Shape for &T
 where
@@ -499,6 +288,162 @@ where
     fn ncols(&self) -> usize
     {
         (**self).ncols()
+    }
+}
+//}}}
+//{{{ trait: MatrixExpr
+/// Matrix-shaped value source used by lazy expression templates and `copy_from`.
+///
+/// Implementors expose values in column-major linear order. Contiguous destinations use
+/// [`MatrixExpr::eval_into`], while strided destinations such as views can pull individual values
+/// with [`MatrixExpr::linear_value`] without allocating.
+pub trait MatrixExpr: Shape
+{
+    type ScalarType: Field + Copy;
+
+    /// Returns the value at `index` in column-major order.
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> Self::ScalarType;
+
+    /// Writes all values into `out` in column-major order.
+    fn eval_into(
+        &self,
+        out: &mut [Self::ScalarType],
+    )
+    {
+        debug_assert_eq!(out.len(), self.nrows() * self.ncols());
+        for i in 0..out.len()
+        {
+            unsafe {
+                *out.get_unchecked_mut(i) = self.linear_value(i);
+            }
+        }
+    }
+}
+
+impl<X> MatrixExpr for &X
+where
+    X: MatrixExpr,
+{
+    type ScalarType = X::ScalarType;
+
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> Self::ScalarType
+    {
+        (**self).linear_value(index)
+    }
+
+    #[inline]
+    fn eval_into(
+        &self,
+        out: &mut [Self::ScalarType],
+    )
+    {
+        (**self).eval_into(out);
+    }
+}
+
+impl<X> MatrixExpr for &mut X
+where
+    X: MatrixExpr,
+{
+    type ScalarType = X::ScalarType;
+
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> Self::ScalarType
+    {
+        (**self).linear_value(index)
+    }
+
+    #[inline]
+    fn eval_into(
+        &self,
+        out: &mut [Self::ScalarType],
+    )
+    {
+        (**self).eval_into(out);
+    }
+}
+//}}}
+//{{{ struct: ScalarExpr
+/// Explicit scalar broadcast expression used by matrix-scalar lazy operations.
+#[doc(hidden)]
+pub struct ScalarExpr<T>
+where
+    T: Field + Copy,
+{
+    pub value: T,
+    pub nrows: usize,
+    pub ncols: usize,
+}
+
+impl<T> ScalarExpr<T>
+where
+    T: Field + Copy,
+{
+    #[inline]
+    pub fn new(
+        value: T,
+        nrows: usize,
+        ncols: usize,
+    ) -> Self
+    {
+        Self {
+            value,
+            nrows,
+            ncols,
+        }
+    }
+}
+
+impl<T> Shape for ScalarExpr<T>
+where
+    T: Field + Copy,
+{
+    #[inline]
+    fn nrows(&self) -> usize
+    {
+        self.nrows
+    }
+
+    #[inline]
+    fn ncols(&self) -> usize
+    {
+        self.ncols
+    }
+}
+
+impl<T> MatrixExpr for ScalarExpr<T>
+where
+    T: Field + Copy,
+{
+    type ScalarType = T;
+
+    #[inline]
+    fn linear_value(
+        &self,
+        _index: usize,
+    ) -> Self::ScalarType
+    {
+        self.value
+    }
+
+    #[inline]
+    fn eval_into(
+        &self,
+        out: &mut [Self::ScalarType],
+    )
+    {
+        debug_assert_eq!(out.len(), self.nrows * self.ncols);
+        out.fill(self.value);
     }
 }
 //}}}

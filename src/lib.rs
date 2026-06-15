@@ -48,8 +48,8 @@ mod subviews;
 //{{{ collection: public API
 pub use crate::float::{Float, FloatTransformOps, FloatVectorOps};
 pub use common::{
-    Abs, Complex, Dimension, Field, GreaterThan, MatMul, MatrixCopySource, MatrixOps, ReduceOps,
-    Shape, TransformOps, VectorOps,
+    Abs, Complex, Dimension, Field, GreaterThan, MatMul, MatrixExpr, MatrixOps, ReduceOps, Shape,
+    TransformOps, VectorOps,
 };
 pub use dmatrix::*;
 pub use expression::unary_expr::{

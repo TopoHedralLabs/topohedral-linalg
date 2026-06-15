@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{tuple_index, Field, MatrixCopySource, Shape};
+use crate::common::{tuple_index, Field, MatrixExpr, Shape};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -155,17 +155,19 @@ where
     }
 }
 //}}}
-//{{{ impl: MatrixCopySource for MatrixView
-impl<'a, Mat, T> MatrixCopySource<T> for MatrixView<'a, Mat>
+//{{{ impl: MatrixExpr for MatrixView
+impl<'a, Mat, T> MatrixExpr for MatrixView<'a, Mat>
 where
     Mat: Shape + Index<(usize, usize), Output = T>,
     T: Field + Copy,
 {
+    type ScalarType = T;
+
     #[inline]
     fn linear_value(
         &self,
         index: usize,
-    ) -> T
+    ) -> Self::ScalarType
     {
         let (row, col) = tuple_index(index, self.nrows);
         self[(row, col)]
@@ -395,7 +397,7 @@ where
         &mut self,
         rhs: Rhs,
     ) where
-        Rhs: MatrixCopySource<Mat::Output>,
+        Rhs: MatrixExpr<ScalarType = Mat::Output>,
     {
         let rhs_nrows = rhs.nrows();
         let rhs_ncols = rhs.ncols();
@@ -413,17 +415,19 @@ where
     }
 }
 //}}}
-//{{{ impl: MatrixCopySource for MatrixViewMut
-impl<'a, Mat, T> MatrixCopySource<T> for MatrixViewMut<'a, Mat>
+//{{{ impl: MatrixExpr for MatrixViewMut
+impl<'a, Mat, T> MatrixExpr for MatrixViewMut<'a, Mat>
 where
     Mat: Shape + Index<(usize, usize), Output = T> + IndexMut<(usize, usize)>,
     T: Field + Copy,
 {
+    type ScalarType = T;
+
     #[inline]
     fn linear_value(
         &self,
         index: usize,
-    ) -> T
+    ) -> Self::ScalarType
     {
         let (row, col) = tuple_index(index, self.nrows);
         self[(row, col)]

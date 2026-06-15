@@ -24,7 +24,7 @@ The original evaluation loop in `From<BinopExpr>`:
 
 ```rust
 for i in 0..total {
-    out.data[i] = expr.index_value(i);
+    out.data[i] = expr.linear_value(i);
 }
 ```
 
@@ -46,7 +46,7 @@ Two distinct problems are visible here.
 
 ### Problem 1 — Bounds Checks
 
-`out.data[i]` and each `self.data[index]` in `index_value` compile to a checked Vec
+`out.data[i]` and each `self.data[index]` in `linear_value` compile to a checked Vec
 index. With nine input matrices there are ten runtime bounds checks per element (nine
 reads + one write). Each check branches on a length loaded from a heap-allocated Vec
 struct. LLVM cannot prove these lengths are constant across iterations, so it cannot
@@ -111,12 +111,12 @@ move only ~1 000 doubles — but only if it can be vectorised.
 
 ```rust
 // Before
-fn index_value(&self, index: usize) -> Self::Output {
+fn linear_value(&self, index: usize) -> Self::ScalarType {
     self.data[index]
 }
 
 // After
-fn index_value(&self, index: usize) -> Self::Output {
+fn linear_value(&self, index: usize) -> Self::ScalarType {
     unsafe { *self.data.get_unchecked(index) }
 }
 ```
@@ -128,7 +128,7 @@ expression tree is constructed with matching dimensions (asserted at build time)
 This alone produced a measurable improvement (from ~313 ns to a lower figure) but
 still left LLVM generating scalar code due to the aliasing problem.
 
-### Fix 2 — The `EvalInto<T>` Trait (the key change)
+### Fix 2 — `MatrixExpr::eval_into` (the key change)
 
 **Files:** [`src/common.rs`](https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/common.rs), [`src/expression/binary_expr.rs`](https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/expression/binary_expr.rs), [`src/dmatrix/mod.rs`](https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/dmatrix/mod.rs)
 
@@ -136,18 +136,22 @@ The root cause of the aliasing failure was **where the output was written throug
 
 ```rust
 // OLD — write through Vec internals; LLVM loses noalias provenance
-unsafe { *out.data.get_unchecked_mut(i) = expr.index_value(i) }
+unsafe { *out.data.get_unchecked_mut(i) = expr.linear_value(i) }
 ```
 
 `out.data` is a `Vec<T>`. LLVM loads the Vec's raw pointer from a struct field and
 writes through it. That raw `*mut T` carries no `noalias` annotation, so LLVM cannot
 rule out aliasing with the input DMatrix structs.
 
-The fix is a new trait:
+The fix is the unified expression/source trait:
 
 ```rust
-pub trait EvalInto<T: Field + Copy> {
-    fn eval_into(&self, out: &mut [T]);
+pub trait MatrixExpr: Shape {
+    type ScalarType: Field + Copy;
+
+    fn linear_value(&self, index: usize) -> Self::ScalarType;
+
+    fn eval_into(&self, out: &mut [Self::ScalarType]);
 }
 ```
 
@@ -179,7 +183,7 @@ fn from(expr: BinopExpr<A, B, T, Op>) -> DMatrix<T> {
 **File:** [`src/expression/binary_expr.rs`](https://github.com/TopoHedralLabs/topohedral-linalg/blob/main/src/expression/binary_expr.rs)
 
 With aliasing now provable, the natural implementation of `BinopExpr::eval_into` uses
-`index_value` for **both** operands in a single loop:
+`linear_value` for **both** operands in a single loop:
 
 ```rust
 fn eval_into(&self, out: &mut [T]) {
@@ -187,14 +191,14 @@ fn eval_into(&self, out: &mut [T]) {
     for i in 0..len {
         unsafe {
             *out.get_unchecked_mut(i) =
-                Op::apply(self.a.index_value(i), self.b.index_value(i));
+                Op::apply(self.a.linear_value(i), self.b.linear_value(i));
         }
     }
 }
 ```
 
 For the full eight-level nested `BinopExpr` representing nine matrices, LLVM inlines
-all the `#[inline]` `index_value` calls and sees the flattened computation:
+all the `#[inline]` `linear_value` calls and sees the flattened computation:
 
 ```
 out[i] = a[i] + b[i] + c[i] + d[i] + e[i] + f[i] + g[i] + h[i] + i[i]
@@ -263,5 +267,5 @@ The issue was entirely in how LLVM received information about memory ownership:
 | Step | What changed | Why it mattered |
 |---|---|---|
 | `get_unchecked` | Removed 10 bounds checks per element | Unblocked loop analysis |
-| `EvalInto<T>` + `&mut [T]` | Output goes through a `noalias` parameter | Proved output ∩ inputs = ∅; Vec ptrs hoistable |
-| Single-pass `eval_into` | Both operands read via `index_value` in one loop | One memory pass instead of N−1 fold passes |
+| `MatrixExpr::eval_into` + `&mut [T]` | Output goes through a `noalias` parameter | Proved output ∩ inputs = ∅; Vec ptrs hoistable |
+| Single-pass `eval_into` | Both operands read via `linear_value` in one loop | One memory pass instead of N−1 fold passes |

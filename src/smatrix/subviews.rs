@@ -7,7 +7,7 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::common::{Field, MatrixCopySource};
+use crate::common::{Field, MatrixExpr};
 use crate::dmatrix::DMatrix;
 use crate::subviews::{MatrixView, MatrixViewMut, SubViewable, SubViewableMut};
 //}}}
@@ -128,7 +128,7 @@ where
         &mut self,
         rhs: Rhs,
     ) where
-        Rhs: MatrixCopySource<T>,
+        Rhs: MatrixExpr<ScalarType = T>,
     {
         let rhs_nrows = rhs.nrows();
         let rhs_ncols = rhs.ncols();
@@ -139,7 +139,7 @@ where
                 self.nrows, self.ncols, rhs_nrows, rhs_ncols
             );
         }
-        rhs.write_column_major(&mut self.data);
+        rhs.eval_into(&mut self.data);
     }
     //}}}
     //{{{ fun: set_row
@@ -149,7 +149,7 @@ where
         row: usize,
         rhs: Rhs,
     ) where
-        Rhs: MatrixCopySource<T>,
+        Rhs: MatrixExpr<ScalarType = T>,
     {
         let mut row_view = self.row_mut(row);
         row_view.copy_from(rhs);
@@ -162,7 +162,7 @@ where
         col: usize,
         rhs: Rhs,
     ) where
-        Rhs: MatrixCopySource<T>,
+        Rhs: MatrixExpr<ScalarType = T>,
     {
         let mut col_view = self.col_mut(col);
         col_view.copy_from(rhs);
@@ -178,7 +178,7 @@ where
         end_col: usize,
         rhs: Rhs,
     ) where
-        Rhs: MatrixCopySource<T>,
+        Rhs: MatrixExpr<ScalarType = T>,
     {
         let mut subview = self.subview_mut(start_row, end_row, start_col, end_col);
         subview.copy_from(rhs);

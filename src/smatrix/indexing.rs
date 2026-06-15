@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::common::{lin_index, EvalInto, Field, IndexValue, MatrixCopySource};
+use crate::common::{lin_index, Field, MatrixExpr};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -187,12 +187,23 @@ where
     }
 }
 //}}}
-//{{{ impl: EvalInto<T> for SMatrix
-impl<T, const N: usize, const M: usize> EvalInto<T> for SMatrix<T, N, M>
+//{{{ impl: MatrixExpr for SMatrix
+impl<T, const N: usize, const M: usize> MatrixExpr for SMatrix<T, N, M>
 where
     [(); N * M]:,
     T: Field + Copy,
 {
+    type ScalarType = T;
+
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> Self::ScalarType
+    {
+        self.data[index]
+    }
+
     #[inline]
     fn eval_into(
         &self,
@@ -202,49 +213,5 @@ where
         out.copy_from_slice(&self.data);
     }
 }
-//}}}
-//{{{ impl: MatrixCopySource<T> for SMatrix
-impl<T, const N: usize, const M: usize> MatrixCopySource<T> for SMatrix<T, N, M>
-where
-    [(); N * M]:,
-    T: Field + Copy,
-{
-    #[inline]
-    fn linear_value(
-        &self,
-        index: usize,
-    ) -> T
-    {
-        self.index_value(index)
-    }
-
-    #[inline]
-    fn write_column_major(
-        &self,
-        out: &mut [T],
-    )
-    {
-        out.copy_from_slice(&self.data);
-    }
-}
-//}}}
-//{{{ impl: IndexValue<usize> for SMatrix
-impl<T, const N: usize, const M: usize> IndexValue<usize> for SMatrix<T, N, M>
-where
-    [(); N * M]:,
-    T: Field + Copy,
-{
-    type Output = T;
-
-    #[inline]
-    fn index_value(
-        &self,
-        index: usize,
-    ) -> Self::Output
-    {
-        self.data[index]
-    }
-}
-
 //}}}
 //}}}
