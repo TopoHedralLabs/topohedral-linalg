@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{lin_index, EvalInto, Field, IndexValue};
+use crate::common::{lin_index, Field, MatrixExpr};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -177,11 +177,25 @@ where
     }
 }
 //}}}
-//{{{ impl: EvalInto<T> for DMatrix
-impl<T> EvalInto<T> for DMatrix<T>
+//{{{ impl: MatrixExpr for DMatrix
+impl<T> MatrixExpr for DMatrix<T>
 where
     T: Field + Copy,
 {
+    type ScalarType = T;
+
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> Self::ScalarType
+    {
+        // Safety: expression tree evaluation always iterates 0..nrows*ncols, and
+        // data has exactly nrows*ncols elements. Eliminating this bounds check
+        // allows LLVM to auto-vectorize expression evaluation loops.
+        unsafe { *self.data.get_unchecked(index) }
+    }
+
     #[inline]
     fn eval_into(
         &self,
@@ -191,26 +205,5 @@ where
         out.copy_from_slice(&self.data);
     }
 }
-//}}}
-//{{{ impl: IndexValue<usize> for SMatrix
-impl<T> IndexValue<usize> for DMatrix<T>
-where
-    T: Field + Copy,
-{
-    type Output = T;
-
-    #[inline]
-    fn index_value(
-        &self,
-        index: usize,
-    ) -> Self::Output
-    {
-        // Safety: expression tree evaluation always iterates 0..nrows*ncols, and
-        // data has exactly nrows*ncols elements. Eliminating this bounds check
-        // allows LLVM to auto-vectorize the evaluation loop in From<BinopExpr>.
-        unsafe { *self.data.get_unchecked(index) }
-    }
-}
-
 //}}}
 //}}}

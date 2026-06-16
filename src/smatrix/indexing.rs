@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::common::{lin_index, Field, IndexValue};
+use crate::common::{lin_index, Field, MatrixExpr};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -187,23 +187,31 @@ where
     }
 }
 //}}}
-//{{{ impl: IndexValue<usize> for SMatrix
-impl<T, const N: usize, const M: usize> IndexValue<usize> for SMatrix<T, N, M>
+//{{{ impl: MatrixExpr for SMatrix
+impl<T, const N: usize, const M: usize> MatrixExpr for SMatrix<T, N, M>
 where
     [(); N * M]:,
     T: Field + Copy,
 {
-    type Output = T;
+    type ScalarType = T;
 
     #[inline]
-    fn index_value(
+    fn linear_value(
         &self,
         index: usize,
-    ) -> Self::Output
+    ) -> Self::ScalarType
     {
         self.data[index]
     }
-}
 
+    #[inline]
+    fn eval_into(
+        &self,
+        out: &mut [T],
+    )
+    {
+        out.copy_from_slice(&self.data);
+    }
+}
 //}}}
 //}}}

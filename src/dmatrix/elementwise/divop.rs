@@ -10,7 +10,7 @@
 use crate::apply_for_all_types;
 #[cfg(feature = "enable_checks")]
 use crate::common::Shape;
-use crate::common::{Field, IndexValue, LazyExpr};
+use crate::common::{Field, MatrixExpr, ScalarExpr};
 use crate::dmatrix::DMatrix;
 use crate::expression::binary_expr::{BinopExpr, DivOp};
 //}}}
@@ -43,7 +43,7 @@ where
 //{{{ impl: Div<DMatrix> for DMatrix
 impl<T> Div for DMatrix<T>
 where
-    T: Field + Copy + IndexValue<usize, Output = T>,
+    T: Field + Copy,
 {
     type Output = DMatrix<T>;
 
@@ -143,7 +143,7 @@ macro_rules! impl_dmatrix_div_scalar_rhs {
         #[doc(hidden)]
         impl<'a> Div<$type> for &'a DMatrix<$type>
         {
-            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, DivOp>;
+            type Output = BinopExpr<&'a DMatrix<$type>, ScalarExpr<$type>, $type, DivOp>;
 
             #[inline]
             fn div(
@@ -155,7 +155,7 @@ macro_rules! impl_dmatrix_div_scalar_rhs {
                 let nc = self.ncols;
                 BinopExpr {
                     a: self,
-                    b: rhs,
+                    b: ScalarExpr::new(rhs, nr, nc),
                     nrows: nr,
                     ncols: nc,
                     _marker: std::marker::PhantomData,
@@ -166,7 +166,7 @@ macro_rules! impl_dmatrix_div_scalar_rhs {
         #[doc(hidden)]
         impl<'a> Div<$type> for &'a mut DMatrix<$type>
         {
-            type Output = BinopExpr<&'a DMatrix<$type>, $type, $type, DivOp>;
+            type Output = BinopExpr<&'a DMatrix<$type>, ScalarExpr<$type>, $type, DivOp>;
 
             #[inline]
             fn div(
@@ -189,7 +189,7 @@ macro_rules! impl_dmatrix_div {
         #[doc(hidden)]
         impl<'a> Div<&'a DMatrix<$type>> for $type
         {
-            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, DivOp>;
+            type Output = BinopExpr<ScalarExpr<$type>, &'a DMatrix<$type>, $type, DivOp>;
 
             #[inline]
             fn div(
@@ -200,7 +200,7 @@ macro_rules! impl_dmatrix_div {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
-                    a: self,
+                    a: ScalarExpr::new(self, nr, nc),
                     b: rhs,
                     nrows: nr,
                     ncols: nc,
@@ -218,7 +218,7 @@ macro_rules! impl_dmatrix_ref_mut_div {
         #[doc(hidden)]
         impl<'a> Div<&'a mut DMatrix<$type>> for $type
         {
-            type Output = BinopExpr<$type, &'a DMatrix<$type>, $type, DivOp>;
+            type Output = BinopExpr<ScalarExpr<$type>, &'a DMatrix<$type>, $type, DivOp>;
 
             #[inline]
             fn div(
@@ -237,7 +237,7 @@ apply_for_all_types!(impl_dmatrix_ref_mut_div);
 impl<'a, T, Rhs> Div<Rhs> for &'a DMatrix<T>
 where
     T: Field + Copy,
-    Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
+    Rhs: MatrixExpr<ScalarType = T>,
 {
     type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, DivOp>;
 
@@ -270,7 +270,7 @@ where
 impl<'a, T, Rhs> Div<Rhs> for &'a mut DMatrix<T>
 where
     T: Field + Copy,
-    Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
+    Rhs: MatrixExpr<ScalarType = T>,
 {
     type Output = BinopExpr<&'a DMatrix<T>, Rhs, T, DivOp>;
 

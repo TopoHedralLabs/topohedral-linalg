@@ -4,14 +4,14 @@
 //! descriptor without immediately evaluating the result. Concrete operators — [`AddOp`],
 //! [`SubOp`], [`MulOp`], [`DivOp`] — implement [`BinOp`] by applying the corresponding
 //! arithmetic operation element-by-element. Evaluation is deferred until the expression is
-//! consumed via [`EvalInto::eval_into`] or converted into a [`DMatrix`] / [`SMatrix`], at which
+//! consumed via [`MatrixExpr::eval_into`] or converted into a [`DMatrix`] / [`SMatrix`], at which
 //! point a single pass over the linear index range writes the result directly into the output
 //! buffer.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
 use crate::apply_for_all_types;
-use crate::common::{EvalInto, Field, IndexValue, LazyExpr, Shape};
+use crate::common::{Field, MatrixExpr, ScalarExpr, Shape};
 //}}}
 //{{{ std imports
 use std::ops::{Add, Div, Mul, Sub};
@@ -115,8 +115,8 @@ impl BinOp for DivOp
 #[doc(hidden)]
 pub struct BinopExpr<A, B, T, Op>
 where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
+    A: MatrixExpr<ScalarType = T>,
+    B: MatrixExpr<ScalarType = T>,
     T: Field + Copy,
     Op: BinOp,
 {
@@ -128,34 +128,12 @@ where
 }
 
 //}}}
-//{{{ impl: IndexValue for BinopExpr
-#[doc(hidden)]
-impl<A, B, T, Op> IndexValue<usize> for BinopExpr<A, B, T, Op>
-where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    T: Field + Copy,
-    Op: BinOp,
-{
-    type Output = T;
-
-    #[inline]
-    fn index_value(
-        &self,
-        index: usize,
-    ) -> Self::Output
-    {
-        Op::apply(self.a.index_value(index), self.b.index_value(index))
-    }
-}
-
-//}}}
 //{{{ impl: Shape for BinopExpr
 #[doc(hidden)]
 impl<A, B, T, Op> Shape for BinopExpr<A, B, T, Op>
 where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
+    A: MatrixExpr<ScalarType = T>,
+    B: MatrixExpr<ScalarType = T>,
     T: Field + Copy,
     Op: BinOp,
 {
@@ -173,33 +151,32 @@ where
 }
 
 //}}}
-//{{{ impl: LazyExpr for BinopExpr
-impl<A, B, T, Op> LazyExpr for BinopExpr<A, B, T, Op>
+//{{{ impl: MatrixExpr for BinopExpr
+impl<A, B, T, Op> MatrixExpr for BinopExpr<A, B, T, Op>
 where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
+    A: MatrixExpr<ScalarType = T>,
+    B: MatrixExpr<ScalarType = T>,
     T: Field + Copy,
     Op: BinOp,
 {
     type ScalarType = T;
-}
 
-//}}}
-//{{{ impl: EvalInto for BinopExpr
-/// Single-pass evaluation via `out: &mut [T]`.
-///
-/// Writing through the `noalias &mut [T]` parameter lets LLVM prove the output
-/// doesn't overlap any `&DMatrix` input (which are `noalias readonly`), so it
-/// can hoist all Vec data-pointer loads out of the loop and emit a single SIMD
-/// pass over all operands — matching nalgebra's vectorisation quality while
-/// doing one pass instead of N-1 separate fold passes.
-impl<A, B, T, Op> EvalInto<T> for BinopExpr<A, B, T, Op>
-where
-    A: IndexValue<usize, Output = T>,
-    B: IndexValue<usize, Output = T>,
-    T: Field + Copy,
-    Op: BinOp,
-{
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> Self::ScalarType
+    {
+        Op::apply(self.a.linear_value(index), self.b.linear_value(index))
+    }
+
+    /// Single-pass evaluation via `out: &mut [T]`.
+    ///
+    /// Writing through the `noalias &mut [T]` parameter lets LLVM prove the output
+    /// doesn't overlap any `&DMatrix` input (which are `noalias readonly`), so it
+    /// can hoist all Vec data-pointer loads out of the loop and emit a single SIMD
+    /// pass over all operands — matching nalgebra's vectorisation quality while
+    /// doing one pass instead of N-1 separate fold passes.
     #[inline]
     fn eval_into(
         &self,
@@ -213,7 +190,8 @@ where
             // `out` is noalias &mut [T]; all inputs are noalias readonly &DMatrix,
             // so LLVM proves non-aliasing and auto-vectorises this loop.
             unsafe {
-                *out.get_unchecked_mut(i) = Op::apply(self.a.index_value(i), self.b.index_value(i));
+                *out.get_unchecked_mut(i) =
+                    Op::apply(self.a.linear_value(i), self.b.linear_value(i));
             }
         }
     }
@@ -225,11 +203,11 @@ macro_rules! impl_binop_expr_binary_op {
         #[doc(hidden)]
         impl<A, B, T, Op, Rhs> $trait<Rhs> for BinopExpr<A, B, T, Op>
         where
-            A: IndexValue<usize, Output = T>,
-            B: IndexValue<usize, Output = T>,
+            A: MatrixExpr<ScalarType = T>,
+            B: MatrixExpr<ScalarType = T>,
             T: Field + Copy,
             Op: BinOp,
-            Rhs: LazyExpr<ScalarType = T> + IndexValue<usize, Output = T>,
+            Rhs: MatrixExpr<ScalarType = T>,
         {
             type Output = BinopExpr<Self, Rhs, T, $op>;
 
@@ -267,11 +245,11 @@ macro_rules! impl_add_binop_expr_scalar_rhs {
         #[doc(hidden)]
         impl<A, B, Op> Add<$type> for BinopExpr<A, B, $type, Op>
         where
-            A: IndexValue<usize, Output = $type>,
-            B: IndexValue<usize, Output = $type>,
+            A: MatrixExpr<ScalarType = $type>,
+            B: MatrixExpr<ScalarType = $type>,
             Op: BinOp,
         {
-            type Output = BinopExpr<Self, $type, $type, AddOp>;
+            type Output = BinopExpr<Self, ScalarExpr<$type>, $type, AddOp>;
 
             #[inline]
             fn add(
@@ -283,7 +261,7 @@ macro_rules! impl_add_binop_expr_scalar_rhs {
                 let nc = self.ncols;
                 BinopExpr {
                     a: self,
-                    b: rhs,
+                    b: ScalarExpr::new(rhs, nr, nc),
                     nrows: nr,
                     ncols: nc,
                     _marker: std::marker::PhantomData,
@@ -302,11 +280,11 @@ macro_rules! impl_add_binop_expr {
         #[doc(hidden)]
         impl<A, B, Op> Add<BinopExpr<A, B, $type, Op>> for $type
         where
-            A: IndexValue<usize, Output = $type>,
-            B: IndexValue<usize, Output = $type>,
+            A: MatrixExpr<ScalarType = $type>,
+            B: MatrixExpr<ScalarType = $type>,
             Op: BinOp,
         {
-            type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, AddOp>;
+            type Output = BinopExpr<ScalarExpr<$type>, BinopExpr<A, B, $type, Op>, $type, AddOp>;
 
             #[inline]
             fn add(
@@ -317,7 +295,7 @@ macro_rules! impl_add_binop_expr {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
-                    a: self,
+                    a: ScalarExpr::new(self, nr, nc),
                     b: rhs,
                     nrows: nr,
                     ncols: nc,
@@ -337,11 +315,11 @@ macro_rules! impl_sub_binop_expr_scalar_rhs {
         #[doc(hidden)]
         impl<A, B, Op> Sub<$type> for BinopExpr<A, B, $type, Op>
         where
-            A: IndexValue<usize, Output = $type>,
-            B: IndexValue<usize, Output = $type>,
+            A: MatrixExpr<ScalarType = $type>,
+            B: MatrixExpr<ScalarType = $type>,
             Op: BinOp,
         {
-            type Output = BinopExpr<Self, $type, $type, SubOp>;
+            type Output = BinopExpr<Self, ScalarExpr<$type>, $type, SubOp>;
 
             #[inline]
             fn sub(
@@ -353,7 +331,7 @@ macro_rules! impl_sub_binop_expr_scalar_rhs {
                 let nc = self.ncols;
                 BinopExpr {
                     a: self,
-                    b: rhs,
+                    b: ScalarExpr::new(rhs, nr, nc),
                     nrows: nr,
                     ncols: nc,
                     _marker: std::marker::PhantomData,
@@ -372,11 +350,11 @@ macro_rules! impl_sub_binop_expr {
         #[doc(hidden)]
         impl<A, B, Op> Sub<BinopExpr<A, B, $type, Op>> for $type
         where
-            A: IndexValue<usize, Output = $type>,
-            B: IndexValue<usize, Output = $type>,
+            A: MatrixExpr<ScalarType = $type>,
+            B: MatrixExpr<ScalarType = $type>,
             Op: BinOp,
         {
-            type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, SubOp>;
+            type Output = BinopExpr<ScalarExpr<$type>, BinopExpr<A, B, $type, Op>, $type, SubOp>;
 
             #[inline]
             fn sub(
@@ -387,7 +365,7 @@ macro_rules! impl_sub_binop_expr {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
-                    a: self,
+                    a: ScalarExpr::new(self, nr, nc),
                     b: rhs,
                     nrows: nr,
                     ncols: nc,
@@ -407,11 +385,11 @@ macro_rules! impl_mul_binop_expr_scalar_rhs {
         #[doc(hidden)]
         impl<A, B, Op> Mul<$type> for BinopExpr<A, B, $type, Op>
         where
-            A: IndexValue<usize, Output = $type>,
-            B: IndexValue<usize, Output = $type>,
+            A: MatrixExpr<ScalarType = $type>,
+            B: MatrixExpr<ScalarType = $type>,
             Op: BinOp,
         {
-            type Output = BinopExpr<Self, $type, $type, MulOp>;
+            type Output = BinopExpr<Self, ScalarExpr<$type>, $type, MulOp>;
 
             #[inline]
             fn mul(
@@ -423,7 +401,7 @@ macro_rules! impl_mul_binop_expr_scalar_rhs {
                 let nc = self.ncols;
                 BinopExpr {
                     a: self,
-                    b: rhs,
+                    b: ScalarExpr::new(rhs, nr, nc),
                     nrows: nr,
                     ncols: nc,
                     _marker: std::marker::PhantomData,
@@ -442,11 +420,11 @@ macro_rules! impl_mul_binop_expr {
         #[doc(hidden)]
         impl<A, B, Op> Mul<BinopExpr<A, B, $type, Op>> for $type
         where
-            A: IndexValue<usize, Output = $type>,
-            B: IndexValue<usize, Output = $type>,
+            A: MatrixExpr<ScalarType = $type>,
+            B: MatrixExpr<ScalarType = $type>,
             Op: BinOp,
         {
-            type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, MulOp>;
+            type Output = BinopExpr<ScalarExpr<$type>, BinopExpr<A, B, $type, Op>, $type, MulOp>;
 
             #[inline]
             fn mul(
@@ -457,7 +435,7 @@ macro_rules! impl_mul_binop_expr {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
-                    a: self,
+                    a: ScalarExpr::new(self, nr, nc),
                     b: rhs,
                     nrows: nr,
                     ncols: nc,
@@ -477,11 +455,11 @@ macro_rules! impl_div_binop_expr_scalar_rhs {
         #[doc(hidden)]
         impl<A, B, Op> Div<$type> for BinopExpr<A, B, $type, Op>
         where
-            A: IndexValue<usize, Output = $type>,
-            B: IndexValue<usize, Output = $type>,
+            A: MatrixExpr<ScalarType = $type>,
+            B: MatrixExpr<ScalarType = $type>,
             Op: BinOp,
         {
-            type Output = BinopExpr<Self, $type, $type, DivOp>;
+            type Output = BinopExpr<Self, ScalarExpr<$type>, $type, DivOp>;
 
             #[inline]
             fn div(
@@ -493,7 +471,7 @@ macro_rules! impl_div_binop_expr_scalar_rhs {
                 let nc = self.ncols;
                 BinopExpr {
                     a: self,
-                    b: rhs,
+                    b: ScalarExpr::new(rhs, nr, nc),
                     nrows: nr,
                     ncols: nc,
                     _marker: std::marker::PhantomData,
@@ -512,11 +490,11 @@ macro_rules! impl_div_binop_expr {
         #[doc(hidden)]
         impl<A, B, Op> Div<BinopExpr<A, B, $type, Op>> for $type
         where
-            A: IndexValue<usize, Output = $type>,
-            B: IndexValue<usize, Output = $type>,
+            A: MatrixExpr<ScalarType = $type>,
+            B: MatrixExpr<ScalarType = $type>,
             Op: BinOp,
         {
-            type Output = BinopExpr<Self, BinopExpr<A, B, $type, Op>, $type, DivOp>;
+            type Output = BinopExpr<ScalarExpr<$type>, BinopExpr<A, B, $type, Op>, $type, DivOp>;
 
             #[inline]
             fn div(
@@ -527,7 +505,7 @@ macro_rules! impl_div_binop_expr {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
-                    a: self,
+                    a: ScalarExpr::new(self, nr, nc),
                     b: rhs,
                     nrows: nr,
                     ncols: nc,

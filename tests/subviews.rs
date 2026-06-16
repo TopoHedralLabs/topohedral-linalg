@@ -515,6 +515,85 @@ mod dmatrix_tests
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
+    fn test_matrix_copy_from_expressions()
+    {
+        let a = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0], 2, 2);
+        let b = DMatrix::<f64>::from_row_slice(&[10.0, 20.0, 30.0, 40.0], 2, 2);
+        let c = DMatrix::<f64>::from_row_slice(&[0.0, 0.5, 1.0, 1.5], 2, 2);
+        let mut out = DMatrix::<f64>::zeros(2, 2);
+
+        out.copy_from((&a + (&b * 2.0)) - sin(&c));
+
+        for i in 0..4
+        {
+            let expected = a[i] + b[i] * 2.0 - c[i].sin();
+            assert!((out[i] - expected).abs() < 1.0e-12);
+        }
+
+        out.copy_from(-(&a + &b));
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], -(a[i] + b[i]));
+        }
+
+        out.copy_from(&a + 2.0);
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], a[i] + 2.0);
+        }
+
+        out.copy_from(2.0 + &a);
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], 2.0 + a[i]);
+        }
+
+        out.copy_from((&a + 1.0) * (2.0 - &b));
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], (a[i] + 1.0) * (2.0 - b[i]));
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_mutable_views_copy_from_expressions()
+    {
+        let mut m = DMatrix::<i32>::zeros(4, 4);
+
+        let row_a = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 1, 4);
+        let row_b = DMatrix::<i32>::from_row_slice(&[10, 20, 30, 40], 1, 4);
+        m.row_mut(0).copy_from(&row_a + (&row_b * 2));
+
+        for (val, exp) in m.row(0).iter().zip([21, 42, 63, 84].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+
+        let col_a = DMatrix::<i32>::from_col_slice(&[1, 2, 3, 4], 4, 1);
+        m.col_mut(1).copy_from(-&col_a);
+
+        for (val, exp) in m.col(1).iter().zip([-1, -2, -3, -4].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+
+        let sub_a = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
+        let sub_b = DMatrix::<i32>::from_row_slice(&[10, 20, 30, 40], 2, 2);
+        m.subview_mut(2, 3, 2, 3).copy_from((&sub_a + &sub_b) - 1);
+
+        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip([10, 32, 21, 43].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
     fn test_set_row_borrowed_and_moved()
     {
         let mut m = DMatrix::<i32>::zeros(3, 4);
@@ -917,7 +996,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 3, 5>::zeros();
         let borrowed_rhs = SMatrix::<i32, 1, 5>::from_row_slice(&[1, 2, 3, 4, 5]);
-        m.row_mut(0).copy_from(&borrowed_rhs);
+        m.row_mut(0).copy_from(borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 1, 5>::from_row_slice(&[6, 7, 8, 9, 10]);
         m.row_mut(1).copy_from(moved_rhs);
@@ -945,7 +1024,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 5, 3>::zeros();
         let borrowed_rhs = SMatrix::<i32, 5, 1>::from_col_slice(&[1, 2, 3, 4, 5]);
-        m.col_mut(0).copy_from(&borrowed_rhs);
+        m.col_mut(0).copy_from(borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 5, 1>::from_col_slice(&[6, 7, 8, 9, 10]);
         m.col_mut(1).copy_from(moved_rhs);
@@ -973,7 +1052,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 4, 4>::zeros();
         let borrowed_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
-        m.subview_mut(0, 1, 0, 1).copy_from(&borrowed_rhs);
+        m.subview_mut(0, 1, 0, 1).copy_from(borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
         m.subview_mut(2, 3, 2, 3).copy_from(moved_rhs);
@@ -1033,7 +1112,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 2, 3>::zeros();
         let borrowed_rhs = SMatrix::<i32, 2, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6]);
-        m.copy_from(&borrowed_rhs);
+        m.copy_from(borrowed_rhs);
 
         for (val, exp) in m.iter().zip([1, 4, 2, 5, 3, 6].iter())
         {
@@ -1077,11 +1156,90 @@ mod smatrix_tests
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
+    fn test_matrix_copy_from_expressions()
+    {
+        let a = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0]);
+        let b = SMatrix::<f64, 2, 2>::from_row_slice(&[10.0, 20.0, 30.0, 40.0]);
+        let c = SMatrix::<f64, 2, 2>::from_row_slice(&[0.0, 0.5, 1.0, 1.5]);
+        let mut out = SMatrix::<f64, 2, 2>::zeros();
+
+        out.copy_from((&a + (&b * 2.0)) - sin(&c));
+
+        for i in 0..4
+        {
+            let expected = a[i] + b[i] * 2.0 - c[i].sin();
+            assert!((out[i] - expected).abs() < 1.0e-12);
+        }
+
+        out.copy_from(-(&a + &b));
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], -(a[i] + b[i]));
+        }
+
+        out.copy_from(&a + 2.0);
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], a[i] + 2.0);
+        }
+
+        out.copy_from(2.0 + &a);
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], 2.0 + a[i]);
+        }
+
+        out.copy_from((&a + 1.0) * (2.0 - &b));
+
+        for i in 0..4
+        {
+            assert_eq!(out[i], (a[i] + 1.0) * (2.0 - b[i]));
+        }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_mutable_views_copy_from_expressions()
+    {
+        let mut m = SMatrix::<i32, 4, 4>::zeros();
+
+        let row_a = SMatrix::<i32, 1, 4>::from_row_slice(&[1, 2, 3, 4]);
+        let row_b = SMatrix::<i32, 1, 4>::from_row_slice(&[10, 20, 30, 40]);
+        m.row_mut(0).copy_from(&row_a + (&row_b * 2));
+
+        for (val, exp) in m.row(0).iter().zip([21, 42, 63, 84].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+
+        let col_a = SMatrix::<i32, 4, 1>::from_col_slice(&[1, 2, 3, 4]);
+        m.col_mut(1).copy_from(-&col_a);
+
+        for (val, exp) in m.col(1).iter().zip([-1, -2, -3, -4].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+
+        let sub_a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
+        let sub_b = SMatrix::<i32, 2, 2>::from_row_slice(&[10, 20, 30, 40]);
+        m.subview_mut(2, 3, 2, 3).copy_from((&sub_a + &sub_b) - 1);
+
+        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip([10, 32, 21, 43].iter())
+        {
+            assert_eq!(*val, *exp);
+        }
+    }
+
+    #[test]
     fn test_set_row_borrowed_and_moved()
     {
         let mut m = SMatrix::<i32, 3, 4>::zeros();
         let borrowed_rhs = SMatrix::<i32, 1, 4>::from_row_slice(&[1, 2, 3, 4]);
-        m.set_row(0, &borrowed_rhs);
+        m.set_row(0, borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 1, 4>::from_row_slice(&[5, 6, 7, 8]);
         m.set_row(1, moved_rhs);
@@ -1101,7 +1259,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 4, 3>::zeros();
         let borrowed_rhs = SMatrix::<i32, 4, 1>::from_col_slice(&[1, 2, 3, 4]);
-        m.set_col(0, &borrowed_rhs);
+        m.set_col(0, borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 4, 1>::from_col_slice(&[5, 6, 7, 8]);
         m.set_col(1, moved_rhs);
@@ -1121,7 +1279,7 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 4, 4>::zeros();
         let borrowed_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
-        m.set_subview(0, 1, 0, 1, &borrowed_rhs);
+        m.set_subview(0, 1, 0, 1, borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
         m.set_subview(2, 3, 2, 3, moved_rhs);
