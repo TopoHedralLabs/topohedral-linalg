@@ -53,8 +53,7 @@ pub use common::{
     MatrixOps, ReduceOps, Shape, TransformOps, VectorOps,
 };
 pub use dmatrix::*;
-pub use expression::boolean_expr::{BoolBinaryExpr, BoolNotExpr};
-pub use expression::comparison_expr::{CompareExpr, ElementwiseCompare};
+pub use expression::comparison_expr::ElementwiseCompare;
 pub use expression::unary_expr::{
     abs, abs_sub, acos, acosh, algebraic_add, algebraic_div, algebraic_mul, algebraic_rem,
     algebraic_sub, asin, asinh, atan, atan2, atanh, cbrt, ceil, clamp, clamp_magnitude, copysign,

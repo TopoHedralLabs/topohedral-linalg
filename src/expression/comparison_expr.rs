@@ -114,6 +114,7 @@ define_compare_op!(GtOp, PartialOrd, |a, b| a > b);
 define_compare_op!(GeOp, PartialOrd, |a, b| a >= b);
 
 /// Lazy element-wise comparison whose values are booleans.
+#[doc(hidden)]
 pub struct CompareExpr<A, B, T, Op>
 where
     A: MatrixExpr<ScalarType = T>,
@@ -201,6 +202,7 @@ where
 /// Named element-wise comparisons for matrix expressions.
 pub trait ElementwiseCompare: MatrixExpr
 {
+    #[doc(hidden)]
     fn eq<Rhs>(
         &self,
         rhs: Rhs,
@@ -213,6 +215,7 @@ pub trait ElementwiseCompare: MatrixExpr
         CompareExpr::new(self, rhs)
     }
 
+    #[doc(hidden)]
     fn ne<Rhs>(
         &self,
         rhs: Rhs,
@@ -225,6 +228,7 @@ pub trait ElementwiseCompare: MatrixExpr
         CompareExpr::new(self, rhs)
     }
 
+    #[doc(hidden)]
     fn lt<Rhs>(
         &self,
         rhs: Rhs,
@@ -237,6 +241,7 @@ pub trait ElementwiseCompare: MatrixExpr
         CompareExpr::new(self, rhs)
     }
 
+    #[doc(hidden)]
     fn le<Rhs>(
         &self,
         rhs: Rhs,
@@ -249,6 +254,7 @@ pub trait ElementwiseCompare: MatrixExpr
         CompareExpr::new(self, rhs)
     }
 
+    #[doc(hidden)]
     fn gt<Rhs>(
         &self,
         rhs: Rhs,
@@ -261,6 +267,7 @@ pub trait ElementwiseCompare: MatrixExpr
         CompareExpr::new(self, rhs)
     }
 
+    #[doc(hidden)]
     fn ge<Rhs>(
         &self,
         rhs: Rhs,
@@ -276,6 +283,7 @@ pub trait ElementwiseCompare: MatrixExpr
 
 impl<X> ElementwiseCompare for X where X: MatrixExpr {}
 
+#[doc(hidden)]
 impl<A, B, T, Op> From<CompareExpr<A, B, T, Op>> for DMatrix<bool>
 where
     A: MatrixExpr<ScalarType = T>,
@@ -291,6 +299,7 @@ where
     }
 }
 
+#[doc(hidden)]
 impl<A, B, T, Op, const N: usize, const M: usize> From<CompareExpr<A, B, T, Op>>
     for SMatrix<bool, N, M>
 where

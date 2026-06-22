@@ -56,6 +56,7 @@ impl BoolBinaryOp for XorOp
 }
 
 /// Lazy binary boolean expression.
+#[doc(hidden)]
 pub struct BoolBinaryExpr<A, B, Op>
 where
     A: MatrixExpr<ScalarType = bool>,
@@ -136,6 +137,7 @@ where
 }
 
 /// Lazy element-wise boolean negation.
+#[doc(hidden)]
 pub struct BoolNotExpr<A>
 where
     A: MatrixExpr<ScalarType = bool>,
@@ -189,6 +191,7 @@ where
 
 macro_rules! impl_binary_ops_for_compare {
     ($trait:ident, $method:ident, $operation:ty) => {
+        #[doc(hidden)]
         impl<A, B, T, Op, Rhs> $trait<Rhs> for CompareExpr<A, B, T, Op>
         where
             A: MatrixExpr<ScalarType = T>,
@@ -214,6 +217,7 @@ impl_binary_ops_for_compare!(BitAnd, bitand, AndOp);
 impl_binary_ops_for_compare!(BitOr, bitor, OrOp);
 impl_binary_ops_for_compare!(BitXor, bitxor, XorOp);
 
+#[doc(hidden)]
 impl<A, B, T, Op> Not for CompareExpr<A, B, T, Op>
 where
     A: MatrixExpr<ScalarType = T>,
@@ -231,6 +235,7 @@ where
 
 macro_rules! impl_binary_ops_for_binary_expr {
     ($trait:ident, $method:ident, $operation:ty) => {
+        #[doc(hidden)]
         impl<A, B, Op, Rhs> $trait<Rhs> for BoolBinaryExpr<A, B, Op>
         where
             A: MatrixExpr<ScalarType = bool>,
@@ -255,6 +260,7 @@ impl_binary_ops_for_binary_expr!(BitAnd, bitand, AndOp);
 impl_binary_ops_for_binary_expr!(BitOr, bitor, OrOp);
 impl_binary_ops_for_binary_expr!(BitXor, bitxor, XorOp);
 
+#[doc(hidden)]
 impl<A, B, Op> Not for BoolBinaryExpr<A, B, Op>
 where
     A: MatrixExpr<ScalarType = bool>,
@@ -271,6 +277,7 @@ where
 
 macro_rules! impl_binary_ops_for_not_expr {
     ($trait:ident, $method:ident, $operation:ty) => {
+        #[doc(hidden)]
         impl<A, Rhs> $trait<Rhs> for BoolNotExpr<A>
         where
             A: MatrixExpr<ScalarType = bool>,
@@ -293,6 +300,7 @@ impl_binary_ops_for_not_expr!(BitAnd, bitand, AndOp);
 impl_binary_ops_for_not_expr!(BitOr, bitor, OrOp);
 impl_binary_ops_for_not_expr!(BitXor, bitxor, XorOp);
 
+#[doc(hidden)]
 impl<A> Not for BoolNotExpr<A>
 where
     A: MatrixExpr<ScalarType = bool>,
@@ -307,6 +315,7 @@ where
 
 macro_rules! impl_bool_ops_for_dmatrix {
     ($lhs:ty) => {
+        #[doc(hidden)]
         impl<Rhs> BitAnd<Rhs> for $lhs
         where
             Rhs: MatrixExpr<ScalarType = bool>,
@@ -322,6 +331,7 @@ macro_rules! impl_bool_ops_for_dmatrix {
             }
         }
 
+        #[doc(hidden)]
         impl<Rhs> BitOr<Rhs> for $lhs
         where
             Rhs: MatrixExpr<ScalarType = bool>,
@@ -337,6 +347,7 @@ macro_rules! impl_bool_ops_for_dmatrix {
             }
         }
 
+        #[doc(hidden)]
         impl<Rhs> BitXor<Rhs> for $lhs
         where
             Rhs: MatrixExpr<ScalarType = bool>,
@@ -352,6 +363,7 @@ macro_rules! impl_bool_ops_for_dmatrix {
             }
         }
 
+        #[doc(hidden)]
         impl Not for $lhs
         {
             type Output = BoolNotExpr<Self>;
@@ -370,6 +382,7 @@ impl_bool_ops_for_dmatrix!(&mut DMatrix<bool>);
 
 macro_rules! impl_bool_ops_for_smatrix {
     ($lhs:ty) => {
+        #[doc(hidden)]
         impl<const N: usize, const M: usize, Rhs> BitAnd<Rhs> for $lhs
         where
             [(); N * M]:,
@@ -386,6 +399,7 @@ macro_rules! impl_bool_ops_for_smatrix {
             }
         }
 
+        #[doc(hidden)]
         impl<const N: usize, const M: usize, Rhs> BitOr<Rhs> for $lhs
         where
             [(); N * M]:,
@@ -402,6 +416,7 @@ macro_rules! impl_bool_ops_for_smatrix {
             }
         }
 
+        #[doc(hidden)]
         impl<const N: usize, const M: usize, Rhs> BitXor<Rhs> for $lhs
         where
             [(); N * M]:,
@@ -418,6 +433,7 @@ macro_rules! impl_bool_ops_for_smatrix {
             }
         }
 
+        #[doc(hidden)]
         impl<const N: usize, const M: usize> Not for $lhs
         where
             [(); N * M]:,
@@ -436,6 +452,7 @@ impl_bool_ops_for_smatrix!(SMatrix<bool, N, M>);
 impl_bool_ops_for_smatrix!(&SMatrix<bool, N, M>);
 impl_bool_ops_for_smatrix!(&mut SMatrix<bool, N, M>);
 
+#[doc(hidden)]
 impl<A, B, Op> From<BoolBinaryExpr<A, B, Op>> for DMatrix<bool>
 where
     A: MatrixExpr<ScalarType = bool>,
@@ -450,6 +467,7 @@ where
     }
 }
 
+#[doc(hidden)]
 impl<A> From<BoolNotExpr<A>> for DMatrix<bool>
 where
     A: MatrixExpr<ScalarType = bool>,
@@ -462,6 +480,7 @@ where
     }
 }
 
+#[doc(hidden)]
 impl<A, B, Op, const N: usize, const M: usize> From<BoolBinaryExpr<A, B, Op>>
     for SMatrix<bool, N, M>
 where
@@ -479,6 +498,7 @@ where
     }
 }
 
+#[doc(hidden)]
 impl<A, const N: usize, const M: usize> From<BoolNotExpr<A>> for SMatrix<bool, N, M>
 where
     [(); N * M]:,
