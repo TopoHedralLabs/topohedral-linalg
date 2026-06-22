@@ -36,7 +36,7 @@ use crate::float::{Float, FloatVectorOps};
 pub struct SMatrix<T, const N: usize, const M: usize>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     /// The data of the matrix, stored in column-major order.
     pub(crate) data: [T; N * M],

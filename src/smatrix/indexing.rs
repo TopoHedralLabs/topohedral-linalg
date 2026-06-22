@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::common::{lin_index, Field, MatrixExpr};
+use crate::common::{lin_index, MatrixExpr};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -23,7 +23,7 @@ use std::ops::{Index, IndexMut};
 impl<T, const N: usize, const M: usize> Index<(usize, usize)> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     type Output = T;
 
@@ -41,7 +41,7 @@ where
 impl<T, const N: usize, const M: usize> Index<(usize, usize)> for &SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     type Output = T;
 
@@ -58,7 +58,7 @@ where
 impl<T, const N: usize, const M: usize> Index<(usize, usize)> for &mut SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     type Output = T;
 
@@ -75,7 +75,7 @@ where
 impl<T, const N: usize, const M: usize> IndexMut<(usize, usize)> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     fn index_mut(
         &mut self,
@@ -91,7 +91,7 @@ where
 impl<T, const N: usize, const M: usize> IndexMut<(usize, usize)> for &mut SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     fn index_mut(
         &mut self,
@@ -108,7 +108,7 @@ where
 impl<T, const N: usize, const M: usize> Index<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     type Output = T;
 
@@ -126,7 +126,7 @@ where
 impl<T, const N: usize, const M: usize> Index<usize> for &SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     type Output = T;
 
@@ -143,7 +143,7 @@ where
 impl<T, const N: usize, const M: usize> Index<usize> for &mut SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     type Output = T;
 
@@ -160,7 +160,7 @@ where
 impl<T, const N: usize, const M: usize> IndexMut<usize> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     fn index_mut(
         &mut self,
@@ -176,7 +176,7 @@ where
 impl<T, const N: usize, const M: usize> IndexMut<usize> for &mut SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     fn index_mut(
         &mut self,
@@ -191,7 +191,7 @@ where
 impl<T, const N: usize, const M: usize> MatrixExpr for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     type ScalarType = T;
 

@@ -7,7 +7,7 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::common::{Field, MatrixExpr};
+use crate::common::MatrixExpr;
 use crate::dmatrix::DMatrix;
 use crate::subviews::{MatrixView, MatrixViewMut, SubViewable, SubViewableMut};
 //}}}
@@ -17,7 +17,7 @@ use crate::subviews::{MatrixView, MatrixViewMut, SubViewable, SubViewableMut};
 impl<'a, T, const N: usize, const M: usize> MatrixView<'a, SMatrix<T, N, M>>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
     pub fn to_dmatrix(&self) -> DMatrix<T>
@@ -41,7 +41,7 @@ where
 impl<'a, T, const N: usize, const M: usize> MatrixViewMut<'a, SMatrix<T, N, M>>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
     pub fn to_dmatrix(&self) -> DMatrix<T>
@@ -67,7 +67,7 @@ where
 impl<T, const N: usize, const M: usize> SubViewable for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     fn subview<'a>(
         &'a self,
@@ -91,7 +91,7 @@ where
 impl<T, const N: usize, const M: usize> SubViewableMut for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     fn subview_mut<'a>(
         &'a mut self,
@@ -115,7 +115,7 @@ where
 //{{{ impl: SMatrix copy and set helpers
 impl<'a, T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    T: Field + Copy,
+    T: Copy,
     [(); N * M]:,
 {
     //{{{ fun: copy_from

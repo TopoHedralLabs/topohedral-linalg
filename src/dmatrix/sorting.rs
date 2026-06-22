@@ -5,7 +5,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{Dimension, Field, One, Zero};
+use crate::common::Dimension;
 //}}}
 //{{{ std imports
 //}}}
@@ -16,7 +16,7 @@ use crate::common::{Dimension, Field, One, Zero};
 //{{{ impl: DMatrix
 impl<T> DMatrix<T>
 where
-    T: Field + Copy + Ord + Zero + One,
+    T: Copy + Ord,
 {
     //{{{ fn: sort
     /// Sorts the elements of the matrix in-place along the specified dimension.

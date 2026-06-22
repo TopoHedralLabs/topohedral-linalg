@@ -11,7 +11,7 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::common::{Field, One, Zero};
+use crate::common::{One, Zero};
 //}}}
 //{{{ std imports
 //}}}
@@ -24,7 +24,7 @@ use rand::distr::{uniform::SampleUniform, Distribution, Uniform};
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     //{{{ fun: zeros
     /// Creates a new matrix with all elements set to zero.
@@ -131,7 +131,7 @@ where
     /// The dimensions of the identity matrix are determined by the generic parameters `N` and `M`.
     pub fn identity() -> Self
     where
-        T: Field + One + Zero,
+        T: One + Zero,
     {
         let mut out = Self::zeros();
         let l = N.min(M);

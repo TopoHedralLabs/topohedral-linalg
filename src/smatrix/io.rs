@@ -8,7 +8,7 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::common::Field;
+use crate::common::MatrixElementDisplay;
 //}}}
 //{{{ std imports
 use std::fmt;
@@ -25,7 +25,7 @@ use serde::ser::{Serialize, SerializeStruct, Serializer};
 impl<T, const N: usize, const M: usize> Serialize for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display + Serialize,
+    T: Copy + Serialize,
     [T; N * M]: Serialize,
 {
     fn serialize<S>(
@@ -48,7 +48,7 @@ where
 impl<'de, T, const N: usize, const M: usize> Deserialize<'de> for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display + Deserialize<'de>,
+    T: Copy + Deserialize<'de>,
     [T; N * M]: Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -67,7 +67,7 @@ where
         impl<'de, T, const N: usize, const M: usize> Visitor<'de> for SMatrixVisitor<T, N, M>
         where
             [(); N * M]:,
-            T: Field + Default + Copy + fmt::Display + Deserialize<'de>,
+            T: Copy + Deserialize<'de>,
             [T; N * M]: Deserialize<'de>,
         {
             type Value = SMatrix<T, N, M>;
@@ -181,7 +181,7 @@ where
 impl<T, const N: usize, const M: usize> fmt::Display for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Default + Copy + fmt::Display + fmt::LowerExp,
+    T: Copy + MatrixElementDisplay,
 {
     fn fmt(
         &self,
@@ -193,7 +193,9 @@ where
             write!(f, "|")?;
             for j in 0..M
             {
-                write!(f, " {:.4e} ", self[(i, j)])?;
+                write!(f, " ")?;
+                self[(i, j)].fmt_matrix_element(f)?;
+                write!(f, " ")?;
             }
             writeln!(f, " |")?;
         }

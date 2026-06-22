@@ -8,7 +8,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{tuple_index, Field, MatrixExpr, Shape};
+use crate::common::{tuple_index, MatrixExpr, Shape};
+use crate::dmatrix::DMatrix;
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -159,7 +160,7 @@ where
 impl<'a, Mat, T> MatrixExpr for MatrixView<'a, Mat>
 where
     Mat: Shape + Index<(usize, usize), Output = T>,
-    T: Field + Copy,
+    T: Copy,
 {
     type ScalarType = T;
 
@@ -368,7 +369,7 @@ where
 impl<'a, Mat> MatrixViewMut<'a, Mat>
 where
     Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
-    Mat::Output: Field + Copy + Sized,
+    Mat::Output: Copy + Sized,
 {
     /// Returns a shared column-major iterator over the elements of this mutable view.
     pub fn iter(&'a self) -> MatrixViewMutIter<'a, Mat>
@@ -419,7 +420,7 @@ where
 impl<'a, Mat, T> MatrixExpr for MatrixViewMut<'a, Mat>
 where
     Mat: Shape + Index<(usize, usize), Output = T> + IndexMut<(usize, usize)>,
-    T: Field + Copy,
+    T: Copy,
 {
     type ScalarType = T;
 
@@ -542,5 +543,135 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)>
         let nrows = self.nrows();
         self.subview_mut(0, nrows - 1, start_col, end_col)
     }
+}
+//}}}
+
+//{{{ collection: MaskedView
+/// Read-only gather view over entries selected by a boolean matrix expression.
+pub struct MaskedView<'a, Mat, Mask>
+where
+    Mat: Shape + Index<(usize, usize)>,
+    Mask: MatrixExpr<ScalarType = bool>,
+{
+    matrix: &'a Mat,
+    mask: Mask,
+    selected: usize,
+}
+
+impl<'a, Mat, Mask> Shape for MaskedView<'a, Mat, Mask>
+where
+    Mat: Shape + Index<(usize, usize)>,
+    Mask: MatrixExpr<ScalarType = bool>,
+{
+    fn nrows(&self) -> usize
+    {
+        self.selected
+    }
+
+    fn ncols(&self) -> usize
+    {
+        1
+    }
+}
+
+/// Iterator over entries selected by a [`MaskedView`], in column-major order.
+pub struct MaskedViewIter<'view, 'matrix, Mat, Mask>
+where
+    Mat: Shape + Index<(usize, usize)>,
+    Mask: MatrixExpr<ScalarType = bool>,
+{
+    view: &'view MaskedView<'matrix, Mat, Mask>,
+    index: usize,
+}
+
+impl<'view, 'matrix, Mat, Mask> Iterator for MaskedViewIter<'view, 'matrix, Mat, Mask>
+where
+    Mat: Shape + Index<(usize, usize)>,
+    Mat::Output: Sized,
+    Mask: MatrixExpr<ScalarType = bool>,
+{
+    type Item = &'view Mat::Output;
+
+    fn next(&mut self) -> Option<Self::Item>
+    {
+        let len = self.view.matrix.nrows() * self.view.matrix.ncols();
+        while self.index < len
+        {
+            let index = self.index;
+            self.index += 1;
+            if self.view.mask.linear_value(index)
+            {
+                let (row, col) = tuple_index(index, self.view.matrix.nrows());
+                return Some(&self.view.matrix[(row, col)]);
+            }
+        }
+        None
+    }
+}
+
+impl<'a, Mat, Mask> MaskedView<'a, Mat, Mask>
+where
+    Mat: Shape + Index<(usize, usize)>,
+    Mat::Output: Copy + Sized,
+    Mask: MatrixExpr<ScalarType = bool>,
+{
+    /// Iterates over selected entries in column-major source order.
+    pub fn iter(&self) -> MaskedViewIter<'_, 'a, Mat, Mask>
+    {
+        MaskedViewIter {
+            view: self,
+            index: 0,
+        }
+    }
+
+    /// Materialises selected entries as a `K × 1` dynamic matrix.
+    pub fn to_dmatrix(&self) -> DMatrix<Mat::Output>
+    {
+        let data = self.iter().copied().collect();
+        DMatrix {
+            data,
+            nrows: self.selected,
+            ncols: 1,
+        }
+    }
+}
+
+/// Adds NumPy-style boolean gather selection to matrix-like values.
+pub trait Maskable: Shape + Index<(usize, usize)> + Sized
+where
+    Self::Output: Copy,
+{
+    fn masked<Mask>(
+        &self,
+        mask: Mask,
+    ) -> MaskedView<'_, Self, Mask>
+    where
+        Mask: MatrixExpr<ScalarType = bool>,
+    {
+        assert_eq!(
+            self.size(),
+            mask.size(),
+            "masked selection dimension mismatch: source is {}x{}, mask is {}x{}",
+            self.nrows(),
+            self.ncols(),
+            mask.nrows(),
+            mask.ncols()
+        );
+        let selected = (0..self.nrows() * self.ncols())
+            .filter(|&index| mask.linear_value(index))
+            .count();
+        MaskedView {
+            matrix: self,
+            mask,
+            selected,
+        }
+    }
+}
+
+impl<X> Maskable for X
+where
+    X: Shape + Index<(usize, usize)>,
+    X::Output: Copy,
+{
 }
 //}}}

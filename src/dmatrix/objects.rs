@@ -35,7 +35,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, Default)]
 pub struct DMatrix<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     /// The data of the matrix, stored in column-major order.
     pub(crate) data: Vec<T>,

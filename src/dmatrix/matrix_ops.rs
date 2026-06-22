@@ -22,7 +22,7 @@ use crate::float::Float;
 //{{{ impl: Shape for DMatrix
 impl<T> Shape for DMatrix<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     fn nrows(&self) -> usize
     {

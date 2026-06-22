@@ -10,7 +10,6 @@
 
 //{{{ crate imports
 use super::SMatrix;
-use crate::common::Field;
 //}}}
 //{{{ std imports
 //}}}
@@ -23,7 +22,7 @@ use crate::common::Field;
 impl<T, const N: usize, const M: usize> IntoIterator for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     type Item = T;
 
@@ -40,7 +39,7 @@ where
 impl<'a, T, const N: usize, const M: usize> IntoIterator for &'a SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     type Item = &'a T;
 
@@ -56,7 +55,7 @@ where
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     //{{{ fun: iter
     /// Returns an iterator over shared references to elements in column-major order.
