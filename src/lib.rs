@@ -36,6 +36,7 @@
 #![feature(float_minimum_maximum)]
 #![feature(generic_const_exprs)]
 #![allow(incomplete_features)]
+#![allow(stable_features)]
 
 //{{{ collection: private modules
 mod blaslapack;
