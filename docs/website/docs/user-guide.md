@@ -13,9 +13,11 @@ There is no prelude — import what you need. Everything is re-exported from the
 | `DMatrix` | `topohedral_linalg::DMatrix` |
 | `SRVector`, `SCVector` (static row/column vector aliases) | `topohedral_linalg::{SRVector, SCVector}` |
 | `DVector`, `VecType` (dynamic vector alias and orientation) | `topohedral_linalg::{DVector, VecType}` |
-| `Field` (scalar element bound) | `topohedral_linalg::Field` |
+| `Field` (numeric arithmetic bound) | `topohedral_linalg::Field` |
 | Traits (`MatMul`, `MatrixOps`, `ReduceOps`, `TransformOps`, `FloatTransformOps`, `Shape`, `VectorOps`, …) | `topohedral_linalg::{TraitName}` |
 | `SubViewable`, `SubViewableMut` (subview traits) | `topohedral_linalg::{SubViewable, SubViewableMut}` |
+| `ElementwiseCompare` (lazy comparisons) | `topohedral_linalg::ElementwiseCompare` |
+| `Maskable` (boolean masked selection) | `topohedral_linalg::Maskable` |
 | `Dimension` (for sorting) | `topohedral_linalg::Dimension` |
 | Lazy unary functions (`sin`, `cos`, `sqrt`, …) | `topohedral_linalg::{fn_name}` |
 
@@ -26,6 +28,7 @@ use topohedral_linalg::{
     DMatrix, SMatrix,
     Dimension, MatMul, MatrixOps, ReduceOps, Shape,
     TransformOps, FloatTransformOps,
+    ElementwiseCompare, Maskable,
 };
 ```
 
@@ -35,10 +38,12 @@ fails to resolve.
 
 ---
 
-## The `Field` trait
+## Scalar types and the `Field` trait
 
-`Field` is the scalar element bound used throughout the library. It requires the four
-arithmetic operators and their assignment variants, negation, and a partial order:
+Matrix storage and structural operations are available for `Copy` element types. This
+includes the numeric types below and `bool`. Numeric operations use the stricter `Field`
+trait, which requires the four arithmetic operators and their assignment variants,
+negation, and a partial order:
 
 ```
 Field = Add + Sub + Mul + Div + AddAssign + SubAssign + MulAssign + DivAssign + Neg + PartialOrd + PartialEq
@@ -51,7 +56,7 @@ The following primitive types implement `Field`:
 | `f32`, `f64` | Floating point |
 | `i8`, `i16`, `i32`, `i64`, `i128` | Signed integer |
 
-Use `Field` as a bound when writing generic code over any matrix element type:
+Use `Field` as a bound when writing generic code that performs arithmetic:
 
 ```rust
 use topohedral_linalg::{DMatrix, Field};
@@ -63,6 +68,10 @@ fn scale_matrix<T: Field + Copy>(m: &DMatrix<T>, factor: T) -> DMatrix<T> {
 
 For floating-point-only operations (decompositions, transcendental functions, norms),
 use `Float` instead, which is a stricter bound that implies `Field`.
+
+`bool` does not implement `Field`. Boolean matrices support construction, indexing,
+iteration, views, copying, transformations, reductions, sorting, serialization,
+comparisons, and masked selection, but not arithmetic or BLAS/LAPACK operations.
 
 ---
 
@@ -87,6 +96,22 @@ let m = SMatrix::<f64, 2, 2>::from_value(3.14);
 let m = DMatrix::<f64>::from_value(3.14, 2, 2);
 ```
 
+### Boolean matrices
+
+Both matrix types can store booleans directly:
+
+```rust
+let static_mask = SMatrix::<bool, 2, 3>::from_row_slice(&[
+    true, false, true,
+    false, true, false,
+]);
+
+let dynamic_mask = DMatrix::<bool>::from_value(false, 2, 3);
+```
+
+For boolean matrices, `zeros()` means all `false`, `ones()` means all `true`,
+and `identity()` produces `true` on the diagonal and `false` elsewhere.
+
 ### Identity
 
 ```rust
@@ -96,8 +121,8 @@ let eye = DMatrix::<f64>::identity(4, 4);
 
 ### From a slice
 
-Both constructors accept flat slices and a layout flag. The slice length must equal
-`nrows * ncols`.
+The row-major and column-major constructors accept flat slices. The slice length must
+equal `nrows * ncols`.
 
 ```rust
 // Row-major input (most natural when writing data inline)
@@ -230,6 +255,123 @@ Chains of any length collapse into one vectorised loop; see the
 let neg = -a.clone();               // owned negation
 let neg: DMatrix<f64> = (-&a).into(); // lazy negation via UnaryExpr
 ```
+
+---
+
+## Comparisons, boolean expressions, and masked selection
+
+### Elementwise comparisons
+
+Import `ElementwiseCompare` to compare matrices element by element. Rust's comparison
+operators (`>`, `<`, and so on) must return one scalar `bool`, so matrix comparisons use
+named methods instead:
+
+| Method | Elementwise operation |
+|---|---|
+| `eq(rhs)` | equal |
+| `ne(rhs)` | not equal |
+| `lt(rhs)` | less than |
+| `le(rhs)` | less than or equal |
+| `gt(rhs)` | greater than |
+| `ge(rhs)` | greater than or equal |
+
+The right-hand side can be a same-sized matrix expression or a scalar:
+
+```rust
+use topohedral_linalg::{DMatrix, ElementwiseCompare};
+
+let values = DMatrix::<i32>::from_row_slice(
+    &[1, 2, 3, 4, 5, 6],
+    2,
+    3,
+);
+
+// Lazy comparison expressions: no boolean matrix is allocated yet.
+let above_three = values.gt(3);
+let at_most_five = values.le(5);
+
+// Materialise a comparison as a boolean matrix when needed.
+let mask: DMatrix<bool> = values.ge(3).into();
+```
+
+Comparisons also work on rectangular views and lazy arithmetic expressions:
+
+```rust
+use topohedral_linalg::{DMatrix, ElementwiseCompare, SubViewable};
+
+let values = DMatrix::<i32>::from_row_slice(
+    &[1, 2, 3, 4, 5, 6],
+    2,
+    3,
+);
+
+let shifted = &values + 1;
+let shifted_mask: DMatrix<bool> = shifted.ge(4).into();
+
+let view = values.subview(0, 1, 1, 2);
+let view_mask: DMatrix<bool> = view.lt(6).into();
+```
+
+A matrix-to-matrix comparison panics if the dimensions differ.
+
+### Combining boolean masks
+
+Boolean matrices and lazy mask expressions compose using bitwise operators. These are
+elementwise operations:
+
+```rust
+use topohedral_linalg::{DMatrix, ElementwiseCompare};
+
+let values = DMatrix::<i32>::from_row_slice(
+    &[1, 2, 3, 4, 5, 6],
+    2,
+    3,
+);
+
+let interior = values.gt(1) & values.lt(6); // AND
+let endpoints = values.eq(1) | values.eq(6); // OR
+let exactly_one = values.gt(2) ^ values.gt(4); // XOR
+let not_three = !values.eq(3);                // NOT
+
+let combined: DMatrix<bool> = (interior | endpoints).into();
+```
+
+Use parentheses when mixing several operators so the intended mask logic is explicit.
+The combined expression remains lazy until it is materialised or consumed by masked
+selection.
+
+### Selecting elements with a boolean mask
+
+`Maskable::masked` gathers entries for which a same-sized boolean expression is `true`.
+The result is a read-only `MaskedView`:
+
+```rust
+use topohedral_linalg::{DMatrix, ElementwiseCompare, Maskable, Shape};
+
+let values = DMatrix::<i32>::from_row_slice(
+    &[1, 2, 3, 4, 5, 6],
+    2,
+    3,
+);
+
+// Temporary comparison expressions can be passed directly.
+let selected = values.masked(values.gt(3));
+
+assert_eq!(selected.size(), (3, 1));
+assert_eq!(
+    selected.iter().copied().collect::<Vec<_>>(),
+    vec![4, 5, 6],
+);
+
+let owned: DMatrix<i32> = selected.to_dmatrix();
+```
+
+Selection follows the crate's **column-major** traversal order. Materialisation always
+produces a `K × 1` `DMatrix`, where `K` is the number of `true` mask entries. An
+all-false mask produces a `0 × 1` matrix. Source and mask dimensions must match exactly.
+
+`MaskedView` is read-only in the current API. Use a rectangular `MatrixViewMut` when
+you need zero-copy mutation.
 
 ---
 
@@ -625,6 +767,10 @@ LAPACK routine: `dgesv` / `sgesv`
 A subview is a zero-copy, borrowed window into a rectangular region of a matrix.
 All subview indices are **inclusive** on both ends: `subview(r0, r1, c0, c1)` covers
 rows `r0..=r1` and columns `c0..=c1`.
+
+For non-rectangular selection driven by a boolean expression, use
+[`masked`](#selecting-elements-with-a-boolean-mask) instead. Masked selection is a
+gather operation and therefore cannot be represented by a rectangular `MatrixView`.
 
 ### Immutable views
 
