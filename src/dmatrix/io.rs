@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::Field;
+use crate::common::MatrixElementDisplay;
 //}}}
 //{{{ std imports
 use std::fmt;
@@ -21,7 +21,7 @@ use std::fmt;
 //{{{ impl fmt::Display for SMatrix
 impl<T> fmt::Display for DMatrix<T>
 where
-    T: Field + Default + Copy + fmt::Display + fmt::LowerExp,
+    T: Copy + MatrixElementDisplay,
 {
     fn fmt(
         &self,
@@ -33,7 +33,9 @@ where
             write!(f, "|")?;
             for j in 0..self.ncols
             {
-                write!(f, " {:.4e} ", self[(i, j)],)?;
+                write!(f, " ")?;
+                self[(i, j)].fmt_matrix_element(f)?;
+                write!(f, " ")?;
             }
             writeln!(f, " |")?;
         }

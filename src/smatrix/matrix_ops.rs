@@ -22,7 +22,7 @@ use crate::smatrix::SMatrix;
 impl<T, const N: usize, const M: usize> Shape for SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy,
+    T: Copy,
 {
     fn ncols(&self) -> usize
     {

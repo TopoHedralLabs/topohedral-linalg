@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{tuple_index, Field};
+use crate::common::tuple_index;
 use crate::subviews::{MatrixView, MatrixViewMut};
 use crate::ReduceOps;
 //}}}
@@ -20,7 +20,7 @@ use crate::ReduceOps;
 //--------------------------------------------------------------------------------------------------
 
 //{{{ impl: ReduceOps for DMatrix
-impl<T: Field + Copy> ReduceOps for DMatrix<T>
+impl<T: Copy> ReduceOps for DMatrix<T>
 {
     type Item = T;
     type Index = (usize, usize);
@@ -62,7 +62,7 @@ impl<T: Field + Copy> ReduceOps for DMatrix<T>
 //{{{ impl: ReduceOps for MatrixView
 impl<'a, T> ReduceOps for MatrixView<'a, DMatrix<T>>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     type Item = T;
     type Index = (usize, usize);
@@ -110,7 +110,7 @@ where
 //{{{ impl: ReduceOps for MatrixViewMut
 impl<'a, T> ReduceOps for MatrixViewMut<'a, DMatrix<T>>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     type Item = T;
     type Index = (usize, usize);

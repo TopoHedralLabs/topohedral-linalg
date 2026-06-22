@@ -22,7 +22,7 @@ use rand::distr::{uniform::SampleUniform, Distribution, Uniform};
 //{{{ impl: Clone for DMatrix
 impl<T> Clone for DMatrix<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     fn clone(&self) -> Self
     {
@@ -47,7 +47,7 @@ where
 //{{{ impl: DMatrix<T>
 impl<T> DMatrix<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     //{{{ fun: zeros
     /// Creates a new `DMatrix` initialized with zeros.
@@ -169,7 +169,7 @@ where
         ncols: usize,
     ) -> Self
     where
-        T: Field + One + Zero,
+        T: One + Zero,
     {
         let mut out = Self::zeros(nrows, ncols);
         let l = nrows.min(ncols);
@@ -185,7 +185,7 @@ where
 //{{{ impl: DVector<T>
 impl<T> DVector<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     /// Creates a new `DVector` initialized with the given value.
     pub fn from_value_vec(

@@ -550,7 +550,7 @@ macro_rules! impl_float {
                 rhs: Self,
             ) -> Self
             {
-                self.algebraic_add(rhs)
+                <$type>::algebraic_add(self, rhs)
             }
 
             #[inline]
@@ -559,7 +559,7 @@ macro_rules! impl_float {
                 rhs: Self,
             ) -> Self
             {
-                self.algebraic_sub(rhs)
+                <$type>::algebraic_sub(self, rhs)
             }
 
             #[inline]
@@ -568,7 +568,7 @@ macro_rules! impl_float {
                 rhs: Self,
             ) -> Self
             {
-                self.algebraic_mul(rhs)
+                <$type>::algebraic_mul(self, rhs)
             }
 
             #[inline]
@@ -577,7 +577,7 @@ macro_rules! impl_float {
                 rhs: Self,
             ) -> Self
             {
-                self.algebraic_div(rhs)
+                <$type>::algebraic_div(self, rhs)
             }
 
             #[inline]
@@ -586,7 +586,7 @@ macro_rules! impl_float {
                 rhs: Self,
             ) -> Self
             {
-                self.algebraic_rem(rhs)
+                <$type>::algebraic_rem(self, rhs)
             }
         }
     };

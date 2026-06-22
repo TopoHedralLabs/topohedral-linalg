@@ -50,13 +50,18 @@ routines.
 | Best for | Small, known-size matrices | Matrices whose size varies at runtime |
 
 Both types store data in **column-major** (Fortran) order for BLAS compatibility.
+They can store numeric values or booleans; arithmetic and BLAS/LAPACK methods remain
+restricted to their appropriate numeric scalar types.
 
 ---
 
 ## Quick example
 
 ```rust
-use topohedral_linalg::{DMatrix, SMatrix, MatMul, MatrixOps, ReduceOps};
+use topohedral_linalg::{
+    DMatrix, SMatrix,
+    ElementwiseCompare, Maskable, MatMul, MatrixOps, ReduceOps,
+};
 
 // Static 3×3 identity matrix
 let eye = SMatrix::<f64, 3, 3>::identity();
@@ -73,4 +78,7 @@ let d = (&a).matmul(&b);
 
 // Reduction
 let total = c.sum();
+
+// Lazy comparison and boolean masked selection
+let selected: DMatrix<f64> = a.masked(a.gt(2.0)).to_dmatrix();
 ```

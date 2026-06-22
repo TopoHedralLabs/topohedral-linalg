@@ -8,7 +8,6 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::Field;
 //}}}
 //{{{ std imports
 //}}}
@@ -20,7 +19,7 @@ use crate::common::Field;
 //{{{ impl: IntoIterator for SMatrix
 impl<T> IntoIterator for DMatrix<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     type Item = T;
 
@@ -36,7 +35,7 @@ where
 //{{{ impl: IntoIterator for &a' SMatrix
 impl<'a, T> IntoIterator for &'a DMatrix<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     type Item = &'a T;
 
@@ -52,7 +51,7 @@ where
 //{{{ impl: DMatrix
 impl<T> DMatrix<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     //{{{ fun: iter
     /// Returns a column-major immutable iterator over all elements of the matrix.

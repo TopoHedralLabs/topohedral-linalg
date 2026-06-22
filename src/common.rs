@@ -15,6 +15,7 @@ use crate::float::Float;
 //{{{ std imports
 use ::std::ops::{Add, Div, Mul, Neg, Sub};
 use std::cmp::PartialEq;
+use std::fmt;
 use std::ops::{AddAssign, DivAssign, Index, IndexMut, MulAssign, SubAssign};
 
 //}}}
@@ -129,6 +130,14 @@ impl Zero for f64
     }
 }
 
+impl Zero for bool
+{
+    fn zero() -> Self
+    {
+        false
+    }
+}
+
 macro_rules! impl_zero {
     ($type:ty) => {
         impl Zero for $type
@@ -165,6 +174,14 @@ impl One for f64
     fn one() -> Self
     {
         1.0
+    }
+}
+
+impl One for bool
+{
+    fn one() -> Self
+    {
+        true
     }
 }
 
@@ -220,6 +237,45 @@ macro_rules! impl_abs {
 }
 
 apply_for_all_integer_types!(impl_abs);
+//}}}
+//{{{ trait: MatrixElementDisplay
+/// Internal formatting hook used by matrix `Display` implementations.
+#[doc(hidden)]
+pub trait MatrixElementDisplay
+{
+    fn fmt_matrix_element(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+    ) -> fmt::Result;
+}
+
+macro_rules! impl_matrix_element_display_numeric {
+    ($type:ty) => {
+        impl MatrixElementDisplay for $type
+        {
+            fn fmt_matrix_element(
+                &self,
+                f: &mut fmt::Formatter<'_>,
+            ) -> fmt::Result
+            {
+                write!(f, "{:.4e}", self)
+            }
+        }
+    };
+}
+
+apply_for_all_types!(impl_matrix_element_display_numeric);
+
+impl MatrixElementDisplay for bool
+{
+    fn fmt_matrix_element(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+    ) -> fmt::Result
+    {
+        write!(f, "{}", self)
+    }
+}
 //}}}
 //{{{ collection: re-exports
 pub use num_complex::Complex;
@@ -299,7 +355,7 @@ where
 /// with [`MatrixExpr::linear_value`] without allocating.
 pub trait MatrixExpr: Shape
 {
-    type ScalarType: Field + Copy;
+    type ScalarType: Copy;
 
     /// Returns the value at `index` in column-major order.
     fn linear_value(
@@ -378,7 +434,7 @@ where
 #[doc(hidden)]
 pub struct ScalarExpr<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     pub value: T,
     pub nrows: usize,
@@ -387,7 +443,7 @@ where
 
 impl<T> ScalarExpr<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     #[inline]
     pub fn new(
@@ -406,7 +462,7 @@ where
 
 impl<T> Shape for ScalarExpr<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     #[inline]
     fn nrows(&self) -> usize
@@ -423,7 +479,7 @@ where
 
 impl<T> MatrixExpr for ScalarExpr<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     type ScalarType = T;
 
@@ -562,7 +618,7 @@ pub trait TransformOps
 where
     Self: Sized,
 {
-    type ScalarType: Field + Copy;
+    type ScalarType: Copy;
 
     /// Applies `f` to each element in-place.
     fn transform<F>(
@@ -601,7 +657,8 @@ where
     fn shift(
         &mut self,
         value: Self::ScalarType,
-    )
+    ) where
+        Self::ScalarType: Add<Output = Self::ScalarType>,
     {
         self.transform(|element| element + value);
     }
@@ -613,6 +670,7 @@ where
     ) -> Self
     where
         Self: Clone,
+        Self::ScalarType: Add<Output = Self::ScalarType>,
     {
         self.transformed(|element| element + value)
     }
@@ -622,6 +680,8 @@ where
         self,
         value: Self::ScalarType,
     ) -> Self
+    where
+        Self::ScalarType: Add<Output = Self::ScalarType>,
     {
         self.into_transformed(|element| element + value)
     }
@@ -630,7 +690,8 @@ where
     fn scale(
         &mut self,
         value: Self::ScalarType,
-    )
+    ) where
+        Self::ScalarType: Mul<Output = Self::ScalarType>,
     {
         self.transform(|element| element * value);
     }
@@ -642,6 +703,7 @@ where
     ) -> Self
     where
         Self: Clone,
+        Self::ScalarType: Mul<Output = Self::ScalarType>,
     {
         self.transformed(|element| element * value)
     }
@@ -651,6 +713,8 @@ where
         self,
         value: Self::ScalarType,
     ) -> Self
+    where
+        Self::ScalarType: Mul<Output = Self::ScalarType>,
     {
         self.into_transformed(|element| element * value)
     }

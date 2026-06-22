@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Dimension, Field};
+use crate::common::Dimension;
 
 use super::SMatrix;
 //}}}
@@ -18,7 +18,7 @@ use super::SMatrix;
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     [(); N * M]:,
-    T: Field + Copy + Ord,
+    T: Copy + Ord,
 {
     //{{{ fn: sort
     /// Sorts the elements of the matrix in place along the given dimension.

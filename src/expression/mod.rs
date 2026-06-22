@@ -18,4 +18,6 @@
 //--------------------------------------------------------------------------------------------------
 
 pub mod binary_expr;
+pub mod boolean_expr;
+pub mod comparison_expr;
 pub mod unary_expr;

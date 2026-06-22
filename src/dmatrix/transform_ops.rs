@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{Field, TransformOps};
+use crate::common::TransformOps;
 use crate::subviews::MatrixViewMut;
 //}}}
 //{{{ std imports
@@ -21,7 +21,7 @@ use crate::subviews::MatrixViewMut;
 //{{{ impl: TransformOps for DMatrix
 impl<T> TransformOps for DMatrix<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     type ScalarType = T;
 
@@ -42,7 +42,7 @@ where
 //{{{ impl: TransformOps for MatrixViewMut
 impl<'a, T> TransformOps for MatrixViewMut<'a, DMatrix<T>>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     type ScalarType = T;
 

@@ -7,7 +7,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{Field, MatrixExpr};
+use crate::common::MatrixExpr;
 use crate::subviews::{MatrixView, MatrixViewMut, SubViewable, SubViewableMut};
 //}}}
 //--------------------------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ use crate::subviews::{MatrixView, MatrixViewMut, SubViewable, SubViewableMut};
 //{{{ impl: to_dmatrix for DMatrix views
 impl<'a, T> MatrixView<'a, DMatrix<T>>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
     pub fn to_dmatrix(&self) -> DMatrix<T>
@@ -38,7 +38,7 @@ where
 
 impl<'a, T> MatrixViewMut<'a, DMatrix<T>>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
     pub fn to_dmatrix(&self) -> DMatrix<T>
@@ -63,7 +63,7 @@ where
 //{{{ impl: SubViewable for DMatrix
 impl<T> SubViewable for DMatrix<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     fn subview<'a>(
         &'a self,
@@ -86,7 +86,7 @@ where
 //{{{ impl: SubViewableMut for DMatrix
 impl<T> SubViewableMut for DMatrix<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     fn subview_mut<'a>(
         &'a mut self,
@@ -110,7 +110,7 @@ where
 //{{{ impl: DMatrix copy and set helpers
 impl<'a, T> DMatrix<T>
 where
-    T: Field + Copy,
+    T: Copy,
 {
     //{{{ fun: copy_from
     /// Copies entries from `rhs` into this matrix.
