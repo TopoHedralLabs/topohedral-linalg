@@ -30,7 +30,6 @@ pub enum Error
 #[allow(private_bounds)]
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Gesv + Field,
 {
     /// Solves the linear system `self * X = b`, returning the solution matrix X.
@@ -43,13 +42,8 @@ where
         b: &SMatrix<T, N, M>,
     ) -> Result<SMatrix<T, N, M>, Error>
     {
-        let data = solve_raw(self.data.to_vec(), b.data.to_vec(), N, M)?;
-        let x_arr: [T; N * M] = data.try_into().unwrap_or_else(|_| unreachable!());
-        Ok(SMatrix {
-            data: x_arr,
-            nrows: N,
-            ncols: M,
-        })
+        let data = solve_raw(self.as_slice().to_vec(), b.as_slice().to_vec(), N, M)?;
+        Ok(SMatrix::from_col_vec(data))
     }
 }
 //}}}

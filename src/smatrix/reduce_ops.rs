@@ -22,7 +22,6 @@ use crate::ReduceOps;
 //{{{ impl: ReduceOps for SMatrix
 impl<T, const N: usize, const M: usize> ReduceOps for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Copy,
 {
     type Item = T;
@@ -37,7 +36,7 @@ where
         F: FnMut(B, Self::Item) -> B,
     {
         let mut acc = init;
-        for &value in &self.data
+        for &value in self.as_slice()
         {
             acc = f(acc, value);
         }
@@ -53,7 +52,7 @@ where
         F: FnMut(B, Self::Index, Self::Item) -> B,
     {
         let mut acc = init;
-        for (linear_index, &value) in self.data.iter().enumerate()
+        for (linear_index, &value) in self.as_slice().iter().enumerate()
         {
             acc = f(acc, tuple_index(linear_index, N), value);
         }
@@ -64,7 +63,6 @@ where
 //{{{ impl: ReduceOps for MatrixView
 impl<'a, T, const N: usize, const M: usize> ReduceOps for MatrixView<'a, SMatrix<T, N, M>>
 where
-    [(); N * M]:,
     T: Copy,
 {
     type Item = T;
@@ -112,7 +110,6 @@ where
 //{{{ impl: ReduceOps for MatrixViewMut
 impl<'a, T, const N: usize, const M: usize> ReduceOps for MatrixViewMut<'a, SMatrix<T, N, M>>
 where
-    [(); N * M]:,
     T: Copy,
 {
     type Item = T;

@@ -1,6 +1,3 @@
-#![feature(generic_const_exprs)]
-#![allow(incomplete_features)]
-
 use topohedral_linalg::{
     DMatrix, ElementwiseCompare, Maskable, MatrixExpr, ReduceOps, SMatrix, Shape, SubViewable,
     SubViewableMut, TransformOps,

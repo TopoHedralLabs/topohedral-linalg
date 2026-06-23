@@ -30,7 +30,6 @@ pub enum Error
 #[derive(Debug)]
 pub struct Return<T, const N: usize>
 where
-    [(); N * N]:,
     T: Field + Copy,
 {
     /// Lower-triangular factor L such that A = L L^T.
@@ -41,7 +40,6 @@ where
 #[allow(private_bounds)]
 impl<T, const N: usize> SMatrix<T, N, N>
 where
-    [(); N * N]:,
     T: Zero + Potrf + Field + Copy,
 {
     /// Computes the Cholesky decomposition of the matrix.
@@ -55,14 +53,9 @@ where
     /// positive definite.
     pub fn cholesky(&self) -> Result<Return<T, N>, Error>
     {
-        let raw = cholesky_raw(self.data.to_vec(), N)?;
-        let l_arr: [T; N * N] = raw.l_data.try_into().unwrap_or_else(|_| unreachable!());
+        let raw = cholesky_raw(self.as_slice().to_vec(), N)?;
         Ok(Return {
-            l: SMatrix {
-                data: l_arr,
-                nrows: N,
-                ncols: N,
-            },
+            l: SMatrix::from_col_vec(raw.l_data),
         })
     }
 }

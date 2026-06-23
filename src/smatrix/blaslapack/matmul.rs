@@ -20,9 +20,6 @@ use crate::smatrix::SMatrix;
 impl<'a, T, const N: usize, const M: usize, const K: usize> MatMul<&'a SMatrix<T, K, N>>
     for &'a SMatrix<T, M, K>
 where
-    [(); M * K]:,
-    [(); K * N]:,
-    [(); M * N]:,
     T: Gemm + Gemv + Field + Zero + One + Copy,
 {
     type Output = SMatrix<T, M, N>;
@@ -33,7 +30,14 @@ where
     ) -> Self::Output
     {
         let mut result = SMatrix::<T, M, N>::zeros();
-        matmul_dispatch(M, K, N, &self.data, &rhs.data, &mut result.data);
+        matmul_dispatch(
+            M,
+            K,
+            N,
+            self.as_slice(),
+            rhs.as_slice(),
+            result.as_mut_slice(),
+        );
         result
     }
 }
@@ -43,9 +47,6 @@ where
 impl<'a, T, const N: usize, const M: usize, const K: usize> MatMul<&'a SMatrix<T, K, N>>
     for &'a mut SMatrix<T, M, K>
 where
-    [(); M * K]:,
-    [(); K * N]:,
-    [(); M * N]:,
     T: Gemm + Gemv + Field + Zero + One + Copy,
 {
     type Output = SMatrix<T, M, N>;
@@ -64,9 +65,6 @@ where
 impl<'a, T, const N: usize, const M: usize, const K: usize> MatMul<&'a mut SMatrix<T, K, N>>
     for &'a SMatrix<T, M, K>
 where
-    [(); M * K]:,
-    [(); K * N]:,
-    [(); M * N]:,
     T: Gemm + Gemv + Field + Zero + One + Copy,
 {
     type Output = SMatrix<T, M, N>;
@@ -85,9 +83,6 @@ where
 impl<'a, T, const N: usize, const M: usize, const K: usize> MatMul<&'a mut SMatrix<T, K, N>>
     for &'a mut SMatrix<T, M, K>
 where
-    [(); M * K]:,
-    [(); K * N]:,
-    [(); M * N]:,
     T: Gemm + Gemv + Field + Zero + One + Copy,
 {
     type Output = SMatrix<T, M, N>;
@@ -108,9 +103,6 @@ where
 impl<T, const N: usize, const M: usize, const K: usize> MatMul<SMatrix<T, K, N>>
     for &SMatrix<T, M, K>
 where
-    [(); M * K]:,
-    [(); K * N]:,
-    [(); M * N]:,
     T: Gemm + Gemv + Field + Zero + One + Copy,
 {
     type Output = SMatrix<T, M, N>;
@@ -129,9 +121,6 @@ where
 impl<T, const N: usize, const M: usize, const K: usize> MatMul<SMatrix<T, K, N>>
     for &mut SMatrix<T, M, K>
 where
-    [(); M * K]:,
-    [(); K * N]:,
-    [(); M * N]:,
     T: Gemm + Gemv + Field + Zero + One + Copy,
 {
     type Output = SMatrix<T, M, N>;
@@ -151,7 +140,6 @@ where
 //{{{ trait: MatMul<&'a DMatrix<T>> for &'a SMatrix<T, M, K>
 impl<'a, T, const M: usize, const K: usize> MatMul<&'a DMatrix<T>> for &'a SMatrix<T, M, K>
 where
-    [(); M * K]:,
     T: Gemm + Gemv + Field + Zero + One + Copy,
 {
     type Output = DMatrix<T>;
@@ -170,7 +158,7 @@ where
             self.nrows, self.ncols, rhs.nrows, rhs.ncols
         );
         let mut result = DMatrix::<T>::zeros(m, n);
-        matmul_dispatch(m, k, n, &self.data, &rhs.data, &mut result.data);
+        matmul_dispatch(m, k, n, self.as_slice(), &rhs.data, &mut result.data);
         result
     }
 }
@@ -178,7 +166,6 @@ where
 //{{{ trait: MatMul<&'a DMatrix<T>> for &'a mut SMatrix<T, M, K>
 impl<'a, T, const M: usize, const K: usize> MatMul<&'a DMatrix<T>> for &'a mut SMatrix<T, M, K>
 where
-    [(); M * K]:,
     T: Gemm + Gemv + Field + Zero + One + Copy,
 {
     type Output = DMatrix<T>;
@@ -196,7 +183,6 @@ where
 //{{{ trait: MatMul<&'a mut DMatrix<T>> for &'a SMatrix<T, M, K>
 impl<'a, T, const M: usize, const K: usize> MatMul<&'a mut DMatrix<T>> for &'a SMatrix<T, M, K>
 where
-    [(); M * K]:,
     T: Gemm + Gemv + Field + Zero + One + Copy,
 {
     type Output = DMatrix<T>;
@@ -214,7 +200,6 @@ where
 //{{{ trait: MatMul<&'a mut DMatrix<T>> for &'a mut SMatrix<T, M, K>
 impl<'a, T, const M: usize, const K: usize> MatMul<&'a mut DMatrix<T>> for &'a mut SMatrix<T, M, K>
 where
-    [(); M * K]:,
     T: Gemm + Gemv + Field + Zero + One + Copy,
 {
     type Output = DMatrix<T>;

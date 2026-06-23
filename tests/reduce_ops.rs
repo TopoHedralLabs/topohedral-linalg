@@ -1,6 +1,3 @@
-#![feature(generic_const_exprs)]
-#![allow(incomplete_features)]
-
 mod dmatrix_tests
 {
     use topohedral_linalg::*;

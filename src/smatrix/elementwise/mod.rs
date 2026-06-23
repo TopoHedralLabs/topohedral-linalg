@@ -24,7 +24,6 @@ mod subop;
 //{{{ impl: From<BinopExpr> for SMatrix
 impl<A, B, T, Op, const N: usize, const M: usize> From<BinopExpr<A, B, T, Op>> for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     A: MatrixExpr<ScalarType = T>,
     B: MatrixExpr<ScalarType = T>,
     T: Field + Copy + Zero,
@@ -33,7 +32,7 @@ where
     fn from(expr: BinopExpr<A, B, T, Op>) -> Self
     {
         let mut out = SMatrix::<T, N, M>::zeros();
-        expr.eval_into(&mut out.data);
+        expr.eval_into(out.as_mut_slice());
         out
     }
 }
@@ -41,7 +40,6 @@ where
 //{{{ impl: From<UnaryExpr> for SMatrix
 impl<A, T, Op, const N: usize, const M: usize> From<UnaryExpr<A, T, Op>> for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     A: MatrixExpr<ScalarType = T>,
     T: Field + Copy + Zero,
     Op: UnaryOp<T>,
@@ -49,7 +47,7 @@ where
     fn from(expr: UnaryExpr<A, T, Op>) -> Self
     {
         let mut out = SMatrix::<T, N, M>::zeros();
-        expr.eval_into(&mut out.data);
+        expr.eval_into(out.as_mut_slice());
         out
     }
 }

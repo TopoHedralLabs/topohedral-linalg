@@ -21,7 +21,6 @@ use crate::subviews::MatrixViewMut;
 //{{{ impl: TransformOps for SMatrix
 impl<T, const N: usize, const M: usize> TransformOps for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Copy,
 {
     type ScalarType = T;
@@ -32,7 +31,7 @@ where
     ) where
         F: FnMut(Self::ScalarType) -> Self::ScalarType,
     {
-        for value in &mut self.data
+        for value in self.as_mut_slice()
         {
             *value = f(*value);
         }
@@ -42,7 +41,6 @@ where
 //{{{ impl: TransformOps for MatrixViewMut
 impl<'a, T, const N: usize, const M: usize> TransformOps for MatrixViewMut<'a, SMatrix<T, N, M>>
 where
-    [(); N * M]:,
     T: Copy,
 {
     type ScalarType = T;

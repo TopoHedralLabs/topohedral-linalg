@@ -17,7 +17,6 @@ use super::SMatrix;
 //{{{ impl SMatrix
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Copy + Ord,
 {
     //{{{ fn: sort
@@ -50,13 +49,12 @@ where
             {
                 for c in 0..self.ncols
                 {
-                    let offset = c * self.nrows;
-                    self.data[offset..(offset + self.nrows)].sort();
+                    self.data[c].sort();
                 }
             }
             Dimension::All =>
             {
-                self.data.sort();
+                self.as_mut_slice().sort();
             }
         }
     }

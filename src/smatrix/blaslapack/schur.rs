@@ -30,7 +30,6 @@ pub enum Error
 /// Result of a Schur decomposition: orthogonal factor Q and quasi-upper-triangular Schur matrix T.
 pub struct Return<T, const N: usize, const M: usize>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
     /// Orthogonal (unitary) transformation matrix Q such that A = Q T Q^H.
@@ -43,8 +42,6 @@ where
 #[allow(private_bounds)]
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    [(); N * 5]:,
-    [(); N * M]:,
     T: One + Zero + Gees + Field + Default + Copy,
 {
     /// Computes the Schur decomposition A = Q T Q^H of the matrix.
@@ -54,20 +51,10 @@ where
     /// Returns an error if the LAPACK `gees` routine fails.
     pub fn schur(&self) -> Result<Return<T, N, M>, Error>
     {
-        let raw = schur_raw(self.data.to_vec(), N, M)?;
-        let q_arr: [T; N * M] = raw.q_data.try_into().unwrap_or_else(|_| unreachable!());
-        let t_arr: [T; N * M] = raw.t_data.try_into().unwrap_or_else(|_| unreachable!());
+        let raw = schur_raw(self.as_slice().to_vec(), N, M)?;
         Ok(Return {
-            q: SMatrix {
-                data: q_arr,
-                nrows: N,
-                ncols: M,
-            },
-            t: SMatrix {
-                data: t_arr,
-                nrows: N,
-                ncols: M,
-            },
+            q: SMatrix::from_col_vec(raw.q_data),
+            t: SMatrix::from_col_vec(raw.t_data),
         })
     }
 }

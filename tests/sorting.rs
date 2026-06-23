@@ -1,6 +1,3 @@
-#![feature(generic_const_exprs)]
-#![allow(incomplete_features)]
-
 mod dmatrix_tests
 {
     use topohedral_linalg::Dimension;
@@ -72,8 +69,7 @@ mod smatrix_tests
     fn assert_matrix_eq<const N: usize, const M: usize>(
         actual: &SMatrix<i32, N, M>,
         expected: &SMatrix<i32, N, M>,
-    ) where
-        [(); N * M]:,
+    )
     {
         for (actual_value, expected_value) in actual.iter().zip(expected.iter())
         {

@@ -21,7 +21,6 @@ use crate::smatrix::SMatrix;
 //{{{ impl: Shape for SMatrix
 impl<T, const N: usize, const M: usize> Shape for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Copy,
 {
     fn ncols(&self) -> usize
@@ -38,8 +37,6 @@ where
 //{{{ impl: MatrixOps for SMatrix
 impl<T, const N: usize, const M: usize> MatrixOps for SMatrix<T, N, M>
 where
-    [(); N * M]:,
-    [(); M * N]:,
     T: Field + Zero + One + Copy,
 {
     type ScalarType = T;

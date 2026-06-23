@@ -22,7 +22,6 @@ use std::ops::Neg;
 //{{{ impl: Neg for SMatrix
 impl<T, const N: usize, const M: usize> Neg for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Field + Zero + Default + Neg<Output = T> + Copy,
 {
     type Output = SMatrix<T, N, M>;
@@ -41,7 +40,6 @@ where
 //{{{ impl: Neg for &SMatrix
 impl<'a, T, const N: usize, const M: usize> Neg for &'a SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
     type Output = UnaryExpr<&'a SMatrix<T, N, M>, T, NegOp>;
@@ -56,7 +54,6 @@ where
 //{{{ impl: Neg for &mut SMatrix
 impl<'a, T, const N: usize, const M: usize> Neg for &'a mut SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
     type Output = UnaryExpr<&'a mut SMatrix<T, N, M>, T, NegOp>;
