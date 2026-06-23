@@ -385,7 +385,6 @@ macro_rules! impl_bool_ops_for_smatrix {
         #[doc(hidden)]
         impl<const N: usize, const M: usize, Rhs> BitAnd<Rhs> for $lhs
         where
-            [(); N * M]:,
             Rhs: MatrixExpr<ScalarType = bool>,
         {
             type Output = BoolBinaryExpr<Self, Rhs, AndOp>;
@@ -402,7 +401,6 @@ macro_rules! impl_bool_ops_for_smatrix {
         #[doc(hidden)]
         impl<const N: usize, const M: usize, Rhs> BitOr<Rhs> for $lhs
         where
-            [(); N * M]:,
             Rhs: MatrixExpr<ScalarType = bool>,
         {
             type Output = BoolBinaryExpr<Self, Rhs, OrOp>;
@@ -419,7 +417,6 @@ macro_rules! impl_bool_ops_for_smatrix {
         #[doc(hidden)]
         impl<const N: usize, const M: usize, Rhs> BitXor<Rhs> for $lhs
         where
-            [(); N * M]:,
             Rhs: MatrixExpr<ScalarType = bool>,
         {
             type Output = BoolBinaryExpr<Self, Rhs, XorOp>;
@@ -435,8 +432,6 @@ macro_rules! impl_bool_ops_for_smatrix {
 
         #[doc(hidden)]
         impl<const N: usize, const M: usize> Not for $lhs
-        where
-            [(); N * M]:,
         {
             type Output = BoolNotExpr<Self>;
 
@@ -484,7 +479,6 @@ where
 impl<A, B, Op, const N: usize, const M: usize> From<BoolBinaryExpr<A, B, Op>>
     for SMatrix<bool, N, M>
 where
-    [(); N * M]:,
     A: MatrixExpr<ScalarType = bool>,
     B: MatrixExpr<ScalarType = bool>,
     Op: BoolBinaryOp,
@@ -493,7 +487,7 @@ where
     {
         assert_eq!((N, M), (expr.nrows, expr.ncols));
         let mut out = SMatrix::from_value(false);
-        expr.eval_into(&mut out.data);
+        expr.eval_into(out.as_mut_slice());
         out
     }
 }
@@ -501,14 +495,13 @@ where
 #[doc(hidden)]
 impl<A, const N: usize, const M: usize> From<BoolNotExpr<A>> for SMatrix<bool, N, M>
 where
-    [(); N * M]:,
     A: MatrixExpr<ScalarType = bool>,
 {
     fn from(expr: BoolNotExpr<A>) -> Self
     {
         assert_eq!((N, M), (expr.nrows, expr.ncols));
         let mut out = SMatrix::from_value(false);
-        expr.eval_into(&mut out.data);
+        expr.eval_into(out.as_mut_slice());
         out
     }
 }

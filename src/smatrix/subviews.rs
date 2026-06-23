@@ -16,7 +16,6 @@ use crate::subviews::{MatrixView, MatrixViewMut, SubViewable, SubViewableMut};
 //{{{ impl: to_dmatrix for SMatrix views
 impl<'a, T, const N: usize, const M: usize> MatrixView<'a, SMatrix<T, N, M>>
 where
-    [(); N * M]:,
     T: Copy,
 {
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
@@ -40,7 +39,6 @@ where
 
 impl<'a, T, const N: usize, const M: usize> MatrixViewMut<'a, SMatrix<T, N, M>>
 where
-    [(); N * M]:,
     T: Copy,
 {
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
@@ -66,7 +64,6 @@ where
 //{{{ impl: SubViewable for SMatrix
 impl<T, const N: usize, const M: usize> SubViewable for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Copy,
 {
     fn subview<'a>(
@@ -90,7 +87,6 @@ where
 //{{{ impl: SubViewableMut for SMatrix
 impl<T, const N: usize, const M: usize> SubViewableMut for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Copy,
 {
     fn subview_mut<'a>(
@@ -116,7 +112,6 @@ where
 impl<'a, T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
     T: Copy,
-    [(); N * M]:,
 {
     //{{{ fun: copy_from
     /// Copies entries from `rhs` into this matrix.
@@ -139,7 +134,7 @@ where
                 self.nrows, self.ncols, rhs_nrows, rhs_ncols
             );
         }
-        rhs.eval_into(&mut self.data);
+        rhs.eval_into(self.as_mut_slice());
     }
     //}}}
     //{{{ fun: set_row

@@ -23,7 +23,6 @@ use rand::distr::{uniform::SampleUniform, Distribution, Uniform};
 //{{{ impl: SMatrix
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Copy,
 {
     //{{{ fun: zeros
@@ -33,7 +32,7 @@ where
         T: Zero,
     {
         Self {
-            data: [T::zero(); N * M],
+            data: [[T::zero(); N]; M],
             nrows: N,
             ncols: M,
         }
@@ -46,7 +45,7 @@ where
         T: One,
     {
         Self {
-            data: [T::one(); N * M],
+            data: [[T::one(); N]; M],
             nrows: N,
             ncols: M,
         }
@@ -57,7 +56,7 @@ where
     pub fn from_value(value: T) -> Self
     {
         Self {
-            data: [value; N * M],
+            data: [[value; N]; M],
             nrows: N,
             ncols: M,
         }
@@ -66,36 +65,33 @@ where
     //{{{ fun: from_row_slice
     /// Takes N*M element array in row-major order and creates a new SMatrix
     pub fn from_row_slice(slice: &[T]) -> Self
-    where
-        T: Zero,
     {
         assert_eq!(slice.len(), N * M);
 
-        let mut out = Self::zeros();
-
-        for j in 0..M
-        {
-            for i in 0..N
-            {
-                out.data[j * N + i] = slice[i * M + j];
-            }
+        Self {
+            data: std::array::from_fn(|col| std::array::from_fn(|row| slice[row * M + col])),
+            nrows: N,
+            ncols: M,
         }
-
-        out
     }
     //}}}
     //{{{ fun: from_col_slice
     /// Takes N*M element array in column-major order and creates a new SMatrix
     pub fn from_col_slice(slice: &[T]) -> Self
-    where
-        T: Zero,
     {
         assert_eq!(slice.len(), N * M);
         Self {
-            data: slice.try_into().unwrap(),
+            data: std::array::from_fn(|col| std::array::from_fn(|row| slice[col * N + row])),
             nrows: N,
             ncols: M,
         }
+    }
+    //}}}
+    //{{{ fun: from_col_vec
+    pub(crate) fn from_col_vec(data: Vec<T>) -> Self
+    {
+        assert_eq!(data.len(), N * M);
+        Self::from_col_slice(&data)
     }
     //}}}
     //{{{ fun: from_uniform_random
@@ -116,9 +112,9 @@ where
 
         let mut rng = rand::rng();
 
-        for i in 0..N * M
+        for value in out.as_mut_slice()
         {
-            out.data[i] = range.sample(&mut rng);
+            *value = range.sample(&mut rng);
         }
 
         out
@@ -137,7 +133,7 @@ where
         let l = N.min(M);
         for i in 0..l
         {
-            out.data[i + i * N] = T::one()
+            out[(i, i)] = T::one()
         }
         out
     }

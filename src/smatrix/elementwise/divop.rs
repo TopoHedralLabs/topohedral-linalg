@@ -22,7 +22,6 @@ use std::ops::{Div, DivAssign};
 //{{{ impl: Div<T> for SMatrix
 impl<T, const N: usize, const M: usize> Div<T> for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
     type Output = SMatrix<T, N, M>;
@@ -42,7 +41,6 @@ where
 //{{{ impl: Div<SMatrix> for SMatrix
 impl<T, const N: usize, const M: usize> Div for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
     type Output = SMatrix<T, N, M>;
@@ -76,8 +74,6 @@ macro_rules! impl_smatrix_div_owned {
     ($type: ty) => {
         #[doc(hidden)]
         impl<const N: usize, const M: usize> Div<SMatrix<$type, N, M>> for $type
-        where
-            [(); N * M]:,
         {
             type Output = SMatrix<$type, N, M>;
 
@@ -99,7 +95,6 @@ apply_for_all_types!(impl_smatrix_div_owned);
 //{{{ impl DivAssign<T> for SMatrix
 impl<T, const N: usize, const M: usize> DivAssign<T> for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
     #[inline]
@@ -115,7 +110,6 @@ where
 //{{{ impl: DivAssign<SMatrix> for SMatrix
 impl<T, const N: usize, const M: usize> DivAssign for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
     #[inline]
@@ -146,8 +140,6 @@ macro_rules! impl_smatrix_div_scalar_rhs {
     ($type:ty) => {
         #[doc(hidden)]
         impl<'a, const N: usize, const M: usize> Div<$type> for &'a SMatrix<$type, N, M>
-        where
-            [(); N * M]:,
         {
             type Output = BinopExpr<&'a SMatrix<$type, N, M>, ScalarExpr<$type>, $type, DivOp>;
 
@@ -171,8 +163,6 @@ macro_rules! impl_smatrix_div_scalar_rhs {
 
         #[doc(hidden)]
         impl<'a, const N: usize, const M: usize> Div<$type> for &'a mut SMatrix<$type, N, M>
-        where
-            [(); N * M]:,
         {
             type Output = BinopExpr<&'a SMatrix<$type, N, M>, ScalarExpr<$type>, $type, DivOp>;
 
@@ -196,8 +186,6 @@ macro_rules! impl_smatrix_div {
     ($type:ty) => {
         #[doc(hidden)]
         impl<'a, const N: usize, const M: usize> Div<&'a SMatrix<$type, N, M>> for $type
-        where
-            [(); N * M]:,
         {
             type Output = BinopExpr<ScalarExpr<$type>, &'a SMatrix<$type, N, M>, $type, DivOp>;
 
@@ -228,8 +216,6 @@ macro_rules! impl_smatrix_div_mut {
     ($type:ty) => {
         #[doc(hidden)]
         impl<'a, const N: usize, const M: usize> Div<&'a mut SMatrix<$type, N, M>> for $type
-        where
-            [(); N * M]:,
         {
             type Output = BinopExpr<ScalarExpr<$type>, &'a SMatrix<$type, N, M>, $type, DivOp>;
 
@@ -251,7 +237,6 @@ apply_for_all_types!(impl_smatrix_div_mut);
 //{{{ impl: Div<Rhs> for &'a SMatrix
 impl<'a, T, Rhs, const N: usize, const M: usize> Div<Rhs> for &'a SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Field + Copy,
     Rhs: MatrixExpr<ScalarType = T>,
 {
@@ -285,7 +270,6 @@ where
 //{{{ impl: Div<Rhs> for &'a mut SMatrix
 impl<'a, T, Rhs, const N: usize, const M: usize> Div<Rhs> for &'a mut SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Field + Copy,
     Rhs: MatrixExpr<ScalarType = T>,
 {

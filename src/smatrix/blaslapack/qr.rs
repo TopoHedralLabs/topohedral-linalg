@@ -31,7 +31,6 @@ pub enum Error
 /// Result of a QR decomposition: orthogonal factor Q and upper-triangular factor R.
 pub struct Return<T, const N: usize, const M: usize>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
     /// Orthogonal factor Q.
@@ -44,7 +43,6 @@ where
 #[allow(private_bounds)]
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: One + Zero + Geqrf + Orgqr + Field + Copy + AsI32,
 {
     /// Computes the QR decomposition of the matrix, returning Q (orthogonal) and R (upper-triangular).
@@ -54,20 +52,10 @@ where
     /// Returns an error if either the LAPACK `geqrf` or `orgqr` routine fails.
     pub fn qr(&self) -> Result<Return<T, N, M>, Error>
     {
-        let raw = qr_raw(self.data.to_vec(), N, M)?;
-        let q_arr: [T; N * M] = raw.q_data.try_into().unwrap_or_else(|_| unreachable!());
-        let r_arr: [T; N * M] = raw.r_data.try_into().unwrap_or_else(|_| unreachable!());
+        let raw = qr_raw(self.as_slice().to_vec(), N, M)?;
         Ok(Return {
-            q: SMatrix {
-                data: q_arr,
-                nrows: N,
-                ncols: M,
-            },
-            r: SMatrix {
-                data: r_arr,
-                nrows: N,
-                ncols: M,
-            },
+            q: SMatrix::from_col_vec(raw.q_data),
+            r: SMatrix::from_col_vec(raw.r_data),
         })
     }
 }

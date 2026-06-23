@@ -33,7 +33,6 @@ pub enum Error
 #[derive(Debug)]
 pub struct Return<T, const N: usize>
 where
-    [(); N * N]:,
     T: Field + Default + Copy,
 {
     /// Matrix of eigenvectors (columns are the eigenvectors)
@@ -48,7 +47,6 @@ where
 #[allow(private_bounds)]
 impl<T, const N: usize> SMatrix<T, N, N>
 where
-    [(); N * N]:,
     T: One + Zero + Syev + Field + Default + Copy + AsI32,
 {
     /// Computes the eigendecomposition of a symmetric matrix.
@@ -61,18 +59,10 @@ where
     /// Returns an error if the LAPACK routine fails.
     pub fn symeig(&self) -> Result<Return<T, N>, Error>
     {
-        let raw = symeig_raw(self.data.to_vec(), N)?;
-        let eigvecs_arr: [T; N * N] = raw
-            .eigvecs_data
-            .try_into()
-            .unwrap_or_else(|_| unreachable!());
+        let raw = symeig_raw(self.as_slice().to_vec(), N)?;
         let eigvals: [T; N] = raw.eigvals.try_into().unwrap_or_else(|_| unreachable!());
         Ok(Return {
-            eigvecs: SMatrix {
-                data: eigvecs_arr,
-                nrows: N,
-                ncols: N,
-            },
+            eigvecs: SMatrix::from_col_vec(raw.eigvecs_data),
             eigvals,
         })
     }

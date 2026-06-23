@@ -34,8 +34,6 @@
 #![feature(float_erf)]
 #![feature(float_gamma)]
 #![feature(float_minimum_maximum)]
-#![feature(generic_const_exprs)]
-#![allow(incomplete_features)]
 #![allow(stable_features)]
 
 //{{{ collection: private modules
@@ -50,8 +48,8 @@ mod subviews;
 //{{{ collection: public API
 pub use crate::float::{Float, FloatTransformOps, FloatVectorOps};
 pub use common::{
-    Abs, Complex, Dimension, Field, GreaterThan, MatMul, MatrixElementDisplay, MatrixExpr,
-    MatrixOps, ReduceOps, Shape, TransformOps, VectorOps,
+    Abs, Complex, Dimension, Field, MatMul, MatrixElementDisplay, MatrixExpr, MatrixOps, ReduceOps,
+    Shape, TransformOps, VectorOps,
 };
 pub use dmatrix::*;
 pub use expression::comparison_expr::ElementwiseCompare;

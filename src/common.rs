@@ -3,8 +3,7 @@
 //! Defines the primitive abstractions shared by all matrix types in the crate. The [`Field`]
 //! trait bounds element types to those supporting arithmetic operations. [`Zero`] and [`One`]
 //! supply additive and multiplicative identities. [`Shape`] exposes runtime matrix dimensions.
-//! [`MatrixExpr`] powers the lazy expression-template pipeline. Compile-time predicates such as
-//! [`GreaterThan`] and [`IsTrue`] enable dimension-checking assertions on static matrices.
+//! [`MatrixExpr`] powers the lazy expression-template pipeline.
 //!
 //--------------------------------------------------------------------------------------------------
 
@@ -23,18 +22,6 @@ use std::ops::{AddAssign, DivAssign, Index, IndexMut, MulAssign, SubAssign};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-//{{{ collection: compile-time checks
-/// Assertion struct for compile-time checks
-struct Assert<const CHECK: bool>;
-/// This trait is used to ensure that the compile-time check is true
-trait IsTrue {}
-impl IsTrue for Assert<true> {}
-
-/// Compile-time predicate that asserts `N > M`, used to enforce static dimension constraints.
-pub trait GreaterThan<const N: usize, const M: usize> {}
-/// Blanket implementation that satisfies [`GreaterThan`] whenever the compile-time check `N > M` holds.
-impl<const N: usize, const M: usize> GreaterThan<N, M> for () where Assert<{ N > M }>: IsTrue {}
-//}}}
 //{{{ trait: Field
 /// Algebraic field over which matrix operations are defined, requiring the four arithmetic
 /// operations, their assignment variants, negation, and a total order.

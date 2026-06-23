@@ -1,6 +1,3 @@
-#![feature(generic_const_exprs)]
-#![allow(incomplete_features)]
-
 mod dmatrix_tests
 {
     use approx::assert_relative_eq;
@@ -374,8 +371,7 @@ mod smatrix_tests
     fn assert_matrix_eq<const N: usize, const M: usize>(
         actual: &SMatrix<i32, N, M>,
         expected: &SMatrix<i32, N, M>,
-    ) where
-        [(); N * M]:,
+    )
     {
         assert_eq!(actual.nrows(), expected.nrows());
         assert_eq!(actual.ncols(), expected.ncols());
@@ -389,8 +385,7 @@ mod smatrix_tests
     fn assert_matrix_eq_f64<const N: usize, const M: usize>(
         actual: &SMatrix<f64, N, M>,
         expected: &SMatrix<f64, N, M>,
-    ) where
-        [(); N * M]:,
+    )
     {
         assert_eq!(actual.nrows(), expected.nrows());
         assert_eq!(actual.ncols(), expected.ncols());

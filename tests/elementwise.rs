@@ -1,6 +1,3 @@
-#![feature(generic_const_exprs)]
-#![allow(incomplete_features)]
-
 //{{{ mod: smatrix_tests
 mod smatrix_tests
 {

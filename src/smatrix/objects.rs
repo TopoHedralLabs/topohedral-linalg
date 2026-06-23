@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{Field, GreaterThan, One, VectorOps, Zero};
+use crate::common::{Field, One, VectorOps, Zero};
 use crate::float::{Float, FloatVectorOps};
 //}}}
 //{{{ std imports
@@ -35,15 +35,32 @@ use crate::float::{Float, FloatVectorOps};
 #[derive(Copy, Clone, Debug)]
 pub struct SMatrix<T, const N: usize, const M: usize>
 where
-    [(); N * M]:,
     T: Copy,
 {
-    /// The data of the matrix, stored in column-major order.
-    pub(crate) data: [T; N * M],
+    /// The data of the matrix, stored as `M` contiguous columns of `N` elements each.
+    pub(crate) data: [[T; N]; M],
     /// Number of rows (always equal to `N`).
     pub(crate) nrows: usize,
     /// Number of columns (always equal to `M`).
     pub(crate) ncols: usize,
+}
+//}}}
+//{{{ impl: SMatrix
+impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
+where
+    T: Copy,
+{
+    #[inline]
+    pub(crate) fn as_slice(&self) -> &[T]
+    {
+        self.data.as_flattened()
+    }
+
+    #[inline]
+    pub(crate) fn as_mut_slice(&mut self) -> &mut [T]
+    {
+        self.data.as_flattened_mut()
+    }
 }
 //}}}
 //}}}
@@ -52,29 +69,22 @@ where
 /// A type alias for a row vector of size N.
 pub type SRVector<T, const N: usize> = SMatrix<T, 1, N>;
 //}}}
-//{{{ impl: VectorOps for SRVector
-#[allow(clippy::identity_op)]
-impl<T, const N: usize> VectorOps for SRVector<T, N>
+//{{{ impl: VectorOps for SMatrix
+impl<T, const N: usize, const M: usize> VectorOps for SMatrix<T, N, M>
 where
-    [(); 1usize * N]:,
     T: Field + Default + Copy + Clone + Zero + One + Float,
-    (): GreaterThan<N, 1>,
 {
     type ScalarType = T;
 
     fn len(&self) -> usize
     {
-        N
+        N * M
     }
 }
 //}}}
-//{{{ impl: FloatVectorOps for SRVector
-#[allow(clippy::identity_op)]
-impl<T, const N: usize> FloatVectorOps for SRVector<T, N>
-where
-    [(); 1usize * N]:,
-    T: Float + Default + Copy + Clone + Zero + One,
-    (): GreaterThan<N, 1>,
+//{{{ impl: FloatVectorOps for SMatrix
+impl<T, const N: usize, const M: usize> FloatVectorOps for SMatrix<T, N, M> where
+    T: Float + Default + Copy + Clone + Zero + One
 {
 }
 //}}}
@@ -83,31 +93,5 @@ where
 //{{{ type: SCVector
 /// A type alias for a column vector of size N.
 pub type SCVector<T, const N: usize> = SMatrix<T, N, 1>;
-//}}}
-//{{{ impl: VectorOps for SCVector
-#[allow(clippy::identity_op)]
-impl<T, const N: usize> VectorOps for SCVector<T, N>
-where
-    [(); N * 1]:,
-    T: Field + Default + Copy + Clone + Zero + One + Float,
-    (): GreaterThan<N, 1>,
-{
-    type ScalarType = T;
-
-    fn len(&self) -> usize
-    {
-        N
-    }
-}
-//}}}
-//{{{ impl: FloatVectorOps for SCVector
-#[allow(clippy::identity_op)]
-impl<T, const N: usize> FloatVectorOps for SCVector<T, N>
-where
-    [(); N * 1]:,
-    T: Float + Default + Copy + Clone + Zero + One,
-    (): GreaterThan<N, 1>,
-{
-}
 //}}}
 //}}}

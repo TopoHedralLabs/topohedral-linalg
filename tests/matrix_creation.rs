@@ -1,6 +1,3 @@
-#![feature(generic_const_exprs)]
-#![allow(incomplete_features)]
-
 //{{{  mod: smatrix_tests
 mod smatrix_tests
 {
@@ -98,6 +95,14 @@ mod smatrix_tests
     {
         let matrix = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 10, 100, 1000]);
         let matrix_json = serde_json::to_string_pretty(&matrix).unwrap();
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&matrix_json).unwrap(),
+            serde_json::json!({
+                "data": [1, 100, 10, 1000],
+                "nrows": 2,
+                "ncols": 2
+            })
+        );
         let matrix2: SMatrix<i32, 2, 2> = serde_json::from_str(&matrix_json).unwrap();
 
         for (val1, val2) in matrix.iter().zip(matrix2.iter())

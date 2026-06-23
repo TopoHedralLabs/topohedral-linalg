@@ -24,9 +24,7 @@ use serde::ser::{Serialize, SerializeStruct, Serializer};
 //{{{ impl Serialize for SMatrix
 impl<T, const N: usize, const M: usize> Serialize for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Copy + Serialize,
-    [T; N * M]: Serialize,
 {
     fn serialize<S>(
         &self,
@@ -36,7 +34,7 @@ where
         S: Serializer,
     {
         let mut state = serializer.serialize_struct("SMatrix", 3)?;
-        state.serialize_field("data", &self.data)?;
+        state.serialize_field("data", self.as_slice())?;
         state.serialize_field("nrows", &self.nrows)?;
         state.serialize_field("ncols", &self.ncols)?;
         state.end()
@@ -47,9 +45,7 @@ where
 
 impl<'de, T, const N: usize, const M: usize> Deserialize<'de> for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Copy + Deserialize<'de>,
-    [T; N * M]: Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -66,9 +62,7 @@ where
 
         impl<'de, T, const N: usize, const M: usize> Visitor<'de> for SMatrixVisitor<T, N, M>
         where
-            [(); N * M]:,
             T: Copy + Deserialize<'de>,
-            [T; N * M]: Deserialize<'de>,
         {
             type Value = SMatrix<T, N, M>;
 
@@ -87,7 +81,7 @@ where
             where
                 V: MapAccess<'de>,
             {
-                let mut data: Option<[T; N * M]> = None;
+                let mut data: Option<Vec<T>> = None;
                 let mut nrows: Option<usize> = None;
                 let mut ncols: Option<usize> = None;
 
@@ -125,8 +119,19 @@ where
                 let data = data.ok_or_else(|| de::Error::missing_field("data"))?;
                 let nrows = nrows.ok_or_else(|| de::Error::missing_field("nrows"))?;
                 let ncols = ncols.ok_or_else(|| de::Error::missing_field("ncols"))?;
+                if data.len() != N * M
+                {
+                    return Err(de::Error::invalid_length(data.len(), &self));
+                }
+                if nrows != N || ncols != M
+                {
+                    return Err(de::Error::custom(format!(
+                        "dimension mismatch: data is for {}x{}, destination is {}x{}",
+                        nrows, ncols, N, M
+                    )));
+                }
 
-                Ok(SMatrix { data, nrows, ncols })
+                Ok(SMatrix::from_col_slice(&data))
             }
         }
 
@@ -180,7 +185,6 @@ where
 //{{{ impl fmt::Display for SMatrix
 impl<T, const N: usize, const M: usize> fmt::Display for SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: Copy + MatrixElementDisplay,
 {
     fn fmt(

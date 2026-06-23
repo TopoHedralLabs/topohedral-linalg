@@ -303,7 +303,6 @@ where
 impl<A, B, T, Op, const N: usize, const M: usize> From<CompareExpr<A, B, T, Op>>
     for SMatrix<bool, N, M>
 where
-    [(); N * M]:,
     A: MatrixExpr<ScalarType = T>,
     B: MatrixExpr<ScalarType = T>,
     T: Copy,
@@ -321,7 +320,7 @@ where
             expr.ncols
         );
         let mut out = SMatrix::from_value(false);
-        expr.eval_into(&mut out.data);
+        expr.eval_into(out.as_mut_slice());
         out
     }
 }

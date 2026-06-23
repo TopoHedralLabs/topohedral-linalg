@@ -30,7 +30,6 @@ pub enum Error
 /// Represents the LU decomposition of a matrix.
 pub struct Return<T, const N: usize, const M: usize>
 where
-    [(); N * M]:,
     T: Field + Copy,
 {
     /// Lower-triangular factor L with unit diagonal.
@@ -47,7 +46,6 @@ where
 #[allow(private_bounds)]
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    [(); N * M]:,
     T: One + Zero + Getrf + Field + Copy,
 {
     /// Computes the LU decomposition of the matrix with partial pivoting.
@@ -59,26 +57,11 @@ where
     /// Returns an error if the LAPACK `getrf` routine fails.
     pub fn lu(&self) -> Result<Return<T, N, M>, Error>
     {
-        let raw = lu_raw(self.data.to_vec(), N, M)?;
-        let l_arr: [T; N * M] = raw.l_data.try_into().unwrap_or_else(|_| unreachable!());
-        let u_arr: [T; N * M] = raw.u_data.try_into().unwrap_or_else(|_| unreachable!());
-        let p_arr: [T; N * M] = raw.p_data.try_into().unwrap_or_else(|_| unreachable!());
+        let raw = lu_raw(self.as_slice().to_vec(), N, M)?;
         Ok(Return {
-            l: SMatrix {
-                data: l_arr,
-                nrows: N,
-                ncols: M,
-            },
-            u: SMatrix {
-                data: u_arr,
-                nrows: N,
-                ncols: M,
-            },
-            p: SMatrix {
-                data: p_arr,
-                nrows: N,
-                ncols: M,
-            },
+            l: SMatrix::from_col_vec(raw.l_data),
+            u: SMatrix::from_col_vec(raw.u_data),
+            p: SMatrix::from_col_vec(raw.p_data),
             num_swaps: raw.num_swaps,
         })
     }

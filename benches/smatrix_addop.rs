@@ -1,6 +1,3 @@
-#![feature(generic_const_exprs)]
-#![allow(incomplete_features)]
-
 use criterion::{criterion_group, criterion_main, Criterion};
 
 use topohedral_linalg::SMatrix;

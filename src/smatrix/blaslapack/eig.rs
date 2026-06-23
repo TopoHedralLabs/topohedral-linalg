@@ -33,7 +33,6 @@ pub enum Error
 #[derive(Debug)]
 pub struct Return<T, const N: usize>
 where
-    [(); N * N]:,
     T: Field + Default + Copy,
 {
     /// Matrix whose columns are the left eigenvectors.
@@ -49,7 +48,6 @@ where
 #[allow(private_bounds)]
 impl<T, const N: usize> SMatrix<T, N, N>
 where
-    [(); N * N]:,
     T: One + Zero + Geev + Field + Default + Copy + AsI32,
 {
     /// Computes the general (non-symmetric) eigendecomposition of the square matrix.
@@ -61,21 +59,11 @@ where
     /// Returns an error if the LAPACK `geev` routine fails.
     pub fn eig(&self) -> Result<Return<T, N>, Error>
     {
-        let raw = eig_raw(self.data.to_vec(), N)?;
-        let vl_arr: [T; N * N] = raw.vl.try_into().unwrap_or_else(|_| unreachable!());
-        let vr_arr: [T; N * N] = raw.vr.try_into().unwrap_or_else(|_| unreachable!());
+        let raw = eig_raw(self.as_slice().to_vec(), N)?;
         let eigvals: [Complex<T>; N] = std::array::from_fn(|i| raw.eigvals[i]);
         Ok(Return {
-            left_eigvecs: SMatrix {
-                data: vl_arr,
-                nrows: N,
-                ncols: N,
-            },
-            right_eigvecs: SMatrix {
-                data: vr_arr,
-                nrows: N,
-                ncols: N,
-            },
+            left_eigvecs: SMatrix::from_col_vec(raw.vl),
+            right_eigvecs: SMatrix::from_col_vec(raw.vr),
             eigvals,
         })
     }

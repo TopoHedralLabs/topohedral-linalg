@@ -1,6 +1,3 @@
-#![feature(generic_const_exprs)]
-#![allow(incomplete_features)]
-
 mod scvector_tests
 {
     use approx::assert_relative_eq;
