@@ -103,7 +103,7 @@ mod dmatrix_tests
             4,
             4,
         );
-        let view = matrix.subview(1, 3, 1, 2);
+        let view = matrix.subview_range(1, 3, 1, 2);
 
         assert_rectangular_view_reductions(&view);
     }
@@ -116,7 +116,7 @@ mod dmatrix_tests
             4,
             4,
         );
-        let view = matrix.subview_mut(1, 3, 1, 2);
+        let view = matrix.subview_range_mut(1, 3, 1, 2);
 
         assert_rectangular_view_reductions(&view);
     }
@@ -225,7 +225,7 @@ mod smatrix_tests
         let matrix = SMatrix::<i32, 4, 4>::from_row_slice(&[
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         ]);
-        let view = matrix.subview(1, 3, 1, 2);
+        let view = matrix.subview_range(1, 3, 1, 2);
 
         assert_rectangular_view_reductions(&view);
     }
@@ -236,7 +236,7 @@ mod smatrix_tests
         let mut matrix = SMatrix::<i32, 4, 4>::from_row_slice(&[
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         ]);
-        let view = matrix.subview_mut(1, 3, 1, 2);
+        let view = matrix.subview_range_mut(1, 3, 1, 2);
 
         assert_rectangular_view_reductions(&view);
     }

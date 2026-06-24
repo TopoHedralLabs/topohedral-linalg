@@ -66,7 +66,7 @@ impl<T, const N: usize, const M: usize> SubViewable for SMatrix<T, N, M>
 where
     T: Copy,
 {
-    fn subview<'a>(
+    fn subview_range<'a>(
         &'a self,
         start_row: usize,
         end_row: usize,
@@ -89,7 +89,7 @@ impl<T, const N: usize, const M: usize> SubViewableMut for SMatrix<T, N, M>
 where
     T: Copy,
 {
-    fn subview_mut<'a>(
+    fn subview_range_mut<'a>(
         &'a mut self,
         start_row: usize,
         end_row: usize,
@@ -175,7 +175,7 @@ where
     ) where
         Rhs: MatrixExpr<ScalarType = T>,
     {
-        let mut subview = self.subview_mut(start_row, end_row, start_col, end_col);
+        let mut subview = self.subview_range_mut(start_row, end_row, start_col, end_col);
         subview.copy_from(rhs);
     }
     //}}}

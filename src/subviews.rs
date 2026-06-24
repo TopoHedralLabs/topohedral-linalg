@@ -1053,7 +1053,7 @@ where
 /// that delegate to it.
 pub trait SubViewable: Shape + Index<(usize, usize)> + Sized
 {
-    fn subview<'a>(
+    fn subview_range<'a>(
         &'a self,
         start_row: usize,
         end_row: usize,
@@ -1066,16 +1066,16 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized
         row: usize,
     ) -> MatrixView<'a, Self>
     {
-        self.subview(row, row, 0, self.ncols() - 1)
+        self.subview_range(row, row, 0, self.ncols() - 1)
     }
 
-    fn rows<'a>(
+    fn rows_range<'a>(
         &'a self,
         start_row: usize,
         end_row: usize,
     ) -> MatrixView<'a, Self>
     {
-        self.subview(start_row, end_row, 0, self.ncols() - 1)
+        self.subview_range(start_row, end_row, 0, self.ncols() - 1)
     }
 
     fn col<'a>(
@@ -1083,19 +1083,19 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized
         col: usize,
     ) -> MatrixView<'a, Self>
     {
-        self.subview(0, self.nrows() - 1, col, col)
+        self.subview_range(0, self.nrows() - 1, col, col)
     }
 
-    fn cols<'a>(
+    fn cols_range<'a>(
         &'a self,
         start_col: usize,
         end_col: usize,
     ) -> MatrixView<'a, Self>
     {
-        self.subview(0, self.nrows() - 1, start_col, end_col)
+        self.subview_range(0, self.nrows() - 1, start_col, end_col)
     }
 
-    fn select_rows<'a, I>(
+    fn rows_indices<'a, I>(
         &'a self,
         row_indices: I,
     ) -> IndexedMatrixView<'a, Self>
@@ -1111,7 +1111,7 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized
         }
     }
 
-    fn select_cols<'a, I>(
+    fn cols_indices<'a, I>(
         &'a self,
         col_indices: I,
     ) -> IndexedMatrixView<'a, Self>
@@ -1127,7 +1127,7 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized
         }
     }
 
-    fn select_submat<'a, R, C>(
+    fn subview_indices<'a, R, C>(
         &'a self,
         row_indices: R,
         col_indices: C,
@@ -1158,7 +1158,7 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized
 /// call to avoid simultaneous shared + exclusive borrow of `self`.
 pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)>
 {
-    fn subview_mut<'a>(
+    fn subview_range_mut<'a>(
         &'a mut self,
         start_row: usize,
         end_row: usize,
@@ -1172,17 +1172,17 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)>
     ) -> MatrixViewMut<'a, Self>
     {
         let ncols = self.ncols();
-        self.subview_mut(row, row, 0, ncols - 1)
+        self.subview_range_mut(row, row, 0, ncols - 1)
     }
 
-    fn rows_mut<'a>(
+    fn rows_range_mut<'a>(
         &'a mut self,
         start_row: usize,
         end_row: usize,
     ) -> MatrixViewMut<'a, Self>
     {
         let ncols = self.ncols();
-        self.subview_mut(start_row, end_row, 0, ncols - 1)
+        self.subview_range_mut(start_row, end_row, 0, ncols - 1)
     }
 
     fn col_mut<'a>(
@@ -1191,20 +1191,20 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)>
     ) -> MatrixViewMut<'a, Self>
     {
         let nrows = self.nrows();
-        self.subview_mut(0, nrows - 1, col, col)
+        self.subview_range_mut(0, nrows - 1, col, col)
     }
 
-    fn cols_mut<'a>(
+    fn cols_range_mut<'a>(
         &'a mut self,
         start_col: usize,
         end_col: usize,
     ) -> MatrixViewMut<'a, Self>
     {
         let nrows = self.nrows();
-        self.subview_mut(0, nrows - 1, start_col, end_col)
+        self.subview_range_mut(0, nrows - 1, start_col, end_col)
     }
 
-    fn select_rows_mut<'a, I>(
+    fn rows_indices_mut<'a, I>(
         &'a mut self,
         row_indices: I,
     ) -> IndexedMatrixViewMut<'a, Self>
@@ -1223,7 +1223,7 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)>
         }
     }
 
-    fn select_cols_mut<'a, I>(
+    fn cols_indices_mut<'a, I>(
         &'a mut self,
         col_indices: I,
     ) -> IndexedMatrixViewMut<'a, Self>
@@ -1242,7 +1242,7 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)>
         }
     }
 
-    fn select_submat_mut<'a, R, C>(
+    fn subview_indices_mut<'a, R, C>(
         &'a mut self,
         row_indices: R,
         col_indices: C,

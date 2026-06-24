@@ -16,7 +16,7 @@ mod dmatrix_tests
             5,
         );
 
-        let subm = m.subview(1, 3, 1, 3);
+        let subm = m.subview_range(1, 3, 1, 3);
         // test via indexing
         for i in 0..2
         {
@@ -48,7 +48,7 @@ mod dmatrix_tests
             5,
         );
 
-        let subm = m.subview(1, 3, 2, 4);
+        let subm = m.subview_range(1, 3, 2, 4);
         let expected = [12, 13, 14, 17, 18, 19, 22, 23, 24];
 
         for i in 0..3
@@ -98,7 +98,7 @@ mod dmatrix_tests
             5,
         );
 
-        let subm = m.rows(1, 2);
+        let subm = m.rows_range(1, 2);
         let expected = [2, 3, 7, 8, 12, 13, 17, 18, 22, 23];
 
         for (val, exp) in subm.iter().zip(expected.iter())
@@ -140,7 +140,7 @@ mod dmatrix_tests
             5,
         );
 
-        let subm = m.cols(1, 3);
+        let subm = m.cols_range(1, 3);
         let expected = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
         for (val, exp) in subm.iter().zip(expected.iter())
@@ -162,18 +162,18 @@ mod dmatrix_tests
         );
         // test read
         let expected = DMatrix::<i32>::from_col_slice(&[7, 8, 9, 12, 13, 14, 17, 18, 19], 3, 3);
-        let subm = m.subview_mut(1, 3, 1, 3);
+        let subm = m.subview_range_mut(1, 3, 1, 3);
         for (val, exp) in subm.iter().zip(expected.iter())
         {
             assert_eq!(*val, *exp);
         }
         // test write
-        let mut subm = m.subview_mut(1, 3, 1, 3);
+        let mut subm = m.subview_range_mut(1, 3, 1, 3);
         for val in subm.iter_mut()
         {
             *val = 1;
         }
-        let subm = m.subview(1, 3, 1, 3);
+        let subm = m.subview_range(1, 3, 1, 3);
         for val in subm.iter()
         {
             assert_eq!(*val, 1);
@@ -193,18 +193,18 @@ mod dmatrix_tests
         );
         // test read
         let expected = DMatrix::<i32>::from_col_slice(&[7, 8, 12, 13, 17, 18], 2, 3);
-        let subm = m.subview_mut(1, 2, 1, 3);
+        let subm = m.subview_range_mut(1, 2, 1, 3);
         for (val, exp) in subm.iter().zip(expected.iter())
         {
             assert_eq!(*val, *exp);
         }
         // test write
-        let mut subm = m.subview_mut(1, 2, 1, 3);
+        let mut subm = m.subview_range_mut(1, 2, 1, 3);
         for val in subm.iter_mut()
         {
             *val *= -1;
         }
-        let subm = m.subview(1, 2, 1, 3);
+        let subm = m.subview_range(1, 2, 1, 3);
         for (val, exp) in subm.iter().zip([-7, -8, -12, -13, -17, -18].iter())
         {
             assert_eq!(*val, *exp);
@@ -260,7 +260,7 @@ mod dmatrix_tests
         );
         // test read
         {
-            let subm = m.rows_mut(1, 2);
+            let subm = m.rows_range_mut(1, 2);
             let expected = [2, 3, 7, 8, 12, 13, 17, 18, 22, 23];
 
             for (val, exp) in subm.iter().zip(expected.iter())
@@ -270,12 +270,12 @@ mod dmatrix_tests
         }
         // test write
         {
-            let mut subm = m.rows_mut(1, 2);
+            let mut subm = m.rows_range_mut(1, 2);
             for val in subm.iter_mut()
             {
                 *val = -1;
             }
-            let subm = m.rows(1, 2);
+            let subm = m.rows_range(1, 2);
             for val in subm.iter()
             {
                 assert_eq!(*val, -1);
@@ -327,7 +327,7 @@ mod dmatrix_tests
             5,
         );
         // test read
-        let subm = m.cols_mut(1, 3);
+        let subm = m.cols_range_mut(1, 3);
         let expected = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
         for (val, exp) in subm.iter().zip(expected.iter())
@@ -335,12 +335,12 @@ mod dmatrix_tests
             assert_eq!(*val, *exp);
         }
         // test write
-        let mut subm = m.cols_mut(1, 3);
+        let mut subm = m.cols_range_mut(1, 3);
         for val in subm.iter_mut()
         {
             *val = -1;
         }
-        let subm = m.cols(1, 3);
+        let subm = m.cols_range(1, 3);
         for val in subm.iter()
         {
             assert_eq!(*val, -1);
@@ -408,29 +408,29 @@ mod dmatrix_tests
     {
         let mut m = DMatrix::<i32>::zeros(4, 4);
         let borrowed_rhs = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
-        m.subview_mut(0, 1, 0, 1).copy_from(&borrowed_rhs);
+        m.subview_range_mut(0, 1, 0, 1).copy_from(&borrowed_rhs);
 
         let moved_rhs = DMatrix::<i32>::from_row_slice(&[5, 6, 7, 8], 2, 2);
-        m.subview_mut(2, 3, 2, 3).copy_from(moved_rhs);
+        m.subview_range_mut(2, 3, 2, 3).copy_from(moved_rhs);
 
         let rhs_source =
             DMatrix::<i32>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18], 3, 3);
-        m.subview_mut(0, 1, 2, 3)
-            .copy_from(rhs_source.subview(1, 2, 0, 1));
+        m.subview_range_mut(0, 1, 2, 3)
+            .copy_from(rhs_source.subview_range(1, 2, 0, 1));
 
         let expected_a = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
         let expected_b = DMatrix::<i32>::from_row_slice(&[5, 6, 7, 8], 2, 2);
         let expected_c = DMatrix::<i32>::from_row_slice(&[13, 14, 16, 17], 2, 2);
 
-        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        for (val, exp) in m.subview_range(0, 1, 0, 1).iter().zip(expected_a.iter())
         {
             assert_eq!(*val, *exp);
         }
-        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        for (val, exp) in m.subview_range(2, 3, 2, 3).iter().zip(expected_b.iter())
         {
             assert_eq!(*val, *exp);
         }
-        for (val, exp) in m.subview(0, 1, 2, 3).iter().zip(expected_c.iter())
+        for (val, exp) in m.subview_range(0, 1, 2, 3).iter().zip(expected_c.iter())
         {
             assert_eq!(*val, *exp);
         }
@@ -442,22 +442,22 @@ mod dmatrix_tests
         let mut m = DMatrix::<i32>::zeros(4, 4);
         let rhs_source = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9], 3, 3);
 
-        let rhs_view = rhs_source.subview(1, 2, 1, 2);
-        m.subview_mut(0, 1, 0, 1).copy_from(&rhs_view);
+        let rhs_view = rhs_source.subview_range(1, 2, 1, 2);
+        m.subview_range_mut(0, 1, 0, 1).copy_from(&rhs_view);
 
         let mut rhs_source_mut =
             DMatrix::<i32>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18], 3, 3);
-        let mut rhs_view_mut = rhs_source_mut.subview_mut(0, 1, 0, 1);
-        m.subview_mut(2, 3, 2, 3).copy_from(&mut rhs_view_mut);
+        let mut rhs_view_mut = rhs_source_mut.subview_range_mut(0, 1, 0, 1);
+        m.subview_range_mut(2, 3, 2, 3).copy_from(&mut rhs_view_mut);
 
         let expected_a = DMatrix::<i32>::from_row_slice(&[5, 6, 8, 9], 2, 2);
         let expected_b = DMatrix::<i32>::from_row_slice(&[10, 11, 13, 14], 2, 2);
 
-        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        for (val, exp) in m.subview_range(0, 1, 0, 1).iter().zip(expected_a.iter())
         {
             assert_eq!(*val, *exp);
         }
-        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        for (val, exp) in m.subview_range(2, 3, 2, 3).iter().zip(expected_b.iter())
         {
             assert_eq!(*val, *exp);
         }
@@ -490,7 +490,7 @@ mod dmatrix_tests
         let mut m = DMatrix::<i32>::zeros(2, 2);
         let rhs_source = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9], 3, 3);
 
-        let rhs_view = rhs_source.subview(1, 2, 1, 2);
+        let rhs_view = rhs_source.subview_range(1, 2, 1, 2);
         m.copy_from(&rhs_view);
 
         let expected_a = DMatrix::<i32>::from_row_slice(&[5, 6, 8, 9], 2, 2);
@@ -501,7 +501,7 @@ mod dmatrix_tests
 
         let mut rhs_source_mut =
             DMatrix::<i32>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18], 3, 3);
-        let mut rhs_view_mut = rhs_source_mut.subview_mut(0, 1, 0, 1);
+        let mut rhs_view_mut = rhs_source_mut.subview_range_mut(0, 1, 0, 1);
         m.copy_from(&mut rhs_view_mut);
 
         let expected_b = DMatrix::<i32>::from_row_slice(&[10, 11, 13, 14], 2, 2);
@@ -582,9 +582,13 @@ mod dmatrix_tests
 
         let sub_a = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
         let sub_b = DMatrix::<i32>::from_row_slice(&[10, 20, 30, 40], 2, 2);
-        m.subview_mut(2, 3, 2, 3).copy_from((&sub_a + &sub_b) - 1);
+        m.subview_range_mut(2, 3, 2, 3)
+            .copy_from((&sub_a + &sub_b) - 1);
 
-        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip([10, 32, 21, 43].iter())
+        for (val, exp) in m
+            .subview_range(2, 3, 2, 3)
+            .iter()
+            .zip([10, 32, 21, 43].iter())
         {
             assert_eq!(*val, *exp);
         }
@@ -643,11 +647,11 @@ mod dmatrix_tests
         let expected_a = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
         let expected_b = DMatrix::<i32>::from_row_slice(&[5, 6, 7, 8], 2, 2);
 
-        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        for (val, exp) in m.subview_range(0, 1, 0, 1).iter().zip(expected_a.iter())
         {
             assert_eq!(*val, *exp);
         }
-        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        for (val, exp) in m.subview_range(2, 3, 2, 3).iter().zip(expected_b.iter())
         {
             assert_eq!(*val, *exp);
         }
@@ -674,7 +678,7 @@ mod dmatrix_tests
     fn test_subview_copy_from_dimension_mismatch_panics()
     {
         let mut m = DMatrix::<i32>::zeros(4, 4);
-        m.subview_mut(0, 1, 0, 1)
+        m.subview_range_mut(0, 1, 0, 1)
             .copy_from(DMatrix::<i32>::zeros(1, 3));
     }
 
@@ -698,21 +702,21 @@ mod dmatrix_tests
             5,
         );
 
-        let rows = m.select_rows(vec![0, 3, 4]);
+        let rows = m.rows_indices(vec![0, 3, 4]);
         assert_eq!(rows.size(), (3, 5));
         assert_eq!(
             rows.iter().copied().collect::<Vec<_>>(),
             vec![1, 4, 5, 6, 9, 10, 11, 14, 15, 16, 19, 20, 21, 24, 25]
         );
 
-        let cols = m.select_cols(vec![0, 3]);
+        let cols = m.cols_indices(vec![0, 3]);
         assert_eq!(cols.size(), (5, 2));
         assert_eq!(
             cols.iter().copied().collect::<Vec<_>>(),
             vec![1, 2, 3, 4, 5, 16, 17, 18, 19, 20]
         );
 
-        let subm = m.select_submat(vec![0, 3, 4], vec![1, 4]);
+        let subm = m.subview_indices(vec![0, 3, 4], vec![1, 4]);
         assert_eq!(subm.size(), (3, 2));
         assert_eq!(subm[(1, 0)], 9);
         assert_eq!(subm[4], 24);
@@ -737,7 +741,7 @@ mod dmatrix_tests
 
         {
             let rhs = DMatrix::<i32>::from_row_slice(&[100, 200, 300, 400], 2, 2);
-            let mut subm = m.select_submat_mut(vec![0, 3], vec![1, 4]);
+            let mut subm = m.subview_indices_mut(vec![0, 3], vec![1, 4]);
             subm.copy_from(&rhs + 1);
             assert_eq!(
                 subm.to_dmatrix().iter().copied().collect::<Vec<_>>(),
@@ -746,7 +750,7 @@ mod dmatrix_tests
         }
 
         {
-            let mut row = m.select_rows_mut(vec![4]);
+            let mut row = m.rows_indices_mut(vec![4]);
             row.transform(|value| -value);
         }
 
@@ -765,7 +769,7 @@ mod dmatrix_tests
     fn test_indexed_subview_rejects_out_of_bounds_rows()
     {
         let m = DMatrix::<i32>::zeros(5, 5);
-        let _ = m.select_rows(vec![0, 5]);
+        let _ = m.rows_indices(vec![0, 5]);
     }
 
     #[test]
@@ -773,7 +777,7 @@ mod dmatrix_tests
     fn test_indexed_mutable_subview_rejects_duplicate_rows()
     {
         let mut m = DMatrix::<i32>::zeros(5, 5);
-        let _ = m.select_rows_mut(vec![0, 0]);
+        let _ = m.rows_indices_mut(vec![0, 0]);
     }
 
     #[test]
@@ -781,7 +785,7 @@ mod dmatrix_tests
     fn test_indexed_mutable_subview_copy_from_dimension_mismatch_panics()
     {
         let mut m = DMatrix::<i32>::zeros(5, 5);
-        m.select_submat_mut(vec![0, 3], vec![1, 4])
+        m.subview_indices_mut(vec![0, 3], vec![1, 4])
             .copy_from(DMatrix::<i32>::zeros(1, 3));
     }
 }
@@ -800,7 +804,7 @@ mod smatrix_tests
             25,
         ]);
 
-        let subm = m.subview(1, 3, 1, 3);
+        let subm = m.subview_range(1, 3, 1, 3);
         // test via indexing
         for i in 0..2
         {
@@ -828,7 +832,7 @@ mod smatrix_tests
             25,
         ]);
 
-        let subm = m.subview(1, 3, 2, 4);
+        let subm = m.subview_range(1, 3, 2, 4);
         let expected = [12, 13, 14, 17, 18, 19, 22, 23, 24];
 
         for i in 0..3
@@ -870,7 +874,7 @@ mod smatrix_tests
             25,
         ]);
 
-        let subm = m.rows(1, 2);
+        let subm = m.rows_range(1, 2);
         let expected = [2, 3, 7, 8, 12, 13, 17, 18, 22, 23];
 
         for (val, exp) in subm.iter().zip(expected.iter())
@@ -904,7 +908,7 @@ mod smatrix_tests
             25,
         ]);
 
-        let subm = m.cols(1, 3);
+        let subm = m.cols_range(1, 3);
         let expected = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
         for (val, exp) in subm.iter().zip(expected.iter())
@@ -922,18 +926,18 @@ mod smatrix_tests
         ]);
         // test read
         let expected = SMatrix::<i32, 3, 3>::from_col_slice(&[7, 8, 9, 12, 13, 14, 17, 18, 19]);
-        let subm = m.subview_mut(1, 3, 1, 3);
+        let subm = m.subview_range_mut(1, 3, 1, 3);
         for (val, exp) in subm.iter().zip(expected.iter())
         {
             assert_eq!(*val, *exp);
         }
         // test write
-        let mut subm = m.subview_mut(1, 3, 1, 3);
+        let mut subm = m.subview_range_mut(1, 3, 1, 3);
         for val in subm.iter_mut()
         {
             *val = 1;
         }
-        let subm = m.subview(1, 3, 1, 3);
+        let subm = m.subview_range(1, 3, 1, 3);
         for val in subm.iter()
         {
             assert_eq!(*val, 1);
@@ -949,18 +953,18 @@ mod smatrix_tests
         ]);
         // test read
         let expected = SMatrix::<i32, 2, 3>::from_col_slice(&[7, 8, 12, 13, 17, 18]);
-        let subm = m.subview_mut(1, 2, 1, 3);
+        let subm = m.subview_range_mut(1, 2, 1, 3);
         for (val, exp) in subm.iter().zip(expected.iter())
         {
             assert_eq!(*val, *exp);
         }
         // test write
-        let mut subm = m.subview_mut(1, 2, 1, 3);
+        let mut subm = m.subview_range_mut(1, 2, 1, 3);
         for val in subm.iter_mut()
         {
             *val *= -1;
         }
-        let subm = m.subview(1, 2, 1, 3);
+        let subm = m.subview_range(1, 2, 1, 3);
         for (val, exp) in subm.iter().zip([-7, -8, -12, -13, -17, -18].iter())
         {
             assert_eq!(*val, *exp);
@@ -1008,7 +1012,7 @@ mod smatrix_tests
         ]);
         // test read
         {
-            let subm = m.rows_mut(1, 2);
+            let subm = m.rows_range_mut(1, 2);
             let expected = [2, 3, 7, 8, 12, 13, 17, 18, 22, 23];
 
             for (val, exp) in subm.iter().zip(expected.iter())
@@ -1018,12 +1022,12 @@ mod smatrix_tests
         }
         // test write
         {
-            let mut subm = m.rows_mut(1, 2);
+            let mut subm = m.rows_range_mut(1, 2);
             for val in subm.iter_mut()
             {
                 *val = -1;
             }
-            let subm = m.rows(1, 2);
+            let subm = m.rows_range(1, 2);
             for val in subm.iter()
             {
                 assert_eq!(*val, -1);
@@ -1067,7 +1071,7 @@ mod smatrix_tests
             25,
         ]);
         // test read
-        let subm = m.cols_mut(1, 3);
+        let subm = m.cols_range_mut(1, 3);
         let expected = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
         for (val, exp) in subm.iter().zip(expected.iter())
@@ -1075,12 +1079,12 @@ mod smatrix_tests
             assert_eq!(*val, *exp);
         }
         // test write
-        let mut subm = m.cols_mut(1, 3);
+        let mut subm = m.cols_range_mut(1, 3);
         for val in subm.iter_mut()
         {
             *val = -1;
         }
-        let subm = m.cols(1, 3);
+        let subm = m.cols_range(1, 3);
         for val in subm.iter()
         {
             assert_eq!(*val, -1);
@@ -1148,29 +1152,29 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 4, 4>::zeros();
         let borrowed_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
-        m.subview_mut(0, 1, 0, 1).copy_from(borrowed_rhs);
+        m.subview_range_mut(0, 1, 0, 1).copy_from(borrowed_rhs);
 
         let moved_rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
-        m.subview_mut(2, 3, 2, 3).copy_from(moved_rhs);
+        m.subview_range_mut(2, 3, 2, 3).copy_from(moved_rhs);
 
         let rhs_source =
             SMatrix::<i32, 3, 3>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18]);
-        m.subview_mut(0, 1, 2, 3)
-            .copy_from(rhs_source.subview(1, 2, 0, 1));
+        m.subview_range_mut(0, 1, 2, 3)
+            .copy_from(rhs_source.subview_range(1, 2, 0, 1));
 
         let expected_a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
         let expected_b = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
         let expected_c = SMatrix::<i32, 2, 2>::from_row_slice(&[13, 14, 16, 17]);
 
-        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        for (val, exp) in m.subview_range(0, 1, 0, 1).iter().zip(expected_a.iter())
         {
             assert_eq!(*val, *exp);
         }
-        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        for (val, exp) in m.subview_range(2, 3, 2, 3).iter().zip(expected_b.iter())
         {
             assert_eq!(*val, *exp);
         }
-        for (val, exp) in m.subview(0, 1, 2, 3).iter().zip(expected_c.iter())
+        for (val, exp) in m.subview_range(0, 1, 2, 3).iter().zip(expected_c.iter())
         {
             assert_eq!(*val, *exp);
         }
@@ -1182,22 +1186,22 @@ mod smatrix_tests
         let mut m = SMatrix::<i32, 4, 4>::zeros();
         let rhs_source = SMatrix::<i32, 3, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-        let rhs_view = rhs_source.subview(1, 2, 1, 2);
-        m.subview_mut(0, 1, 0, 1).copy_from(&rhs_view);
+        let rhs_view = rhs_source.subview_range(1, 2, 1, 2);
+        m.subview_range_mut(0, 1, 0, 1).copy_from(&rhs_view);
 
         let mut rhs_source_mut =
             SMatrix::<i32, 3, 3>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18]);
-        let mut rhs_view_mut = rhs_source_mut.subview_mut(0, 1, 0, 1);
-        m.subview_mut(2, 3, 2, 3).copy_from(&mut rhs_view_mut);
+        let mut rhs_view_mut = rhs_source_mut.subview_range_mut(0, 1, 0, 1);
+        m.subview_range_mut(2, 3, 2, 3).copy_from(&mut rhs_view_mut);
 
         let expected_a = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 8, 9]);
         let expected_b = SMatrix::<i32, 2, 2>::from_row_slice(&[10, 11, 13, 14]);
 
-        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        for (val, exp) in m.subview_range(0, 1, 0, 1).iter().zip(expected_a.iter())
         {
             assert_eq!(*val, *exp);
         }
-        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        for (val, exp) in m.subview_range(2, 3, 2, 3).iter().zip(expected_b.iter())
         {
             assert_eq!(*val, *exp);
         }
@@ -1230,7 +1234,7 @@ mod smatrix_tests
         let mut m = SMatrix::<i32, 2, 2>::zeros();
         let rhs_source = SMatrix::<i32, 3, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-        let rhs_view = rhs_source.subview(1, 2, 1, 2);
+        let rhs_view = rhs_source.subview_range(1, 2, 1, 2);
         m.copy_from(&rhs_view);
 
         let expected_a = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 8, 9]);
@@ -1241,7 +1245,7 @@ mod smatrix_tests
 
         let mut rhs_source_mut =
             SMatrix::<i32, 3, 3>::from_row_slice(&[10, 11, 12, 13, 14, 15, 16, 17, 18]);
-        let mut rhs_view_mut = rhs_source_mut.subview_mut(0, 1, 0, 1);
+        let mut rhs_view_mut = rhs_source_mut.subview_range_mut(0, 1, 0, 1);
         m.copy_from(&mut rhs_view_mut);
 
         let expected_b = SMatrix::<i32, 2, 2>::from_row_slice(&[10, 11, 13, 14]);
@@ -1322,9 +1326,13 @@ mod smatrix_tests
 
         let sub_a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
         let sub_b = SMatrix::<i32, 2, 2>::from_row_slice(&[10, 20, 30, 40]);
-        m.subview_mut(2, 3, 2, 3).copy_from((&sub_a + &sub_b) - 1);
+        m.subview_range_mut(2, 3, 2, 3)
+            .copy_from((&sub_a + &sub_b) - 1);
 
-        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip([10, 32, 21, 43].iter())
+        for (val, exp) in m
+            .subview_range(2, 3, 2, 3)
+            .iter()
+            .zip([10, 32, 21, 43].iter())
         {
             assert_eq!(*val, *exp);
         }
@@ -1383,11 +1391,11 @@ mod smatrix_tests
         let expected_a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
         let expected_b = SMatrix::<i32, 2, 2>::from_row_slice(&[5, 6, 7, 8]);
 
-        for (val, exp) in m.subview(0, 1, 0, 1).iter().zip(expected_a.iter())
+        for (val, exp) in m.subview_range(0, 1, 0, 1).iter().zip(expected_a.iter())
         {
             assert_eq!(*val, *exp);
         }
-        for (val, exp) in m.subview(2, 3, 2, 3).iter().zip(expected_b.iter())
+        for (val, exp) in m.subview_range(2, 3, 2, 3).iter().zip(expected_b.iter())
         {
             assert_eq!(*val, *exp);
         }
@@ -1414,7 +1422,7 @@ mod smatrix_tests
     fn test_subview_copy_from_dimension_mismatch_panics()
     {
         let mut m = SMatrix::<i32, 4, 4>::zeros();
-        m.subview_mut(0, 1, 0, 1)
+        m.subview_range_mut(0, 1, 0, 1)
             .copy_from(SMatrix::<i32, 1, 3>::zeros());
     }
 
@@ -1434,21 +1442,21 @@ mod smatrix_tests
             25,
         ]);
 
-        let rows = m.select_rows(vec![0, 3, 4]);
+        let rows = m.rows_indices(vec![0, 3, 4]);
         assert_eq!(rows.size(), (3, 5));
         assert_eq!(
             rows.iter().copied().collect::<Vec<_>>(),
             vec![1, 4, 5, 6, 9, 10, 11, 14, 15, 16, 19, 20, 21, 24, 25]
         );
 
-        let cols = m.select_cols(vec![0, 3]);
+        let cols = m.cols_indices(vec![0, 3]);
         assert_eq!(cols.size(), (5, 2));
         assert_eq!(
             cols.iter().copied().collect::<Vec<_>>(),
             vec![1, 2, 3, 4, 5, 16, 17, 18, 19, 20]
         );
 
-        let subm = m.select_submat(vec![0, 3, 4], vec![1, 4]);
+        let subm = m.subview_indices(vec![0, 3, 4], vec![1, 4]);
         assert_eq!(subm.size(), (3, 2));
         assert_eq!(subm[(1, 0)], 9);
         assert_eq!(subm[4], 24);
@@ -1469,7 +1477,7 @@ mod smatrix_tests
 
         {
             let rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[100, 200, 300, 400]);
-            let mut subm = m.select_submat_mut(vec![0, 3], vec![1, 4]);
+            let mut subm = m.subview_indices_mut(vec![0, 3], vec![1, 4]);
             subm.copy_from(&rhs + 1);
             assert_eq!(
                 subm.to_dmatrix().iter().copied().collect::<Vec<_>>(),
@@ -1478,7 +1486,7 @@ mod smatrix_tests
         }
 
         {
-            let mut row = m.select_rows_mut(vec![4]);
+            let mut row = m.rows_indices_mut(vec![4]);
             row.transform(|value| -value);
         }
 
@@ -1497,7 +1505,7 @@ mod smatrix_tests
     fn test_indexed_subview_rejects_out_of_bounds_cols()
     {
         let m = SMatrix::<i32, 5, 5>::zeros();
-        let _ = m.select_cols(vec![0, 5]);
+        let _ = m.cols_indices(vec![0, 5]);
     }
 
     #[test]
@@ -1505,7 +1513,7 @@ mod smatrix_tests
     fn test_indexed_mutable_subview_rejects_duplicate_cols()
     {
         let mut m = SMatrix::<i32, 5, 5>::zeros();
-        let _ = m.select_cols_mut(vec![0, 0]);
+        let _ = m.cols_indices_mut(vec![0, 0]);
     }
 
     #[test]
@@ -1513,7 +1521,7 @@ mod smatrix_tests
     fn test_indexed_mutable_subview_copy_from_dimension_mismatch_panics()
     {
         let mut m = SMatrix::<i32, 5, 5>::zeros();
-        m.select_submat_mut(vec![0, 3], vec![1, 4])
+        m.subview_indices_mut(vec![0, 3], vec![1, 4])
             .copy_from(SMatrix::<i32, 1, 3>::zeros());
     }
 }
