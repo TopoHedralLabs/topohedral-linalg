@@ -62,5 +62,7 @@ pub use expression::unary_expr::{
     to_degrees, to_radians, trunc,
 };
 pub use smatrix::*;
-pub use subviews::{Maskable, MaskedView, SubViewable, SubViewableMut};
+pub use subviews::{
+    IndexedMatrixView, IndexedMatrixViewMut, Maskable, MaskedView, SubViewable, SubViewableMut,
+};
 //}}}

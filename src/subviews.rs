@@ -8,13 +8,47 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{tuple_index, MatrixExpr, Shape};
+use crate::common::{tuple_index, MatrixExpr, ReduceOps, Shape, TransformOps};
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
 //}}}
 //--------------------------------------------------------------------------------------------------
+
+fn validate_indices(
+    indices: &[usize],
+    limit: usize,
+    axis: &str,
+)
+{
+    for &index in indices
+    {
+        assert!(
+            index < limit,
+            "{} index {} out of bounds for dimension {}",
+            axis,
+            index,
+            limit
+        );
+    }
+}
+
+fn validate_unique_indices(
+    indices: &[usize],
+    axis: &str,
+)
+{
+    for (position, &index) in indices.iter().enumerate()
+    {
+        assert!(
+            !indices[position + 1..].contains(&index),
+            "duplicate {} index {} in mutable indexed view",
+            axis,
+            index
+        );
+    }
+}
 
 //{{{ struct: MatrixView
 /// Immutable subview of a matrix, borrowing a rectangular region without copying data.
@@ -436,6 +470,577 @@ where
 }
 //}}}
 
+//{{{ struct: IndexedMatrixView
+/// Immutable subview of a matrix selected by row and column index lists.
+pub struct IndexedMatrixView<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)>,
+{
+    pub(crate) matrix: &'a Mat,
+    pub(crate) row_indices: Vec<usize>,
+    pub(crate) col_indices: Vec<usize>,
+}
+//}}}
+//{{{ impl: Shape for IndexedMatrixView
+impl<'a, Mat> Shape for IndexedMatrixView<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)>,
+{
+    fn nrows(&self) -> usize
+    {
+        self.row_indices.len()
+    }
+
+    fn ncols(&self) -> usize
+    {
+        self.col_indices.len()
+    }
+}
+//}}}
+//{{{ impl: Index for IndexedMatrixView
+impl<'a, Mat> Index<(usize, usize)> for IndexedMatrixView<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)>,
+{
+    type Output = Mat::Output;
+
+    fn index(
+        &self,
+        (r, c): (usize, usize),
+    ) -> &Self::Output
+    {
+        &self.matrix[(self.row_indices[r], self.col_indices[c])]
+    }
+}
+
+impl<'a, Mat> Index<usize> for IndexedMatrixView<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)>,
+{
+    type Output = Mat::Output;
+
+    fn index(
+        &self,
+        index: usize,
+    ) -> &Self::Output
+    {
+        let (row, col) = tuple_index(index, self.nrows());
+        &self.matrix[(self.row_indices[row], self.col_indices[col])]
+    }
+}
+
+impl<'a, Mat> Index<(usize, usize)> for &IndexedMatrixView<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)>,
+{
+    type Output = Mat::Output;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+
+impl<'a, Mat> Index<(usize, usize)> for &mut IndexedMatrixView<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)>,
+{
+    type Output = Mat::Output;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+//}}}
+//{{{ struct: IndexedMatrixViewIter
+/// Column-major iterator over the elements of an [`IndexedMatrixView`].
+pub struct IndexedMatrixViewIter<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)>,
+{
+    pub(crate) matrix_view: &'a IndexedMatrixView<'a, Mat>,
+    index: usize,
+}
+//}}}
+//{{{ impl: Iterator for IndexedMatrixViewIter
+impl<'a, Mat> Iterator for IndexedMatrixViewIter<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)>,
+    Mat::Output: Sized,
+{
+    type Item = &'a Mat::Output;
+
+    fn next(&mut self) -> Option<Self::Item>
+    {
+        if self.index < self.matrix_view.nrows() * self.matrix_view.ncols()
+        {
+            let (row, col) = tuple_index(self.index, self.matrix_view.nrows());
+            self.index += 1;
+            Some(&(*self.matrix_view)[(row, col)])
+        }
+        else
+        {
+            None
+        }
+    }
+}
+//}}}
+//{{{ impl: IndexedMatrixView
+impl<'a, Mat> IndexedMatrixView<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)>,
+    Mat::Output: Copy + Sized,
+{
+    /// Returns a column-major iterator over the elements of this view.
+    pub fn iter(&'a self) -> IndexedMatrixViewIter<'a, Mat>
+    {
+        IndexedMatrixViewIter {
+            matrix_view: self,
+            index: 0,
+        }
+    }
+
+    /// Copies the view contents into a new heap-allocated [`DMatrix`].
+    pub fn to_dmatrix(&self) -> DMatrix<Mat::Output>
+    {
+        let nrows = self.nrows();
+        let ncols = self.ncols();
+        let mut data = Vec::with_capacity(nrows * ncols);
+        for j in 0..ncols
+        {
+            for i in 0..nrows
+            {
+                data.push(self[(i, j)]);
+            }
+        }
+        DMatrix { data, nrows, ncols }
+    }
+}
+//}}}
+//{{{ impl: MatrixExpr for IndexedMatrixView
+impl<'a, Mat, T> MatrixExpr for IndexedMatrixView<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize), Output = T>,
+    T: Copy,
+{
+    type ScalarType = T;
+
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> Self::ScalarType
+    {
+        let (row, col) = tuple_index(index, self.nrows());
+        self[(row, col)]
+    }
+}
+//}}}
+//{{{ impl: ReduceOps for IndexedMatrixView
+impl<'a, Mat, T> ReduceOps for IndexedMatrixView<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize), Output = T>,
+    T: Copy,
+{
+    type Item = T;
+    type Index = (usize, usize);
+
+    fn fold<B, F>(
+        &self,
+        init: B,
+        mut f: F,
+    ) -> B
+    where
+        F: FnMut(B, Self::Item) -> B,
+    {
+        let mut acc = init;
+        for col in 0..self.ncols()
+        {
+            for row in 0..self.nrows()
+            {
+                acc = f(acc, self[(row, col)]);
+            }
+        }
+        acc
+    }
+
+    fn fold_indexed<B, F>(
+        &self,
+        init: B,
+        mut f: F,
+    ) -> B
+    where
+        F: FnMut(B, Self::Index, Self::Item) -> B,
+    {
+        let mut acc = init;
+        for col in 0..self.ncols()
+        {
+            for row in 0..self.nrows()
+            {
+                acc = f(acc, (row, col), self[(row, col)]);
+            }
+        }
+        acc
+    }
+}
+//}}}
+
+//{{{ struct: IndexedMatrixViewMut
+/// Mutable subview of a matrix selected by unique row and column index lists.
+pub struct IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+{
+    pub(crate) matrix: &'a mut Mat,
+    pub(crate) row_indices: Vec<usize>,
+    pub(crate) col_indices: Vec<usize>,
+}
+//}}}
+//{{{ impl: Shape for IndexedMatrixViewMut
+impl<'a, Mat> Shape for IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+{
+    fn nrows(&self) -> usize
+    {
+        self.row_indices.len()
+    }
+
+    fn ncols(&self) -> usize
+    {
+        self.col_indices.len()
+    }
+}
+//}}}
+//{{{ impl: Index/IndexMut for IndexedMatrixViewMut
+impl<'a, Mat> Index<(usize, usize)> for IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+{
+    type Output = Mat::Output;
+
+    fn index(
+        &self,
+        (r, c): (usize, usize),
+    ) -> &Self::Output
+    {
+        &self.matrix[(self.row_indices[r], self.col_indices[c])]
+    }
+}
+
+impl<'a, Mat> Index<usize> for IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+{
+    type Output = Mat::Output;
+
+    fn index(
+        &self,
+        index: usize,
+    ) -> &Self::Output
+    {
+        let (row, col) = tuple_index(index, self.nrows());
+        &self.matrix[(self.row_indices[row], self.col_indices[col])]
+    }
+}
+
+impl<'a, Mat> IndexMut<(usize, usize)> for IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+{
+    fn index_mut(
+        &mut self,
+        (r, c): (usize, usize),
+    ) -> &mut Self::Output
+    {
+        &mut self.matrix[(self.row_indices[r], self.col_indices[c])]
+    }
+}
+
+impl<'a, Mat> IndexMut<usize> for IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+{
+    fn index_mut(
+        &mut self,
+        index: usize,
+    ) -> &mut Self::Output
+    {
+        let (row, col) = tuple_index(index, self.nrows());
+        &mut self.matrix[(self.row_indices[row], self.col_indices[col])]
+    }
+}
+
+impl<'a, Mat> Index<(usize, usize)> for &IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+{
+    type Output = Mat::Output;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+
+impl<'a, Mat> Index<(usize, usize)> for &mut IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+{
+    type Output = Mat::Output;
+
+    fn index(
+        &self,
+        index: (usize, usize),
+    ) -> &Self::Output
+    {
+        &(**self)[index]
+    }
+}
+//}}}
+//{{{ struct: IndexedMatrixViewMutIter
+/// Shared iterator over the elements of an [`IndexedMatrixViewMut`].
+pub struct IndexedMatrixViewMutIter<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+{
+    pub(crate) matrix_view: &'a IndexedMatrixViewMut<'a, Mat>,
+    index: usize,
+}
+//}}}
+//{{{ impl: Iterator for IndexedMatrixViewMutIter
+impl<'a, Mat> Iterator for IndexedMatrixViewMutIter<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+    Mat::Output: Sized,
+{
+    type Item = &'a Mat::Output;
+
+    fn next(&mut self) -> Option<Self::Item>
+    {
+        if self.index < self.matrix_view.nrows() * self.matrix_view.ncols()
+        {
+            let (row, col) = tuple_index(self.index, self.matrix_view.nrows());
+            self.index += 1;
+            Some(&(*self.matrix_view)[(row, col)])
+        }
+        else
+        {
+            None
+        }
+    }
+}
+//}}}
+//{{{ struct: IndexedMatrixViewMutIterMut
+/// Mutable iterator over the elements of an [`IndexedMatrixViewMut`].
+pub struct IndexedMatrixViewMutIterMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+{
+    pub(crate) matrix_view: &'a mut IndexedMatrixViewMut<'a, Mat>,
+    index: usize,
+}
+//}}}
+//{{{ impl: Iterator for IndexedMatrixViewMutIterMut
+impl<'a, Mat> Iterator for IndexedMatrixViewMutIterMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+    Mat::Output: Sized,
+{
+    type Item = &'a mut Mat::Output;
+
+    fn next(&mut self) -> Option<Self::Item>
+    {
+        if self.index < self.matrix_view.nrows() * self.matrix_view.ncols()
+        {
+            let (row, col) = tuple_index(self.index, self.matrix_view.nrows());
+            self.index += 1;
+            unsafe {
+                // Safe because mutable indexed views reject duplicate row/column indices.
+                let ptr = &mut (*self.matrix_view)[(row, col)] as *mut Mat::Output;
+                Some(&mut *ptr)
+            }
+        }
+        else
+        {
+            None
+        }
+    }
+}
+//}}}
+//{{{ impl: IndexedMatrixViewMut
+impl<'a, Mat> IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize)> + IndexMut<(usize, usize)>,
+    Mat::Output: Copy + Sized,
+{
+    /// Returns a shared column-major iterator over the elements of this mutable view.
+    pub fn iter(&'a self) -> IndexedMatrixViewMutIter<'a, Mat>
+    {
+        IndexedMatrixViewMutIter {
+            matrix_view: self,
+            index: 0,
+        }
+    }
+
+    /// Returns a mutable column-major iterator over the elements of this mutable view.
+    pub fn iter_mut(&'a mut self) -> IndexedMatrixViewMutIterMut<'a, Mat>
+    {
+        IndexedMatrixViewMutIterMut {
+            matrix_view: self,
+            index: 0,
+        }
+    }
+
+    /// Copies entries from `rhs` into this mutable view.
+    ///
+    /// # Panics
+    ///
+    /// Panics when `rhs` dimensions do not match this view's dimensions.
+    pub fn copy_from<Rhs>(
+        &mut self,
+        rhs: Rhs,
+    ) where
+        Rhs: MatrixExpr<ScalarType = Mat::Output>,
+    {
+        let rhs_nrows = rhs.nrows();
+        let rhs_ncols = rhs.ncols();
+        if self.nrows() != rhs_nrows || self.ncols() != rhs_ncols
+        {
+            panic!(
+                "IndexedMatrixViewMut::copy_from dimension mismatch: lhs is {}x{}, rhs is {}x{}",
+                self.nrows(),
+                self.ncols(),
+                rhs_nrows,
+                rhs_ncols
+            );
+        }
+        for index in 0..self.nrows() * self.ncols()
+        {
+            (*self)[index] = rhs.linear_value(index);
+        }
+    }
+
+    /// Copies the view contents into a new heap-allocated [`DMatrix`].
+    pub fn to_dmatrix(&self) -> DMatrix<Mat::Output>
+    {
+        let nrows = self.nrows();
+        let ncols = self.ncols();
+        let mut data = Vec::with_capacity(nrows * ncols);
+        for j in 0..ncols
+        {
+            for i in 0..nrows
+            {
+                data.push(self[(i, j)]);
+            }
+        }
+        DMatrix { data, nrows, ncols }
+    }
+}
+//}}}
+//{{{ impl: MatrixExpr for IndexedMatrixViewMut
+impl<'a, Mat, T> MatrixExpr for IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize), Output = T> + IndexMut<(usize, usize)>,
+    T: Copy,
+{
+    type ScalarType = T;
+
+    #[inline]
+    fn linear_value(
+        &self,
+        index: usize,
+    ) -> Self::ScalarType
+    {
+        let (row, col) = tuple_index(index, self.nrows());
+        self[(row, col)]
+    }
+}
+//}}}
+//{{{ impl: ReduceOps for IndexedMatrixViewMut
+impl<'a, Mat, T> ReduceOps for IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize), Output = T> + IndexMut<(usize, usize)>,
+    T: Copy,
+{
+    type Item = T;
+    type Index = (usize, usize);
+
+    fn fold<B, F>(
+        &self,
+        init: B,
+        mut f: F,
+    ) -> B
+    where
+        F: FnMut(B, Self::Item) -> B,
+    {
+        let mut acc = init;
+        for col in 0..self.ncols()
+        {
+            for row in 0..self.nrows()
+            {
+                acc = f(acc, self[(row, col)]);
+            }
+        }
+        acc
+    }
+
+    fn fold_indexed<B, F>(
+        &self,
+        init: B,
+        mut f: F,
+    ) -> B
+    where
+        F: FnMut(B, Self::Index, Self::Item) -> B,
+    {
+        let mut acc = init;
+        for col in 0..self.ncols()
+        {
+            for row in 0..self.nrows()
+            {
+                acc = f(acc, (row, col), self[(row, col)]);
+            }
+        }
+        acc
+    }
+}
+//}}}
+//{{{ impl: TransformOps for IndexedMatrixViewMut
+impl<'a, Mat, T> TransformOps for IndexedMatrixViewMut<'a, Mat>
+where
+    Mat: Shape + Index<(usize, usize), Output = T> + IndexMut<(usize, usize)>,
+    T: Copy,
+{
+    type ScalarType = T;
+
+    fn transform<F>(
+        &mut self,
+        mut f: F,
+    ) where
+        F: FnMut(Self::ScalarType) -> Self::ScalarType,
+    {
+        for col in 0..self.ncols()
+        {
+            for row in 0..self.nrows()
+            {
+                let value = self[(row, col)];
+                (*self)[(row, col)] = f(value);
+            }
+        }
+    }
+}
+//}}}
+
 //{{{ trait: SubViewable
 /// Immutable subview constructor methods for any matrix type.
 ///
@@ -485,6 +1090,58 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized
     ) -> MatrixView<'a, Self>
     {
         self.subview(0, self.nrows() - 1, start_col, end_col)
+    }
+
+    fn select_rows<'a, I>(
+        &'a self,
+        row_indices: I,
+    ) -> IndexedMatrixView<'a, Self>
+    where
+        I: AsRef<[usize]>,
+    {
+        let row_indices = row_indices.as_ref().to_vec();
+        validate_indices(&row_indices, self.nrows(), "row");
+        IndexedMatrixView {
+            matrix: self,
+            row_indices,
+            col_indices: (0..self.ncols()).collect(),
+        }
+    }
+
+    fn select_cols<'a, I>(
+        &'a self,
+        col_indices: I,
+    ) -> IndexedMatrixView<'a, Self>
+    where
+        I: AsRef<[usize]>,
+    {
+        let col_indices = col_indices.as_ref().to_vec();
+        validate_indices(&col_indices, self.ncols(), "column");
+        IndexedMatrixView {
+            matrix: self,
+            row_indices: (0..self.nrows()).collect(),
+            col_indices,
+        }
+    }
+
+    fn select_submat<'a, R, C>(
+        &'a self,
+        row_indices: R,
+        col_indices: C,
+    ) -> IndexedMatrixView<'a, Self>
+    where
+        R: AsRef<[usize]>,
+        C: AsRef<[usize]>,
+    {
+        let row_indices = row_indices.as_ref().to_vec();
+        let col_indices = col_indices.as_ref().to_vec();
+        validate_indices(&row_indices, self.nrows(), "row");
+        validate_indices(&col_indices, self.ncols(), "column");
+        IndexedMatrixView {
+            matrix: self,
+            row_indices,
+            col_indices,
+        }
     }
 }
 //}}}
@@ -542,6 +1199,68 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)>
     {
         let nrows = self.nrows();
         self.subview_mut(0, nrows - 1, start_col, end_col)
+    }
+
+    fn select_rows_mut<'a, I>(
+        &'a mut self,
+        row_indices: I,
+    ) -> IndexedMatrixViewMut<'a, Self>
+    where
+        I: AsRef<[usize]>,
+    {
+        let ncols = self.ncols();
+        let nrows = self.nrows();
+        let row_indices = row_indices.as_ref().to_vec();
+        validate_indices(&row_indices, nrows, "row");
+        validate_unique_indices(&row_indices, "row");
+        IndexedMatrixViewMut {
+            matrix: self,
+            row_indices,
+            col_indices: (0..ncols).collect(),
+        }
+    }
+
+    fn select_cols_mut<'a, I>(
+        &'a mut self,
+        col_indices: I,
+    ) -> IndexedMatrixViewMut<'a, Self>
+    where
+        I: AsRef<[usize]>,
+    {
+        let ncols = self.ncols();
+        let nrows = self.nrows();
+        let col_indices = col_indices.as_ref().to_vec();
+        validate_indices(&col_indices, ncols, "column");
+        validate_unique_indices(&col_indices, "column");
+        IndexedMatrixViewMut {
+            matrix: self,
+            row_indices: (0..nrows).collect(),
+            col_indices,
+        }
+    }
+
+    fn select_submat_mut<'a, R, C>(
+        &'a mut self,
+        row_indices: R,
+        col_indices: C,
+    ) -> IndexedMatrixViewMut<'a, Self>
+    where
+        R: AsRef<[usize]>,
+        C: AsRef<[usize]>,
+    {
+        let ncols = self.ncols();
+        let nrows = self.nrows();
+        let row_indices = row_indices.as_ref().to_vec();
+        let col_indices = col_indices.as_ref().to_vec();
+        validate_indices(&row_indices, nrows, "row");
+        validate_indices(&col_indices, ncols, "column");
+        validate_unique_indices(&row_indices, "row");
+        validate_unique_indices(&col_indices, "column");
+        IndexedMatrixViewMut {
+            matrix: self,
+            row_indices,
+            col_indices,
+        }
     }
 }
 //}}}

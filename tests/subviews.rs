@@ -685,6 +685,105 @@ mod dmatrix_tests
         let mut m = DMatrix::<i32>::zeros(2, 3);
         m.copy_from(DMatrix::<i32>::zeros(3, 2));
     }
+
+    #[test]
+    fn test_indexed_immutable_subviews()
+    {
+        let m = DMatrix::<i32>::from_col_slice(
+            &[
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                24, 25,
+            ],
+            5,
+            5,
+        );
+
+        let rows = m.select_rows(vec![0, 3, 4]);
+        assert_eq!(rows.size(), (3, 5));
+        assert_eq!(
+            rows.iter().copied().collect::<Vec<_>>(),
+            vec![1, 4, 5, 6, 9, 10, 11, 14, 15, 16, 19, 20, 21, 24, 25]
+        );
+
+        let cols = m.select_cols(vec![0, 3]);
+        assert_eq!(cols.size(), (5, 2));
+        assert_eq!(
+            cols.iter().copied().collect::<Vec<_>>(),
+            vec![1, 2, 3, 4, 5, 16, 17, 18, 19, 20]
+        );
+
+        let subm = m.select_submat(vec![0, 3, 4], vec![1, 4]);
+        assert_eq!(subm.size(), (3, 2));
+        assert_eq!(subm[(1, 0)], 9);
+        assert_eq!(subm[4], 24);
+        assert_eq!(subm.linear_value(5), 25);
+        assert_eq!(
+            subm.to_dmatrix().iter().copied().collect::<Vec<_>>(),
+            vec![6, 9, 10, 21, 24, 25]
+        );
+    }
+
+    #[test]
+    fn test_indexed_mutable_subviews_copy_and_transform()
+    {
+        let mut m = DMatrix::<i32>::from_col_slice(
+            &[
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                24, 25,
+            ],
+            5,
+            5,
+        );
+
+        {
+            let rhs = DMatrix::<i32>::from_row_slice(&[100, 200, 300, 400], 2, 2);
+            let mut subm = m.select_submat_mut(vec![0, 3], vec![1, 4]);
+            subm.copy_from(&rhs + 1);
+            assert_eq!(
+                subm.to_dmatrix().iter().copied().collect::<Vec<_>>(),
+                vec![101, 301, 201, 401]
+            );
+        }
+
+        {
+            let mut row = m.select_rows_mut(vec![4]);
+            row.transform(|value| -value);
+        }
+
+        assert_eq!(m[(0, 1)], 101);
+        assert_eq!(m[(3, 1)], 301);
+        assert_eq!(m[(0, 4)], 201);
+        assert_eq!(m[(3, 4)], 401);
+        assert_eq!(m[(4, 0)], -5);
+        assert_eq!(m[(4, 1)], -10);
+        assert_eq!(m[(4, 4)], -25);
+        assert_eq!(m[(2, 2)], 13);
+    }
+
+    #[test]
+    #[should_panic(expected = "row index 5 out of bounds")]
+    fn test_indexed_subview_rejects_out_of_bounds_rows()
+    {
+        let m = DMatrix::<i32>::zeros(5, 5);
+        let _ = m.select_rows(vec![0, 5]);
+    }
+
+    #[test]
+    #[should_panic(expected = "duplicate row index")]
+    fn test_indexed_mutable_subview_rejects_duplicate_rows()
+    {
+        let mut m = DMatrix::<i32>::zeros(5, 5);
+        let _ = m.select_rows_mut(vec![0, 0]);
+    }
+
+    #[test]
+    #[should_panic(expected = "dimension mismatch")]
+    fn test_indexed_mutable_subview_copy_from_dimension_mismatch_panics()
+    {
+        let mut m = DMatrix::<i32>::zeros(5, 5);
+        m.select_submat_mut(vec![0, 3], vec![1, 4])
+            .copy_from(DMatrix::<i32>::zeros(1, 3));
+    }
 }
 //}}}
 //{{{ mod: smatrix_tests
@@ -1325,6 +1424,97 @@ mod smatrix_tests
     {
         let mut m = SMatrix::<i32, 2, 3>::zeros();
         m.copy_from(SMatrix::<i32, 3, 2>::zeros());
+    }
+
+    #[test]
+    fn test_indexed_immutable_subviews()
+    {
+        let m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
+
+        let rows = m.select_rows(vec![0, 3, 4]);
+        assert_eq!(rows.size(), (3, 5));
+        assert_eq!(
+            rows.iter().copied().collect::<Vec<_>>(),
+            vec![1, 4, 5, 6, 9, 10, 11, 14, 15, 16, 19, 20, 21, 24, 25]
+        );
+
+        let cols = m.select_cols(vec![0, 3]);
+        assert_eq!(cols.size(), (5, 2));
+        assert_eq!(
+            cols.iter().copied().collect::<Vec<_>>(),
+            vec![1, 2, 3, 4, 5, 16, 17, 18, 19, 20]
+        );
+
+        let subm = m.select_submat(vec![0, 3, 4], vec![1, 4]);
+        assert_eq!(subm.size(), (3, 2));
+        assert_eq!(subm[(1, 0)], 9);
+        assert_eq!(subm[4], 24);
+        assert_eq!(subm.linear_value(5), 25);
+        assert_eq!(
+            subm.to_dmatrix().iter().copied().collect::<Vec<_>>(),
+            vec![6, 9, 10, 21, 24, 25]
+        );
+    }
+
+    #[test]
+    fn test_indexed_mutable_subviews_copy_and_transform()
+    {
+        let mut m = SMatrix::<i32, 5, 5>::from_col_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25,
+        ]);
+
+        {
+            let rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[100, 200, 300, 400]);
+            let mut subm = m.select_submat_mut(vec![0, 3], vec![1, 4]);
+            subm.copy_from(&rhs + 1);
+            assert_eq!(
+                subm.to_dmatrix().iter().copied().collect::<Vec<_>>(),
+                vec![101, 301, 201, 401]
+            );
+        }
+
+        {
+            let mut row = m.select_rows_mut(vec![4]);
+            row.transform(|value| -value);
+        }
+
+        assert_eq!(m[(0, 1)], 101);
+        assert_eq!(m[(3, 1)], 301);
+        assert_eq!(m[(0, 4)], 201);
+        assert_eq!(m[(3, 4)], 401);
+        assert_eq!(m[(4, 0)], -5);
+        assert_eq!(m[(4, 1)], -10);
+        assert_eq!(m[(4, 4)], -25);
+        assert_eq!(m[(2, 2)], 13);
+    }
+
+    #[test]
+    #[should_panic(expected = "column index 5 out of bounds")]
+    fn test_indexed_subview_rejects_out_of_bounds_cols()
+    {
+        let m = SMatrix::<i32, 5, 5>::zeros();
+        let _ = m.select_cols(vec![0, 5]);
+    }
+
+    #[test]
+    #[should_panic(expected = "duplicate column index")]
+    fn test_indexed_mutable_subview_rejects_duplicate_cols()
+    {
+        let mut m = SMatrix::<i32, 5, 5>::zeros();
+        let _ = m.select_cols_mut(vec![0, 0]);
+    }
+
+    #[test]
+    #[should_panic(expected = "dimension mismatch")]
+    fn test_indexed_mutable_subview_copy_from_dimension_mismatch_panics()
+    {
+        let mut m = SMatrix::<i32, 5, 5>::zeros();
+        m.select_submat_mut(vec![0, 3], vec![1, 4])
+            .copy_from(SMatrix::<i32, 1, 3>::zeros());
     }
 }
 //}}}
