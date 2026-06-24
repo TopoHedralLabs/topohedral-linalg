@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use nalgebra::DMatrix as NADMatrix;
 use rand::prelude::*;
-use topohedral_linalg::DMatrix;
+use topohedral_linalg::{DMatrix, SubViewable};
 
 // fn somethin() {
 
@@ -175,6 +175,90 @@ add_benches_dmatrix!(
     vec_40
 );
 
+macro_rules! add_view_benches_dmatrix {
+    ($dim: expr, $name_cols: ident, $name_block: ident) => {
+        pub fn $name_cols(crit: &mut Criterion)
+        {
+            let a = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
+            let b = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
+            let c = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
+            let d = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
+            let e = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
+            let f = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
+            let g = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
+            let h = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
+            let i = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
+
+            let av = a.cols_range(1, $dim);
+            let bv = b.cols_range(1, $dim);
+            let cv = c.cols_range(1, $dim);
+            let dv = d.cols_range(1, $dim);
+            let ev = e.cols_range(1, $dim);
+            let fv = f.cols_range(1, $dim);
+            let gv = g.cols_range(1, $dim);
+            let hv = h.cols_range(1, $dim);
+            let iv = i.cols_range(1, $dim);
+
+            crit.bench_function(
+                format!("topohedral-linalg_dmatrix_view_cols{}", $dim).as_str(),
+                |be| {
+                    be.iter(|| {
+                        let j: DMatrix<f64> =
+                            (&av + &bv + &cv + &dv + &ev + &fv + &gv + &hv + &iv).into();
+                        std::hint::black_box(j);
+                    })
+                },
+            );
+        }
+
+        pub fn $name_block(crit: &mut Criterion)
+        {
+            let a = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);
+            let b = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);
+            let c = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);
+            let d = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);
+            let e = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);
+            let f = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);
+            let g = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);
+            let h = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);
+            let i = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);
+
+            let av = a.subview_range(1, $dim, 1, $dim);
+            let bv = b.subview_range(1, $dim, 1, $dim);
+            let cv = c.subview_range(1, $dim, 1, $dim);
+            let dv = d.subview_range(1, $dim, 1, $dim);
+            let ev = e.subview_range(1, $dim, 1, $dim);
+            let fv = f.subview_range(1, $dim, 1, $dim);
+            let gv = g.subview_range(1, $dim, 1, $dim);
+            let hv = h.subview_range(1, $dim, 1, $dim);
+            let iv = i.subview_range(1, $dim, 1, $dim);
+
+            crit.bench_function(
+                format!("topohedral-linalg_dmatrix_view_block{}", $dim).as_str(),
+                |be| {
+                    be.iter(|| {
+                        let j: DMatrix<f64> =
+                            (&av + &bv + &cv + &dv + &ev + &fv + &gv + &hv + &iv).into();
+                        std::hint::black_box(j);
+                    })
+                },
+            );
+        }
+    };
+}
+
+add_view_benches_dmatrix!(
+    10,
+    topohedral_linalg_dmatrix_view_cols_10,
+    topohedral_linalg_dmatrix_view_block_10
+);
+
+add_view_benches_dmatrix!(
+    40,
+    topohedral_linalg_dmatrix_view_cols_40,
+    topohedral_linalg_dmatrix_view_block_40
+);
+
 criterion_group!(
     benches_dmatrix,
     topohedral_linalg_dmatrix_10,
@@ -188,7 +272,11 @@ criterion_group!(
     vec_30,
     topohedral_linalg_dmatrix_40,
     nalgebra_dmatrix_40,
-    vec_40
+    vec_40,
+    topohedral_linalg_dmatrix_view_cols_10,
+    topohedral_linalg_dmatrix_view_block_10,
+    topohedral_linalg_dmatrix_view_cols_40,
+    topohedral_linalg_dmatrix_view_block_40
 );
 //}}}
 
