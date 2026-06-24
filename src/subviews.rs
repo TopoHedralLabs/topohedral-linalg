@@ -37,7 +37,10 @@ fn validate_indices(
 }
 //}}}
 //{{{ fn: validate_unique_indices
-fn validate_unique_indices(indices: &[usize], axis: &str)
+fn validate_unique_indices(
+    indices: &[usize],
+    axis: &str,
+)
 {
     let mut found = HashSet::with_capacity(indices.len());
     for &index in indices
