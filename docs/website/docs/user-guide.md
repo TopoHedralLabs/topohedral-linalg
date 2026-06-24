@@ -15,7 +15,7 @@ There is no prelude — import what you need. Everything is re-exported from the
 | `DVector`, `VecType` (dynamic vector alias and orientation) | `topohedral_linalg::{DVector, VecType}` |
 | `Field` (numeric arithmetic bound) | `topohedral_linalg::Field` |
 | Traits (`MatMul`, `MatrixOps`, `ReduceOps`, `TransformOps`, `FloatTransformOps`, `Shape`, `VectorOps`, …) | `topohedral_linalg::{TraitName}` |
-| `SubViewable`, `SubViewableMut` (subview traits) | `topohedral_linalg::{SubViewable, SubViewableMut}` |
+| Subview traits and concrete view types | `topohedral_linalg::{SubViewable, SubViewableMut, MatrixView, MatrixViewMut, IndexedMatrixView, IndexedMatrixViewMut}` |
 | `ElementwiseCompare` (lazy comparisons) | `topohedral_linalg::ElementwiseCompare` |
 | `Maskable` (boolean masked selection) | `topohedral_linalg::Maskable` |
 | `Dimension` (for sorting) | `topohedral_linalg::Dimension` |
@@ -28,7 +28,7 @@ use topohedral_linalg::{
     DMatrix, SMatrix,
     Dimension, MatMul, MatrixOps, ReduceOps, Shape,
     TransformOps, FloatTransformOps,
-    ElementwiseCompare, Maskable,
+    ElementwiseCompare, Maskable, SubViewable, SubViewableMut,
 };
 ```
 
@@ -308,7 +308,7 @@ let values = DMatrix::<i32>::from_row_slice(
 let shifted = &values + 1;
 let shifted_mask: DMatrix<bool> = shifted.ge(4).into();
 
-let view = values.subview(0, 1, 1, 2);
+let view = values.subview_range(0, 1, 1, 2);
 let view_mask: DMatrix<bool> = view.lt(6).into();
 ```
 
@@ -370,8 +370,8 @@ Selection follows the crate's **column-major** traversal order. Materialisation 
 produces a `K × 1` `DMatrix`, where `K` is the number of `true` mask entries. An
 all-false mask produces a `0 × 1` matrix. Source and mask dimensions must match exactly.
 
-`MaskedView` is read-only in the current API. Use a rectangular `MatrixViewMut` when
-you need zero-copy mutation.
+`MaskedView` is read-only in the current API. Use a rectangular `MatrixViewMut` or an
+index-set `IndexedMatrixViewMut` when you need zero-copy mutation.
 
 ---
 
@@ -764,66 +764,134 @@ LAPACK routine: `dgesv` / `sgesv`
 
 ## Subviews
 
-A subview is a zero-copy, borrowed window into a rectangular region of a matrix.
-All subview indices are **inclusive** on both ends: `subview(r0, r1, c0, c1)` covers
-rows `r0..=r1` and columns `c0..=c1`.
+A subview is a zero-copy, borrowed window into selected rows and columns of a matrix.
+The crate has two subview families:
 
-For non-rectangular selection driven by a boolean expression, use
-[`masked`](#selecting-elements-with-a-boolean-mask) instead. Masked selection is a
-gather operation and therefore cannot be represented by a rectangular `MatrixView`.
+- range views, which select contiguous rectangular regions and return `MatrixView` or
+  `MatrixViewMut`
+- index-set views, which select explicit row and/or column index lists and return
+  `IndexedMatrixView` or `IndexedMatrixViewMut`
+
+For selection driven by a boolean expression, use
+[`masked`](#selecting-elements-with-a-boolean-mask) instead. Masked selection gathers
+individual entries into a read-only `MaskedView`.
+
+### Contiguous range views
+
+Range-view indices are **inclusive** on both ends:
+`subview_range(r0, r1, c0, c1)` covers rows `r0..=r1` and columns `c0..=c1`.
 
 ### Immutable views
 
-The `SubViewable` trait provides methods that return a `MatrixView` borrowing `&self`:
+The `SubViewable` trait provides range methods that return a `MatrixView` borrowing `&self`:
 
 ```rust
-use topohedral_linalg::SubViewable;
+use topohedral_linalg::{DMatrix, SubViewable};
 
 let m = DMatrix::<f64>::from_uniform_random(0.0, 1.0, 6, 6);
 
 // Arbitrary rectangular block: rows 1..=3, cols 2..=4
-let view = m.subview(1, 3, 2, 4);
+let view = m.subview_range(1, 3, 2, 4);
 let v = view[(0, 1)];   // relative indices within the view
 
 // Convenience shortcuts
-let row2  = m.row(2);           // entire row 2  (1 × ncols view)
-let rows  = m.rows(1, 3);       // rows 1..=3    (3 × ncols view)
-let col1  = m.col(1);           // entire col 1  (nrows × 1 view)
-let cols  = m.cols(2, 4);       // cols 2..=4    (nrows × 3 view)
+let row2  = m.row(2);              // entire row 2  (1 × ncols view)
+let rows  = m.rows_range(1, 3);    // rows 1..=3    (3 × ncols view)
+let col1  = m.col(1);              // entire col 1  (nrows × 1 view)
+let cols  = m.cols_range(2, 4);    // cols 2..=4    (nrows × 3 view)
+```
+
+### Index-set views
+
+Index-set views select non-contiguous rows and/or columns by explicit index lists.
+The index lists can be `Vec<usize>`, slices, borrowed vectors, or arrays. Immutable
+index-set views may repeat indices; mutable index-set views reject duplicate selected
+rows or columns so every mutable reference targets a distinct matrix entry.
+
+```rust
+use topohedral_linalg::{DMatrix, Shape, SubViewable};
+
+let m = DMatrix::<i32>::from_col_slice(
+    &[
+        1, 2, 3, 4, 5,
+        6, 7, 8, 9, 10,
+        11, 12, 13, 14, 15,
+        16, 17, 18, 19, 20,
+        21, 22, 23, 24, 25,
+    ],
+    5,
+    5,
+);
+
+let rows = m.rows_indices([0, 3, 4]);           // 3 × 5
+let cols = m.cols_indices([0, 3]);              // 5 × 2
+let subm = m.subview_indices([0, 3, 4], [1, 4]); // 3 × 2
+
+assert_eq!(rows.size(), (3, 5));
+assert_eq!(cols.size(), (5, 2));
+assert_eq!(subm[(1, 0)], m[(3, 1)]);
 ```
 
 ### Mutable views
 
 The `SubViewableMut` trait mirrors `SubViewable` with `&mut self` variants that return
-a `MatrixViewMut`. Writing through a `MatrixViewMut` writes directly into the parent matrix.
+`MatrixViewMut` or `IndexedMatrixViewMut`. Writing through either mutable view writes
+directly into the parent matrix.
 
 ```rust
-use topohedral_linalg::SubViewableMut;
+use topohedral_linalg::{DMatrix, SubViewableMut};
 
 let mut m = DMatrix::<f64>::zeros(6, 6);
 
 // Element-by-element writes using (row, col) or linear index
 {
-    let mut view = m.subview_mut(1, 3, 2, 4);
+    let mut view = m.subview_range_mut(1, 3, 2, 4);
     view[(0, 0)] = 1.0;   // row 0, col 0 of the view → m[(1, 2)]
     view[(1, 2)] = 5.0;   // row 1, col 2 of the view → m[(2, 4)]
     view[0]      = 9.0;   // linear index 0 (column-major) → m[(1, 2)]
 }
 
 // Mutable convenience shortcuts
-let mut row_view = m.row_mut(2);       // entire row 2
-let mut col_view = m.col_mut(1);       // entire col 1
-let mut rows_view = m.rows_mut(1, 3);  // rows 1..=3
-let mut cols_view = m.cols_mut(2, 4);  // cols 2..=4
+{
+    let mut row_view = m.row_mut(2);            // entire row 2
+    row_view[(0, 0)] = 2.0;
+}
+{
+    let mut col_view = m.col_mut(1);            // entire col 1
+    col_view[(0, 0)] = 3.0;
+}
+{
+    let mut rows_view = m.rows_range_mut(1, 3); // rows 1..=3
+    rows_view[(0, 0)] = 4.0;
+}
+{
+    let mut cols_view = m.cols_range_mut(2, 4); // cols 2..=4
+    cols_view[(0, 0)] = 5.0;
+}
+
+// Mutable index-set views
+{
+    let mut indexed_rows = m.rows_indices_mut([0, 3]); // selected rows, all columns
+    indexed_rows[(1, 0)] = 6.0; // writes m[(3, 0)]
+}
+{
+    let mut indexed_cols = m.cols_indices_mut([1, 4]); // all rows, selected columns
+    indexed_cols[(0, 1)] = 7.0; // writes m[(0, 4)]
+}
+{
+    let mut indexed = m.subview_indices_mut([0, 3], [1, 4]);
+    indexed[(1, 0)] = 8.0; // writes m[(3, 1)]
+}
 ```
 
 #### Iterating over a mutable view
 
-`MatrixViewMut` provides both a shared and a mutable column-major iterator:
+`MatrixViewMut` and `IndexedMatrixViewMut` provide both shared and mutable
+column-major iterators:
 
 ```rust
 let mut m = DMatrix::<f64>::from_uniform_random(0.0, 1.0, 4, 4);
-let mut view = m.subview_mut(0, 1, 0, 1);  // top-left 2×2 block
+let mut view = m.subview_range_mut(0, 1, 0, 1);  // top-left 2×2 block
 
 // Read-only pass
 for val in view.iter() {
@@ -838,14 +906,15 @@ for val in view.iter_mut() {
 
 #### Bulk copy into a mutable view
 
-`copy_from` writes all elements of a same-sized matrix or view into the mutable view:
+`copy_from` writes all elements of a same-sized matrix, expression, or view into the
+mutable view:
 
 ```rust
 let src = DMatrix::<f64>::ones(2, 2);
 let mut dst = DMatrix::<f64>::zeros(4, 4);
 
 // Copy src into the bottom-right 2×2 block of dst
-let mut view = dst.subview_mut(2, 3, 2, 3);
+let mut view = dst.subview_range_mut(2, 3, 2, 3);
 view.copy_from(src);
 ```
 
@@ -897,18 +966,19 @@ s_dst.copy_from(s_src);
 
 ### Converting a view to an owned matrix
 
-`MatrixView` and `MatrixViewMut` over either `DMatrix` or `SMatrix` can be
-materialised into a new heap-allocated `DMatrix` via `.to_dmatrix()`. Note that
-views over an `SMatrix` always produce a `DMatrix` — there is no `to_smatrix()`:
+`MatrixView`, `MatrixViewMut`, `IndexedMatrixView`, and `IndexedMatrixViewMut` over
+either `DMatrix` or `SMatrix` can be materialised into a new heap-allocated `DMatrix`
+via `.to_dmatrix()`. Note that views over an `SMatrix` always produce a `DMatrix` —
+there is no `to_smatrix()`:
 
 ```rust
 // From a DMatrix view
 let m = DMatrix::<f64>::from_uniform_random(0.0, 1.0, 6, 6);
-let owned: DMatrix<f64> = m.subview(1, 3, 1, 3).to_dmatrix();
+let owned: DMatrix<f64> = m.subview_range(1, 3, 1, 3).to_dmatrix();
 
 // From an SMatrix view — result is always DMatrix
 let s = SMatrix::<f64, 6, 6>::from_uniform_random(0.0, 1.0);
-let owned: DMatrix<f64> = s.subview(1, 3, 1, 3).to_dmatrix();
+let owned: DMatrix<f64> = s.subview_range(1, 3, 1, 3).to_dmatrix();
 ```
 
 ### Using subview traits in generic code
@@ -920,12 +990,12 @@ as bounds in generic functions:
 use topohedral_linalg::{SubViewable, SubViewableMut};
 
 fn sum_block<M: SubViewable<Output = f64>>(mat: &M, r0: usize, r1: usize, c0: usize, c1: usize) -> f64 {
-    let view = mat.subview(r0, r1, c0, c1);
+    let view = mat.subview_range(r0, r1, c0, c1);
     view.iter().copied().sum()
 }
 
 fn zero_block<M: SubViewableMut<Output = f64>>(mat: &mut M, r0: usize, r1: usize, c0: usize, c1: usize) {
-    let mut view = mat.subview_mut(r0, r1, c0, c1);
+    let mut view = mat.subview_range_mut(r0, r1, c0, c1);
     for val in view.iter_mut() {
         *val = 0.0;
     }

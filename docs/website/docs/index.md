@@ -12,7 +12,7 @@ the following features defined for them:
 - Accelerated matrix decompositions, including Cholesky, and linear system solution via BLAS/LAPACK (floating point only)
 - Lazily evaluated elementwise arithmetic and comparison expressions
 - Boolean matrices, composable masks, and masked element selection
-- Rectangular matrix subviews
+- Rectangular and index-set matrix subviews
 - Reductions and transformations
 - Elementwise functions which mirror those supported for primitive integral and floating-point
   types.
