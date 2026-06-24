@@ -17,10 +17,13 @@ fn boolean_matrices_support_structural_operations()
     );
 
     {
-        let mut view = static_mask.subview_mut(0, 1, 1, 2);
+        let mut view = static_mask.subview_range_mut(0, 1, 1, 2);
         view.fill(true);
     }
-    assert!(static_mask.subview(0, 1, 1, 2).iter().all(|value| *value));
+    assert!(static_mask
+        .subview_range(0, 1, 1, 2)
+        .iter()
+        .all(|value| *value));
 
     let encoded = serde_json::to_string(&static_mask).unwrap();
     let decoded: SMatrix<bool, 2, 3> = serde_json::from_str(&encoded).unwrap();
@@ -155,7 +158,7 @@ fn masked_selection_returns_column_major_column_vector()
 fn masked_selection_handles_views_and_empty_masks()
 {
     let source = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 3, 4);
-    let source_view = source.subview(1, 2, 1, 3);
+    let source_view = source.subview_range(1, 2, 1, 3);
     let mask = DMatrix::<bool>::from_row_slice(&[true, false, true, false, true, false], 2, 3);
     let selected = source_view.masked(&mask).to_dmatrix();
     assert_eq!(selected.iter().copied().collect::<Vec<_>>(), [6, 11, 8]);
@@ -208,7 +211,7 @@ fn comparisons_accept_views_and_arithmetic_expressions()
         [false, true, false, true, true, true]
     );
 
-    let view = lhs.subview(0, 1, 1, 2);
+    let view = lhs.subview_range(0, 1, 1, 2);
     let view_mask: DMatrix<bool> = view.lt(6).into();
     assert_eq!(view_mask.size(), (2, 2));
     assert_eq!(

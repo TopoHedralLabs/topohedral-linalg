@@ -334,7 +334,7 @@ mod dmatrix_tests
         );
 
         {
-            let mut view = matrix.subview_mut(1, 2, 1, 2);
+            let mut view = matrix.subview_range_mut(1, 2, 1, 2);
             view.transform(|value| -value);
         }
         {
@@ -342,7 +342,7 @@ mod dmatrix_tests
             view.scale(2);
         }
         {
-            let mut view = matrix.subview_mut(0, 1, 3, 3);
+            let mut view = matrix.subview_range_mut(0, 1, 3, 3);
             view.shift(100);
         }
         {
@@ -545,7 +545,7 @@ mod smatrix_tests
         ]);
 
         {
-            let mut view = matrix.subview_mut(1, 2, 1, 2);
+            let mut view = matrix.subview_range_mut(1, 2, 1, 2);
             view.transform(|value| -value);
         }
         {
@@ -553,7 +553,7 @@ mod smatrix_tests
             view.scale(2);
         }
         {
-            let mut view = matrix.subview_mut(0, 1, 3, 3);
+            let mut view = matrix.subview_range_mut(0, 1, 3, 3);
             view.shift(100);
         }
         {
