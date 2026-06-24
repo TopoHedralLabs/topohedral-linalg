@@ -63,6 +63,7 @@ pub use expression::unary_expr::{
 };
 pub use smatrix::*;
 pub use subviews::{
-    IndexedMatrixView, IndexedMatrixViewMut, Maskable, MaskedView, SubViewable, SubViewableMut,
+    IndexedMatrixView, IndexedMatrixViewMut, Maskable, MaskedView, MatrixView, MatrixViewMut,
+    SubViewable, SubViewableMut,
 };
 //}}}
