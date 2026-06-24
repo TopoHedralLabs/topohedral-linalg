@@ -16,6 +16,7 @@ use std::ops::{Index, IndexMut};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
+//{{{ fn: validate_indices
 fn validate_indices(
     indices: &[usize],
     limit: usize,
@@ -33,7 +34,8 @@ fn validate_indices(
         );
     }
 }
-
+//}}}
+//{{{ fn: validate_unique_indices
 fn validate_unique_indices(
     indices: &[usize],
     axis: &str,
@@ -49,6 +51,7 @@ fn validate_unique_indices(
         );
     }
 }
+//}}}
 
 //{{{ struct: MatrixView
 /// Immutable subview of a matrix, borrowing a rectangular region without copying data.
