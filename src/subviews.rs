@@ -10,6 +10,7 @@
 //{{{ crate imports
 use crate::common::{tuple_index, MatrixExpr, ReduceOps, Shape, TransformOps};
 use crate::dmatrix::DMatrix;
+use std::collections::HashSet;
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};
@@ -36,19 +37,15 @@ fn validate_indices(
 }
 //}}}
 //{{{ fn: validate_unique_indices
-fn validate_unique_indices(
-    indices: &[usize],
-    axis: &str,
-)
+fn validate_unique_indices(indices: &[usize], axis: &str)
 {
-    for (position, &index) in indices.iter().enumerate()
+    let mut found = HashSet::with_capacity(indices.len());
+    for &index in indices
     {
-        assert!(
-            !indices[position + 1..].contains(&index),
-            "duplicate {} index {} in mutable indexed view",
-            axis,
-            index
-        );
+        if !found.insert(index)
+        {
+            panic!("duplicate {axis} index {index} in mutable indexed view");
+        }
     }
 }
 //}}}
@@ -1395,5 +1392,42 @@ where
     X: Shape + Index<(usize, usize)>,
     X::Output: Copy,
 {
+}
+//}}}
+
+//-------------------------------------------------------------------------------------------------
+//{{{ mod: tests
+#[cfg(test)]
+mod tests
+{
+    use super::*;
+
+    #[test]
+    fn validate_indices_accepts_empty_and_in_bounds_indices()
+    {
+        validate_indices(&[], 0, "row");
+        validate_indices(&[0, 2, 4], 5, "row");
+    }
+
+    #[test]
+    #[should_panic(expected = "row index 5 out of bounds for dimension 5")]
+    fn validate_indices_rejects_out_of_bounds_indices()
+    {
+        validate_indices(&[0, 5], 5, "row");
+    }
+
+    #[test]
+    fn validate_unique_indices_accepts_empty_and_unique_indices()
+    {
+        validate_unique_indices(&[], "column");
+        validate_unique_indices(&[3, 1, 4], "column");
+    }
+
+    #[test]
+    #[should_panic(expected = "duplicate column index 3 in mutable indexed view")]
+    fn validate_unique_indices_rejects_duplicates()
+    {
+        validate_unique_indices(&[3, 1, 3], "column");
+    }
 }
 //}}}
