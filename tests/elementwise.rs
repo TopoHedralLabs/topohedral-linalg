@@ -2,8 +2,8 @@
 mod smatrix_tests
 {
     use approx::assert_relative_eq;
-    use topohedral_linalg::SMatrix;
     use topohedral_linalg::{abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps};
+    use topohedral_linalg::{SMatrix, SubViewable, SubViewableMut};
 
     //{{{ collection: mixed tests
     #[test]
@@ -197,6 +197,76 @@ mod smatrix_tests
         {
             assert_eq!(*val, exp_val);
         }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_subviews_participate_in_lazy_expressions()
+    {
+        let wide = SMatrix::<i32, 2, 4>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8]);
+        let block_parent = SMatrix::<i32, 4, 4>::from_row_slice(&[
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        ]);
+        let rhs = SMatrix::<i32, 2, 2>::from_row_slice(&[10, 20, 30, 40]);
+
+        let cols: SMatrix<i32, 2, 2> = (wide.cols_range(1, 2) + &rhs).into();
+        assert_eq!(cols[(0, 0)], 12);
+        assert_eq!(cols[(0, 1)], 23);
+        assert_eq!(cols[(1, 0)], 36);
+        assert_eq!(cols[(1, 1)], 47);
+
+        let block: SMatrix<i32, 2, 2> = (block_parent.subview_range(1, 2, 1, 2) + &rhs).into();
+        assert_eq!(block[(0, 0)], 16);
+        assert_eq!(block[(0, 1)], 27);
+        assert_eq!(block[(1, 0)], 40);
+        assert_eq!(block[(1, 1)], 51);
+
+        let borrowed = block_parent.subview_range(1, 2, 1, 2);
+        let borrowed_out: SMatrix<i32, 2, 2> = (&borrowed + &rhs).into();
+        assert_eq!(borrowed_out[(0, 0)], 16);
+        assert_eq!(borrowed_out[(0, 1)], 27);
+        assert_eq!(borrowed_out[(1, 0)], 40);
+        assert_eq!(borrowed_out[(1, 1)], 51);
+
+        let chained: SMatrix<i32, 2, 2> =
+            ((block_parent.subview_range(1, 2, 1, 2) + &rhs) * 2 - &rhs).into();
+        assert_eq!(chained[(0, 0)], 22);
+        assert_eq!(chained[(0, 1)], 34);
+        assert_eq!(chained[(1, 0)], 50);
+        assert_eq!(chained[(1, 1)], 62);
+
+        let scalar_rhs: SMatrix<i32, 2, 2> = (wide.cols_range(1, 2) + 3).into();
+        assert_eq!(scalar_rhs[(0, 0)], 5);
+        assert_eq!(scalar_rhs[(0, 1)], 6);
+        assert_eq!(scalar_rhs[(1, 0)], 9);
+        assert_eq!(scalar_rhs[(1, 1)], 10);
+
+        let scalar_lhs: SMatrix<i32, 2, 2> = (100 - wide.cols_range(1, 2)).into();
+        assert_eq!(scalar_lhs[(0, 0)], 98);
+        assert_eq!(scalar_lhs[(0, 1)], 97);
+        assert_eq!(scalar_lhs[(1, 0)], 94);
+        assert_eq!(scalar_lhs[(1, 1)], 93);
+
+        let negated: SMatrix<i32, 2, 2> = (-wide.cols_range(1, 2)).into();
+        assert_eq!(negated[(0, 0)], -2);
+        assert_eq!(negated[(0, 1)], -3);
+        assert_eq!(negated[(1, 0)], -6);
+        assert_eq!(negated[(1, 1)], -7);
+
+        let mut mutable_parent = block_parent;
+        let mut mutable_view = mutable_parent.subview_range_mut(1, 2, 1, 2);
+        let mutable_out: SMatrix<i32, 2, 2> = (&mut mutable_view + &rhs).into();
+        assert_eq!(mutable_out[(0, 0)], 16);
+        assert_eq!(mutable_out[(0, 1)], 27);
+        assert_eq!(mutable_out[(1, 0)], 40);
+        assert_eq!(mutable_out[(1, 1)], 51);
+
+        let indexed: SMatrix<i32, 2, 2> =
+            (block_parent.subview_indices([0, 3], [1, 2]) + &rhs).into();
+        assert_eq!(indexed[(0, 0)], 12);
+        assert_eq!(indexed[(0, 1)], 23);
+        assert_eq!(indexed[(1, 0)], 44);
+        assert_eq!(indexed[(1, 1)], 55);
     }
     //}}}
     //{{{ collection: division tests
@@ -806,8 +876,8 @@ mod smatrix_tests
 mod dmatrix_tests
 {
     use approx::assert_relative_eq;
-    use topohedral_linalg::DMatrix;
     use topohedral_linalg::{abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps};
+    use topohedral_linalg::{DMatrix, SubViewable, SubViewableMut};
 
     //{{{ collection: addition tests
     #[test]
@@ -950,6 +1020,86 @@ mod dmatrix_tests
         {
             assert_eq!(*val, exp_val);
         }
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_subviews_participate_in_lazy_expressions()
+    {
+        let wide = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8], 2, 4);
+        let block_parent = DMatrix::<i32>::from_row_slice(
+            &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+            4,
+            4,
+        );
+        let rhs = DMatrix::<i32>::from_row_slice(&[10, 20, 30, 40], 2, 2);
+
+        let cols: DMatrix<i32> = (wide.cols_range(1, 2) + &rhs).into();
+        assert_eq!(cols[(0, 0)], 12);
+        assert_eq!(cols[(0, 1)], 23);
+        assert_eq!(cols[(1, 0)], 36);
+        assert_eq!(cols[(1, 1)], 47);
+
+        let block: DMatrix<i32> = (block_parent.subview_range(1, 2, 1, 2) + &rhs).into();
+        assert_eq!(block[(0, 0)], 16);
+        assert_eq!(block[(0, 1)], 27);
+        assert_eq!(block[(1, 0)], 40);
+        assert_eq!(block[(1, 1)], 51);
+
+        let borrowed = block_parent.subview_range(1, 2, 1, 2);
+        let borrowed_out: DMatrix<i32> = (&borrowed + &rhs).into();
+        assert_eq!(borrowed_out[(0, 0)], 16);
+        assert_eq!(borrowed_out[(0, 1)], 27);
+        assert_eq!(borrowed_out[(1, 0)], 40);
+        assert_eq!(borrowed_out[(1, 1)], 51);
+
+        let chained: DMatrix<i32> =
+            ((block_parent.subview_range(1, 2, 1, 2) + &rhs) * 2 - &rhs).into();
+        assert_eq!(chained[(0, 0)], 22);
+        assert_eq!(chained[(0, 1)], 34);
+        assert_eq!(chained[(1, 0)], 50);
+        assert_eq!(chained[(1, 1)], 62);
+
+        let scalar_rhs: DMatrix<i32> = (wide.cols_range(1, 2) + 3).into();
+        assert_eq!(scalar_rhs[(0, 0)], 5);
+        assert_eq!(scalar_rhs[(0, 1)], 6);
+        assert_eq!(scalar_rhs[(1, 0)], 9);
+        assert_eq!(scalar_rhs[(1, 1)], 10);
+
+        let scalar_lhs: DMatrix<i32> = (100 - wide.cols_range(1, 2)).into();
+        assert_eq!(scalar_lhs[(0, 0)], 98);
+        assert_eq!(scalar_lhs[(0, 1)], 97);
+        assert_eq!(scalar_lhs[(1, 0)], 94);
+        assert_eq!(scalar_lhs[(1, 1)], 93);
+
+        let negated: DMatrix<i32> = (-wide.cols_range(1, 2)).into();
+        assert_eq!(negated[(0, 0)], -2);
+        assert_eq!(negated[(0, 1)], -3);
+        assert_eq!(negated[(1, 0)], -6);
+        assert_eq!(negated[(1, 1)], -7);
+
+        let mut mutable_parent = block_parent.clone();
+        let mut mutable_view = mutable_parent.subview_range_mut(1, 2, 1, 2);
+        let mutable_out: DMatrix<i32> = (&mut mutable_view + &rhs).into();
+        assert_eq!(mutable_out[(0, 0)], 16);
+        assert_eq!(mutable_out[(0, 1)], 27);
+        assert_eq!(mutable_out[(1, 0)], 40);
+        assert_eq!(mutable_out[(1, 1)], 51);
+
+        let indexed: DMatrix<i32> = (block_parent.subview_indices([0, 3], [1, 2]) + &rhs).into();
+        assert_eq!(indexed[(0, 0)], 12);
+        assert_eq!(indexed[(0, 1)], 23);
+        assert_eq!(indexed[(1, 0)], 44);
+        assert_eq!(indexed[(1, 1)], 55);
+    }
+
+    #[test]
+    #[should_panic(expected = "view expression row dimension mismatch")]
+    fn test_subview_lazy_expression_dimension_mismatch_panics()
+    {
+        let lhs = DMatrix::<i32>::ones(2, 4);
+        let rhs = DMatrix::<i32>::ones(3, 2);
+        let _expr = lhs.cols_range(1, 2) + &rhs;
     }
     //}}}
     //{{{ collection: division tests

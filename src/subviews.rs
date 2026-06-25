@@ -8,12 +8,15 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::common::{tuple_index, MatrixExpr, ReduceOps, Shape, TransformOps};
+use crate::apply_for_all_types;
+use crate::common::{tuple_index, Field, MatrixExpr, ReduceOps, ScalarExpr, Shape, TransformOps};
 use crate::dmatrix::DMatrix;
+use crate::expression::binary_expr::{AddOp, BinopExpr, DivOp, MulOp, SubOp};
+use crate::expression::unary_expr::{NegOp, UnaryExpr};
 use std::collections::HashSet;
 //}}}
 //{{{ std imports
-use std::ops::{Index, IndexMut};
+use std::ops::{Add, Div, Index, IndexMut, Mul, Neg, Sub};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
@@ -1042,6 +1045,372 @@ where
         }
     }
 }
+//}}}
+
+//{{{ collection: lazy elementwise operators for views
+macro_rules! impl_view_matrix_rhs_op {
+    ($view:ident, [$($bounds:tt)+], $trait:ident, $method:ident, $op:ty) => {
+        impl<'a, Mat, T, Rhs> $trait<Rhs> for $view<'a, Mat>
+        where
+            $($bounds)+,
+            T: Field + Copy,
+            Rhs: MatrixExpr<ScalarType = T>,
+        {
+            type Output = BinopExpr<Self, Rhs, T, $op>;
+
+            #[inline]
+            fn $method(
+                self,
+                rhs: Rhs,
+            ) -> Self::Output
+            {
+                assert_eq!(self.nrows(), rhs.nrows(), "view expression row dimension mismatch");
+                assert_eq!(self.ncols(), rhs.ncols(), "view expression column dimension mismatch");
+                let nr = self.nrows();
+                let nc = self.ncols();
+                BinopExpr {
+                    a: self,
+                    b: rhs,
+                    nrows: nr,
+                    ncols: nc,
+                    _marker: std::marker::PhantomData,
+                }
+            }
+        }
+
+        impl<'a, 'b, Mat, T, Rhs> $trait<Rhs> for &'b $view<'a, Mat>
+        where
+            $($bounds)+,
+            T: Field + Copy,
+            Rhs: MatrixExpr<ScalarType = T>,
+        {
+            type Output = BinopExpr<Self, Rhs, T, $op>;
+
+            #[inline]
+            fn $method(
+                self,
+                rhs: Rhs,
+            ) -> Self::Output
+            {
+                assert_eq!(self.nrows(), rhs.nrows(), "view expression row dimension mismatch");
+                assert_eq!(self.ncols(), rhs.ncols(), "view expression column dimension mismatch");
+                let nr = self.nrows();
+                let nc = self.ncols();
+                BinopExpr {
+                    a: self,
+                    b: rhs,
+                    nrows: nr,
+                    ncols: nc,
+                    _marker: std::marker::PhantomData,
+                }
+            }
+        }
+
+        impl<'a, 'b, Mat, T, Rhs> $trait<Rhs> for &'b mut $view<'a, Mat>
+        where
+            $($bounds)+,
+            T: Field + Copy,
+            Rhs: MatrixExpr<ScalarType = T>,
+        {
+            type Output = BinopExpr<Self, Rhs, T, $op>;
+
+            #[inline]
+            fn $method(
+                self,
+                rhs: Rhs,
+            ) -> Self::Output
+            {
+                assert_eq!(self.nrows(), rhs.nrows(), "view expression row dimension mismatch");
+                assert_eq!(self.ncols(), rhs.ncols(), "view expression column dimension mismatch");
+                let nr = self.nrows();
+                let nc = self.ncols();
+                BinopExpr {
+                    a: self,
+                    b: rhs,
+                    nrows: nr,
+                    ncols: nc,
+                    _marker: std::marker::PhantomData,
+                }
+            }
+        }
+    };
+}
+
+macro_rules! impl_view_scalar_rhs_op {
+    ($scalar:ty, $view:ident, [$($bounds:tt)+], $trait:ident, $method:ident, $op:ty) => {
+        impl<'a, Mat> $trait<$scalar> for $view<'a, Mat>
+        where
+            $($bounds)+,
+        {
+            type Output = BinopExpr<Self, ScalarExpr<$scalar>, $scalar, $op>;
+
+            #[inline]
+            fn $method(
+                self,
+                rhs: $scalar,
+            ) -> Self::Output
+            {
+                let nr = self.nrows();
+                let nc = self.ncols();
+                BinopExpr {
+                    a: self,
+                    b: ScalarExpr::new(rhs, nr, nc),
+                    nrows: nr,
+                    ncols: nc,
+                    _marker: std::marker::PhantomData,
+                }
+            }
+        }
+
+        impl<'a, 'b, Mat> $trait<$scalar> for &'b $view<'a, Mat>
+        where
+            $($bounds)+,
+        {
+            type Output = BinopExpr<Self, ScalarExpr<$scalar>, $scalar, $op>;
+
+            #[inline]
+            fn $method(
+                self,
+                rhs: $scalar,
+            ) -> Self::Output
+            {
+                let nr = self.nrows();
+                let nc = self.ncols();
+                BinopExpr {
+                    a: self,
+                    b: ScalarExpr::new(rhs, nr, nc),
+                    nrows: nr,
+                    ncols: nc,
+                    _marker: std::marker::PhantomData,
+                }
+            }
+        }
+
+        impl<'a, 'b, Mat> $trait<$scalar> for &'b mut $view<'a, Mat>
+        where
+            $($bounds)+,
+        {
+            type Output = BinopExpr<Self, ScalarExpr<$scalar>, $scalar, $op>;
+
+            #[inline]
+            fn $method(
+                self,
+                rhs: $scalar,
+            ) -> Self::Output
+            {
+                let nr = self.nrows();
+                let nc = self.ncols();
+                BinopExpr {
+                    a: self,
+                    b: ScalarExpr::new(rhs, nr, nc),
+                    nrows: nr,
+                    ncols: nc,
+                    _marker: std::marker::PhantomData,
+                }
+            }
+        }
+    };
+}
+
+macro_rules! impl_view_scalar_lhs_op {
+    ($scalar:ty, $view:ident, [$($bounds:tt)+], $trait:ident, $method:ident, $op:ty) => {
+        impl<'a, Mat> $trait<$view<'a, Mat>> for $scalar
+        where
+            $($bounds)+,
+        {
+            type Output = BinopExpr<ScalarExpr<$scalar>, $view<'a, Mat>, $scalar, $op>;
+
+            #[inline]
+            fn $method(
+                self,
+                rhs: $view<'a, Mat>,
+            ) -> Self::Output
+            {
+                let nr = rhs.nrows();
+                let nc = rhs.ncols();
+                BinopExpr {
+                    a: ScalarExpr::new(self, nr, nc),
+                    b: rhs,
+                    nrows: nr,
+                    ncols: nc,
+                    _marker: std::marker::PhantomData,
+                }
+            }
+        }
+
+        impl<'a, 'b, Mat> $trait<&'b $view<'a, Mat>> for $scalar
+        where
+            $($bounds)+,
+        {
+            type Output = BinopExpr<ScalarExpr<$scalar>, &'b $view<'a, Mat>, $scalar, $op>;
+
+            #[inline]
+            fn $method(
+                self,
+                rhs: &'b $view<'a, Mat>,
+            ) -> Self::Output
+            {
+                let nr = rhs.nrows();
+                let nc = rhs.ncols();
+                BinopExpr {
+                    a: ScalarExpr::new(self, nr, nc),
+                    b: rhs,
+                    nrows: nr,
+                    ncols: nc,
+                    _marker: std::marker::PhantomData,
+                }
+            }
+        }
+
+        impl<'a, 'b, Mat> $trait<&'b mut $view<'a, Mat>> for $scalar
+        where
+            $($bounds)+,
+        {
+            type Output = BinopExpr<ScalarExpr<$scalar>, &'b mut $view<'a, Mat>, $scalar, $op>;
+
+            #[inline]
+            fn $method(
+                self,
+                rhs: &'b mut $view<'a, Mat>,
+            ) -> Self::Output
+            {
+                let nr = rhs.nrows();
+                let nc = rhs.ncols();
+                BinopExpr {
+                    a: ScalarExpr::new(self, nr, nc),
+                    b: rhs,
+                    nrows: nr,
+                    ncols: nc,
+                    _marker: std::marker::PhantomData,
+                }
+            }
+        }
+    };
+}
+
+macro_rules! impl_view_neg_op {
+    ($view:ident, [$($bounds:tt)+]) => {
+        impl<'a, Mat, T> Neg for $view<'a, Mat>
+        where
+            $($bounds)+,
+            T: Field + Copy,
+        {
+            type Output = UnaryExpr<Self, T, NegOp>;
+
+            #[inline]
+            fn neg(self) -> Self::Output
+            {
+                UnaryExpr::new(self, NegOp)
+            }
+        }
+
+        impl<'a, 'b, Mat, T> Neg for &'b $view<'a, Mat>
+        where
+            $($bounds)+,
+            T: Field + Copy,
+        {
+            type Output = UnaryExpr<Self, T, NegOp>;
+
+            #[inline]
+            fn neg(self) -> Self::Output
+            {
+                UnaryExpr::new(self, NegOp)
+            }
+        }
+
+        impl<'a, 'b, Mat, T> Neg for &'b mut $view<'a, Mat>
+        where
+            $($bounds)+,
+            T: Field + Copy,
+        {
+            type Output = UnaryExpr<Self, T, NegOp>;
+
+            #[inline]
+            fn neg(self) -> Self::Output
+            {
+                UnaryExpr::new(self, NegOp)
+            }
+        }
+    };
+}
+
+macro_rules! impl_view_matrix_rhs_ops {
+    ($view:ident, [$($bounds:tt)+]) => {
+        impl_view_matrix_rhs_op!($view, [$($bounds)+], Add, add, AddOp);
+        impl_view_matrix_rhs_op!($view, [$($bounds)+], Sub, sub, SubOp);
+        impl_view_matrix_rhs_op!($view, [$($bounds)+], Mul, mul, MulOp);
+        impl_view_matrix_rhs_op!($view, [$($bounds)+], Div, div, DivOp);
+        impl_view_neg_op!($view, [$($bounds)+]);
+    };
+}
+
+impl_view_matrix_rhs_ops!(MatrixView, [Mat: Shape + Index<(usize, usize), Output = T>]);
+impl_view_matrix_rhs_ops!(
+    MatrixViewMut,
+    [Mat: Shape + Index<(usize, usize), Output = T> + IndexMut<(usize, usize)>]
+);
+impl_view_matrix_rhs_ops!(IndexedMatrixView, [Mat: Shape + Index<(usize, usize), Output = T>]);
+impl_view_matrix_rhs_ops!(
+    IndexedMatrixViewMut,
+    [Mat: Shape + Index<(usize, usize), Output = T> + IndexMut<(usize, usize)>]
+);
+
+macro_rules! impl_matrix_view_scalar_ops {
+    ($scalar:ty) => {
+        impl_view_scalar_rhs_op!($scalar, MatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Add, add, AddOp);
+        impl_view_scalar_rhs_op!($scalar, MatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Sub, sub, SubOp);
+        impl_view_scalar_rhs_op!($scalar, MatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Mul, mul, MulOp);
+        impl_view_scalar_rhs_op!($scalar, MatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Div, div, DivOp);
+        impl_view_scalar_lhs_op!($scalar, MatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Add, add, AddOp);
+        impl_view_scalar_lhs_op!($scalar, MatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Sub, sub, SubOp);
+        impl_view_scalar_lhs_op!($scalar, MatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Mul, mul, MulOp);
+        impl_view_scalar_lhs_op!($scalar, MatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Div, div, DivOp);
+    };
+}
+
+macro_rules! impl_matrix_view_mut_scalar_ops {
+    ($scalar:ty) => {
+        impl_view_scalar_rhs_op!($scalar, MatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Add, add, AddOp);
+        impl_view_scalar_rhs_op!($scalar, MatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Sub, sub, SubOp);
+        impl_view_scalar_rhs_op!($scalar, MatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Mul, mul, MulOp);
+        impl_view_scalar_rhs_op!($scalar, MatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Div, div, DivOp);
+        impl_view_scalar_lhs_op!($scalar, MatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Add, add, AddOp);
+        impl_view_scalar_lhs_op!($scalar, MatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Sub, sub, SubOp);
+        impl_view_scalar_lhs_op!($scalar, MatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Mul, mul, MulOp);
+        impl_view_scalar_lhs_op!($scalar, MatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Div, div, DivOp);
+    };
+}
+
+macro_rules! impl_indexed_matrix_view_scalar_ops {
+    ($scalar:ty) => {
+        impl_view_scalar_rhs_op!($scalar, IndexedMatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Add, add, AddOp);
+        impl_view_scalar_rhs_op!($scalar, IndexedMatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Sub, sub, SubOp);
+        impl_view_scalar_rhs_op!($scalar, IndexedMatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Mul, mul, MulOp);
+        impl_view_scalar_rhs_op!($scalar, IndexedMatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Div, div, DivOp);
+        impl_view_scalar_lhs_op!($scalar, IndexedMatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Add, add, AddOp);
+        impl_view_scalar_lhs_op!($scalar, IndexedMatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Sub, sub, SubOp);
+        impl_view_scalar_lhs_op!($scalar, IndexedMatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Mul, mul, MulOp);
+        impl_view_scalar_lhs_op!($scalar, IndexedMatrixView, [Mat: Shape + Index<(usize, usize), Output = $scalar>], Div, div, DivOp);
+    };
+}
+
+macro_rules! impl_indexed_matrix_view_mut_scalar_ops {
+    ($scalar:ty) => {
+        impl_view_scalar_rhs_op!($scalar, IndexedMatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Add, add, AddOp);
+        impl_view_scalar_rhs_op!($scalar, IndexedMatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Sub, sub, SubOp);
+        impl_view_scalar_rhs_op!($scalar, IndexedMatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Mul, mul, MulOp);
+        impl_view_scalar_rhs_op!($scalar, IndexedMatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Div, div, DivOp);
+        impl_view_scalar_lhs_op!($scalar, IndexedMatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Add, add, AddOp);
+        impl_view_scalar_lhs_op!($scalar, IndexedMatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Sub, sub, SubOp);
+        impl_view_scalar_lhs_op!($scalar, IndexedMatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Mul, mul, MulOp);
+        impl_view_scalar_lhs_op!($scalar, IndexedMatrixViewMut, [Mat: Shape + Index<(usize, usize), Output = $scalar> + IndexMut<(usize, usize)>], Div, div, DivOp);
+    };
+}
+
+apply_for_all_types!(impl_matrix_view_scalar_ops);
+apply_for_all_types!(impl_matrix_view_mut_scalar_ops);
+apply_for_all_types!(impl_indexed_matrix_view_scalar_ops);
+apply_for_all_types!(impl_indexed_matrix_view_mut_scalar_ops);
 //}}}
 
 //{{{ trait: SubViewable
