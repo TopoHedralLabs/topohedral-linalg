@@ -249,6 +249,52 @@ let result: DMatrix<f64> = expr.into();
 Chains of any length collapse into one vectorised loop; see the
 [developer notes](developers/elementwise-vectorization.md) for the full analysis.
 
+### Views in lazy expressions
+
+Subviews can participate directly in the same lazy expression system as owned
+matrices. Range views, index-set views, immutable views, and mutable borrowed views
+all support elementwise `+`, `-`, `*`, `/`, scalar operands on either side, and unary
+negation:
+
+```rust
+use topohedral_linalg::{DMatrix, SMatrix, SubViewable, SubViewableMut};
+
+let values = DMatrix::<i32>::from_row_slice(
+    &[
+        1, 2, 3, 4,
+        5, 6, 7, 8,
+        9, 10, 11, 12,
+        13, 14, 15, 16,
+    ],
+    4,
+    4,
+);
+let rhs = DMatrix::<i32>::from_row_slice(&[10, 20, 30, 40], 2, 2);
+
+// Range views compose with matrix expressions.
+let block = values.subview_range(1, 2, 1, 2);
+let out: DMatrix<i32> = (&block + &rhs).into();
+
+// Expressions can be chained and mixed with scalars.
+let adjusted: DMatrix<i32> = ((block + &rhs) * 2 - 5).into();
+
+// Index-set views work too, including non-contiguous selections.
+let indexed: DMatrix<i32> = (values.subview_indices([0, 3], [1, 2]) + &rhs).into();
+
+// The same expression can materialise into a statically sized matrix when the
+// output dimensions are known at compile time.
+let small = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
+let static_out: SMatrix<i32, 2, 2> = (small.cols_range(0, 1) + 100).into();
+
+// Mutable views may also be read as expression operands.
+let mut target = DMatrix::<i32>::zeros(4, 4);
+let mut target_view = target.subview_range_mut(1, 2, 1, 2);
+let copied: DMatrix<i32> = (&mut target_view + 1).into();
+```
+
+Matrix-to-matrix view expressions require identical dimensions and panic if the
+shapes differ. Scalar expressions use the view's shape.
+
 ### Negation
 
 ```rust
@@ -831,6 +877,44 @@ assert_eq!(rows.size(), (3, 5));
 assert_eq!(cols.size(), (5, 2));
 assert_eq!(subm[(1, 0)], m[(3, 1)]);
 ```
+
+### Subviews as expression operands
+
+Subviews are also matrix expressions, so they can be used anywhere a same-sized
+matrix expression is accepted. This lets you compute with a borrowed region without
+copying it into an owned matrix first:
+
+```rust
+use topohedral_linalg::{DMatrix, SubViewable, SubViewableMut};
+
+let source = DMatrix::<i32>::from_row_slice(
+    &[
+        1, 2, 3, 4,
+        5, 6, 7, 8,
+        9, 10, 11, 12,
+        13, 14, 15, 16,
+    ],
+    4,
+    4,
+);
+let rhs = DMatrix::<i32>::from_row_slice(&[10, 20, 30, 40], 2, 2);
+
+let block = source.subview_range(1, 2, 1, 2);
+let combined: DMatrix<i32> = (&block + &rhs).into();
+
+let scaled: DMatrix<i32> = (2 * source.cols_range(1, 2) - 1).into();
+let negated: DMatrix<i32> = (-source.subview_indices([0, 3], [1, 2])).into();
+
+let mut target = source.clone();
+let mut writable_block = target.subview_range_mut(1, 2, 1, 2);
+let preview: DMatrix<i32> = (&mut writable_block + &rhs).into();
+```
+
+The supported lazy arithmetic operators are elementwise `+`, `-`, `*`, `/`, and
+unary `-`. They are available for `MatrixView`, `MatrixViewMut`,
+`IndexedMatrixView`, and `IndexedMatrixViewMut`, whether the view is owned, borrowed,
+or mutably borrowed. Matrix operands must have matching dimensions; scalar operands
+are broadcast over the view shape.
 
 ### Mutable views
 
