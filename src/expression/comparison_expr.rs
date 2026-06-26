@@ -30,8 +30,7 @@ where
         self,
         _nrows: usize,
         _ncols: usize,
-    ) -> Self::Expr
-    {
+    ) -> Self::Expr {
         self
     }
 }
@@ -47,24 +46,21 @@ where
         self,
         _nrows: usize,
         _ncols: usize,
-    ) -> Self::Expr
-    {
+    ) -> Self::Expr {
         self
     }
 }
 
 macro_rules! impl_scalar_compare_rhs {
     ($type:ty) => {
-        impl CompareRhs<$type> for $type
-        {
+        impl CompareRhs<$type> for $type {
             type Expr = ScalarExpr<$type>;
 
             fn into_compare_expr(
                 self,
                 nrows: usize,
                 ncols: usize,
-            ) -> Self::Expr
-            {
+            ) -> Self::Expr {
                 ScalarExpr::new(self, nrows, ncols)
             }
         }
@@ -98,8 +94,7 @@ macro_rules! define_compare_op {
             fn apply(
                 a: T,
                 b: T,
-            ) -> bool
-            {
+            ) -> bool {
                 $body(a, b)
             }
         }
@@ -139,8 +134,7 @@ where
     fn new(
         a: A,
         b: B,
-    ) -> Self
-    {
+    ) -> Self {
         let nrows = a.nrows();
         let ncols = a.ncols();
         assert_eq!(
@@ -169,13 +163,11 @@ where
     T: Copy,
     Op: CompareOp<T>,
 {
-    fn nrows(&self) -> usize
-    {
+    fn nrows(&self) -> usize {
         self.nrows
     }
 
-    fn ncols(&self) -> usize
-    {
+    fn ncols(&self) -> usize {
         self.ncols
     }
 }
@@ -193,15 +185,13 @@ where
     fn linear_value(
         &self,
         index: usize,
-    ) -> bool
-    {
+    ) -> bool {
         Op::apply(self.a.linear_value(index), self.b.linear_value(index))
     }
 }
 
 /// Named element-wise comparisons for matrix expressions.
-pub trait ElementwiseCompare: MatrixExpr
-{
+pub trait ElementwiseCompare: MatrixExpr {
     #[doc(hidden)]
     fn eq<Rhs>(
         &self,
@@ -291,8 +281,7 @@ where
     T: Copy,
     Op: CompareOp<T>,
 {
-    fn from(expr: CompareExpr<A, B, T, Op>) -> Self
-    {
+    fn from(expr: CompareExpr<A, B, T, Op>) -> Self {
         let mut out = DMatrix::from_value(false, expr.nrows, expr.ncols);
         expr.eval_into(&mut out.data);
         out
@@ -308,8 +297,7 @@ where
     T: Copy,
     Op: CompareOp<T>,
 {
-    fn from(expr: CompareExpr<A, B, T, Op>) -> Self
-    {
+    fn from(expr: CompareExpr<A, B, T, Op>) -> Self {
         assert_eq!(
             (N, M),
             (expr.nrows, expr.ncols),

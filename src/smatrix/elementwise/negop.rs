@@ -26,11 +26,9 @@ where
 {
     type Output = SMatrix<T, N, M>;
 
-    fn neg(self) -> Self
-    {
+    fn neg(self) -> Self {
         let mut result = SMatrix::<T, N, M>::zeros();
-        for i in 0..N * M
-        {
+        for i in 0..N * M {
             result[i] = -self[i];
         }
         result
@@ -45,8 +43,7 @@ where
     type Output = UnaryExpr<&'a SMatrix<T, N, M>, T, NegOp>;
 
     #[inline]
-    fn neg(self) -> Self::Output
-    {
+    fn neg(self) -> Self::Output {
         UnaryExpr::new(self, NegOp)
     }
 }
@@ -59,8 +56,7 @@ where
     type Output = UnaryExpr<&'a mut SMatrix<T, N, M>, T, NegOp>;
 
     #[inline]
-    fn neg(self) -> Self::Output
-    {
+    fn neg(self) -> Self::Output {
         UnaryExpr::new(self, NegOp)
     }
 }

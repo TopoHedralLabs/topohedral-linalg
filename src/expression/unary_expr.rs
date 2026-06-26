@@ -43,8 +43,7 @@ where
     fn apply(
         &self,
         value: T,
-    ) -> T
-    {
+    ) -> T {
         -value
     }
 }
@@ -75,8 +74,7 @@ where
     pub(crate) fn new(
         a: A,
         op: Op,
-    ) -> Self
-    {
+    ) -> Self {
         let nrows = a.nrows();
         let ncols = a.ncols();
         Self {
@@ -98,14 +96,12 @@ where
     Op: UnaryOp<T>,
 {
     #[inline]
-    fn nrows(&self) -> usize
-    {
+    fn nrows(&self) -> usize {
         self.nrows
     }
 
     #[inline]
-    fn ncols(&self) -> usize
-    {
+    fn ncols(&self) -> usize {
         self.ncols
     }
 }
@@ -124,8 +120,7 @@ where
     fn linear_value(
         &self,
         index: usize,
-    ) -> Self::ScalarType
-    {
+    ) -> Self::ScalarType {
         self.op.apply(self.a.linear_value(index))
     }
 
@@ -133,12 +128,10 @@ where
     fn eval_into(
         &self,
         out: &mut [T],
-    )
-    {
+    ) {
         self.a.eval_into(out);
         let len = out.len();
-        for i in 0..len
-        {
+        for i in 0..len {
             unsafe { *out.get_unchecked_mut(i) = self.op.apply(*out.get_unchecked(i)) };
         }
     }
@@ -161,8 +154,7 @@ macro_rules! impl_unary_expr_binary_op {
             fn $method(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 debug_assert!(self.nrows == rhs.nrows());
                 debug_assert!(self.ncols == rhs.ncols());
                 let nr = self.nrows;
@@ -195,8 +187,7 @@ macro_rules! impl_unary_expr_scalar_rhs_op {
             fn $method(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -251,8 +242,7 @@ macro_rules! impl_scalar_lhs_unary_expr_op {
             fn $method(
                 self,
                 rhs: UnaryExpr<A, $type, Op>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
@@ -319,8 +309,7 @@ where
     type Output = UnaryExpr<Self, T, NegOp>;
 
     #[inline]
-    fn neg(self) -> Self::Output
-    {
+    fn neg(self) -> Self::Output {
         UnaryExpr::new(self, NegOp)
     }
 }
@@ -337,8 +326,7 @@ where
     type Output = UnaryExpr<Self, T, NegOp>;
 
     #[inline]
-    fn neg(self) -> Self::Output
-    {
+    fn neg(self) -> Self::Output {
         UnaryExpr::new(self, NegOp)
     }
 }
@@ -358,8 +346,7 @@ macro_rules! define_float_unary_op {
             fn apply(
                 &self,
                 value: T,
-            ) -> T
-            {
+            ) -> T {
                 value.$method()
             }
         }
@@ -395,8 +382,7 @@ macro_rules! define_float_unary_op_with_same_arg {
             fn apply(
                 &self,
                 value: T,
-            ) -> T
-            {
+            ) -> T {
                 value.$method(self.$arg_name)
             }
         }
@@ -436,8 +422,7 @@ macro_rules! define_float_unary_op_with_two_same_args {
             fn apply(
                 &self,
                 value: T,
-            ) -> T
-            {
+            ) -> T {
                 value.$method(self.$arg1, self.$arg2)
             }
         }
@@ -495,8 +480,7 @@ define_float_unary_op!(NextUpOp, next_up, next_up);
 define_float_unary_op_with_same_arg!(PowfOp, powf, powf, exp);
 
 #[doc(hidden)]
-pub struct PowiOp
-{
+pub struct PowiOp {
     pub exp: i32,
 }
 
@@ -508,8 +492,7 @@ where
     fn apply(
         &self,
         value: T,
-    ) -> T
-    {
+    ) -> T {
         value.powi(self.exp)
     }
 }

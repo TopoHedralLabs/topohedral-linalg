@@ -21,8 +21,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur during general eigendecomposition.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     #[error("Error in eig(), exited with error:\n{0}")]
     /// LAPACK `geev` failed to compute eigenvalues or eigenvectors.
     GeevError(#[from] EigRawError),
@@ -66,8 +65,7 @@ where
     /// # Errors
     ///
     /// Returns [`Error::GeevError`] if the LAPACK `geev` routine fails.
-    pub fn eig(&self) -> Result<Return<T>, Error>
-    {
+    pub fn eig(&self) -> Result<Return<T>, Error> {
         let n = self.nrows;
         let raw = eig_raw(self.data.clone(), n)?;
         Ok(Return {

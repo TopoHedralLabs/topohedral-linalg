@@ -29,8 +29,7 @@ where
     T: Field + Copy + Zero,
     Op: BinOp,
 {
-    fn from(expr: BinopExpr<A, B, T, Op>) -> Self
-    {
+    fn from(expr: BinopExpr<A, B, T, Op>) -> Self {
         let mut out = SMatrix::<T, N, M>::zeros();
         expr.eval_into(out.as_mut_slice());
         out
@@ -44,8 +43,7 @@ where
     T: Field + Copy + Zero,
     Op: UnaryOp<T>,
 {
-    fn from(expr: UnaryExpr<A, T, Op>) -> Self
-    {
+    fn from(expr: UnaryExpr<A, T, Op>) -> Self {
         let mut out = SMatrix::<T, N, M>::zeros();
         expr.eval_into(out.as_mut_slice());
         out

@@ -19,8 +19,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur during LU decomposition.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     /// Wraps a LAPACK `getrf` error returned by the underlying factorisation routine.
     #[error("Error in lu(), exited with error:\n{0}")]
     GetrfError(#[from] LuRawError),
@@ -55,8 +54,7 @@ where
     /// # Errors
     ///
     /// Returns an error if the LAPACK `getrf` routine fails.
-    pub fn lu(&self) -> Result<Return<T, N, M>, Error>
-    {
+    pub fn lu(&self) -> Result<Return<T, N, M>, Error> {
         let raw = lu_raw(self.as_slice().to_vec(), N, M)?;
         Ok(Return {
             l: SMatrix::from_col_vec(raw.l_data),

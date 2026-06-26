@@ -53,8 +53,7 @@ pub type DVector<T> = DMatrix<T>;
 //}}}
 //{{{ enum: VecType
 /// Selects whether a `DVector` is oriented as a row vector or a column vector.
-pub enum VecType
-{
+pub enum VecType {
     /// A 1×N row vector.
     Row,
     /// An N×1 column vector.
@@ -68,19 +67,14 @@ where
 {
     type ScalarType = T;
 
-    fn len(&self) -> usize
-    {
-        if self.nrows != 1 && self.ncols != 1
-        {
+    fn len(&self) -> usize {
+        if self.nrows != 1 && self.ncols != 1 {
             panic!("Vector must be either a row or column vector");
         }
 
-        if self.nrows == 1
-        {
+        if self.nrows == 1 {
             self.ncols
-        }
-        else
-        {
+        } else {
             self.nrows
         }
     }

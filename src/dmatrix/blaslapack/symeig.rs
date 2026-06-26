@@ -20,8 +20,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur during symmetric eigendecomposition.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     #[error("Error in symeig(), exited with error:\n{0}")]
     /// LAPACK `syev` failed to compute eigenvalues or eigenvectors.
     SyevError(#[from] SymEigRawError),
@@ -61,11 +60,9 @@ where
     /// # Errors
     ///
     /// Returns an error if the LAPACK routine fails.
-    pub fn symeig(&self) -> Result<Return<T>, Error>
-    {
+    pub fn symeig(&self) -> Result<Return<T>, Error> {
         let n = self.nrows;
-        if n != self.ncols
-        {
+        if n != self.ncols {
             panic!("Matrix must be square for eigenvalue decomposition");
         }
         let raw = symeig_raw(self.data.clone(), n)?;

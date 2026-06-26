@@ -26,13 +26,10 @@ where
     fn fmt(
         &self,
         f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result
-    {
-        for i in 0..self.nrows
-        {
+    ) -> fmt::Result {
+        for i in 0..self.nrows {
             write!(f, "|")?;
-            for j in 0..self.ncols
-            {
+            for j in 0..self.ncols {
                 write!(f, " ")?;
                 self[(i, j)].fmt_matrix_element(f)?;
                 write!(f, " ")?;

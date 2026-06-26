@@ -19,8 +19,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur during Cholesky decomposition.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     #[error("Error in cholesky(), exited with error:\n{0}")]
     /// LAPACK `potrf` reported a failure, e.g. the matrix is not positive definite.
     PotrfError(#[from] CholeskyRawError),
@@ -52,11 +51,9 @@ where
     ///
     /// Returns [`Error::PotrfError`] if LAPACK `potrf` fails, including when the matrix is not
     /// positive definite.
-    pub fn cholesky(&self) -> Result<Return<T>, Error>
-    {
+    pub fn cholesky(&self) -> Result<Return<T>, Error> {
         let n = self.nrows;
-        if n != self.ncols
-        {
+        if n != self.ncols {
             panic!("Matrix must be square for Cholesky decomposition");
         }
         let raw = cholesky_raw(self.data.clone(), n)?;

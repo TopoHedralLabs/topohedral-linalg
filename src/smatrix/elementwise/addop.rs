@@ -33,8 +33,7 @@ where
     fn add(
         self,
         rhs: T,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         let mut out = self;
         out.iter_mut().for_each(|x| *x += rhs);
         out
@@ -52,8 +51,7 @@ where
     fn add(
         self,
         rhs: SMatrix<T, N, M>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -76,16 +74,14 @@ where
 macro_rules! impl_smatrix_add_owned {
     ($type: ty) => {
         #[doc(hidden)]
-        impl<const N: usize, const M: usize> Add<SMatrix<$type, N, M>> for $type
-        {
+        impl<const N: usize, const M: usize> Add<SMatrix<$type, N, M>> for $type {
             type Output = SMatrix<$type, N, M>;
 
             #[inline]
             fn add(
                 self,
                 rhs: SMatrix<$type, N, M>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let mut out = rhs;
                 out.iter_mut().for_each(|x| *x += self);
                 out
@@ -104,8 +100,7 @@ where
     fn add_assign(
         &mut self,
         rhs: T,
-    )
-    {
+    ) {
         self.iter_mut().for_each(|x| *x += rhs);
     }
 }
@@ -119,8 +114,7 @@ where
     fn add_assign(
         &mut self,
         rhs: SMatrix<T, N, M>,
-    )
-    {
+    ) {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -142,16 +136,14 @@ where
 macro_rules! impl_smatrix_add_scalar_rhs {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Add<$type> for &'a SMatrix<$type, N, M>
-        {
+        impl<'a, const N: usize, const M: usize> Add<$type> for &'a SMatrix<$type, N, M> {
             type Output = BinopExpr<&'a SMatrix<$type, N, M>, ScalarExpr<$type>, $type, AddOp>;
 
             #[inline]
             fn add(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -165,16 +157,14 @@ macro_rules! impl_smatrix_add_scalar_rhs {
         }
 
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Add<$type> for &'a mut SMatrix<$type, N, M>
-        {
+        impl<'a, const N: usize, const M: usize> Add<$type> for &'a mut SMatrix<$type, N, M> {
             type Output = BinopExpr<&'a SMatrix<$type, N, M>, ScalarExpr<$type>, $type, AddOp>;
 
             #[inline]
             fn add(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 (&*self).add(rhs)
             }
         }
@@ -188,16 +178,14 @@ apply_for_all_types!(impl_smatrix_add_scalar_rhs);
 macro_rules! impl_smatrix_add {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Add<&'a SMatrix<$type, N, M>> for $type
-        {
+        impl<'a, const N: usize, const M: usize> Add<&'a SMatrix<$type, N, M>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a SMatrix<$type, N, M>, $type, AddOp>;
 
             #[inline]
             fn add(
                 self,
                 rhs: &'a SMatrix<$type, N, M>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
@@ -218,16 +206,14 @@ apply_for_all_types!(impl_smatrix_add);
 macro_rules! impl_smatrix_add_mut {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Add<&'a mut SMatrix<$type, N, M>> for $type
-        {
+        impl<'a, const N: usize, const M: usize> Add<&'a mut SMatrix<$type, N, M>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a SMatrix<$type, N, M>, $type, AddOp>;
 
             #[inline]
             fn add(
                 self,
                 rhs: &'a mut SMatrix<$type, N, M>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 self.add(&*rhs)
             }
         }
@@ -249,8 +235,7 @@ where
     fn add(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         #[cfg(feature = "enable_checks")]
         {
             assert_eq!(self.nrows(), rhs.nrows());
@@ -282,8 +267,7 @@ where
     fn add(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         (&*self).add(rhs)
     }
 }

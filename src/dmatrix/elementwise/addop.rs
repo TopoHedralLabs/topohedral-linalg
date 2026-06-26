@@ -35,8 +35,7 @@ where
     fn add(
         self,
         rhs: T,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         let mut out = self.clone();
         out.iter_mut().for_each(|x| *x += rhs);
         out
@@ -54,8 +53,7 @@ where
     fn add(
         self,
         rhs: DMatrix<T>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -78,16 +76,14 @@ where
 macro_rules! impl_dmatrix_add {
     ($type: ty) => {
         #[doc(hidden)]
-        impl Add<DMatrix<$type>> for $type
-        {
+        impl Add<DMatrix<$type>> for $type {
             type Output = DMatrix<$type>;
 
             #[inline]
             fn add(
                 self,
                 rhs: DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let mut out = rhs.clone();
                 out.iter_mut().for_each(|x| *x += self);
                 out
@@ -106,8 +102,7 @@ where
     fn add_assign(
         &mut self,
         rhs: T,
-    )
-    {
+    ) {
         self.iter_mut().for_each(|x| *x += rhs);
     }
 }
@@ -121,8 +116,7 @@ where
     fn add_assign(
         &mut self,
         rhs: DMatrix<T>,
-    )
-    {
+    ) {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -144,16 +138,14 @@ where
 macro_rules! impl_dmatrix_add_scalar_rhs {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Add<$type> for &'a DMatrix<$type>
-        {
+        impl<'a> Add<$type> for &'a DMatrix<$type> {
             type Output = BinopExpr<&'a DMatrix<$type>, ScalarExpr<$type>, $type, AddOp>;
 
             #[inline]
             fn add(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -167,16 +159,14 @@ macro_rules! impl_dmatrix_add_scalar_rhs {
         }
 
         #[doc(hidden)]
-        impl<'a> Add<$type> for &'a mut DMatrix<$type>
-        {
+        impl<'a> Add<$type> for &'a mut DMatrix<$type> {
             type Output = BinopExpr<&'a DMatrix<$type>, ScalarExpr<$type>, $type, AddOp>;
 
             #[inline]
             fn add(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 (&*self).add(rhs)
             }
         }
@@ -190,16 +180,14 @@ apply_for_all_types!(impl_dmatrix_add_scalar_rhs);
 macro_rules! impl_dmatrix_ref_add {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Add<&'a DMatrix<$type>> for $type
-        {
+        impl<'a> Add<&'a DMatrix<$type>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a DMatrix<$type>, $type, AddOp>;
 
             #[inline]
             fn add(
                 self,
                 rhs: &'a DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
@@ -219,16 +207,14 @@ apply_for_all_types!(impl_dmatrix_ref_add);
 macro_rules! impl_dmatrix_ref_mut_add {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Add<&'a mut DMatrix<$type>> for $type
-        {
+        impl<'a> Add<&'a mut DMatrix<$type>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a DMatrix<$type>, $type, AddOp>;
 
             #[inline]
             fn add(
                 self,
                 rhs: &'a mut DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 self.add(&*rhs)
             }
         }
@@ -248,8 +234,7 @@ where
     fn add(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         #[cfg(feature = "enable_checks")]
         {
             assert_eq!(self.nrows(), rhs.nrows());
@@ -281,8 +266,7 @@ where
     fn add(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         (&*self).add(rhs)
     }
 }

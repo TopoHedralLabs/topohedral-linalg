@@ -19,8 +19,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors returned by the [`Gesv`] LAPACK wrapper.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     /// LAPACK returned a non-zero info code indicating a singular coefficient matrix.
     #[error("Error in gesv, exited with code {0}")]
     LapackError(i32),
@@ -29,8 +28,7 @@ pub enum Error
 
 //{{{ trait: Gesv
 /// Trait for types that support solving a general linear system A X = B via LU factorisation.
-pub trait Gesv: Copy
-{
+pub trait Gesv: Copy {
     /// Solves the linear system A X = B, overwriting A with its LU factorisation and B with X.
     fn gesv(
         n: i32,
@@ -45,8 +43,7 @@ pub trait Gesv: Copy
 //}}}
 
 //{{{ impl: Gesv for f64
-impl Gesv for f64
-{
+impl Gesv for f64 {
     #[inline]
     fn gesv(
         n: i32,
@@ -56,14 +53,12 @@ impl Gesv for f64
         ipiv: &mut [i32],
         b: &mut [Self],
         ldb: i32,
-    ) -> Result<(), Error>
-    {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::dgesv(n, nrhs, a, lda, ipiv, b, ldb, &mut info);
         }
-        if info != 0
-        {
+        if info != 0 {
             return Err(Error::LapackError(info));
         }
         Ok(())
@@ -72,8 +67,7 @@ impl Gesv for f64
 //}}}
 
 //{{{ impl: Gesv for f32
-impl Gesv for f32
-{
+impl Gesv for f32 {
     #[inline]
     fn gesv(
         n: i32,
@@ -83,14 +77,12 @@ impl Gesv for f32
         ipiv: &mut [i32],
         b: &mut [Self],
         ldb: i32,
-    ) -> Result<(), Error>
-    {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::sgesv(n, nrhs, a, lda, ipiv, b, ldb, &mut info);
         }
-        if info != 0
-        {
+        if info != 0 {
             return Err(Error::LapackError(info));
         }
         Ok(())

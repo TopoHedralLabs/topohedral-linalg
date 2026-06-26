@@ -4,8 +4,7 @@ use topohedral_linalg::{
 };
 
 #[test]
-fn boolean_matrices_support_structural_operations()
-{
+fn boolean_matrices_support_structural_operations() {
     let mut static_mask =
         SMatrix::<bool, 2, 3>::from_row_slice(&[true, false, true, false, true, false]);
     assert!(static_mask[(0, 0)]);
@@ -51,8 +50,7 @@ fn boolean_matrices_support_structural_operations()
 }
 
 #[test]
-fn comparisons_materialise_for_static_and_dynamic_matrices()
-{
+fn comparisons_materialise_for_static_and_dynamic_matrices() {
     let a = SMatrix::<i32, 2, 3>::from_col_slice(&[1, 4, 2, 5, 3, 6]);
     let b = SMatrix::<i32, 2, 3>::from_value(3);
 
@@ -99,8 +97,7 @@ fn comparisons_materialise_for_static_and_dynamic_matrices()
 }
 
 #[test]
-fn boolean_expressions_compose_lazily()
-{
+fn boolean_expressions_compose_lazily() {
     let values = DMatrix::<i32>::from_col_slice(&[1, 4, 2, 5, 3, 6], 2, 3);
 
     let combined: DMatrix<bool> = ((values.gt(1) & values.lt(6)) ^ !values.eq(3)).into();
@@ -132,8 +129,7 @@ fn boolean_expressions_compose_lazily()
 }
 
 #[test]
-fn masked_selection_returns_column_major_column_vector()
-{
+fn masked_selection_returns_column_major_column_vector() {
     let source = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6], 2, 3);
     let threshold = DMatrix::<i32>::from_value(3, 2, 3);
 
@@ -155,8 +151,7 @@ fn masked_selection_returns_column_major_column_vector()
 }
 
 #[test]
-fn masked_selection_handles_views_and_empty_masks()
-{
+fn masked_selection_handles_views_and_empty_masks() {
     let source = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 3, 4);
     let source_view = source.subview_range(1, 2, 1, 3);
     let mask = DMatrix::<bool>::from_row_slice(&[true, false, true, false, true, false], 2, 3);
@@ -170,8 +165,7 @@ fn masked_selection_handles_views_and_empty_masks()
 
 #[test]
 #[should_panic(expected = "masked selection dimension mismatch")]
-fn masked_selection_rejects_dimension_mismatch()
-{
+fn masked_selection_rejects_dimension_mismatch() {
     let source = DMatrix::<i32>::from_value(1, 2, 3);
     let mask = DMatrix::<bool>::from_value(true, 3, 2);
     let _ = source.masked(mask);
@@ -179,18 +173,15 @@ fn masked_selection_rejects_dimension_mismatch()
 
 #[test]
 #[should_panic(expected = "element-wise comparison dimension mismatch")]
-fn comparisons_reject_dimension_mismatch()
-{
+fn comparisons_reject_dimension_mismatch() {
     let lhs = DMatrix::<i32>::from_value(1, 2, 3);
     let rhs = DMatrix::<i32>::from_value(1, 3, 2);
     let _ = lhs.gt(&rhs);
 }
 
 #[test]
-fn comparison_expressions_implement_matrix_expr()
-{
-    fn assert_bool_expr<E: MatrixExpr<ScalarType = bool>>(expr: &E)
-    {
+fn comparison_expressions_implement_matrix_expr() {
+    fn assert_bool_expr<E: MatrixExpr<ScalarType = bool>>(expr: &E) {
         assert_eq!(expr.size(), (2, 2));
     }
 
@@ -200,8 +191,7 @@ fn comparison_expressions_implement_matrix_expr()
 }
 
 #[test]
-fn comparisons_accept_views_and_arithmetic_expressions()
-{
+fn comparisons_accept_views_and_arithmetic_expressions() {
     let lhs = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6], 2, 3);
     let rhs = DMatrix::<i32>::from_value(1, 2, 3);
     let sum = &lhs + &rhs;

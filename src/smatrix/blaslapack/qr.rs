@@ -20,8 +20,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur during QR decomposition.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     /// Wraps a LAPACK `geqrf`/`orgqr` error from the QR factorisation steps.
     #[error("Error in qr(), exited with error:\n{0}")]
     GetrfError(#[from] QrRawError),
@@ -50,8 +49,7 @@ where
     /// # Errors
     ///
     /// Returns an error if either the LAPACK `geqrf` or `orgqr` routine fails.
-    pub fn qr(&self) -> Result<Return<T, N, M>, Error>
-    {
+    pub fn qr(&self) -> Result<Return<T, N, M>, Error> {
         let raw = qr_raw(self.as_slice().to_vec(), N, M)?;
         Ok(Return {
             q: SMatrix::from_col_vec(raw.q_data),

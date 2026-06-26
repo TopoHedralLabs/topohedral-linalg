@@ -42,8 +42,7 @@ pub struct DivOp;
 //}}}
 //{{{ trait: BinOp
 #[doc(hidden)]
-pub trait BinOp
-{
+pub trait BinOp {
     fn apply<T: Field>(
         a: T,
         b: T,
@@ -53,14 +52,12 @@ pub trait BinOp
 //}}}
 //{{{ impl BinOp for AddOp
 #[doc(hidden)]
-impl BinOp for AddOp
-{
+impl BinOp for AddOp {
     #[inline]
     fn apply<T: Field>(
         a: T,
         b: T,
-    ) -> T
-    {
+    ) -> T {
         a + b
     }
 }
@@ -68,14 +65,12 @@ impl BinOp for AddOp
 //}}}
 //{{{ impl BinOp for SubOp
 #[doc(hidden)]
-impl BinOp for SubOp
-{
+impl BinOp for SubOp {
     #[inline]
     fn apply<T: Field>(
         a: T,
         b: T,
-    ) -> T
-    {
+    ) -> T {
         a - b
     }
 }
@@ -83,14 +78,12 @@ impl BinOp for SubOp
 //}}}
 //{{{ impl BinOp for MulOp
 #[doc(hidden)]
-impl BinOp for MulOp
-{
+impl BinOp for MulOp {
     #[inline]
     fn apply<T: Field>(
         a: T,
         b: T,
-    ) -> T
-    {
+    ) -> T {
         a * b
     }
 }
@@ -98,14 +91,12 @@ impl BinOp for MulOp
 //}}}
 //{{{ impl BInOp for DivOp
 #[doc(hidden)]
-impl BinOp for DivOp
-{
+impl BinOp for DivOp {
     #[inline]
     fn apply<T: Field>(
         a: T,
         b: T,
-    ) -> T
-    {
+    ) -> T {
         a / b
     }
 }
@@ -138,14 +129,12 @@ where
     Op: BinOp,
 {
     #[inline]
-    fn nrows(&self) -> usize
-    {
+    fn nrows(&self) -> usize {
         self.nrows
     }
 
     #[inline]
-    fn ncols(&self) -> usize
-    {
+    fn ncols(&self) -> usize {
         self.ncols
     }
 }
@@ -165,8 +154,7 @@ where
     fn linear_value(
         &self,
         index: usize,
-    ) -> Self::ScalarType
-    {
+    ) -> Self::ScalarType {
         Op::apply(self.a.linear_value(index), self.b.linear_value(index))
     }
 
@@ -181,11 +169,9 @@ where
     fn eval_into(
         &self,
         out: &mut [T],
-    )
-    {
+    ) {
         let len = out.len();
-        for i in 0..len
-        {
+        for i in 0..len {
             // Safety: i < len = out.len()
             // `out` is noalias &mut [T]; all inputs are noalias readonly &DMatrix,
             // so LLVM proves non-aliasing and auto-vectorises this loop.
@@ -215,8 +201,7 @@ macro_rules! impl_binop_expr_binary_op {
             fn $method(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 debug_assert!(self.nrows == rhs.nrows());
                 debug_assert!(self.ncols == rhs.ncols());
                 let nr = self.nrows;
@@ -255,8 +240,7 @@ macro_rules! impl_add_binop_expr_scalar_rhs {
             fn add(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -290,8 +274,7 @@ macro_rules! impl_add_binop_expr {
             fn add(
                 self,
                 rhs: BinopExpr<A, B, $type, Op>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
@@ -325,8 +308,7 @@ macro_rules! impl_sub_binop_expr_scalar_rhs {
             fn sub(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -360,8 +342,7 @@ macro_rules! impl_sub_binop_expr {
             fn sub(
                 self,
                 rhs: BinopExpr<A, B, $type, Op>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
@@ -395,8 +376,7 @@ macro_rules! impl_mul_binop_expr_scalar_rhs {
             fn mul(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -430,8 +410,7 @@ macro_rules! impl_mul_binop_expr {
             fn mul(
                 self,
                 rhs: BinopExpr<A, B, $type, Op>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
@@ -465,8 +444,7 @@ macro_rules! impl_div_binop_expr_scalar_rhs {
             fn div(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -500,8 +478,7 @@ macro_rules! impl_div_binop_expr {
             fn div(
                 self,
                 rhs: BinopExpr<A, B, $type, Op>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {

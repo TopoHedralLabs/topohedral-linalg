@@ -18,8 +18,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors returned by the [`Potrf`] LAPACK wrapper.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     /// LAPACK returned a non-zero info code indicating an invalid argument or a non-positive pivot.
     #[error("Error in potrf, exited with code {0}")]
     LapackError(i32),
@@ -28,8 +27,7 @@ pub enum Error
 
 //{{{ trait: Potrf
 /// Trait for types that support Cholesky factorisation.
-pub trait Potrf: Copy
-{
+pub trait Potrf: Copy {
     /// Computes the Cholesky factorisation of a symmetric positive-definite matrix.
     fn potrf(
         uplo: u8,
@@ -40,22 +38,19 @@ pub trait Potrf: Copy
 }
 //}}}
 //{{{ impl: Potrf for f64
-impl Potrf for f64
-{
+impl Potrf for f64 {
     #[inline]
     fn potrf(
         uplo: u8,
         n: i32,
         a: &mut [Self],
         lda: i32,
-    ) -> Result<(), Error>
-    {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::dpotrf(uplo, n, a, lda, &mut info);
         }
-        if info != 0
-        {
+        if info != 0 {
             return Err(Error::LapackError(info));
         }
         Ok(())
@@ -63,22 +58,19 @@ impl Potrf for f64
 }
 //}}}
 //{{{ impl: Potrf for f32
-impl Potrf for f32
-{
+impl Potrf for f32 {
     #[inline]
     fn potrf(
         uplo: u8,
         n: i32,
         a: &mut [Self],
         lda: i32,
-    ) -> Result<(), Error>
-    {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::spotrf(uplo, n, a, lda, &mut info);
         }
-        if info != 0
-        {
+        if info != 0 {
             return Err(Error::LapackError(info));
         }
         Ok(())
@@ -87,8 +79,7 @@ impl Potrf for f32
 //}}}
 
 //{{{ struct: CholeskyRaw
-pub(crate) struct CholeskyRaw<T>
-{
+pub(crate) struct CholeskyRaw<T> {
     pub l_data: Vec<T>,
 }
 //}}}
@@ -103,10 +94,8 @@ where
 {
     T::potrf(b'L', n as i32, &mut a_data, n as i32)?;
 
-    for j in 0..n
-    {
-        for i in 0..j
-        {
+    for j in 0..n {
+        for i in 0..j {
             a_data[i + j * n] = T::zero();
         }
     }

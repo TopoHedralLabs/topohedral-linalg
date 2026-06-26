@@ -31,8 +31,7 @@ where
     ) where
         F: FnMut(Self::ScalarType) -> Self::ScalarType,
     {
-        for value in self.as_mut_slice()
-        {
+        for value in self.as_mut_slice() {
             *value = f(*value);
         }
     }
@@ -51,10 +50,8 @@ where
     ) where
         F: FnMut(Self::ScalarType) -> Self::ScalarType,
     {
-        for col in 0..self.ncols
-        {
-            for row in 0..self.nrows
-            {
+        for col in 0..self.ncols {
+            for row in 0..self.nrows {
                 let value = self[(row, col)];
                 (*self)[(row, col)] = f(value);
             }

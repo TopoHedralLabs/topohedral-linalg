@@ -27,8 +27,7 @@ where
     fn matmul(
         self,
         rhs: &'a SMatrix<T, K, N>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         let mut result = SMatrix::<T, M, N>::zeros();
         matmul_dispatch(
             M,
@@ -55,8 +54,7 @@ where
     fn matmul(
         self,
         rhs: &'a SMatrix<T, K, N>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         (&*self).matmul(rhs)
     }
 }
@@ -73,8 +71,7 @@ where
     fn matmul(
         self,
         rhs: &'a mut SMatrix<T, K, N>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         self.matmul(&*rhs)
     }
 }
@@ -91,8 +88,7 @@ where
     fn matmul(
         self,
         rhs: &'a mut SMatrix<T, K, N>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         (&*self).matmul(&*rhs)
     }
 }
@@ -111,8 +107,7 @@ where
     fn matmul(
         self,
         rhs: SMatrix<T, K, N>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         self.matmul(&rhs)
     }
 }
@@ -129,8 +124,7 @@ where
     fn matmul(
         self,
         rhs: SMatrix<T, K, N>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         (&*self).matmul(&rhs)
     }
 }
@@ -147,8 +141,7 @@ where
     fn matmul(
         self,
         rhs: &'a DMatrix<T>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         let m = self.nrows;
         let k = self.ncols;
         let n = rhs.ncols;
@@ -174,8 +167,7 @@ where
     fn matmul(
         self,
         rhs: &'a DMatrix<T>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         (&*self).matmul(rhs)
     }
 }
@@ -191,8 +183,7 @@ where
     fn matmul(
         self,
         rhs: &'a mut DMatrix<T>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         self.matmul(&*rhs)
     }
 }
@@ -208,8 +199,7 @@ where
     fn matmul(
         self,
         rhs: &'a mut DMatrix<T>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         (&*self).matmul(&*rhs)
     }
 }

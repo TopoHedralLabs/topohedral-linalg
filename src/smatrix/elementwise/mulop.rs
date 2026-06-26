@@ -32,8 +32,7 @@ where
     fn mul(
         self,
         rhs: T,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         let mut out = self;
         out.iter_mut().for_each(|x| *x *= rhs);
         out
@@ -51,8 +50,7 @@ where
     fn mul(
         self,
         rhs: SMatrix<T, N, M>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -75,16 +73,14 @@ where
 macro_rules! impl_smatrix_mul_owned {
     ($type: ty) => {
         #[doc(hidden)]
-        impl<const N: usize, const M: usize> Mul<SMatrix<$type, N, M>> for $type
-        {
+        impl<const N: usize, const M: usize> Mul<SMatrix<$type, N, M>> for $type {
             type Output = SMatrix<$type, N, M>;
 
             #[inline]
             fn mul(
                 self,
                 rhs: SMatrix<$type, N, M>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let mut out = rhs;
                 out.iter_mut().for_each(|x| *x *= self);
                 out
@@ -103,8 +99,7 @@ where
     fn mul_assign(
         &mut self,
         rhs: T,
-    )
-    {
+    ) {
         self.iter_mut().for_each(|x| *x *= rhs);
     }
 }
@@ -118,8 +113,7 @@ where
     fn mul_assign(
         &mut self,
         rhs: SMatrix<T, N, M>,
-    )
-    {
+    ) {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -141,15 +135,13 @@ where
 macro_rules! impl_smatrix_mul_scalar_rhs {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Mul<$type> for &'a SMatrix<$type, N, M>
-        {
+        impl<'a, const N: usize, const M: usize> Mul<$type> for &'a SMatrix<$type, N, M> {
             type Output = BinopExpr<&'a SMatrix<$type, N, M>, ScalarExpr<$type>, $type, MulOp>;
 
             fn mul(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -163,16 +155,14 @@ macro_rules! impl_smatrix_mul_scalar_rhs {
         }
 
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Mul<$type> for &'a mut SMatrix<$type, N, M>
-        {
+        impl<'a, const N: usize, const M: usize> Mul<$type> for &'a mut SMatrix<$type, N, M> {
             type Output = BinopExpr<&'a SMatrix<$type, N, M>, ScalarExpr<$type>, $type, MulOp>;
 
             #[inline]
             fn mul(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 (&*self).mul(rhs)
             }
         }
@@ -186,15 +176,13 @@ apply_for_all_types!(impl_smatrix_mul_scalar_rhs);
 macro_rules! impl_smatrix_mul {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Mul<&'a SMatrix<$type, N, M>> for $type
-        {
+        impl<'a, const N: usize, const M: usize> Mul<&'a SMatrix<$type, N, M>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a SMatrix<$type, N, M>, $type, MulOp>;
 
             fn mul(
                 self,
                 rhs: &'a SMatrix<$type, N, M>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
@@ -215,16 +203,14 @@ apply_for_all_types!(impl_smatrix_mul);
 macro_rules! impl_smatrix_mul_mut {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a, const N: usize, const M: usize> Mul<&'a mut SMatrix<$type, N, M>> for $type
-        {
+        impl<'a, const N: usize, const M: usize> Mul<&'a mut SMatrix<$type, N, M>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a SMatrix<$type, N, M>, $type, MulOp>;
 
             #[inline]
             fn mul(
                 self,
                 rhs: &'a mut SMatrix<$type, N, M>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 self.mul(&*rhs)
             }
         }
@@ -246,8 +232,7 @@ where
     fn mul(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         #[cfg(feature = "enable_checks")]
         {
             assert_eq!(self.nrows(), rhs.nrows());
@@ -279,8 +264,7 @@ where
     fn mul(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         (&*self).mul(rhs)
     }
 }

@@ -1,5 +1,4 @@
-mod dmatrix_tests
-{
+mod dmatrix_tests {
     use topohedral_linalg::*;
 
     fn assert_rectangular_view_reductions<R>(view: &R)
@@ -36,8 +35,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_fold_and_fold_indexed()
-    {
+    fn test_fold_and_fold_indexed() {
         let a = DMatrix::<i32>::from_row_slice(&[3, -2, 5, 4, -7, 1], 2, 3);
 
         let sum = a.fold(0, |acc, value| acc + value);
@@ -49,8 +47,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_sum_and_product()
-    {
+    fn test_sum_and_product() {
         let a = DMatrix::<i32>::from_row_slice(&[3, -2, 5, 4, -7, 1], 2, 3);
 
         assert_eq!(a.sum(), 4);
@@ -58,8 +55,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_min_max_and_arg_reductions()
-    {
+    fn test_min_max_and_arg_reductions() {
         let a = DMatrix::<i32>::from_row_slice(&[3, -2, 5, 4, -7, 1], 2, 3);
 
         assert_eq!(a.allmin(), Some(-7));
@@ -69,8 +65,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_abs_and_transform_reductions()
-    {
+    fn test_abs_and_transform_reductions() {
         let a = DMatrix::<i32>::from_row_slice(&[3, -2, 5, 4, -7, 1], 2, 3);
         let b = DMatrix::<i32>::from_row_slice(&[-3, -1, 5, 4, -7, 2], 2, 3);
 
@@ -82,8 +77,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_empty_matrix_reductions()
-    {
+    fn test_empty_matrix_reductions() {
         let a = DMatrix::<i32>::zeros(0, 0);
 
         assert!(a.is_empty());
@@ -96,8 +90,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_immutable_subview_reductions_use_column_major_order_and_local_indices()
-    {
+    fn test_immutable_subview_reductions_use_column_major_order_and_local_indices() {
         let matrix = DMatrix::<i32>::from_row_slice(
             &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
             4,
@@ -109,8 +102,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_mutable_subview_reductions_use_column_major_order_and_local_indices()
-    {
+    fn test_mutable_subview_reductions_use_column_major_order_and_local_indices() {
         let mut matrix = DMatrix::<i32>::from_row_slice(
             &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
             4,
@@ -122,8 +114,7 @@ mod dmatrix_tests
     }
 }
 
-mod smatrix_tests
-{
+mod smatrix_tests {
     use topohedral_linalg::*;
 
     fn assert_rectangular_view_reductions<R>(view: &R)
@@ -160,8 +151,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_fold_and_fold_indexed()
-    {
+    fn test_fold_and_fold_indexed() {
         let a = SMatrix::<i32, 2, 3>::from_row_slice(&[3, -2, 5, 4, -7, 1]);
 
         let sum = a.fold(0, |acc, value| acc + value);
@@ -173,8 +163,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_sum_and_product()
-    {
+    fn test_sum_and_product() {
         let a = SMatrix::<i32, 2, 3>::from_row_slice(&[3, -2, 5, 4, -7, 1]);
 
         assert_eq!(a.sum(), 4);
@@ -182,8 +171,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_min_max_and_arg_reductions()
-    {
+    fn test_min_max_and_arg_reductions() {
         let a = SMatrix::<i32, 2, 3>::from_row_slice(&[3, -2, 5, 4, -7, 1]);
 
         assert_eq!(a.allmin(), Some(-7));
@@ -193,8 +181,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_abs_and_transform_reductions()
-    {
+    fn test_abs_and_transform_reductions() {
         let a = SMatrix::<i32, 2, 3>::from_row_slice(&[3, -2, 5, 4, -7, 1]);
         let b = SMatrix::<i32, 2, 3>::from_row_slice(&[-3, -1, 5, 4, -7, 2]);
 
@@ -206,8 +193,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_empty_matrix_reductions()
-    {
+    fn test_empty_matrix_reductions() {
         let a = SMatrix::<i32, 0, 0>::zeros();
 
         assert!(a.is_empty());
@@ -220,8 +206,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_immutable_subview_reductions_use_column_major_order_and_local_indices()
-    {
+    fn test_immutable_subview_reductions_use_column_major_order_and_local_indices() {
         let matrix = SMatrix::<i32, 4, 4>::from_row_slice(&[
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         ]);
@@ -231,8 +216,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_mutable_subview_reductions_use_column_major_order_and_local_indices()
-    {
+    fn test_mutable_subview_reductions_use_column_major_order_and_local_indices() {
         let mut matrix = SMatrix::<i32, 4, 4>::from_row_slice(&[
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         ]);

@@ -32,8 +32,7 @@ where
     fn div(
         self,
         rhs: T,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         let mut out = self.clone();
         out.iter_mut().for_each(|x| *x /= rhs);
         out
@@ -51,8 +50,7 @@ where
     fn div(
         self,
         rhs: DMatrix<T>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -75,16 +73,14 @@ where
 macro_rules! impl_dmatrix_div_scalar {
     ($type: ty) => {
         #[doc(hidden)]
-        impl Div<DMatrix<$type>> for $type
-        {
+        impl Div<DMatrix<$type>> for $type {
             type Output = DMatrix<$type>;
 
             #[inline]
             fn div(
                 self,
                 rhs: DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let mut out = rhs.clone();
                 out.iter_mut().for_each(|x| *x = self / *x);
                 out
@@ -103,8 +99,7 @@ where
     fn div_assign(
         &mut self,
         rhs: T,
-    )
-    {
+    ) {
         self.iter_mut().for_each(|x| *x /= rhs);
     }
 }
@@ -118,8 +113,7 @@ where
     fn div_assign(
         &mut self,
         rhs: DMatrix<T>,
-    )
-    {
+    ) {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -141,16 +135,14 @@ where
 macro_rules! impl_dmatrix_div_scalar_rhs {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Div<$type> for &'a DMatrix<$type>
-        {
+        impl<'a> Div<$type> for &'a DMatrix<$type> {
             type Output = BinopExpr<&'a DMatrix<$type>, ScalarExpr<$type>, $type, DivOp>;
 
             #[inline]
             fn div(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -164,16 +156,14 @@ macro_rules! impl_dmatrix_div_scalar_rhs {
         }
 
         #[doc(hidden)]
-        impl<'a> Div<$type> for &'a mut DMatrix<$type>
-        {
+        impl<'a> Div<$type> for &'a mut DMatrix<$type> {
             type Output = BinopExpr<&'a DMatrix<$type>, ScalarExpr<$type>, $type, DivOp>;
 
             #[inline]
             fn div(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 (&*self).div(rhs)
             }
         }
@@ -187,16 +177,14 @@ apply_for_all_types!(impl_dmatrix_div_scalar_rhs);
 macro_rules! impl_dmatrix_div {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Div<&'a DMatrix<$type>> for $type
-        {
+        impl<'a> Div<&'a DMatrix<$type>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a DMatrix<$type>, $type, DivOp>;
 
             #[inline]
             fn div(
                 self,
                 rhs: &'a DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
@@ -216,16 +204,14 @@ apply_for_all_types!(impl_dmatrix_div);
 macro_rules! impl_dmatrix_ref_mut_div {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Div<&'a mut DMatrix<$type>> for $type
-        {
+        impl<'a> Div<&'a mut DMatrix<$type>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a DMatrix<$type>, $type, DivOp>;
 
             #[inline]
             fn div(
                 self,
                 rhs: &'a mut DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 self.div(&*rhs)
             }
         }
@@ -245,8 +231,7 @@ where
     fn div(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         #[cfg(feature = "enable_checks")]
         {
             assert_eq!(self.nrows(), rhs.nrows());
@@ -278,8 +263,7 @@ where
     fn div(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         (&*self).div(rhs)
     }
 }

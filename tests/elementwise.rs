@@ -1,6 +1,5 @@
 //{{{ mod: smatrix_tests
-mod smatrix_tests
-{
+mod smatrix_tests {
     use approx::assert_relative_eq;
     use topohedral_linalg::{abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps};
     use topohedral_linalg::{SMatrix, SubViewable, SubViewableMut};
@@ -8,8 +7,7 @@ mod smatrix_tests
     //{{{ collection: mixed tests
     #[test]
     #[allow(clippy::op_ref)]
-    pub fn test_all()
-    {
+    pub fn test_all() {
         let aval = 1.0;
         let a = SMatrix::<f64, 10, 10>::from_value(aval);
 
@@ -31,8 +29,7 @@ mod smatrix_tests
         let gval = fval * (aval + bval) - (cval / (dval * 2.0)) + 1.0 * eval;
         let g: SMatrix<f64, 10, 10> = (&f * (&a + &b) - (&c / (&d * 2.0)) + 1.0 * &e).into();
 
-        for val in g
-        {
+        for val in g {
             assert_relative_eq!(val, gval, max_relative = 1e-10);
         }
     }
@@ -40,53 +37,46 @@ mod smatrix_tests
     //{{{ collection: addition tests
 
     #[test]
-    fn test_add()
-    {
+    fn test_add() {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(1);
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(10);
 
         let matrix3 = matrix1 + matrix2;
 
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 11);
         }
     }
 
     #[test]
-    fn test_add_scalar()
-    {
+    fn test_add_scalar() {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(1);
 
         let scalar = 10;
 
         let matrix2 = matrix1 + scalar;
 
-        for val in &matrix2
-        {
+        for val in &matrix2 {
             assert_eq!(*val, 11);
         }
 
         let matrix3 = scalar + matrix2;
 
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 21);
         }
     }
 
     #[test]
-    fn test_add_assign()
-    {
+    fn test_add_assign() {
         let mut matrix1 = SMatrix::<i32, 2, 2>::from_value(1);
 
         let scalar = 10;
 
         matrix1 += scalar;
 
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 11);
         }
 
@@ -94,16 +84,14 @@ mod smatrix_tests
 
         matrix1 += matrix2;
 
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 21);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_add_lazy()
-    {
+    fn test_add_lazy() {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(1);
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(10);
@@ -123,16 +111,14 @@ mod smatrix_tests
 
         let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
 
-        for val in &matrix8
-        {
+        for val in &matrix8 {
             assert_eq!(*val, exp_value);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_add_lazy_mutability_combinations()
-    {
+    fn test_add_lazy_mutability_combinations() {
         let mut a = SMatrix::<i32, 2, 2>::from_value(1);
         let mut b = SMatrix::<i32, 2, 2>::from_value(2);
         let mut c = SMatrix::<i32, 2, 2>::from_value(3);
@@ -147,43 +133,34 @@ mod smatrix_tests
         let em: SMatrix<i32, 2, 2> = ((&a + &b) + &mut c).into();
         let me: SMatrix<i32, 2, 2> = (&mut d + (&a + &b)).into();
 
-        for val in &rr
-        {
+        for val in &rr {
             assert_eq!(*val, 3);
         }
-        for val in &mr
-        {
+        for val in &mr {
             assert_eq!(*val, 3);
         }
-        for val in &rm
-        {
+        for val in &rm {
             assert_eq!(*val, 3);
         }
-        for val in &mm
-        {
+        for val in &mm {
             assert_eq!(*val, 3);
         }
-        for val in &sm
-        {
+        for val in &sm {
             assert_eq!(*val, 5);
         }
-        for val in &ms
-        {
+        for val in &ms {
             assert_eq!(*val, 5);
         }
-        for val in &em
-        {
+        for val in &em {
             assert_eq!(*val, 6);
         }
-        for val in &me
-        {
+        for val in &me {
             assert_eq!(*val, 7);
         }
     }
 
     #[test]
-    fn test_add_scalar_lazy()
-    {
+    fn test_add_scalar_lazy() {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(10);
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(100);
@@ -193,16 +170,14 @@ mod smatrix_tests
 
         let exp_val = 4 + (2 + 10) + (100 + 3) + 5;
 
-        for val in &matrix4
-        {
+        for val in &matrix4 {
             assert_eq!(*val, exp_val);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_subviews_participate_in_lazy_expressions()
-    {
+    fn test_subviews_participate_in_lazy_expressions() {
         let wide = SMatrix::<i32, 2, 4>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8]);
         let block_parent = SMatrix::<i32, 4, 4>::from_row_slice(&[
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
@@ -271,53 +246,46 @@ mod smatrix_tests
     //}}}
     //{{{ collection: division tests
     #[test]
-    fn test_div()
-    {
+    fn test_div() {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
 
         let matrix2 = SMatrix::<f64, 2, 2>::from_value(2.0);
 
         let matrix3 = matrix1 / matrix2;
 
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 5.0);
         }
     }
 
     #[test]
-    fn test_div_scalar()
-    {
+    fn test_div_scalar() {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
 
         let scalar = 2.0;
 
         let matrix2 = matrix1 / scalar;
 
-        for val in &matrix2
-        {
+        for val in &matrix2 {
             assert_eq!(*val, 5.0);
         }
 
         let matrix3 = 100.0 / matrix2;
 
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 20.0);
         }
     }
 
     #[test]
-    fn test_div_assign()
-    {
+    fn test_div_assign() {
         let mut matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
 
         let scalar = 2.0;
 
         matrix1 /= scalar;
 
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 5.0);
         }
 
@@ -325,16 +293,14 @@ mod smatrix_tests
 
         matrix1 /= matrix2;
 
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 1.0);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_div_lazy()
-    {
+    fn test_div_lazy() {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(1.0);
 
         let matrix2 = SMatrix::<f64, 2, 2>::from_value(10.0);
@@ -354,16 +320,14 @@ mod smatrix_tests
 
         let exp_value: f64 = 1000000.0 / (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
 
-        for val in &matrix8
-        {
+        for val in &matrix8 {
             assert_eq!(*val, exp_value);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_div_lazy_mutability_combinations()
-    {
+    fn test_div_lazy_mutability_combinations() {
         let mut a = SMatrix::<f64, 2, 2>::from_value(64.0);
         let mut b = SMatrix::<f64, 2, 2>::from_value(4.0);
         let mut c = SMatrix::<f64, 2, 2>::from_value(2.0);
@@ -378,43 +342,34 @@ mod smatrix_tests
         let em: SMatrix<f64, 2, 2> = ((&a / &b) / &mut c).into();
         let me: SMatrix<f64, 2, 2> = (&mut d / (&a / &b)).into();
 
-        for val in &rr
-        {
+        for val in &rr {
             assert_eq!(*val, 16.0);
         }
-        for val in &mr
-        {
+        for val in &mr {
             assert_eq!(*val, 16.0);
         }
-        for val in &rm
-        {
+        for val in &rm {
             assert_eq!(*val, 16.0);
         }
-        for val in &mm
-        {
+        for val in &mm {
             assert_eq!(*val, 16.0);
         }
-        for val in &sm
-        {
+        for val in &sm {
             assert_eq!(*val, 0.125);
         }
-        for val in &ms
-        {
+        for val in &ms {
             assert_eq!(*val, 8.0);
         }
-        for val in &em
-        {
+        for val in &em {
             assert_eq!(*val, 8.0);
         }
-        for val in &me
-        {
+        for val in &me {
             assert_eq!(*val, 8.0);
         }
     }
 
     #[test]
-    fn test_div_scalar_lazy()
-    {
+    fn test_div_scalar_lazy() {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
 
         let matrix2 = SMatrix::<f64, 2, 2>::from_value(100.0);
@@ -423,8 +378,7 @@ mod smatrix_tests
 
         let exp_val = 4.0 / (2.0 / 10.0) / (100.0 / 3.0) / 5.0;
 
-        for val in &matrix4
-        {
+        for val in &matrix4 {
             assert_eq!(*val, exp_val);
         }
     }
@@ -432,53 +386,46 @@ mod smatrix_tests
     //{{{ collection: subtraction tests
 
     #[test]
-    fn test_sub()
-    {
+    fn test_sub() {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
 
         let matrix2 = SMatrix::<f64, 2, 2>::from_value(3.0);
 
         let matrix3 = matrix1 - matrix2;
 
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 7.0);
         }
     }
 
     #[test]
-    fn test_sub_scalar()
-    {
+    fn test_sub_scalar() {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
 
         let scalar = 3.0;
 
         let matrix2 = matrix1 - scalar;
 
-        for val in &matrix2
-        {
+        for val in &matrix2 {
             assert_eq!(*val, 7.0);
         }
 
         let matrix3 = 15.0 - matrix2;
 
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 8.0);
         }
     }
 
     #[test]
-    fn test_sub_assign()
-    {
+    fn test_sub_assign() {
         let mut matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
 
         let scalar = 3.0;
 
         matrix1 -= scalar;
 
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 7.0);
         }
 
@@ -486,15 +433,13 @@ mod smatrix_tests
 
         matrix1 -= matrix2;
 
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 5.0);
         }
     }
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_sub_lazy()
-    {
+    fn test_sub_lazy() {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(1);
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(10);
@@ -512,16 +457,14 @@ mod smatrix_tests
 
         let exp_value: i32 = (1000 - 10000) - (1 - 10 - 100) - 100000;
 
-        for val in &matrix7
-        {
+        for val in &matrix7 {
             assert_eq!(*val, exp_value);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_sub_lazy_mutability_combinations()
-    {
+    fn test_sub_lazy_mutability_combinations() {
         let mut a = SMatrix::<i32, 2, 2>::from_value(10);
         let mut b = SMatrix::<i32, 2, 2>::from_value(3);
         let mut c = SMatrix::<i32, 2, 2>::from_value(2);
@@ -536,43 +479,34 @@ mod smatrix_tests
         let em: SMatrix<i32, 2, 2> = ((&a - &b) - &mut c).into();
         let me: SMatrix<i32, 2, 2> = (&mut d - (&a - &b)).into();
 
-        for val in &rr
-        {
+        for val in &rr {
             assert_eq!(*val, 7);
         }
-        for val in &mr
-        {
+        for val in &mr {
             assert_eq!(*val, 7);
         }
-        for val in &rm
-        {
+        for val in &rm {
             assert_eq!(*val, 7);
         }
-        for val in &mm
-        {
+        for val in &mm {
             assert_eq!(*val, 7);
         }
-        for val in &sm
-        {
+        for val in &sm {
             assert_eq!(*val, -6);
         }
-        for val in &ms
-        {
+        for val in &ms {
             assert_eq!(*val, 6);
         }
-        for val in &em
-        {
+        for val in &em {
             assert_eq!(*val, 5);
         }
-        for val in &me
-        {
+        for val in &me {
             assert_eq!(*val, 13);
         }
     }
 
     #[test]
-    fn test_sub_scalar_lazy()
-    {
+    fn test_sub_scalar_lazy() {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(10);
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(100);
@@ -582,8 +516,7 @@ mod smatrix_tests
 
         let exp_val = 4 - (2 - 10) - (100 - 3) - 5;
 
-        for val in &matrix4
-        {
+        for val in &matrix4 {
             assert_eq!(*val, exp_val);
         }
     }
@@ -591,53 +524,46 @@ mod smatrix_tests
     //{{{ collection: multiplication tests
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_mul()
-    {
+    fn test_mul() {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
 
         let matrix2 = SMatrix::<f64, 2, 2>::from_value(2.0);
 
         let matrix3 = matrix1 * matrix2;
 
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 20.0);
         }
     }
 
     #[test]
-    fn test_mul_scalar()
-    {
+    fn test_mul_scalar() {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
 
         let scalar = 2.0;
 
         let matrix2 = matrix1 * scalar;
 
-        for val in &matrix2
-        {
+        for val in &matrix2 {
             assert_eq!(*val, 20.0);
         }
 
         let matrix3 = 3.0 * matrix2;
 
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 60.0);
         }
     }
 
     #[test]
-    fn test_mul_assign()
-    {
+    fn test_mul_assign() {
         let mut matrix1 = SMatrix::<f64, 2, 2>::from_value(10.0);
 
         let scalar = 2.0;
 
         matrix1 *= scalar;
 
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 20.0);
         }
 
@@ -645,16 +571,14 @@ mod smatrix_tests
 
         matrix1 *= matrix2;
 
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 60.0);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_mul_lazy()
-    {
+    fn test_mul_lazy() {
         let matrix1 = SMatrix::<f64, 2, 2>::from_value(1.0);
 
         let matrix2 = SMatrix::<f64, 2, 2>::from_value(10.0);
@@ -672,16 +596,14 @@ mod smatrix_tests
 
         let exp_value: f64 = (1000.0 * 10000.0) * (1.0 * 10.0 * 100.0) * 100000.0;
 
-        for val in &matrix7
-        {
+        for val in &matrix7 {
             assert_eq!(*val, exp_value);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_mul_lazy_mutability_combinations()
-    {
+    fn test_mul_lazy_mutability_combinations() {
         let mut a = SMatrix::<i32, 2, 2>::from_value(2);
         let mut b = SMatrix::<i32, 2, 2>::from_value(3);
         let mut c = SMatrix::<i32, 2, 2>::from_value(4);
@@ -696,43 +618,34 @@ mod smatrix_tests
         let em: SMatrix<i32, 2, 2> = ((&a * &b) * &mut c).into();
         let me: SMatrix<i32, 2, 2> = (&mut d * (&a * &b)).into();
 
-        for val in &rr
-        {
+        for val in &rr {
             assert_eq!(*val, 6);
         }
-        for val in &mr
-        {
+        for val in &mr {
             assert_eq!(*val, 6);
         }
-        for val in &rm
-        {
+        for val in &rm {
             assert_eq!(*val, 6);
         }
-        for val in &mm
-        {
+        for val in &mm {
             assert_eq!(*val, 6);
         }
-        for val in &sm
-        {
+        for val in &sm {
             assert_eq!(*val, 20);
         }
-        for val in &ms
-        {
+        for val in &ms {
             assert_eq!(*val, 20);
         }
-        for val in &em
-        {
+        for val in &em {
             assert_eq!(*val, 24);
         }
-        for val in &me
-        {
+        for val in &me {
             assert_eq!(*val, 30);
         }
     }
 
     #[test]
-    fn test_mul_scalar_lazy()
-    {
+    fn test_mul_scalar_lazy() {
         let matrix1 = SMatrix::<i32, 2, 2>::from_value(10);
 
         let matrix2 = SMatrix::<i32, 2, 2>::from_value(100);
@@ -742,42 +655,36 @@ mod smatrix_tests
 
         let exp_val = 4 * (2 * 10) * (100 * 3) * 5;
 
-        for val in &matrix4
-        {
+        for val in &matrix4 {
             assert_eq!(*val, exp_val);
         }
     }
     //}}}
     //{{{ collection: negation tests
     #[test]
-    fn test_neg()
-    {
+    fn test_neg() {
         let a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
         let b = -a;
 
-        for i in 0..4
-        {
+        for i in 0..4 {
             assert_eq!(b[i], -a[i]);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_neg_lazy()
-    {
+    fn test_neg_lazy() {
         let a = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
         let b: SMatrix<i32, 2, 2> = (-&a).into();
 
-        for i in 0..4
-        {
+        for i in 0..4 {
             assert_eq!(b[i], -a[i]);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_lazy_unary_composition()
-    {
+    fn test_lazy_unary_composition() {
         let a = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 2.0, 3.0, 4.0]);
         let b = SMatrix::<f64, 2, 2>::from_row_slice(&[2.0, 3.0, 4.0, 5.0]);
         let c = SMatrix::<f64, 2, 2>::from_row_slice(&[0.0, 0.5, 1.0, 1.5]);
@@ -789,20 +696,17 @@ mod smatrix_tests
         let expected1 = (-a) * b + c.sined();
         let expected2 = c.powied(2) + dmat.exped();
 
-        for (actual, expected) in expr1.iter().zip(expected1.iter())
-        {
+        for (actual, expected) in expr1.iter().zip(expected1.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in expr2.iter().zip(expected2.iter())
-        {
+        for (actual, expected) in expr2.iter().zip(expected2.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_lazy_unary_functions_match_eager_helpers()
-    {
+    fn test_lazy_unary_functions_match_eager_helpers() {
         let signed = SMatrix::<f64, 2, 2>::from_row_slice(&[-4.0, -1.0, 0.5, 2.0]);
         let positive = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 4.0, 9.0, 16.0]);
 
@@ -820,43 +724,35 @@ mod smatrix_tests
         let clamp_expected = signed.clamped(-1.0, 1.0);
         let mul_add_expected = signed.mul_added(2.0, 3.0);
 
-        for (actual, expected) in sin_lazy.iter().zip(sin_expected.iter())
-        {
+        for (actual, expected) in sin_lazy.iter().zip(sin_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in sqrt_lazy.iter().zip(sqrt_expected.iter())
-        {
+        for (actual, expected) in sqrt_lazy.iter().zip(sqrt_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in powi_lazy.iter().zip(powi_expected.iter())
-        {
+        for (actual, expected) in powi_lazy.iter().zip(powi_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in powf_lazy.iter().zip(powf_expected.iter())
-        {
+        for (actual, expected) in powf_lazy.iter().zip(powf_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in clamp_lazy.iter().zip(clamp_expected.iter())
-        {
+        for (actual, expected) in clamp_lazy.iter().zip(clamp_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in mul_add_lazy.iter().zip(mul_add_expected.iter())
-        {
+        for (actual, expected) in mul_add_lazy.iter().zip(mul_add_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_lazy_unary_nesting_and_mutability()
-    {
+    fn test_lazy_unary_nesting_and_mutability() {
         let a = SMatrix::<f64, 2, 2>::from_row_slice(&[9.0, 4.0, 1.0, 0.0]);
         let b = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 0.0, 1.0, 4.0]);
         let nested: SMatrix<f64, 2, 2> = sqrt(abs(-&a + &b)).into();
         let expected_nested = (-a + b).absed().sqrted();
 
-        for (actual, expected) in nested.iter().zip(expected_nested.iter())
-        {
+        for (actual, expected) in nested.iter().zip(expected_nested.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
 
@@ -864,8 +760,7 @@ mod smatrix_tests
         let shifted: SMatrix<f64, 2, 2> = (1.0 + sin(&mut c)).into();
         let expected_shifted = 1.0 + c.sined();
 
-        for (actual, expected) in shifted.iter().zip(expected_shifted.iter())
-        {
+        for (actual, expected) in shifted.iter().zip(expected_shifted.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
     }
@@ -873,63 +768,53 @@ mod smatrix_tests
 }
 //}}}
 //{{{ mod: dmatrix_tests
-mod dmatrix_tests
-{
+mod dmatrix_tests {
     use approx::assert_relative_eq;
     use topohedral_linalg::{abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps};
     use topohedral_linalg::{DMatrix, SubViewable, SubViewableMut};
 
     //{{{ collection: addition tests
     #[test]
-    fn test_add()
-    {
+    fn test_add() {
         let matrix1 = DMatrix::<i32>::from_value(1, 2, 2);
         let matrix2 = DMatrix::<i32>::from_value(10, 2, 2);
         let matrix3 = matrix1.clone() + matrix2.clone();
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 11);
         }
     }
 
     #[test]
-    fn test_add_scalar()
-    {
+    fn test_add_scalar() {
         let matrix1 = DMatrix::<i32>::from_value(1, 2, 2);
         let scalar = 10;
         let matrix2 = matrix1.clone() + scalar;
-        for val in &matrix2
-        {
+        for val in &matrix2 {
             assert_eq!(*val, 11);
         }
         let matrix3 = matrix2 + scalar;
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 21);
         }
     }
 
     #[test]
-    fn test_add_assign()
-    {
+    fn test_add_assign() {
         let mut matrix1 = DMatrix::<i32>::from_value(1, 2, 2);
         let scalar = 10;
         matrix1 += scalar;
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 11);
         }
         let matrix2 = DMatrix::<i32>::from_value(10, 2, 2);
         matrix1 += matrix2;
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 21);
         }
     }
 
     #[test]
-    fn test_add_lazy()
-    {
+    fn test_add_lazy() {
         let matrix1 = DMatrix::<i32>::from_value(1, 2, 2);
 
         let matrix2 = DMatrix::<i32>::from_value(10, 2, 2);
@@ -949,15 +834,13 @@ mod dmatrix_tests
 
         let exp_value: i32 = 1000000 + (1000 + 10000) + (1 + 10 + 100) + 100000;
 
-        for val in &matrix8
-        {
+        for val in &matrix8 {
             assert_eq!(*val, exp_value);
         }
     }
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_add_lazy_mutability_combinations()
-    {
+    fn test_add_lazy_mutability_combinations() {
         let mut a = DMatrix::<i32>::from_value(1, 2, 2);
         let mut b = DMatrix::<i32>::from_value(2, 2, 2);
         let mut c = DMatrix::<i32>::from_value(3, 2, 2);
@@ -972,42 +855,33 @@ mod dmatrix_tests
         let em: DMatrix<i32> = ((&a + &b) + &mut c).into();
         let me: DMatrix<i32> = (&mut d + (&a + &b)).into();
 
-        for val in &rr
-        {
+        for val in &rr {
             assert_eq!(*val, 3);
         }
-        for val in &mr
-        {
+        for val in &mr {
             assert_eq!(*val, 3);
         }
-        for val in &rm
-        {
+        for val in &rm {
             assert_eq!(*val, 3);
         }
-        for val in &mm
-        {
+        for val in &mm {
             assert_eq!(*val, 3);
         }
-        for val in &sm
-        {
+        for val in &sm {
             assert_eq!(*val, 5);
         }
-        for val in &ms
-        {
+        for val in &ms {
             assert_eq!(*val, 5);
         }
-        for val in &em
-        {
+        for val in &em {
             assert_eq!(*val, 6);
         }
-        for val in &me
-        {
+        for val in &me {
             assert_eq!(*val, 7);
         }
     }
     #[test]
-    fn test_add_scalar_lazy()
-    {
+    fn test_add_scalar_lazy() {
         let matrix1 = DMatrix::<i32>::from_value(10, 2, 2);
 
         let matrix2 = DMatrix::<i32>::from_value(100, 2, 2);
@@ -1016,16 +890,14 @@ mod dmatrix_tests
 
         let exp_val = 4 + (2 + 10) + (100 + 3) + 5;
 
-        for val in &matrix4
-        {
+        for val in &matrix4 {
             assert_eq!(*val, exp_val);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_subviews_participate_in_lazy_expressions()
-    {
+    fn test_subviews_participate_in_lazy_expressions() {
         let wide = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8], 2, 4);
         let block_parent = DMatrix::<i32>::from_row_slice(
             &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
@@ -1095,8 +967,7 @@ mod dmatrix_tests
 
     #[test]
     #[should_panic(expected = "view expression row dimension mismatch")]
-    fn test_subview_lazy_expression_dimension_mismatch_panics()
-    {
+    fn test_subview_lazy_expression_dimension_mismatch_panics() {
         let lhs = DMatrix::<i32>::ones(2, 4);
         let rhs = DMatrix::<i32>::ones(3, 2);
         let _expr = lhs.cols_range(1, 2) + &rhs;
@@ -1104,55 +975,46 @@ mod dmatrix_tests
     //}}}
     //{{{ collection: division tests
     #[test]
-    fn test_div()
-    {
+    fn test_div() {
         let matrix1 = DMatrix::<f64>::from_value(1.0, 2, 2);
         let scalar = 10.0;
         let matrix2 = matrix1 / scalar;
-        for val in &matrix2
-        {
+        for val in &matrix2 {
             assert_eq!(*val, 1.0 / 10.0);
         }
     }
 
     #[test]
-    fn test_div_scalar()
-    {
+    fn test_div_scalar() {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let scalar = 100.0;
         let matrix2 = matrix1.clone() / scalar;
-        for val in &matrix2
-        {
+        for val in &matrix2 {
             assert_eq!(*val, 10.0 / 100.0);
         }
         let matrix3 = matrix2 / scalar;
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 10.0 / (100.0 * 100.0));
         }
     }
 
     #[test]
-    fn test_div_assign()
-    {
+    fn test_div_assign() {
         let mut matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let scalar = 100.0;
         matrix1 /= scalar;
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 10.0 / 100.0);
         }
         let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
         matrix1 /= matrix2;
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 10.0 / (100.0 * 100.0));
         }
     }
 
     #[test]
-    fn test_div_lazy()
-    {
+    fn test_div_lazy() {
         let matrix1 = DMatrix::<f64>::from_value(1.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix3 = DMatrix::<f64>::from_value(100.0, 2, 2);
@@ -1166,16 +1028,14 @@ mod dmatrix_tests
 
         let exp_value: f64 = 1000000.0 / (1000.0 / 10000.0) / (1.0 / 10.0 / 100.0) / 100000.0;
 
-        for val in &matrix8
-        {
+        for val in &matrix8 {
             assert_eq!(*val, exp_value);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_div_lazy_mutability_combinations()
-    {
+    fn test_div_lazy_mutability_combinations() {
         let mut a = DMatrix::<f64>::from_value(64.0, 2, 2);
         let mut b = DMatrix::<f64>::from_value(4.0, 2, 2);
         let mut c = DMatrix::<f64>::from_value(2.0, 2, 2);
@@ -1190,106 +1050,87 @@ mod dmatrix_tests
         let em: DMatrix<f64> = ((&a / &b) / &mut c).into();
         let me: DMatrix<f64> = (&mut d / (&a / &b)).into();
 
-        for val in &rr
-        {
+        for val in &rr {
             assert_eq!(*val, 16.0);
         }
-        for val in &mr
-        {
+        for val in &mr {
             assert_eq!(*val, 16.0);
         }
-        for val in &rm
-        {
+        for val in &rm {
             assert_eq!(*val, 16.0);
         }
-        for val in &mm
-        {
+        for val in &mm {
             assert_eq!(*val, 16.0);
         }
-        for val in &sm
-        {
+        for val in &sm {
             assert_eq!(*val, 0.125);
         }
-        for val in &ms
-        {
+        for val in &ms {
             assert_eq!(*val, 8.0);
         }
-        for val in &em
-        {
+        for val in &em {
             assert_eq!(*val, 8.0);
         }
-        for val in &me
-        {
+        for val in &me {
             assert_eq!(*val, 8.0);
         }
     }
 
     #[test]
-    fn test_div_scalar_lazy()
-    {
+    fn test_div_scalar_lazy() {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
         let matrix4: DMatrix<f64> = (4.0 / (2.0 / &matrix1) / (&matrix2 / 3.0) / 5.0).into();
 
         let exp_val = 4.0 / (2.0 / 10.0) / (100.0 / 3.0) / 5.0;
 
-        for val in &matrix4
-        {
+        for val in &matrix4 {
             assert_eq!(*val, exp_val);
         }
     }
     //}}}
     //{{{ collection: subtraction tests
     #[test]
-    fn test_sub()
-    {
+    fn test_sub() {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(3.0, 2, 2);
         let matrix3 = matrix1.clone() - matrix2.clone();
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 7.0);
         }
     }
 
     #[test]
-    fn test_sub_scalar()
-    {
+    fn test_sub_scalar() {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let scalar = 3.0;
         let matrix2 = matrix1.clone() - scalar;
-        for val in &matrix2
-        {
+        for val in &matrix2 {
             assert_eq!(*val, 7.0);
         }
         let matrix3 = matrix2 - scalar;
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 4.0);
         }
     }
 
     #[test]
-    fn test_sub_assign()
-    {
+    fn test_sub_assign() {
         let mut matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let scalar = 3.0;
         matrix1 -= scalar;
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 7.0);
         }
         let matrix2 = DMatrix::<f64>::from_value(2.0, 2, 2);
         matrix1 -= matrix2;
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 5.0);
         }
     }
 
     #[test]
-    fn test_sub_lazy()
-    {
+    fn test_sub_lazy() {
         let matrix1 = DMatrix::<f64>::from_value(1.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix3 = DMatrix::<f64>::from_value(100.0, 2, 2);
@@ -1301,16 +1142,14 @@ mod dmatrix_tests
 
         let exp_value: f64 = (1000.0 - 10000.0) - (1.0 - 10.0 - 100.0) - 100000.0;
 
-        for val in &matrix7
-        {
+        for val in &matrix7 {
             assert_eq!(*val, exp_value);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_sub_lazy_mutability_combinations()
-    {
+    fn test_sub_lazy_mutability_combinations() {
         let mut a = DMatrix::<i32>::from_value(10, 2, 2);
         let mut b = DMatrix::<i32>::from_value(3, 2, 2);
         let mut c = DMatrix::<i32>::from_value(2, 2, 2);
@@ -1325,105 +1164,86 @@ mod dmatrix_tests
         let em: DMatrix<i32> = ((&a - &b) - &mut c).into();
         let me: DMatrix<i32> = (&mut d - (&a - &b)).into();
 
-        for val in &rr
-        {
+        for val in &rr {
             assert_eq!(*val, 7);
         }
-        for val in &mr
-        {
+        for val in &mr {
             assert_eq!(*val, 7);
         }
-        for val in &rm
-        {
+        for val in &rm {
             assert_eq!(*val, 7);
         }
-        for val in &mm
-        {
+        for val in &mm {
             assert_eq!(*val, 7);
         }
-        for val in &sm
-        {
+        for val in &sm {
             assert_eq!(*val, -6);
         }
-        for val in &ms
-        {
+        for val in &ms {
             assert_eq!(*val, 6);
         }
-        for val in &em
-        {
+        for val in &em {
             assert_eq!(*val, 5);
         }
-        for val in &me
-        {
+        for val in &me {
             assert_eq!(*val, 13);
         }
     }
 
     #[test]
-    fn test_sub_scalar_lazy()
-    {
+    fn test_sub_scalar_lazy() {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
         let matrix4: DMatrix<f64> = (4.0 - (2.0 - &matrix1) - (&matrix2 - 3.0) - 5.0).into();
 
         let exp_val = 4.0 - (2.0 - 10.0) - (100.0 - 3.0) - 5.0;
 
-        for val in &matrix4
-        {
+        for val in &matrix4 {
             assert_eq!(*val, exp_val);
         }
     }
     //}}}
     //{{{ collection: multiplication tests
     #[test]
-    fn test_mul()
-    {
+    fn test_mul() {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(3.0, 2, 2);
         let matrix3 = matrix1.clone() * matrix2.clone();
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 30.0);
         }
     }
 
     #[test]
-    fn test_mul_scalar()
-    {
+    fn test_mul_scalar() {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let scalar = 3.0;
         let matrix2 = matrix1.clone() * scalar;
-        for val in &matrix2
-        {
+        for val in &matrix2 {
             assert_eq!(*val, 30.0);
         }
         let matrix3 = matrix2 * scalar;
-        for val in &matrix3
-        {
+        for val in &matrix3 {
             assert_eq!(*val, 90.0);
         }
     }
 
     #[test]
-    fn test_mul_assign()
-    {
+    fn test_mul_assign() {
         let mut matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let scalar = 3.0;
         matrix1 *= scalar;
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 30.0);
         }
         let matrix2 = DMatrix::<f64>::from_value(2.0, 2, 2);
         matrix1 *= matrix2;
-        for val in &matrix1
-        {
+        for val in &matrix1 {
             assert_eq!(*val, 60.0);
         }
     }
     #[test]
-    fn test_mul_lazy()
-    {
+    fn test_mul_lazy() {
         let matrix1 = DMatrix::<f64>::from_value(1.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix3 = DMatrix::<f64>::from_value(100.0, 2, 2);
@@ -1435,16 +1255,14 @@ mod dmatrix_tests
 
         let exp_value: f64 = (1000.0 * 10000.0) * (1.0 * 10.0 * 100.0) * 100000.0;
 
-        for val in &matrix7
-        {
+        for val in &matrix7 {
             assert_eq!(*val, exp_value);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_mul_lazy_mutability_combinations()
-    {
+    fn test_mul_lazy_mutability_combinations() {
         let mut a = DMatrix::<i32>::from_value(2, 2, 2);
         let mut b = DMatrix::<i32>::from_value(3, 2, 2);
         let mut c = DMatrix::<i32>::from_value(4, 2, 2);
@@ -1459,84 +1277,69 @@ mod dmatrix_tests
         let em: DMatrix<i32> = ((&a * &b) * &mut c).into();
         let me: DMatrix<i32> = (&mut d * (&a * &b)).into();
 
-        for val in &rr
-        {
+        for val in &rr {
             assert_eq!(*val, 6);
         }
-        for val in &mr
-        {
+        for val in &mr {
             assert_eq!(*val, 6);
         }
-        for val in &rm
-        {
+        for val in &rm {
             assert_eq!(*val, 6);
         }
-        for val in &mm
-        {
+        for val in &mm {
             assert_eq!(*val, 6);
         }
-        for val in &sm
-        {
+        for val in &sm {
             assert_eq!(*val, 20);
         }
-        for val in &ms
-        {
+        for val in &ms {
             assert_eq!(*val, 20);
         }
-        for val in &em
-        {
+        for val in &em {
             assert_eq!(*val, 24);
         }
-        for val in &me
-        {
+        for val in &me {
             assert_eq!(*val, 30);
         }
     }
 
     #[test]
-    fn test_mul_scalar_lazy()
-    {
+    fn test_mul_scalar_lazy() {
         let matrix1 = DMatrix::<f64>::from_value(10.0, 2, 2);
         let matrix2 = DMatrix::<f64>::from_value(100.0, 2, 2);
         let matrix4: DMatrix<f64> = (4.0 * (2.0 * &matrix1) * (&matrix2 * 3.0) * 5.0).into();
 
         let exp_val = 4.0 * (2.0 * 10.0) * (100.0 * 3.0) * 5.0;
 
-        for val in &matrix4
-        {
+        for val in &matrix4 {
             assert_eq!(*val, exp_val);
         }
     }
     //}}}
     //{{{ collection: negation tests
     #[test]
-    fn test_neg()
-    {
+    fn test_neg() {
         let a = DMatrix::<i32>::from_col_slice(&[1, 2, 3, 4], 2, 2);
         let b = -a.clone();
-        for i in 0..4
-        {
+        for i in 0..4 {
             assert_eq!(b[i], -a[i]);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_neg_lazy()
-    {
+    fn test_neg_lazy() {
         let a = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
         let b: DMatrix<i32> = (-&a).into();
 
-        for i in 0..4
-        {
+        for i in 0..4 {
             assert_eq!(b[i], -a[i]);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_lazy_unary_composition()
-    {
+    fn test_lazy_unary_composition() {
         let a = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0], 2, 2);
         let b = DMatrix::<f64>::from_row_slice(&[2.0, 3.0, 4.0, 5.0], 2, 2);
         let c = DMatrix::<f64>::from_row_slice(&[0.0, 0.5, 1.0, 1.5], 2, 2);
@@ -1548,20 +1351,17 @@ mod dmatrix_tests
         let expected1 = (-a.clone()) * b.clone() + c.sined();
         let expected2 = c.powied(2) + dmat.exped();
 
-        for (actual, expected) in expr1.iter().zip(expected1.iter())
-        {
+        for (actual, expected) in expr1.iter().zip(expected1.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in expr2.iter().zip(expected2.iter())
-        {
+        for (actual, expected) in expr2.iter().zip(expected2.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_lazy_unary_functions_match_eager_helpers()
-    {
+    fn test_lazy_unary_functions_match_eager_helpers() {
         let signed = DMatrix::<f64>::from_row_slice(&[-4.0, -1.0, 0.5, 2.0], 2, 2);
         let positive = DMatrix::<f64>::from_row_slice(&[1.0, 4.0, 9.0, 16.0], 2, 2);
 
@@ -1579,43 +1379,35 @@ mod dmatrix_tests
         let clamp_expected = signed.clamped(-1.0, 1.0);
         let mul_add_expected = signed.mul_added(2.0, 3.0);
 
-        for (actual, expected) in sin_lazy.iter().zip(sin_expected.iter())
-        {
+        for (actual, expected) in sin_lazy.iter().zip(sin_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in sqrt_lazy.iter().zip(sqrt_expected.iter())
-        {
+        for (actual, expected) in sqrt_lazy.iter().zip(sqrt_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in powi_lazy.iter().zip(powi_expected.iter())
-        {
+        for (actual, expected) in powi_lazy.iter().zip(powi_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in powf_lazy.iter().zip(powf_expected.iter())
-        {
+        for (actual, expected) in powf_lazy.iter().zip(powf_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in clamp_lazy.iter().zip(clamp_expected.iter())
-        {
+        for (actual, expected) in clamp_lazy.iter().zip(clamp_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
-        for (actual, expected) in mul_add_lazy.iter().zip(mul_add_expected.iter())
-        {
+        for (actual, expected) in mul_add_lazy.iter().zip(mul_add_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
     }
 
     #[test]
     #[allow(clippy::op_ref)]
-    fn test_lazy_unary_nesting_and_mutability()
-    {
+    fn test_lazy_unary_nesting_and_mutability() {
         let a = DMatrix::<f64>::from_row_slice(&[9.0, 4.0, 1.0, 0.0], 2, 2);
         let b = DMatrix::<f64>::from_row_slice(&[1.0, 0.0, 1.0, 4.0], 2, 2);
         let nested: DMatrix<f64> = sqrt(abs(-&a + &b)).into();
         let expected_nested = (-a.clone() + b.clone()).absed().sqrted();
 
-        for (actual, expected) in nested.iter().zip(expected_nested.iter())
-        {
+        for (actual, expected) in nested.iter().zip(expected_nested.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
 
@@ -1623,8 +1415,7 @@ mod dmatrix_tests
         let shifted: DMatrix<f64> = (1.0 + sin(&mut c)).into();
         let expected_shifted = 1.0 + c.sined();
 
-        for (actual, expected) in shifted.iter().zip(expected_shifted.iter())
-        {
+        for (actual, expected) in shifted.iter().zip(expected_shifted.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
     }

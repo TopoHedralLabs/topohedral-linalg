@@ -29,8 +29,7 @@ where
     T: Field + Copy + Zero,
     Op: BinOp,
 {
-    fn from(expr: BinopExpr<A, B, T, Op>) -> DMatrix<T>
-    {
+    fn from(expr: BinopExpr<A, B, T, Op>) -> DMatrix<T> {
         let nrows = expr.nrows;
         let ncols = expr.ncols;
         let total = nrows * ncols;
@@ -54,8 +53,7 @@ where
     T: Field + Copy + Zero,
     Op: UnaryOp<T>,
 {
-    fn from(expr: UnaryExpr<A, T, Op>) -> DMatrix<T>
-    {
+    fn from(expr: UnaryExpr<A, T, Op>) -> DMatrix<T> {
         let nrows = expr.nrows;
         let ncols = expr.ncols;
         let total = nrows * ncols;

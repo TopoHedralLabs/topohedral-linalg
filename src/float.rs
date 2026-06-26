@@ -20,8 +20,7 @@ use crate::common::{Field, One, TransformOps, VectorOps, Zero};
 /// Extends [`Field`](crate::common::Field) with the full suite of floating-point mathematical
 /// operations required by numeric algorithms in this crate (trigonometric, exponential,
 /// logarithmic, rounding, etc.).
-pub trait Float: Field
-{
+pub trait Float: Field {
     fn abs(self) -> Self;
     fn abs_sub(
         self,
@@ -120,11 +119,9 @@ pub trait Float: Field
 //{{{ macro: impl_float
 macro_rules! impl_float {
     ($type:ty) => {
-        impl Float for $type
-        {
+        impl Float for $type {
             #[inline]
-            fn abs(self) -> Self
-            {
+            fn abs(self) -> Self {
                 self.abs()
             }
 
@@ -132,8 +129,7 @@ macro_rules! impl_float {
             fn abs_sub(
                 self,
                 other: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 #[allow(deprecated)]
                 {
                     self.abs_sub(other)
@@ -141,32 +137,27 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn acos(self) -> Self
-            {
+            fn acos(self) -> Self {
                 self.acos()
             }
 
             #[inline]
-            fn acosh(self) -> Self
-            {
+            fn acosh(self) -> Self {
                 self.acosh()
             }
 
             #[inline]
-            fn asin(self) -> Self
-            {
+            fn asin(self) -> Self {
                 self.asin()
             }
 
             #[inline]
-            fn asinh(self) -> Self
-            {
+            fn asinh(self) -> Self {
                 self.asinh()
             }
 
             #[inline]
-            fn atan(self) -> Self
-            {
+            fn atan(self) -> Self {
                 self.atan()
             }
 
@@ -174,26 +165,22 @@ macro_rules! impl_float {
             fn atan2(
                 self,
                 other: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 self.atan2(other)
             }
 
             #[inline]
-            fn atanh(self) -> Self
-            {
+            fn atanh(self) -> Self {
                 self.atanh()
             }
 
             #[inline]
-            fn cbrt(self) -> Self
-            {
+            fn cbrt(self) -> Self {
                 self.cbrt()
             }
 
             #[inline]
-            fn ceil(self) -> Self
-            {
+            fn ceil(self) -> Self {
                 self.ceil()
             }
 
@@ -202,8 +189,7 @@ macro_rules! impl_float {
                 self,
                 min: Self,
                 max: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 <$type>::clamp(self, min, max)
             }
 
@@ -211,20 +197,17 @@ macro_rules! impl_float {
             fn copysign(
                 self,
                 sign: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 self.copysign(sign)
             }
 
             #[inline]
-            fn cos(self) -> Self
-            {
+            fn cos(self) -> Self {
                 self.cos()
             }
 
             #[inline]
-            fn cosh(self) -> Self
-            {
+            fn cosh(self) -> Self {
                 self.cosh()
             }
 
@@ -232,38 +215,32 @@ macro_rules! impl_float {
             fn div_euclid(
                 self,
                 rhs: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 self.div_euclid(rhs)
             }
 
             #[inline]
-            fn exp(self) -> Self
-            {
+            fn exp(self) -> Self {
                 self.exp()
             }
 
             #[inline]
-            fn exp2(self) -> Self
-            {
+            fn exp2(self) -> Self {
                 self.exp2()
             }
 
             #[inline]
-            fn exp_m1(self) -> Self
-            {
+            fn exp_m1(self) -> Self {
                 self.exp_m1()
             }
 
             #[inline]
-            fn floor(self) -> Self
-            {
+            fn floor(self) -> Self {
                 self.floor()
             }
 
             #[inline]
-            fn fract(self) -> Self
-            {
+            fn fract(self) -> Self {
                 self.fract()
             }
 
@@ -271,20 +248,17 @@ macro_rules! impl_float {
             fn hypot(
                 self,
                 other: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 self.hypot(other)
             }
 
             #[inline]
-            fn ln(self) -> Self
-            {
+            fn ln(self) -> Self {
                 self.ln()
             }
 
             #[inline]
-            fn ln_1p(self) -> Self
-            {
+            fn ln_1p(self) -> Self {
                 self.ln_1p()
             }
 
@@ -292,20 +266,17 @@ macro_rules! impl_float {
             fn log(
                 self,
                 base: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 self.log(base)
             }
 
             #[inline]
-            fn log10(self) -> Self
-            {
+            fn log10(self) -> Self {
                 self.log10()
             }
 
             #[inline]
-            fn log2(self) -> Self
-            {
+            fn log2(self) -> Self {
                 self.log2()
             }
 
@@ -313,8 +284,7 @@ macro_rules! impl_float {
             fn max(
                 self,
                 other: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 self.max(other)
             }
 
@@ -322,8 +292,7 @@ macro_rules! impl_float {
             fn midpoint(
                 self,
                 other: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 self.midpoint(other)
             }
 
@@ -331,8 +300,7 @@ macro_rules! impl_float {
             fn min(
                 self,
                 other: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 self.min(other)
             }
 
@@ -341,20 +309,17 @@ macro_rules! impl_float {
                 self,
                 a: Self,
                 b: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 self.mul_add(a, b)
             }
 
             #[inline]
-            fn next_down(self) -> Self
-            {
+            fn next_down(self) -> Self {
                 self.next_down()
             }
 
             #[inline]
-            fn next_up(self) -> Self
-            {
+            fn next_up(self) -> Self {
                 self.next_up()
             }
 
@@ -362,8 +327,7 @@ macro_rules! impl_float {
             fn powf(
                 self,
                 exp: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 self.powf(exp)
             }
 
@@ -371,14 +335,12 @@ macro_rules! impl_float {
             fn powi(
                 self,
                 exp: i32,
-            ) -> Self
-            {
+            ) -> Self {
                 self.powi(exp)
             }
 
             #[inline]
-            fn recip(self) -> Self
-            {
+            fn recip(self) -> Self {
                 self.recip()
             }
 
@@ -386,83 +348,69 @@ macro_rules! impl_float {
             fn rem_euclid(
                 self,
                 rhs: Self,
-            ) -> Self
-            {
+            ) -> Self {
                 self.rem_euclid(rhs)
             }
 
             #[inline]
-            fn round(self) -> Self
-            {
+            fn round(self) -> Self {
                 self.round()
             }
 
             #[inline]
-            fn round_ties_even(self) -> Self
-            {
+            fn round_ties_even(self) -> Self {
                 self.round_ties_even()
             }
 
             #[inline]
-            fn signum(self) -> Self
-            {
+            fn signum(self) -> Self {
                 self.signum()
             }
 
             #[inline]
-            fn sin(self) -> Self
-            {
+            fn sin(self) -> Self {
                 self.sin()
             }
 
             #[inline]
-            fn sinh(self) -> Self
-            {
+            fn sinh(self) -> Self {
                 self.sinh()
             }
 
             #[inline]
-            fn small() -> Self
-            {
+            fn small() -> Self {
                 <$type>::EPSILON
             }
 
             #[inline]
-            fn sqrt(self) -> Self
-            {
+            fn sqrt(self) -> Self {
                 self.sqrt()
             }
 
             #[inline]
-            fn tan(self) -> Self
-            {
+            fn tan(self) -> Self {
                 self.tan()
             }
 
             #[inline]
-            fn tanh(self) -> Self
-            {
+            fn tanh(self) -> Self {
                 self.tanh()
             }
 
             #[inline]
-            fn to_degrees(self) -> Self
-            {
+            fn to_degrees(self) -> Self {
                 self.to_degrees()
             }
 
             #[inline]
-            fn to_radians(self) -> Self
-            {
+            fn to_radians(self) -> Self {
                 self.to_radians()
             }
 
             #[inline]
-            fn trunc(self) -> Self
-            {
+            fn trunc(self) -> Self {
                 self.trunc()
             }
-
         }
     };
 }
@@ -482,20 +430,16 @@ where
     fn angle(
         &self,
         other: &Self,
-    ) -> Self::ScalarType
-    {
-        if self.len() != other.len()
-        {
+    ) -> Self::ScalarType {
+        if self.len() != other.len() {
             panic!("Vectors must be of the same length");
         }
 
-        if self.len() != 2 && self.len() != 3
-        {
+        if self.len() != 2 && self.len() != 3 {
             panic!("Angle is only defined for 2D and 3D vectors");
         }
 
-        if self.norm() < Self::ScalarType::small() || other.norm() < Self::ScalarType::small()
-        {
+        if self.norm() < Self::ScalarType::small() || other.norm() < Self::ScalarType::small() {
             panic!("Cannot compute angle with zero vector");
         }
 
@@ -510,8 +454,7 @@ where
 //{{{ macro: float_transform_unary
 macro_rules! float_transform_unary {
     ($method:ident, $methoded:ident, $into_methoded:ident) => {
-        fn $method(&mut self)
-        {
+        fn $method(&mut self) {
             self.transform(|value| value.$method());
         }
 
@@ -522,8 +465,7 @@ macro_rules! float_transform_unary {
             self.transformed(|value| value.$method())
         }
 
-        fn $into_methoded(self) -> Self
-        {
+        fn $into_methoded(self) -> Self {
             self.into_transformed(|value| value.$method())
         }
     };
@@ -535,8 +477,7 @@ macro_rules! float_transform_unary_with_arg {
         fn $method(
             &mut self,
             $arg: $arg_type,
-        )
-        {
+        ) {
             self.transform(|value| value.$method($arg));
         }
 
@@ -553,8 +494,7 @@ macro_rules! float_transform_unary_with_arg {
         fn $into_methoded(
             self,
             $arg: $arg_type,
-        ) -> Self
-        {
+        ) -> Self {
             self.into_transformed(|value| value.$method($arg))
         }
     };
@@ -573,8 +513,7 @@ macro_rules! float_transform_unary_with_two_args {
             &mut self,
             $arg1: $arg1_type,
             $arg2: $arg2_type,
-        )
-        {
+        ) {
             self.transform(|value| value.$method($arg1, $arg2));
         }
 
@@ -593,8 +532,7 @@ macro_rules! float_transform_unary_with_two_args {
             self,
             $arg1: $arg1_type,
             $arg2: $arg2_type,
-        ) -> Self
-        {
+        ) -> Self {
             self.into_transformed(|value| value.$method($arg1, $arg2))
         }
     };
@@ -674,12 +612,9 @@ where
         Self::ScalarType: Zero,
     {
         self.transform(|value| {
-            if value > Self::ScalarType::zero()
-            {
+            if value > Self::ScalarType::zero() {
                 value
-            }
-            else
-            {
+            } else {
                 Self::ScalarType::zero()
             }
         });
@@ -692,12 +627,9 @@ where
         Self::ScalarType: Zero,
     {
         self.transformed(|value| {
-            if value > Self::ScalarType::zero()
-            {
+            if value > Self::ScalarType::zero() {
                 value
-            }
-            else
-            {
+            } else {
                 Self::ScalarType::zero()
             }
         })
@@ -718,12 +650,9 @@ where
         Self::ScalarType: Zero,
     {
         self.transform(|value| {
-            if value <= Self::ScalarType::zero()
-            {
+            if value <= Self::ScalarType::zero() {
                 value
-            }
-            else
-            {
+            } else {
                 Self::ScalarType::zero()
             }
         });
@@ -736,12 +665,9 @@ where
         Self::ScalarType: Zero,
     {
         self.transformed(|value| {
-            if value <= Self::ScalarType::zero()
-            {
+            if value <= Self::ScalarType::zero() {
                 value
-            }
-            else
-            {
+            } else {
                 Self::ScalarType::zero()
             }
         })

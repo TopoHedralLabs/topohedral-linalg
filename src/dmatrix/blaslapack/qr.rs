@@ -21,8 +21,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur during QR decomposition.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     #[error("Error in qr(), exited with error:\n{0}")]
     /// LAPACK `geqrf` failed while computing the Householder QR factorisation.
     GetrfError(#[from] QrRawError),
@@ -53,8 +52,7 @@ where
     /// # Errors
     ///
     /// Returns [`Error::GetrfError`] if `geqrf` fails, or [`Error::OrgqrError`] if `orgqr` fails.
-    pub fn qr(&self) -> Result<Return<T>, Error>
-    {
+    pub fn qr(&self) -> Result<Return<T>, Error> {
         let n = self.nrows;
         let m = self.ncols;
         let raw = qr_raw(self.data.clone(), n, m)?;

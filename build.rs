@@ -1,14 +1,10 @@
 use std::env;
 
-fn main()
-{
-    if cfg!(target_os = "macos")
-    {
+fn main() {
+    if cfg!(target_os = "macos") {
         // Link against the Accelerate framework on macOS
         println!("cargo:rustc-link-lib=framework=Accelerate");
-    }
-    else if cfg!(target_os = "linux")
-    {
+    } else if cfg!(target_os = "linux") {
         // Link against OpenBLAS on Linux
         println!("cargo:rustc-link-search=native=/usr/lib/x86_64-linux-gnu");
         println!("cargo:rustc-link-lib=dylib=openblas");

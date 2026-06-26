@@ -4,8 +4,7 @@ use topohedral_linalg::Float;
 macro_rules! float_trait_smoke_test {
     ($name:ident, $type:ty, $epsilon:expr) => {
         #[test]
-        fn $name()
-        {
+        fn $name() {
             let x = 1.25 as $type;
             let y = -0.75 as $type;
             let z = 0.5 as $type;

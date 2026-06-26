@@ -19,8 +19,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur during Schur decomposition.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     /// Wraps a LAPACK `gees` error from the Schur factorisation routine.
     #[error("Error in schur(), exited with error:\n{0}")]
     GeesError(#[from] ShurRawError),
@@ -49,8 +48,7 @@ where
     /// # Errors
     ///
     /// Returns an error if the LAPACK `gees` routine fails.
-    pub fn schur(&self) -> Result<Return<T, N, M>, Error>
-    {
+    pub fn schur(&self) -> Result<Return<T, N, M>, Error> {
         let raw = schur_raw(self.as_slice().to_vec(), N, M)?;
         Ok(Return {
             q: SMatrix::from_col_vec(raw.q_data),
@@ -63,6 +61,5 @@ where
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
 #[cfg(test)]
-mod tests
-{}
+mod tests {}
 //}}}

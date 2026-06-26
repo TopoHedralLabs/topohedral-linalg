@@ -1,5 +1,4 @@
-mod dmatrix_tests
-{
+mod dmatrix_tests {
     use approx::assert_relative_eq;
     use std::f64::consts::{FRAC_PI_2, PI};
     use topohedral_linalg::*;
@@ -7,13 +6,11 @@ mod dmatrix_tests
     fn assert_matrix_eq(
         actual: &DMatrix<i32>,
         expected: &DMatrix<i32>,
-    )
-    {
+    ) {
         assert_eq!(actual.nrows(), expected.nrows());
         assert_eq!(actual.ncols(), expected.ncols());
 
-        for (actual_value, expected_value) in actual.iter().zip(expected.iter())
-        {
+        for (actual_value, expected_value) in actual.iter().zip(expected.iter()) {
             assert_eq!(*actual_value, *expected_value);
         }
     }
@@ -21,13 +18,11 @@ mod dmatrix_tests
     fn assert_matrix_eq_f64(
         actual: &DMatrix<f64>,
         expected: &DMatrix<f64>,
-    )
-    {
+    ) {
         assert_eq!(actual.nrows(), expected.nrows());
         assert_eq!(actual.ncols(), expected.ncols());
 
-        for (actual_value, expected_value) in actual.iter().zip(expected.iter())
-        {
+        for (actual_value, expected_value) in actual.iter().zip(expected.iter()) {
             assert_relative_eq!(*actual_value, *expected_value, epsilon = 1.0e-12);
         }
     }
@@ -79,8 +74,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_transform_mutates_in_place_and_preserves_shape()
-    {
+    fn test_transform_mutates_in_place_and_preserves_shape() {
         let mut matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6], 2, 3);
 
         matrix.transform(|value| 2 * value + 1);
@@ -92,8 +86,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_fill_assigns_all_elements()
-    {
+    fn test_fill_assigns_all_elements() {
         let mut matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
 
         matrix.fill(7);
@@ -103,8 +96,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_transformed_returns_changed_copy_and_leaves_original_unchanged()
-    {
+    fn test_transformed_returns_changed_copy_and_leaves_original_unchanged() {
         let matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
 
         let transformed = matrix.transformed(|value| 2 * value + 1);
@@ -117,8 +109,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_into_transformed_returns_transformed_owned_value()
-    {
+    fn test_into_transformed_returns_transformed_owned_value() {
         let matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
 
         let transformed = matrix.into_transformed(|value| 2 * value + 1);
@@ -128,8 +119,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_shift_helpers()
-    {
+    fn test_shift_helpers() {
         let mut matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
 
         matrix.shift(3);
@@ -147,8 +137,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_scale_helpers()
-    {
+    fn test_scale_helpers() {
         let mut matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4], 2, 2);
 
         matrix.scale(3);
@@ -166,8 +155,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_float_transform_helpers()
-    {
+    fn test_float_transform_helpers() {
         let acos_input = DMatrix::<f64>::from_row_slice(&[1.0, 0.0, -1.0, -1.0, 0.0, 1.0], 2, 3);
         let acos_expected =
             DMatrix::<f64>::from_row_slice(&[0.0, FRAC_PI_2, PI, PI, FRAC_PI_2, 0.0], 2, 3);
@@ -220,8 +208,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_float_transform_helper_surface_smoke()
-    {
+    fn test_float_transform_helper_surface_smoke() {
         smoke_float_transform_unary!(abs, absed, into_absed, -1.25);
         smoke_float_transform_with_arg!(abs_sub, abs_subed, into_abs_subed, 1.25, 0.5);
         smoke_float_transform_unary!(acos, acosed, into_acosed, 0.5);
@@ -278,8 +265,7 @@ mod dmatrix_tests
     }
 
     #[test]
-    fn test_mutable_subview_transform_helpers_only_affect_the_view()
-    {
+    fn test_mutable_subview_transform_helpers_only_affect_the_view() {
         let mut matrix = DMatrix::<i32>::from_row_slice(
             &[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
             4,
@@ -315,8 +301,7 @@ mod dmatrix_tests
     }
 }
 
-mod smatrix_tests
-{
+mod smatrix_tests {
     use approx::assert_relative_eq;
     use std::f64::consts::{FRAC_PI_2, PI};
     use topohedral_linalg::*;
@@ -324,13 +309,11 @@ mod smatrix_tests
     fn assert_matrix_eq<const N: usize, const M: usize>(
         actual: &SMatrix<i32, N, M>,
         expected: &SMatrix<i32, N, M>,
-    )
-    {
+    ) {
         assert_eq!(actual.nrows(), expected.nrows());
         assert_eq!(actual.ncols(), expected.ncols());
 
-        for (actual_value, expected_value) in actual.iter().zip(expected.iter())
-        {
+        for (actual_value, expected_value) in actual.iter().zip(expected.iter()) {
             assert_eq!(*actual_value, *expected_value);
         }
     }
@@ -338,20 +321,17 @@ mod smatrix_tests
     fn assert_matrix_eq_f64<const N: usize, const M: usize>(
         actual: &SMatrix<f64, N, M>,
         expected: &SMatrix<f64, N, M>,
-    )
-    {
+    ) {
         assert_eq!(actual.nrows(), expected.nrows());
         assert_eq!(actual.ncols(), expected.ncols());
 
-        for (actual_value, expected_value) in actual.iter().zip(expected.iter())
-        {
+        for (actual_value, expected_value) in actual.iter().zip(expected.iter()) {
             assert_relative_eq!(*actual_value, *expected_value, epsilon = 1.0e-12);
         }
     }
 
     #[test]
-    fn test_transform_mutates_in_place_and_preserves_shape()
-    {
+    fn test_transform_mutates_in_place_and_preserves_shape() {
         let mut matrix = SMatrix::<i32, 2, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6]);
 
         matrix.transform(|value| 2 * value + 1);
@@ -363,8 +343,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_fill_assigns_all_elements()
-    {
+    fn test_fill_assigns_all_elements() {
         let mut matrix = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
 
         matrix.fill(7);
@@ -374,8 +353,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_transformed_returns_changed_copy_and_leaves_original_unchanged()
-    {
+    fn test_transformed_returns_changed_copy_and_leaves_original_unchanged() {
         let matrix = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
 
         let transformed = matrix.transformed(|value| 2 * value + 1);
@@ -388,8 +366,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_into_transformed_returns_transformed_owned_value()
-    {
+    fn test_into_transformed_returns_transformed_owned_value() {
         let matrix = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
 
         let transformed = matrix.into_transformed(|value| 2 * value + 1);
@@ -399,8 +376,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_shift_helpers()
-    {
+    fn test_shift_helpers() {
         let mut matrix = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
 
         matrix.shift(3);
@@ -418,8 +394,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_scale_helpers()
-    {
+    fn test_scale_helpers() {
         let mut matrix = SMatrix::<i32, 2, 2>::from_row_slice(&[1, 2, 3, 4]);
 
         matrix.scale(3);
@@ -437,8 +412,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_float_transform_helpers()
-    {
+    fn test_float_transform_helpers() {
         let acos_input = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 0.0, -1.0, -1.0, 0.0, 1.0]);
         let acos_expected =
             SMatrix::<f64, 2, 3>::from_row_slice(&[0.0, FRAC_PI_2, PI, PI, FRAC_PI_2, 0.0]);
@@ -491,8 +465,7 @@ mod smatrix_tests
     }
 
     #[test]
-    fn test_mutable_subview_transform_helpers_only_affect_the_view()
-    {
+    fn test_mutable_subview_transform_helpers_only_affect_the_view() {
         let mut matrix = SMatrix::<i32, 4, 4>::from_row_slice(&[
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
         ]);

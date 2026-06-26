@@ -19,8 +19,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors returned by the [`Geev`] LAPACK wrapper.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     /// LAPACK returned a non-zero info code indicating a failure in the QR algorithm.
     #[error("Error in geev, exited with code {0}")]
     LapackError(i32),
@@ -30,8 +29,7 @@ pub enum Error
 //{{{ trait: Geev
 /// Trait for types that support general (non-symmetric) eigendecomposition.
 #[allow(clippy::too_many_arguments)]
-pub trait Geev: Copy
-{
+pub trait Geev: Copy {
     /// Computes all eigenvalues and optionally left/right eigenvectors of a general real matrix.
     fn geev(
         jobvl: u8,
@@ -52,8 +50,7 @@ pub trait Geev: Copy
 //}}}
 
 //{{{ impl: Geev for f64
-impl Geev for f64
-{
+impl Geev for f64 {
     #[inline]
     fn geev(
         jobvl: u8,
@@ -69,8 +66,7 @@ impl Geev for f64
         ldvr: i32,
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error>
-    {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::dgeev(
@@ -78,8 +74,7 @@ impl Geev for f64
             );
         }
 
-        if info != 0
-        {
+        if info != 0 {
             return Err(Error::LapackError(info));
         }
         Ok(())
@@ -88,8 +83,7 @@ impl Geev for f64
 //}}}
 
 //{{{ impl: Geev for f32
-impl Geev for f32
-{
+impl Geev for f32 {
     #[inline]
     fn geev(
         jobvl: u8,
@@ -105,16 +99,14 @@ impl Geev for f32
         ldvr: i32,
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error>
-    {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::sgeev(
                 jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwork, &mut info,
             );
         }
-        if info != 0
-        {
+        if info != 0 {
             return Err(Error::LapackError(info));
         }
         Ok(())
@@ -123,8 +115,7 @@ impl Geev for f32
 //}}}
 
 //{{{ struct: EigRaw
-pub(crate) struct EigRaw<T>
-{
+pub(crate) struct EigRaw<T> {
     pub vl: Vec<T>,
     pub vr: Vec<T>,
     pub eigvals: Vec<crate::common::Complex<T>>,

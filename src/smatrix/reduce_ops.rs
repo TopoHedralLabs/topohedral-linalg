@@ -36,8 +36,7 @@ where
         F: FnMut(B, Self::Item) -> B,
     {
         let mut acc = init;
-        for &value in self.as_slice()
-        {
+        for &value in self.as_slice() {
             acc = f(acc, value);
         }
         acc
@@ -52,8 +51,7 @@ where
         F: FnMut(B, Self::Index, Self::Item) -> B,
     {
         let mut acc = init;
-        for (linear_index, &value) in self.as_slice().iter().enumerate()
-        {
+        for (linear_index, &value) in self.as_slice().iter().enumerate() {
             acc = f(acc, tuple_index(linear_index, N), value);
         }
         acc
@@ -77,10 +75,8 @@ where
         F: FnMut(B, Self::Item) -> B,
     {
         let mut acc = init;
-        for col in 0..self.ncols
-        {
-            for row in 0..self.nrows
-            {
+        for col in 0..self.ncols {
+            for row in 0..self.nrows {
                 acc = f(acc, self[(row, col)]);
             }
         }
@@ -96,10 +92,8 @@ where
         F: FnMut(B, Self::Index, Self::Item) -> B,
     {
         let mut acc = init;
-        for col in 0..self.ncols
-        {
-            for row in 0..self.nrows
-            {
+        for col in 0..self.ncols {
+            for row in 0..self.nrows {
                 acc = f(acc, (row, col), self[(row, col)]);
             }
         }
@@ -124,10 +118,8 @@ where
         F: FnMut(B, Self::Item) -> B,
     {
         let mut acc = init;
-        for col in 0..self.ncols
-        {
-            for row in 0..self.nrows
-            {
+        for col in 0..self.ncols {
+            for row in 0..self.nrows {
                 acc = f(acc, self[(row, col)]);
             }
         }
@@ -143,10 +135,8 @@ where
         F: FnMut(B, Self::Index, Self::Item) -> B,
     {
         let mut acc = init;
-        for col in 0..self.ncols
-        {
-            for row in 0..self.nrows
-            {
+        for col in 0..self.ncols {
+            for row in 0..self.nrows {
                 acc = f(acc, (row, col), self[(row, col)]);
             }
         }

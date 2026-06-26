@@ -51,8 +51,7 @@ where
     where
         D: Deserializer<'de>,
     {
-        enum DeField
-        {
+        enum DeField {
             Data,
             Nrows,
             Ncols,
@@ -69,8 +68,7 @@ where
             fn expecting(
                 &self,
                 formatter: &mut fmt::Formatter,
-            ) -> fmt::Result
-            {
+            ) -> fmt::Result {
                 formatter.write_str("struct SMatrix")
             }
 
@@ -85,30 +83,22 @@ where
                 let mut nrows: Option<usize> = None;
                 let mut ncols: Option<usize> = None;
 
-                while let Some(key) = map.next_key()?
-                {
-                    match key
-                    {
-                        DeField::Data =>
-                        {
-                            if data.is_some()
-                            {
+                while let Some(key) = map.next_key()? {
+                    match key {
+                        DeField::Data => {
+                            if data.is_some() {
                                 return Err(de::Error::duplicate_field("data"));
                             }
                             data = Some(map.next_value()?);
                         }
-                        DeField::Nrows =>
-                        {
-                            if nrows.is_some()
-                            {
+                        DeField::Nrows => {
+                            if nrows.is_some() {
                                 return Err(de::Error::duplicate_field("nrows"));
                             }
                             nrows = Some(map.next_value()?);
                         }
-                        DeField::Ncols =>
-                        {
-                            if ncols.is_some()
-                            {
+                        DeField::Ncols => {
+                            if ncols.is_some() {
                                 return Err(de::Error::duplicate_field("ncols"));
                             }
                             ncols = Some(map.next_value()?);
@@ -119,12 +109,10 @@ where
                 let data = data.ok_or_else(|| de::Error::missing_field("data"))?;
                 let nrows = nrows.ok_or_else(|| de::Error::missing_field("nrows"))?;
                 let ncols = ncols.ok_or_else(|| de::Error::missing_field("ncols"))?;
-                if data.len() != N * M
-                {
+                if data.len() != N * M {
                     return Err(de::Error::invalid_length(data.len(), &self));
                 }
-                if nrows != N || ncols != M
-                {
+                if nrows != N || ncols != M {
                     return Err(de::Error::custom(format!(
                         "dimension mismatch: data is for {}x{}, destination is {}x{}",
                         nrows, ncols, N, M
@@ -135,23 +123,20 @@ where
             }
         }
 
-        impl<'de> Deserialize<'de> for DeField
-        {
+        impl<'de> Deserialize<'de> for DeField {
             fn deserialize<D>(deserializer: D) -> Result<DeField, D::Error>
             where
                 D: Deserializer<'de>,
             {
                 struct FieldVisitor;
 
-                impl<'de> Visitor<'de> for FieldVisitor
-                {
+                impl<'de> Visitor<'de> for FieldVisitor {
                     type Value = DeField;
 
                     fn expecting(
                         &self,
                         formatter: &mut fmt::Formatter,
-                    ) -> fmt::Result
-                    {
+                    ) -> fmt::Result {
                         formatter.write_str("`data` or `nrows` or `ncols`")
                     }
 
@@ -162,8 +147,7 @@ where
                     where
                         E: de::Error,
                     {
-                        match value
-                        {
+                        match value {
                             "data" => Ok(DeField::Data),
                             "nrows" => Ok(DeField::Nrows),
                             "ncols" => Ok(DeField::Ncols),
@@ -190,13 +174,10 @@ where
     fn fmt(
         &self,
         f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result
-    {
-        for i in 0..N
-        {
+    ) -> fmt::Result {
+        for i in 0..N {
             write!(f, "|")?;
-            for j in 0..M
-            {
+            for j in 0..M {
                 write!(f, " ")?;
                 self[(i, j)].fmt_matrix_element(f)?;
                 write!(f, " ")?;

@@ -9,8 +9,7 @@ use rand::prelude::*;
 //{{{ collection: SMatrix benches
 macro_rules! add_benches_smatrix {
     ($dim: expr, $name1: ident, $name2: ident, $name3: ident) => {
-        pub fn $name1(crit: &mut Criterion)
-        {
+        pub fn $name1(crit: &mut Criterion) {
             let a = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
 
             let b = SMatrix::<f64, $dim, $dim>::from_uniform_random(0.0, 10.0);
@@ -42,8 +41,7 @@ macro_rules! add_benches_smatrix {
             );
         }
 
-        pub fn $name2(crit: &mut Criterion)
-        {
+        pub fn $name2(crit: &mut Criterion) {
             let range = rand::distr::Uniform::<f64>::new(0.0, 10.0).unwrap();
 
             let mut rng = rand::rng();
@@ -75,8 +73,7 @@ macro_rules! add_benches_smatrix {
             });
         }
 
-        pub fn $name3(crit: &mut Criterion)
-        {
+        pub fn $name3(crit: &mut Criterion) {
             let range = rand::distr::Uniform::<f64>::new(0.0, 10.0).unwrap();
 
             let mut rng = rand::rng();
@@ -99,8 +96,7 @@ macro_rules! add_benches_smatrix {
 
             let mut i = [0.0f64; $dim * $dim];
 
-            for ii in 0..$dim * $dim
-            {
+            for ii in 0..$dim * $dim {
                 a[ii] = range.sample(&mut rng);
 
                 b[ii] = range.sample(&mut rng);
@@ -124,8 +120,7 @@ macro_rules! add_benches_smatrix {
                 be.iter(|| {
                     let mut j = [0.0f64; $dim * $dim];
 
-                    for ii in 0..($dim * $dim)
-                    {
+                    for ii in 0..($dim * $dim) {
                         j[ii] =
                             a[ii] + b[ii] + c[ii] + d[ii] + e[ii] + f[ii] + g[ii] + h[ii] + i[ii];
                     }
@@ -167,8 +162,7 @@ add_benches_smatrix!(
 
 macro_rules! add_view_benches_smatrix {
     ($inner: expr, $outer: expr, $name_cols: ident, $name_block: ident) => {
-        pub fn $name_cols(crit: &mut Criterion)
-        {
+        pub fn $name_cols(crit: &mut Criterion) {
             let a = SMatrix::<f64, $inner, $outer>::from_uniform_random(0.0, 10.0);
             let b = SMatrix::<f64, $inner, $outer>::from_uniform_random(0.0, 10.0);
             let c = SMatrix::<f64, $inner, $outer>::from_uniform_random(0.0, 10.0);
@@ -202,8 +196,7 @@ macro_rules! add_view_benches_smatrix {
             );
         }
 
-        pub fn $name_block(crit: &mut Criterion)
-        {
+        pub fn $name_block(crit: &mut Criterion) {
             let a = SMatrix::<f64, $outer, $outer>::from_uniform_random(0.0, 10.0);
             let b = SMatrix::<f64, $outer, $outer>::from_uniform_random(0.0, 10.0);
             let c = SMatrix::<f64, $outer, $outer>::from_uniform_random(0.0, 10.0);

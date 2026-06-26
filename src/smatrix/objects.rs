@@ -51,14 +51,12 @@ where
     T: Copy,
 {
     #[inline]
-    pub(crate) fn as_slice(&self) -> &[T]
-    {
+    pub(crate) fn as_slice(&self) -> &[T] {
         self.data.as_flattened()
     }
 
     #[inline]
-    pub(crate) fn as_mut_slice(&mut self) -> &mut [T]
-    {
+    pub(crate) fn as_mut_slice(&mut self) -> &mut [T] {
         self.data.as_flattened_mut()
     }
 }
@@ -76,8 +74,7 @@ where
 {
     type ScalarType = T;
 
-    fn len(&self) -> usize
-    {
+    fn len(&self) -> usize {
         N * M
     }
 }

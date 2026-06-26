@@ -29,8 +29,7 @@ where
     fn index(
         &self,
         index: (usize, usize),
-    ) -> &Self::Output
-    {
+    ) -> &Self::Output {
         let (row, col) = index;
         &self.data[col][row]
     }
@@ -46,8 +45,7 @@ where
     fn index(
         &self,
         index: (usize, usize),
-    ) -> &Self::Output
-    {
+    ) -> &Self::Output {
         &(**self)[index]
     }
 }
@@ -62,8 +60,7 @@ where
     fn index(
         &self,
         index: (usize, usize),
-    ) -> &Self::Output
-    {
+    ) -> &Self::Output {
         &(**self)[index]
     }
 }
@@ -76,8 +73,7 @@ where
     fn index_mut(
         &mut self,
         index: (usize, usize),
-    ) -> &mut Self::Output
-    {
+    ) -> &mut Self::Output {
         let (row, col) = index;
         &mut self.data[col][row]
     }
@@ -91,8 +87,7 @@ where
     fn index_mut(
         &mut self,
         index: (usize, usize),
-    ) -> &mut Self::Output
-    {
+    ) -> &mut Self::Output {
         &mut (**self)[index]
     }
 }
@@ -109,8 +104,7 @@ where
     fn index(
         &self,
         index: usize,
-    ) -> &Self::Output
-    {
+    ) -> &Self::Output {
         &self.as_slice()[index]
     }
 }
@@ -126,8 +120,7 @@ where
     fn index(
         &self,
         index: usize,
-    ) -> &Self::Output
-    {
+    ) -> &Self::Output {
         &(**self)[index]
     }
 }
@@ -142,8 +135,7 @@ where
     fn index(
         &self,
         index: usize,
-    ) -> &Self::Output
-    {
+    ) -> &Self::Output {
         &(**self)[index]
     }
 }
@@ -156,8 +148,7 @@ where
     fn index_mut(
         &mut self,
         index: usize,
-    ) -> &mut Self::Output
-    {
+    ) -> &mut Self::Output {
         &mut self.as_mut_slice()[index]
     }
 }
@@ -171,8 +162,7 @@ where
     fn index_mut(
         &mut self,
         index: usize,
-    ) -> &mut Self::Output
-    {
+    ) -> &mut Self::Output {
         &mut (**self)[index]
     }
 }
@@ -188,8 +178,7 @@ where
     fn linear_value(
         &self,
         index: usize,
-    ) -> Self::ScalarType
-    {
+    ) -> Self::ScalarType {
         unsafe { *self.as_slice().get_unchecked(index) }
     }
 
@@ -197,8 +186,7 @@ where
     fn eval_into(
         &self,
         out: &mut [T],
-    )
-    {
+    ) {
         out.copy_from_slice(self.as_slice());
     }
 }

@@ -25,8 +25,7 @@ where
 
     type IntoIter = std::vec::IntoIter<T>;
 
-    fn into_iter(self) -> Self::IntoIter
-    {
+    fn into_iter(self) -> Self::IntoIter {
         self.data.into_iter()
     }
 }
@@ -41,8 +40,7 @@ where
 
     type IntoIter = std::slice::Iter<'a, T>;
 
-    fn into_iter(self) -> Self::IntoIter
-    {
+    fn into_iter(self) -> Self::IntoIter {
         self.data.iter()
     }
 }
@@ -55,15 +53,13 @@ where
 {
     //{{{ fun: iter
     /// Returns a column-major immutable iterator over all elements of the matrix.
-    pub fn iter(&self) -> std::slice::Iter<'_, T>
-    {
+    pub fn iter(&self) -> std::slice::Iter<'_, T> {
         self.data.iter()
     }
     //}}}
     //{{{ fun: iter_mut
     /// Returns a column-major mutable iterator over all elements of the matrix.
-    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T>
-    {
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, T> {
         self.data.iter_mut()
     }
     //}}}
