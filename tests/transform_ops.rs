@@ -234,25 +234,15 @@ mod dmatrix_tests
         smoke_float_transform_unary!(cbrt, cbrted, into_cbrted, 8.0);
         smoke_float_transform_unary!(ceil, ceiled, into_ceiled, 1.25);
         smoke_float_transform_with_two_args!(clamp, clamped, into_clamped, 3.0, -1.0, 2.0);
-        smoke_float_transform_with_arg!(
-            clamp_magnitude,
-            clamp_magnituded,
-            into_clamp_magnituded,
-            -5.0,
-            3.0
-        );
         smoke_float_transform_with_arg!(copysign, copysigned, into_copysigned, 1.25, -1.0);
         smoke_float_transform_unary!(cos, cosed, into_cosed, 0.5);
         smoke_float_transform_unary!(cosh, coshed, into_coshed, 0.5);
         smoke_float_transform_with_arg!(div_euclid, div_euclided, into_div_euclided, 7.0, 4.0);
-        smoke_float_transform_unary!(erf, erfed, into_erfed, 0.0);
-        smoke_float_transform_unary!(erfc, erfced, into_erfced, 0.0);
         smoke_float_transform_unary!(exp, exped, into_exped, 1.0);
         smoke_float_transform_unary!(exp2, exp2ed, into_exp2ed, 3.0);
         smoke_float_transform_unary!(exp_m1, exp_m1ed, into_exp_m1ed, 1.0);
         smoke_float_transform_unary!(floor, floored, into_floored, 1.75);
         smoke_float_transform_unary!(fract, fracted, into_fracted, 1.75);
-        smoke_float_transform_unary!(gamma, gammaed, into_gammaed, 5.0);
         smoke_float_transform_with_arg!(hypot, hypoted, into_hypoted, 3.0, 4.0);
         smoke_float_transform_unary!(ln, lned, into_lned, std::f64::consts::E);
         smoke_float_transform_unary!(ln_1p, ln_1ped, into_ln_1ped, 0.5);
@@ -260,10 +250,8 @@ mod dmatrix_tests
         smoke_float_transform_unary!(log10, log10ed, into_log10ed, 100.0);
         smoke_float_transform_unary!(log2, log2ed, into_log2ed, 8.0);
         smoke_float_transform_with_arg!(max, maxed, into_maxed, 1.25, -0.75);
-        smoke_float_transform_with_arg!(maximum, maximumed, into_maximumed, 1.25, -0.75);
         smoke_float_transform_with_arg!(midpoint, midpointed, into_midpointed, 1.25, -0.75);
         smoke_float_transform_with_arg!(min, mined, into_mined, 1.25, -0.75);
-        smoke_float_transform_with_arg!(minimum, minimumed, into_minimumed, 1.25, -0.75);
         smoke_float_transform_with_two_args!(mul_add, mul_added, into_mul_added, 2.0, 3.0, 4.0);
         smoke_float_transform_unary!(next_down, next_downed, into_next_downed, 1.0);
         smoke_float_transform_unary!(next_up, next_uped, into_next_uped, 1.0);
@@ -287,41 +275,6 @@ mod dmatrix_tests
         smoke_float_transform_unary!(to_degrees, to_degreesed, into_to_degreesed, PI);
         smoke_float_transform_unary!(to_radians, to_radiansed, into_to_radiansed, 180.0);
         smoke_float_transform_unary!(trunc, trunced, into_trunced, 1.75);
-        smoke_float_transform_with_arg!(
-            algebraic_add,
-            algebraic_added,
-            into_algebraic_added,
-            1.5,
-            2.0
-        );
-        smoke_float_transform_with_arg!(
-            algebraic_sub,
-            algebraic_subed,
-            into_algebraic_subed,
-            1.5,
-            2.0
-        );
-        smoke_float_transform_with_arg!(
-            algebraic_mul,
-            algebraic_muled,
-            into_algebraic_muled,
-            1.5,
-            2.0
-        );
-        smoke_float_transform_with_arg!(
-            algebraic_div,
-            algebraic_dived,
-            into_algebraic_dived,
-            3.0,
-            2.0
-        );
-        smoke_float_transform_with_arg!(
-            algebraic_rem,
-            algebraic_remed,
-            into_algebraic_remed,
-            7.0,
-            4.0
-        );
     }
 
     #[test]

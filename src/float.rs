@@ -19,7 +19,7 @@ use crate::common::{Field, One, TransformOps, VectorOps, Zero};
 //{{{ trait: Float
 /// Extends [`Field`](crate::common::Field) with the full suite of floating-point mathematical
 /// operations required by numeric algorithms in this crate (trigonometric, exponential,
-/// logarithmic, rounding, and algebraic relaxed-precision variants).
+/// logarithmic, rounding, etc.).
 pub trait Float: Field
 {
     fn abs(self) -> Self;
@@ -44,10 +44,6 @@ pub trait Float: Field
         min: Self,
         max: Self,
     ) -> Self;
-    fn clamp_magnitude(
-        self,
-        limit: Self,
-    ) -> Self;
     fn copysign(
         self,
         sign: Self,
@@ -58,14 +54,11 @@ pub trait Float: Field
         self,
         rhs: Self,
     ) -> Self;
-    fn erf(self) -> Self;
-    fn erfc(self) -> Self;
     fn exp(self) -> Self;
     fn exp2(self) -> Self;
     fn exp_m1(self) -> Self;
     fn floor(self) -> Self;
     fn fract(self) -> Self;
-    fn gamma(self) -> Self;
     fn hypot(
         self,
         other: Self,
@@ -82,19 +75,11 @@ pub trait Float: Field
         self,
         other: Self,
     ) -> Self;
-    fn maximum(
-        self,
-        other: Self,
-    ) -> Self;
     fn midpoint(
         self,
         other: Self,
     ) -> Self;
     fn min(
-        self,
-        other: Self,
-    ) -> Self;
-    fn minimum(
         self,
         other: Self,
     ) -> Self;
@@ -130,27 +115,6 @@ pub trait Float: Field
     fn to_degrees(self) -> Self;
     fn to_radians(self) -> Self;
     fn trunc(self) -> Self;
-
-    fn algebraic_add(
-        self,
-        rhs: Self,
-    ) -> Self;
-    fn algebraic_sub(
-        self,
-        rhs: Self,
-    ) -> Self;
-    fn algebraic_mul(
-        self,
-        rhs: Self,
-    ) -> Self;
-    fn algebraic_div(
-        self,
-        rhs: Self,
-    ) -> Self;
-    fn algebraic_rem(
-        self,
-        rhs: Self,
-    ) -> Self;
 }
 //}}}
 //{{{ macro: impl_float
@@ -244,15 +208,6 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn clamp_magnitude(
-                self,
-                limit: Self,
-            ) -> Self
-            {
-                self.clamp_magnitude(limit)
-            }
-
-            #[inline]
             fn copysign(
                 self,
                 sign: Self,
@@ -283,18 +238,6 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn erf(self) -> Self
-            {
-                self.erf()
-            }
-
-            #[inline]
-            fn erfc(self) -> Self
-            {
-                self.erfc()
-            }
-
-            #[inline]
             fn exp(self) -> Self
             {
                 self.exp()
@@ -322,12 +265,6 @@ macro_rules! impl_float {
             fn fract(self) -> Self
             {
                 self.fract()
-            }
-
-            #[inline]
-            fn gamma(self) -> Self
-            {
-                self.gamma()
             }
 
             #[inline]
@@ -382,15 +319,6 @@ macro_rules! impl_float {
             }
 
             #[inline]
-            fn maximum(
-                self,
-                other: Self,
-            ) -> Self
-            {
-                self.maximum(other)
-            }
-
-            #[inline]
             fn midpoint(
                 self,
                 other: Self,
@@ -406,15 +334,6 @@ macro_rules! impl_float {
             ) -> Self
             {
                 self.min(other)
-            }
-
-            #[inline]
-            fn minimum(
-                self,
-                other: Self,
-            ) -> Self
-            {
-                self.minimum(other)
             }
 
             #[inline]
@@ -544,50 +463,6 @@ macro_rules! impl_float {
                 self.trunc()
             }
 
-            #[inline]
-            fn algebraic_add(
-                self,
-                rhs: Self,
-            ) -> Self
-            {
-                <$type>::algebraic_add(self, rhs)
-            }
-
-            #[inline]
-            fn algebraic_sub(
-                self,
-                rhs: Self,
-            ) -> Self
-            {
-                <$type>::algebraic_sub(self, rhs)
-            }
-
-            #[inline]
-            fn algebraic_mul(
-                self,
-                rhs: Self,
-            ) -> Self
-            {
-                <$type>::algebraic_mul(self, rhs)
-            }
-
-            #[inline]
-            fn algebraic_div(
-                self,
-                rhs: Self,
-            ) -> Self
-            {
-                <$type>::algebraic_div(self, rhs)
-            }
-
-            #[inline]
-            fn algebraic_rem(
-                self,
-                rhs: Self,
-            ) -> Self
-            {
-                <$type>::algebraic_rem(self, rhs)
-            }
         }
     };
 }
@@ -750,24 +625,15 @@ where
         min: Self::ScalarType,
         max: Self::ScalarType
     );
-    float_transform_unary_with_arg!(
-        clamp_magnitude,
-        clamp_magnituded,
-        into_clamp_magnituded,
-        limit: Self::ScalarType
-    );
     float_transform_unary_with_arg!(copysign, copysigned, into_copysigned, sign: Self::ScalarType);
     float_transform_unary!(cos, cosed, into_cosed);
     float_transform_unary!(cosh, coshed, into_coshed);
     float_transform_unary_with_arg!(div_euclid, div_euclided, into_div_euclided, rhs: Self::ScalarType);
-    float_transform_unary!(erf, erfed, into_erfed);
-    float_transform_unary!(erfc, erfced, into_erfced);
     float_transform_unary!(exp, exped, into_exped);
     float_transform_unary!(exp2, exp2ed, into_exp2ed);
     float_transform_unary!(exp_m1, exp_m1ed, into_exp_m1ed);
     float_transform_unary!(floor, floored, into_floored);
     float_transform_unary!(fract, fracted, into_fracted);
-    float_transform_unary!(gamma, gammaed, into_gammaed);
     float_transform_unary_with_arg!(hypot, hypoted, into_hypoted, other: Self::ScalarType);
     float_transform_unary!(ln, lned, into_lned);
     float_transform_unary!(ln_1p, ln_1ped, into_ln_1ped);
@@ -775,10 +641,8 @@ where
     float_transform_unary!(log10, log10ed, into_log10ed);
     float_transform_unary!(log2, log2ed, into_log2ed);
     float_transform_unary_with_arg!(max, maxed, into_maxed, other: Self::ScalarType);
-    float_transform_unary_with_arg!(maximum, maximumed, into_maximumed, other: Self::ScalarType);
     float_transform_unary_with_arg!(midpoint, midpointed, into_midpointed, other: Self::ScalarType);
     float_transform_unary_with_arg!(min, mined, into_mined, other: Self::ScalarType);
-    float_transform_unary_with_arg!(minimum, minimumed, into_minimumed, other: Self::ScalarType);
     float_transform_unary_with_two_args!(
         mul_add,
         mul_added,
@@ -803,36 +667,6 @@ where
     float_transform_unary!(to_degrees, to_degreesed, into_to_degreesed);
     float_transform_unary!(to_radians, to_radiansed, into_to_radiansed);
     float_transform_unary!(trunc, trunced, into_trunced);
-    float_transform_unary_with_arg!(
-        algebraic_add,
-        algebraic_added,
-        into_algebraic_added,
-        rhs: Self::ScalarType
-    );
-    float_transform_unary_with_arg!(
-        algebraic_sub,
-        algebraic_subed,
-        into_algebraic_subed,
-        rhs: Self::ScalarType
-    );
-    float_transform_unary_with_arg!(
-        algebraic_mul,
-        algebraic_muled,
-        into_algebraic_muled,
-        rhs: Self::ScalarType
-    );
-    float_transform_unary_with_arg!(
-        algebraic_div,
-        algebraic_dived,
-        into_algebraic_dived,
-        rhs: Self::ScalarType
-    );
-    float_transform_unary_with_arg!(
-        algebraic_rem,
-        algebraic_remed,
-        into_algebraic_remed,
-        rhs: Self::ScalarType
-    );
 
     /// Clamps every element to the positive part in-place (negative values become zero).
     fn pos(&mut self)

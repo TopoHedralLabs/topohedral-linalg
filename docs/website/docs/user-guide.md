@@ -501,7 +501,7 @@ let m3 = m.into_exped(); // consuming
 
 The full list mirrors Rust's `f64` intrinsics: `abs`, `acos`, `acosh`, `asin`,
 `asinh`, `atan`, `atan2`, `atanh`, `cbrt`, `ceil`, `clamp`, `cos`, `cosh`, `exp`,
-`exp2`, `exp_m1`, `floor`, `fract`, `gamma`, `hypot`, `ln`, `ln_1p`, `log`,
+`exp2`, `exp_m1`, `floor`, `fract`, `hypot`, `ln`, `ln_1p`, `log`,
 `log10`, `log2`, `mul_add`, `powf`, `powi`, `recip`, `round`, `signum`, `sin`,
 `sinh`, `sqrt`, `tan`, `tanh`, `to_degrees`, `to_radians`, `trunc`, and more.
 
