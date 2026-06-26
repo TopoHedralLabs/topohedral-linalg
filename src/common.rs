@@ -94,43 +94,34 @@ apply_for_all_types!(impl_field);
 //}}}
 //{{{ trait: Zero
 /// Supplies the additive identity element for a type.
-pub trait Zero
-{
+pub trait Zero {
     /// Returns the additive identity (zero) value for this type.
     fn zero() -> Self;
 }
 //}}}
 //{{{ collectoin: impl_zero implementations
-impl Zero for f32
-{
-    fn zero() -> Self
-    {
+impl Zero for f32 {
+    fn zero() -> Self {
         0.0
     }
 }
 
-impl Zero for f64
-{
-    fn zero() -> Self
-    {
+impl Zero for f64 {
+    fn zero() -> Self {
         0.0
     }
 }
 
-impl Zero for bool
-{
-    fn zero() -> Self
-    {
+impl Zero for bool {
+    fn zero() -> Self {
         false
     }
 }
 
 macro_rules! impl_zero {
     ($type:ty) => {
-        impl Zero for $type
-        {
-            fn zero() -> Self
-            {
+        impl Zero for $type {
+            fn zero() -> Self {
                 0
             }
         }
@@ -141,43 +132,34 @@ apply_for_all_integer_types!(impl_zero);
 //}}}
 //{{{ trait: One
 /// Supplies the multiplicative identity element for a type.
-pub trait One
-{
+pub trait One {
     /// Returns the multiplicative identity (one) value for this type.
     fn one() -> Self;
 }
 //}}}
 //{{{ collection: impl_one implementations
-impl One for f32
-{
-    fn one() -> Self
-    {
+impl One for f32 {
+    fn one() -> Self {
         1.0
     }
 }
 
-impl One for f64
-{
-    fn one() -> Self
-    {
+impl One for f64 {
+    fn one() -> Self {
         1.0
     }
 }
 
-impl One for bool
-{
-    fn one() -> Self
-    {
+impl One for bool {
+    fn one() -> Self {
         true
     }
 }
 
 macro_rules! impl_zero {
     ($type:ty) => {
-        impl One for $type
-        {
-            fn one() -> Self
-            {
+        impl One for $type {
+            fn one() -> Self {
                 1
             }
         }
@@ -188,35 +170,28 @@ apply_for_all_integer_types!(impl_zero);
 //}}}
 //{{{ trait: Abs
 /// Provides an absolute-value operation for scalar types.
-pub trait Abs
-{
+pub trait Abs {
     /// Returns the absolute value of `self`.
     fn abs(self) -> Self;
 }
 //}}}
 //{{{ collection: impl_abs implementations
-impl Abs for f32
-{
-    fn abs(self) -> Self
-    {
+impl Abs for f32 {
+    fn abs(self) -> Self {
         self.abs()
     }
 }
 
-impl Abs for f64
-{
-    fn abs(self) -> Self
-    {
+impl Abs for f64 {
+    fn abs(self) -> Self {
         self.abs()
     }
 }
 
 macro_rules! impl_abs {
     ($type:ty) => {
-        impl Abs for $type
-        {
-            fn abs(self) -> Self
-            {
+        impl Abs for $type {
+            fn abs(self) -> Self {
                 self.abs()
             }
         }
@@ -228,8 +203,7 @@ apply_for_all_integer_types!(impl_abs);
 //{{{ trait: MatrixElementDisplay
 /// Internal formatting hook used by matrix `Display` implementations.
 #[doc(hidden)]
-pub trait MatrixElementDisplay
-{
+pub trait MatrixElementDisplay {
     fn fmt_matrix_element(
         &self,
         f: &mut fmt::Formatter<'_>,
@@ -238,13 +212,11 @@ pub trait MatrixElementDisplay
 
 macro_rules! impl_matrix_element_display_numeric {
     ($type:ty) => {
-        impl MatrixElementDisplay for $type
-        {
+        impl MatrixElementDisplay for $type {
             fn fmt_matrix_element(
                 &self,
                 f: &mut fmt::Formatter<'_>,
-            ) -> fmt::Result
-            {
+            ) -> fmt::Result {
                 write!(f, "{:.4e}", self)
             }
         }
@@ -253,13 +225,11 @@ macro_rules! impl_matrix_element_display_numeric {
 
 apply_for_all_types!(impl_matrix_element_display_numeric);
 
-impl MatrixElementDisplay for bool
-{
+impl MatrixElementDisplay for bool {
     fn fmt_matrix_element(
         &self,
         f: &mut fmt::Formatter<'_>,
-    ) -> fmt::Result
-    {
+    ) -> fmt::Result {
         write!(f, "{}", self)
     }
 }
@@ -297,8 +267,7 @@ where
     /// Returns the number of columns.
     fn ncols(&self) -> usize;
     /// Returns `(nrows, ncols)` as a tuple.
-    fn size(&self) -> (usize, usize)
-    {
+    fn size(&self) -> (usize, usize) {
         (self.nrows(), self.ncols())
     }
 }
@@ -308,13 +277,11 @@ impl<T> Shape for &T
 where
     T: Shape,
 {
-    fn nrows(&self) -> usize
-    {
+    fn nrows(&self) -> usize {
         (*self).nrows()
     }
 
-    fn ncols(&self) -> usize
-    {
+    fn ncols(&self) -> usize {
         (*self).ncols()
     }
 }
@@ -323,13 +290,11 @@ impl<T> Shape for &mut T
 where
     T: Shape,
 {
-    fn nrows(&self) -> usize
-    {
+    fn nrows(&self) -> usize {
         (**self).nrows()
     }
 
-    fn ncols(&self) -> usize
-    {
+    fn ncols(&self) -> usize {
         (**self).ncols()
     }
 }
@@ -340,8 +305,7 @@ where
 /// Implementors expose values in column-major linear order. Contiguous destinations use
 /// [`MatrixExpr::eval_into`], while strided destinations such as views can pull individual values
 /// with [`MatrixExpr::linear_value`] without allocating.
-pub trait MatrixExpr: Shape
-{
+pub trait MatrixExpr: Shape {
     type ScalarType: Copy;
 
     /// Returns the value at `index` in column-major order.
@@ -354,11 +318,9 @@ pub trait MatrixExpr: Shape
     fn eval_into(
         &self,
         out: &mut [Self::ScalarType],
-    )
-    {
+    ) {
         debug_assert_eq!(out.len(), self.nrows() * self.ncols());
-        for i in 0..out.len()
-        {
+        for i in 0..out.len() {
             unsafe {
                 *out.get_unchecked_mut(i) = self.linear_value(i);
             }
@@ -376,8 +338,7 @@ where
     fn linear_value(
         &self,
         index: usize,
-    ) -> Self::ScalarType
-    {
+    ) -> Self::ScalarType {
         (**self).linear_value(index)
     }
 
@@ -385,8 +346,7 @@ where
     fn eval_into(
         &self,
         out: &mut [Self::ScalarType],
-    )
-    {
+    ) {
         (**self).eval_into(out);
     }
 }
@@ -401,8 +361,7 @@ where
     fn linear_value(
         &self,
         index: usize,
-    ) -> Self::ScalarType
-    {
+    ) -> Self::ScalarType {
         (**self).linear_value(index)
     }
 
@@ -410,8 +369,7 @@ where
     fn eval_into(
         &self,
         out: &mut [Self::ScalarType],
-    )
-    {
+    ) {
         (**self).eval_into(out);
     }
 }
@@ -437,8 +395,7 @@ where
         value: T,
         nrows: usize,
         ncols: usize,
-    ) -> Self
-    {
+    ) -> Self {
         Self {
             value,
             nrows,
@@ -452,14 +409,12 @@ where
     T: Copy,
 {
     #[inline]
-    fn nrows(&self) -> usize
-    {
+    fn nrows(&self) -> usize {
         self.nrows
     }
 
     #[inline]
-    fn ncols(&self) -> usize
-    {
+    fn ncols(&self) -> usize {
         self.ncols
     }
 }
@@ -474,8 +429,7 @@ where
     fn linear_value(
         &self,
         _index: usize,
-    ) -> Self::ScalarType
-    {
+    ) -> Self::ScalarType {
         self.value
     }
 
@@ -483,8 +437,7 @@ where
     fn eval_into(
         &self,
         out: &mut [Self::ScalarType],
-    )
-    {
+    ) {
         debug_assert_eq!(out.len(), self.nrows * self.ncols);
         out.fill(self.value);
     }
@@ -524,12 +477,10 @@ pub trait VectorOps:
     ///
     /// The norm of the vector as a value of type `Self::T`.
     ///
-    fn norm(&self) -> Self::ScalarType
-    {
+    fn norm(&self) -> Self::ScalarType {
         let mut out = Self::ScalarType::zero();
 
-        for i in 0..self.len()
-        {
+        for i in 0..self.len() {
             out += self[i] * self[i]
         }
         out.sqrt()
@@ -540,16 +491,13 @@ pub trait VectorOps:
     fn dot(
         &self,
         other: &Self,
-    ) -> Self::ScalarType
-    {
-        if self.len() != other.len()
-        {
+    ) -> Self::ScalarType {
+        if self.len() != other.len() {
             panic!("Vectors must be of the same length");
         }
 
         let mut out = Self::ScalarType::zero();
-        for i in 0..self.len()
-        {
+        for i in 0..self.len() {
             out += self[i] * other[i]
         }
         out
@@ -557,14 +505,11 @@ pub trait VectorOps:
     //}}}
     //{{{ fn: normalize
     /// Returns a unit-length copy of the vector, or the zero vector if the norm is zero.
-    fn normalize(&self) -> Self
-    {
+    fn normalize(&self) -> Self {
         let norm = self.norm();
         let mut out = self.clone();
-        if norm != Self::ScalarType::zero()
-        {
-            for i in 0..self.len()
-            {
+        if norm != Self::ScalarType::zero() {
+            for i in 0..self.len() {
                 out[i] /= norm;
             }
         }
@@ -576,15 +521,12 @@ pub trait VectorOps:
     fn cross(
         &self,
         other: &Self,
-    ) -> Self
-    {
-        if self.len() != 3
-        {
+    ) -> Self {
+        if self.len() != 3 {
             panic!("Cross product is only defined for 2D and 3D vectors");
         }
 
-        if self.len() != other.len()
-        {
+        if self.len() != other.len() {
             panic!("Vectors must be of the same length");
         }
 
@@ -710,8 +652,7 @@ where
     fn fill(
         &mut self,
         value: Self::ScalarType,
-    )
-    {
+    ) {
         self.transform(|_| value);
     }
 
@@ -730,8 +671,7 @@ where
     fn into_filled(
         self,
         value: Self::ScalarType,
-    ) -> Self
-    {
+    ) -> Self {
         self.into_transformed(|_| value)
     }
 }
@@ -742,8 +682,7 @@ where
 pub fn lin_index(
     idx: (usize, usize),
     n: usize,
-) -> usize
-{
+) -> usize {
     idx.0 + idx.1 * n
 }
 //}}}
@@ -753,8 +692,7 @@ pub fn lin_index(
 pub fn tuple_index(
     idx: usize,
     nrows: usize,
-) -> (usize, usize)
-{
+) -> (usize, usize) {
     (idx % nrows, idx / nrows)
 }
 
@@ -764,8 +702,7 @@ pub fn tuple_index(
 ///
 /// Implementors provide [`fold`](ReduceOps::fold) and [`fold_indexed`](ReduceOps::fold_indexed);
 /// all other methods (`sum`, `product`, `min`, `max`, etc.) are derived automatically.
-pub trait ReduceOps
-{
+pub trait ReduceOps {
     type Item: Copy;
     type Index: Copy;
 
@@ -788,8 +725,7 @@ pub trait ReduceOps
         F: FnMut(B, Self::Index, Self::Item) -> B;
 
     /// Returns `true` if the collection contains no elements.
-    fn is_empty(&self) -> bool
-    {
+    fn is_empty(&self) -> bool {
         !self.fold(false, |_, _| true)
     }
 
@@ -802,8 +738,7 @@ pub trait ReduceOps
         F: FnMut(Self::Item, Self::Item) -> Self::Item,
     {
         self.fold(None, |acc, value| {
-            Some(match acc
-            {
+            Some(match acc {
                 Some(current) => f(current, value),
                 None => value,
             })
@@ -831,16 +766,7 @@ pub trait ReduceOps
     where
         Self::Item: PartialOrd,
     {
-        self.reduce(|left, right| {
-            if left <= right
-            {
-                left
-            }
-            else
-            {
-                right
-            }
-        })
+        self.reduce(|left, right| if left <= right { left } else { right })
     }
 
     /// Returns the maximum element, or `None` if the collection is empty.
@@ -848,16 +774,7 @@ pub trait ReduceOps
     where
         Self::Item: PartialOrd,
     {
-        self.reduce(|left, right| {
-            if left >= right
-            {
-                left
-            }
-            else
-            {
-                right
-            }
-        })
+        self.reduce(|left, right| if left >= right { left } else { right })
     }
 
     /// Returns the element with the smallest key according to `key`, or `None` if empty.
@@ -871,8 +788,7 @@ pub trait ReduceOps
     {
         self.fold(None, |acc, value| {
             let current_key = key(value);
-            Some(match acc
-            {
+            Some(match acc {
                 Some((best_value, best_key)) if best_key <= current_key => (best_value, best_key),
                 _ => (value, current_key),
             })
@@ -891,8 +807,7 @@ pub trait ReduceOps
     {
         self.fold(None, |acc, value| {
             let current_key = key(value);
-            Some(match acc
-            {
+            Some(match acc {
                 Some((best_value, best_key)) if best_key >= current_key => (best_value, best_key),
                 _ => (value, current_key),
             })
@@ -931,8 +846,7 @@ pub trait ReduceOps
     {
         self.fold(None, |acc, value| {
             let abs_value = value.abs();
-            Some(match acc
-            {
+            Some(match acc {
                 Some(current_min) if current_min <= abs_value => current_min,
                 _ => abs_value,
             })
@@ -946,8 +860,7 @@ pub trait ReduceOps
     {
         self.fold(None, |acc, value| {
             let abs_value = value.abs();
-            Some(match acc
-            {
+            Some(match acc {
                 Some(current_max) if current_max >= abs_value => current_max,
                 _ => abs_value,
             })
@@ -960,8 +873,7 @@ pub trait ReduceOps
         Self::Item: PartialOrd,
     {
         self.fold_indexed(None, |acc, index, value| {
-            Some(match acc
-            {
+            Some(match acc {
                 Some((best_index, best_value)) if best_value <= value => (best_index, best_value),
                 _ => (index, value),
             })
@@ -974,8 +886,7 @@ pub trait ReduceOps
         Self::Item: PartialOrd,
     {
         self.fold_indexed(None, |acc, index, value| {
-            Some(match acc
-            {
+            Some(match acc {
                 Some((best_index, best_value)) if best_value >= value => (best_index, best_value),
                 _ => (index, value),
             })
@@ -985,8 +896,7 @@ pub trait ReduceOps
 //}}}
 //{{{ enum: Dimension
 /// Selects which axis (or both axes) a reduction or transform operates over.
-pub enum Dimension
-{
+pub enum Dimension {
     /// Operate along the row axis (i.e., reduce or transform each column).
     Rows,
     /// Operate along the column axis (i.e., reduce or transform each row).

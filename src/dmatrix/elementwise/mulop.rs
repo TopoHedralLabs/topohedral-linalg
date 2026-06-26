@@ -32,8 +32,7 @@ where
     fn mul(
         self,
         rhs: T,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         let mut out = self.clone();
         out.iter_mut().for_each(|x| *x *= rhs);
         out
@@ -51,8 +50,7 @@ where
     fn mul(
         self,
         rhs: DMatrix<T>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -75,16 +73,14 @@ where
 macro_rules! impl_dmatrix_scalar_mul {
     ($type: ty) => {
         #[doc(hidden)]
-        impl Mul<DMatrix<$type>> for $type
-        {
+        impl Mul<DMatrix<$type>> for $type {
             type Output = DMatrix<$type>;
 
             #[inline]
             fn mul(
                 self,
                 rhs: DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let mut out = rhs.clone();
                 out.iter_mut().for_each(|x| *x *= self);
                 out
@@ -103,8 +99,7 @@ where
     fn mul_assign(
         &mut self,
         rhs: T,
-    )
-    {
+    ) {
         self.iter_mut().for_each(|x| *x *= rhs);
     }
 }
@@ -118,8 +113,7 @@ where
     fn mul_assign(
         &mut self,
         rhs: DMatrix<T>,
-    )
-    {
+    ) {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -141,16 +135,14 @@ where
 macro_rules! impl_dmatrix_mul_scalar_rhs {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Mul<$type> for &'a DMatrix<$type>
-        {
+        impl<'a> Mul<$type> for &'a DMatrix<$type> {
             type Output = BinopExpr<&'a DMatrix<$type>, ScalarExpr<$type>, $type, MulOp>;
 
             #[inline]
             fn mul(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -164,16 +156,14 @@ macro_rules! impl_dmatrix_mul_scalar_rhs {
         }
 
         #[doc(hidden)]
-        impl<'a> Mul<$type> for &'a mut DMatrix<$type>
-        {
+        impl<'a> Mul<$type> for &'a mut DMatrix<$type> {
             type Output = BinopExpr<&'a DMatrix<$type>, ScalarExpr<$type>, $type, MulOp>;
 
             #[inline]
             fn mul(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 (&*self).mul(rhs)
             }
         }
@@ -187,16 +177,14 @@ apply_for_all_types!(impl_dmatrix_mul_scalar_rhs);
 macro_rules! impl_dmatrix_mul {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Mul<&'a DMatrix<$type>> for $type
-        {
+        impl<'a> Mul<&'a DMatrix<$type>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a DMatrix<$type>, $type, MulOp>;
 
             #[inline]
             fn mul(
                 self,
                 rhs: &'a DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
@@ -216,16 +204,14 @@ apply_for_all_types!(impl_dmatrix_mul);
 macro_rules! impl_dmatrix_ref_mut_mul {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Mul<&'a mut DMatrix<$type>> for $type
-        {
+        impl<'a> Mul<&'a mut DMatrix<$type>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a DMatrix<$type>, $type, MulOp>;
 
             #[inline]
             fn mul(
                 self,
                 rhs: &'a mut DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 self.mul(&*rhs)
             }
         }
@@ -245,8 +231,7 @@ where
     fn mul(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         #[cfg(feature = "enable_checks")]
         {
             assert_eq!(self.nrows(), rhs.nrows());
@@ -278,8 +263,7 @@ where
     fn mul(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         (&*self).mul(rhs)
     }
 }

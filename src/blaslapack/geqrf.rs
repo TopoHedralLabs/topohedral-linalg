@@ -19,8 +19,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors returned by the [`Geqrf`] LAPACK wrapper.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     /// LAPACK returned a non-zero info code indicating an invalid argument.
     #[error("Error in geqrf, exited with code {0}")]
     LapackError(i32),
@@ -29,8 +28,7 @@ pub enum Error
 
 //{{{ trait: Geqrf
 /// Trait for types that support QR factorisation via Householder reflectors.
-pub trait Geqrf: Copy
-{
+pub trait Geqrf: Copy {
     /// Computes the QR factorisation of an M-by-N matrix A, storing the result in-place.
     fn geqrf(
         m: i32,
@@ -44,8 +42,7 @@ pub trait Geqrf: Copy
 }
 //}}}
 //{{{ impl: Geqrf for f64
-impl Geqrf for f64
-{
+impl Geqrf for f64 {
     #[inline]
     fn geqrf(
         m: i32,
@@ -55,14 +52,12 @@ impl Geqrf for f64
         tau: &mut [Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error>
-    {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::dgeqrf(m, n, a, lda, tau, work, lwork, &mut info);
         }
-        if info != 0
-        {
+        if info != 0 {
             return Err(Error::LapackError(info));
         }
         Ok(())
@@ -70,8 +65,7 @@ impl Geqrf for f64
 }
 //}}}
 //{{{ impl: Geqrf for f32
-impl Geqrf for f32
-{
+impl Geqrf for f32 {
     #[inline]
     fn geqrf(
         m: i32,
@@ -81,14 +75,12 @@ impl Geqrf for f32
         tau: &mut [Self],
         work: &mut [Self],
         lwork: i32,
-    ) -> Result<(), Error>
-    {
+    ) -> Result<(), Error> {
         let mut info = 0;
         unsafe {
             lapack::sgeqrf(m, n, a, lda, tau, work, lwork, &mut info);
         }
-        if info != 0
-        {
+        if info != 0 {
             return Err(Error::LapackError(info));
         }
         Ok(())
@@ -97,16 +89,14 @@ impl Geqrf for f32
 //}}}
 
 //{{{ struct: QrRaw
-pub(crate) struct QrRaw<T>
-{
+pub(crate) struct QrRaw<T> {
     pub q_data: Vec<T>,
     pub r_data: Vec<T>,
 }
 //}}}
 //{{{ enum: QrRawError
 #[derive(Error, Debug)]
-pub enum QrRawError
-{
+pub enum QrRawError {
     #[error(transparent)]
     Geqrf(#[from] Error),
     #[error(transparent)]
@@ -157,10 +147,8 @@ where
     )?;
 
     let mut r_data = vec![T::zero(); n * m];
-    for i in 0..n
-    {
-        for j in i..m
-        {
+    for i in 0..n {
+        for j in i..m {
             r_data[i + j * n] = a_data[i + j * n];
         }
     }

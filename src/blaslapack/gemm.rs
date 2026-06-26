@@ -20,8 +20,7 @@ use crate::apply_for_all_integer_types;
 /// Trait which signifies matrices of type can perform a general matrix multiplication (GEMM)
 /// operation.
 #[allow(clippy::too_many_arguments)]
-pub trait Gemm: Copy
-{
+pub trait Gemm: Copy {
     /// Performs a general matrix multiplication (GEMM) operation.
     ///
     /// This function computes the matrix-matrix product of two matrices `a` and `b`
@@ -66,8 +65,7 @@ pub trait Gemm: Copy
 
 //}}}
 //{{{ impl: Gemm for f64
-impl Gemm for f64
-{
+impl Gemm for f64 {
     #[inline]
     fn gemm(
         tr1: cblas::Transpose,
@@ -83,8 +81,7 @@ impl Gemm for f64
         beta: Self,
         c: &mut [Self],
         ldc: i32,
-    )
-    {
+    ) {
         unsafe {
             cblas::dgemm(
                 cblas::Layout::ColumnMajor,
@@ -108,8 +105,7 @@ impl Gemm for f64
 
 //}}}
 //{{{ impl: Gemm for f32
-impl Gemm for f32
-{
+impl Gemm for f32 {
     #[inline]
     fn gemm(
         tr1: cblas::Transpose,
@@ -125,8 +121,7 @@ impl Gemm for f32
         beta: Self,
         c: &mut [Self],
         ldc: i32,
-    )
-    {
+    ) {
         unsafe {
             cblas::sgemm(
                 cblas::Layout::ColumnMajor,
@@ -152,8 +147,7 @@ impl Gemm for f32
 //{{{ impl: Gemm for all integer types
 macro_rules! impl_naive_gemm {
     ($t:ty) => {
-        impl Gemm for $t
-        {
+        impl Gemm for $t {
             #[inline]
             fn gemm(
                 _tr1: cblas::Transpose,
@@ -169,20 +163,16 @@ macro_rules! impl_naive_gemm {
                 beta: Self,
                 c: &mut [Self],
                 ldc: i32,
-            )
-            {
+            ) {
                 let get_a = |i, j| a[i as usize + (j as usize * lda as usize)];
 
                 let get_b = |i, j| b[i as usize + (j as usize * ldb as usize)];
 
-                for i in 0..m
-                {
-                    for j in 0..n
-                    {
+                for i in 0..m {
+                    for j in 0..n {
                         let mut sum = Self::default();
 
-                        for l in 0..k
-                        {
+                        for l in 0..k {
                             sum += get_a(i, l) * get_b(l, j);
                         }
 
@@ -220,8 +210,7 @@ pub(crate) fn matmul_dispatch<T>(
         + crate::common::One
         + Copy,
 {
-    if n == 1
-    {
+    if n == 1 {
         T::gemv(
             cblas::Transpose::None,
             m as i32,
@@ -235,9 +224,7 @@ pub(crate) fn matmul_dispatch<T>(
             c,
             1,
         );
-    }
-    else if m == 1
-    {
+    } else if m == 1 {
         T::gemv(
             cblas::Transpose::Ordinary,
             k as i32,
@@ -251,9 +238,7 @@ pub(crate) fn matmul_dispatch<T>(
             c,
             1,
         );
-    }
-    else
-    {
+    } else {
         T::gemm(
             cblas::Transpose::None,
             cblas::Transpose::None,

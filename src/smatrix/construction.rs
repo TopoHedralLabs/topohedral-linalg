@@ -53,8 +53,7 @@ where
     //}}}
     //{{{ fun: from_value
     /// Creates a new matrix with every element set to `value`.
-    pub fn from_value(value: T) -> Self
-    {
+    pub fn from_value(value: T) -> Self {
         Self {
             data: [[value; N]; M],
             nrows: N,
@@ -64,8 +63,7 @@ where
     //}}}
     //{{{ fun: from_row_slice
     /// Takes N*M element array in row-major order and creates a new SMatrix
-    pub fn from_row_slice(slice: &[T]) -> Self
-    {
+    pub fn from_row_slice(slice: &[T]) -> Self {
         assert_eq!(slice.len(), N * M);
 
         Self {
@@ -77,8 +75,7 @@ where
     //}}}
     //{{{ fun: from_col_slice
     /// Takes N*M element array in column-major order and creates a new SMatrix
-    pub fn from_col_slice(slice: &[T]) -> Self
-    {
+    pub fn from_col_slice(slice: &[T]) -> Self {
         assert_eq!(slice.len(), N * M);
         Self {
             data: std::array::from_fn(|col| std::array::from_fn(|row| slice[col * N + row])),
@@ -88,8 +85,7 @@ where
     }
     //}}}
     //{{{ fun: from_col_vec
-    pub(crate) fn from_col_vec(data: Vec<T>) -> Self
-    {
+    pub(crate) fn from_col_vec(data: Vec<T>) -> Self {
         assert_eq!(data.len(), N * M);
         Self::from_col_slice(&data)
     }
@@ -112,8 +108,7 @@ where
 
         let mut rng = rand::rng();
 
-        for value in out.as_mut_slice()
-        {
+        for value in out.as_mut_slice() {
             *value = range.sample(&mut rng);
         }
 
@@ -131,8 +126,7 @@ where
     {
         let mut out = Self::zeros();
         let l = N.min(M);
-        for i in 0..l
-        {
+        for i in 0..l {
             out[(i, i)] = T::one()
         }
         out

@@ -24,13 +24,11 @@ impl<T> Shape for DMatrix<T>
 where
     T: Copy,
 {
-    fn nrows(&self) -> usize
-    {
+    fn nrows(&self) -> usize {
         self.nrows
     }
 
-    fn ncols(&self) -> usize
-    {
+    fn ncols(&self) -> usize {
         self.ncols
     }
 }
@@ -44,14 +42,11 @@ where
     type ScalarType = T;
     type TransposeType = DMatrix<T>;
 
-    fn transpose(&self) -> Self::TransposeType
-    {
+    fn transpose(&self) -> Self::TransposeType {
         let mut transposed = DMatrix::<T>::zeros(self.ncols, self.nrows);
 
-        for i in 0..self.nrows
-        {
-            for j in 0..self.ncols
-            {
+        for i in 0..self.nrows {
+            for j in 0..self.ncols {
                 transposed[(j, i)] = self[(i, j)];
             }
         }
@@ -62,8 +57,7 @@ where
     where
         Self::ScalarType: Getrf + Float,
     {
-        if self.nrows != self.ncols
-        {
+        if self.nrows != self.ncols {
             panic!("Determinant is only defined for square matrices");
         }
         let DLuReturn {
@@ -75,11 +69,9 @@ where
         (-Self::ScalarType::one()).powi(num_swaps as i32) * u.trace()
     }
 
-    fn trace(&self) -> Self::ScalarType
-    {
+    fn trace(&self) -> Self::ScalarType {
         let mut out = Self::ScalarType::one();
-        for i in 0..self.nrows
-        {
+        for i in 0..self.nrows {
             out *= self[(i, i)];
         }
         out

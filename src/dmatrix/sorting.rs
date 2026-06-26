@@ -27,37 +27,28 @@ where
     pub fn sort(
         &mut self,
         dim: Dimension,
-    )
-    {
-        match dim
-        {
-            Dimension::Rows =>
-            {
-                for r in 0..self.nrows
-                {
+    ) {
+        match dim {
+            Dimension::Rows => {
+                for r in 0..self.nrows {
                     let mut row = Vec::with_capacity(self.ncols);
-                    for c in 0..self.ncols
-                    {
+                    for c in 0..self.ncols {
                         row.push(self[(r, c)]);
                     }
                     row.sort();
 
-                    for (c, value) in row.into_iter().enumerate()
-                    {
+                    for (c, value) in row.into_iter().enumerate() {
                         (*self)[(r, c)] = value;
                     }
                 }
             }
-            Dimension::Cols =>
-            {
-                for c in 0..self.ncols
-                {
+            Dimension::Cols => {
+                for c in 0..self.ncols {
                     let offset = c * self.nrows;
                     self.data[offset..(offset + self.nrows)].sort();
                 }
             }
-            Dimension::All =>
-            {
+            Dimension::All => {
                 self.data.sort();
             }
         }
@@ -70,8 +61,7 @@ where
     pub fn sorted(
         &self,
         dim: Dimension,
-    ) -> Self
-    {
+    ) -> Self {
         let mut out = self.clone();
         out.sort(dim);
         out
@@ -85,8 +75,7 @@ where
     pub fn into_sorted(
         mut self,
         dim: Dimension,
-    ) -> Self
-    {
+    ) -> Self {
         self.sort(dim);
         self
     }

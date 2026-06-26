@@ -20,8 +20,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur during symmetric eigendecomposition.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     /// Wraps a LAPACK `syev` error from the symmetric eigenvalue routine.
     #[error("Error in symeig(), exited with error:\n{0}")]
     SyevError(#[from] SymEigRawError),
@@ -57,8 +56,7 @@ where
     /// # Errors
     ///
     /// Returns an error if the LAPACK routine fails.
-    pub fn symeig(&self) -> Result<Return<T, N>, Error>
-    {
+    pub fn symeig(&self) -> Result<Return<T, N>, Error> {
         let raw = symeig_raw(self.as_slice().to_vec(), N)?;
         let eigvals: [T; N] = raw.eigvals.try_into().unwrap_or_else(|_| unreachable!());
         Ok(Return {

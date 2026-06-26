@@ -7,8 +7,7 @@ use std::marker::PhantomData;
 use std::ops::{BitAnd, BitOr, BitXor, Not};
 
 #[doc(hidden)]
-pub trait BoolBinaryOp
-{
+pub trait BoolBinaryOp {
     fn apply(
         a: bool,
         b: bool,
@@ -22,35 +21,29 @@ pub struct OrOp;
 #[doc(hidden)]
 pub struct XorOp;
 
-impl BoolBinaryOp for AndOp
-{
+impl BoolBinaryOp for AndOp {
     fn apply(
         a: bool,
         b: bool,
-    ) -> bool
-    {
+    ) -> bool {
         a & b
     }
 }
 
-impl BoolBinaryOp for OrOp
-{
+impl BoolBinaryOp for OrOp {
     fn apply(
         a: bool,
         b: bool,
-    ) -> bool
-    {
+    ) -> bool {
         a | b
     }
 }
 
-impl BoolBinaryOp for XorOp
-{
+impl BoolBinaryOp for XorOp {
     fn apply(
         a: bool,
         b: bool,
-    ) -> bool
-    {
+    ) -> bool {
         a ^ b
     }
 }
@@ -79,8 +72,7 @@ where
     fn new(
         a: A,
         b: B,
-    ) -> Self
-    {
+    ) -> Self {
         let nrows = a.nrows();
         let ncols = a.ncols();
         assert_eq!(
@@ -108,13 +100,11 @@ where
     B: MatrixExpr<ScalarType = bool>,
     Op: BoolBinaryOp,
 {
-    fn nrows(&self) -> usize
-    {
+    fn nrows(&self) -> usize {
         self.nrows
     }
 
-    fn ncols(&self) -> usize
-    {
+    fn ncols(&self) -> usize {
         self.ncols
     }
 }
@@ -130,8 +120,7 @@ where
     fn linear_value(
         &self,
         index: usize,
-    ) -> bool
-    {
+    ) -> bool {
         Op::apply(self.a.linear_value(index), self.b.linear_value(index))
     }
 }
@@ -151,8 +140,7 @@ impl<A> BoolNotExpr<A>
 where
     A: MatrixExpr<ScalarType = bool>,
 {
-    fn new(a: A) -> Self
-    {
+    fn new(a: A) -> Self {
         let nrows = a.nrows();
         let ncols = a.ncols();
         Self { a, nrows, ncols }
@@ -163,13 +151,11 @@ impl<A> Shape for BoolNotExpr<A>
 where
     A: MatrixExpr<ScalarType = bool>,
 {
-    fn nrows(&self) -> usize
-    {
+    fn nrows(&self) -> usize {
         self.nrows
     }
 
-    fn ncols(&self) -> usize
-    {
+    fn ncols(&self) -> usize {
         self.ncols
     }
 }
@@ -183,8 +169,7 @@ where
     fn linear_value(
         &self,
         index: usize,
-    ) -> bool
-    {
+    ) -> bool {
         !self.a.linear_value(index)
     }
 }
@@ -205,8 +190,7 @@ macro_rules! impl_binary_ops_for_compare {
             fn $method(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 BoolBinaryExpr::new(self, rhs)
             }
         }
@@ -227,8 +211,7 @@ where
 {
     type Output = BoolNotExpr<Self>;
 
-    fn not(self) -> Self::Output
-    {
+    fn not(self) -> Self::Output {
         BoolNotExpr::new(self)
     }
 }
@@ -248,8 +231,7 @@ macro_rules! impl_binary_ops_for_binary_expr {
             fn $method(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 BoolBinaryExpr::new(self, rhs)
             }
         }
@@ -269,8 +251,7 @@ where
 {
     type Output = BoolNotExpr<Self>;
 
-    fn not(self) -> Self::Output
-    {
+    fn not(self) -> Self::Output {
         BoolNotExpr::new(self)
     }
 }
@@ -288,8 +269,7 @@ macro_rules! impl_binary_ops_for_not_expr {
             fn $method(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 BoolBinaryExpr::new(self, rhs)
             }
         }
@@ -307,8 +287,7 @@ where
 {
     type Output = BoolNotExpr<Self>;
 
-    fn not(self) -> Self::Output
-    {
+    fn not(self) -> Self::Output {
         BoolNotExpr::new(self)
     }
 }
@@ -325,8 +304,7 @@ macro_rules! impl_bool_ops_for_dmatrix {
             fn bitand(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 BoolBinaryExpr::new(self, rhs)
             }
         }
@@ -341,8 +319,7 @@ macro_rules! impl_bool_ops_for_dmatrix {
             fn bitor(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 BoolBinaryExpr::new(self, rhs)
             }
         }
@@ -357,19 +334,16 @@ macro_rules! impl_bool_ops_for_dmatrix {
             fn bitxor(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 BoolBinaryExpr::new(self, rhs)
             }
         }
 
         #[doc(hidden)]
-        impl Not for $lhs
-        {
+        impl Not for $lhs {
             type Output = BoolNotExpr<Self>;
 
-            fn not(self) -> Self::Output
-            {
+            fn not(self) -> Self::Output {
                 BoolNotExpr::new(self)
             }
         }
@@ -392,8 +366,7 @@ macro_rules! impl_bool_ops_for_smatrix {
             fn bitand(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 BoolBinaryExpr::new(self, rhs)
             }
         }
@@ -408,8 +381,7 @@ macro_rules! impl_bool_ops_for_smatrix {
             fn bitor(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 BoolBinaryExpr::new(self, rhs)
             }
         }
@@ -424,19 +396,16 @@ macro_rules! impl_bool_ops_for_smatrix {
             fn bitxor(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 BoolBinaryExpr::new(self, rhs)
             }
         }
 
         #[doc(hidden)]
-        impl<const N: usize, const M: usize> Not for $lhs
-        {
+        impl<const N: usize, const M: usize> Not for $lhs {
             type Output = BoolNotExpr<Self>;
 
-            fn not(self) -> Self::Output
-            {
+            fn not(self) -> Self::Output {
                 BoolNotExpr::new(self)
             }
         }
@@ -454,8 +423,7 @@ where
     B: MatrixExpr<ScalarType = bool>,
     Op: BoolBinaryOp,
 {
-    fn from(expr: BoolBinaryExpr<A, B, Op>) -> Self
-    {
+    fn from(expr: BoolBinaryExpr<A, B, Op>) -> Self {
         let mut out = DMatrix::from_value(false, expr.nrows, expr.ncols);
         expr.eval_into(&mut out.data);
         out
@@ -467,8 +435,7 @@ impl<A> From<BoolNotExpr<A>> for DMatrix<bool>
 where
     A: MatrixExpr<ScalarType = bool>,
 {
-    fn from(expr: BoolNotExpr<A>) -> Self
-    {
+    fn from(expr: BoolNotExpr<A>) -> Self {
         let mut out = DMatrix::from_value(false, expr.nrows, expr.ncols);
         expr.eval_into(&mut out.data);
         out
@@ -483,8 +450,7 @@ where
     B: MatrixExpr<ScalarType = bool>,
     Op: BoolBinaryOp,
 {
-    fn from(expr: BoolBinaryExpr<A, B, Op>) -> Self
-    {
+    fn from(expr: BoolBinaryExpr<A, B, Op>) -> Self {
         assert_eq!((N, M), (expr.nrows, expr.ncols));
         let mut out = SMatrix::from_value(false);
         expr.eval_into(out.as_mut_slice());
@@ -497,8 +463,7 @@ impl<A, const N: usize, const M: usize> From<BoolNotExpr<A>> for SMatrix<bool, N
 where
     A: MatrixExpr<ScalarType = bool>,
 {
-    fn from(expr: BoolNotExpr<A>) -> Self
-    {
+    fn from(expr: BoolNotExpr<A>) -> Self {
         assert_eq!((N, M), (expr.nrows, expr.ncols));
         let mut out = SMatrix::from_value(false);
         expr.eval_into(out.as_mut_slice());

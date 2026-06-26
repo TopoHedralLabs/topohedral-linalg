@@ -43,8 +43,7 @@ where
     fn apply(
         &self,
         value: T,
-    ) -> T
-    {
+    ) -> T {
         -value
     }
 }
@@ -75,8 +74,7 @@ where
     pub(crate) fn new(
         a: A,
         op: Op,
-    ) -> Self
-    {
+    ) -> Self {
         let nrows = a.nrows();
         let ncols = a.ncols();
         Self {
@@ -98,14 +96,12 @@ where
     Op: UnaryOp<T>,
 {
     #[inline]
-    fn nrows(&self) -> usize
-    {
+    fn nrows(&self) -> usize {
         self.nrows
     }
 
     #[inline]
-    fn ncols(&self) -> usize
-    {
+    fn ncols(&self) -> usize {
         self.ncols
     }
 }
@@ -124,8 +120,7 @@ where
     fn linear_value(
         &self,
         index: usize,
-    ) -> Self::ScalarType
-    {
+    ) -> Self::ScalarType {
         self.op.apply(self.a.linear_value(index))
     }
 
@@ -133,12 +128,10 @@ where
     fn eval_into(
         &self,
         out: &mut [T],
-    )
-    {
+    ) {
         self.a.eval_into(out);
         let len = out.len();
-        for i in 0..len
-        {
+        for i in 0..len {
             unsafe { *out.get_unchecked_mut(i) = self.op.apply(*out.get_unchecked(i)) };
         }
     }
@@ -161,8 +154,7 @@ macro_rules! impl_unary_expr_binary_op {
             fn $method(
                 self,
                 rhs: Rhs,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 debug_assert!(self.nrows == rhs.nrows());
                 debug_assert!(self.ncols == rhs.ncols());
                 let nr = self.nrows;
@@ -195,8 +187,7 @@ macro_rules! impl_unary_expr_scalar_rhs_op {
             fn $method(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -251,8 +242,7 @@ macro_rules! impl_scalar_lhs_unary_expr_op {
             fn $method(
                 self,
                 rhs: UnaryExpr<A, $type, Op>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
@@ -319,8 +309,7 @@ where
     type Output = UnaryExpr<Self, T, NegOp>;
 
     #[inline]
-    fn neg(self) -> Self::Output
-    {
+    fn neg(self) -> Self::Output {
         UnaryExpr::new(self, NegOp)
     }
 }
@@ -337,8 +326,7 @@ where
     type Output = UnaryExpr<Self, T, NegOp>;
 
     #[inline]
-    fn neg(self) -> Self::Output
-    {
+    fn neg(self) -> Self::Output {
         UnaryExpr::new(self, NegOp)
     }
 }
@@ -358,8 +346,7 @@ macro_rules! define_float_unary_op {
             fn apply(
                 &self,
                 value: T,
-            ) -> T
-            {
+            ) -> T {
                 value.$method()
             }
         }
@@ -395,8 +382,7 @@ macro_rules! define_float_unary_op_with_same_arg {
             fn apply(
                 &self,
                 value: T,
-            ) -> T
-            {
+            ) -> T {
                 value.$method(self.$arg_name)
             }
         }
@@ -436,8 +422,7 @@ macro_rules! define_float_unary_op_with_two_same_args {
             fn apply(
                 &self,
                 value: T,
-            ) -> T
-            {
+            ) -> T {
                 value.$method(self.$arg1, self.$arg2)
             }
         }
@@ -471,19 +456,15 @@ define_float_unary_op!(AtanhOp, atanh, atanh);
 define_float_unary_op!(CbrtOp, cbrt, cbrt);
 define_float_unary_op!(CeilOp, ceil, ceil);
 define_float_unary_op_with_two_same_args!(ClampOp, clamp, clamp, min, max);
-define_float_unary_op_with_same_arg!(ClampMagnitudeOp, clamp_magnitude, clamp_magnitude, limit);
 define_float_unary_op_with_same_arg!(CopysignOp, copysign, copysign, sign);
 define_float_unary_op!(CosOp, cos, cos);
 define_float_unary_op!(CoshOp, cosh, cosh);
 define_float_unary_op_with_same_arg!(DivEuclidOp, div_euclid, div_euclid, rhs);
-define_float_unary_op!(ErfOp, erf, erf);
-define_float_unary_op!(ErfcOp, erfc, erfc);
 define_float_unary_op!(ExpOp, exp, exp);
 define_float_unary_op!(Exp2Op, exp2, exp2);
 define_float_unary_op!(ExpM1Op, exp_m1, exp_m1);
 define_float_unary_op!(FloorOp, floor, floor);
 define_float_unary_op!(FractOp, fract, fract);
-define_float_unary_op!(GammaOp, gamma, gamma);
 define_float_unary_op_with_same_arg!(HypotOp, hypot, hypot, other);
 define_float_unary_op!(LnOp, ln, ln);
 define_float_unary_op!(Ln1pOp, ln_1p, ln_1p);
@@ -491,18 +472,15 @@ define_float_unary_op_with_same_arg!(LogOp, log, log, base);
 define_float_unary_op!(Log10Op, log10, log10);
 define_float_unary_op!(Log2Op, log2, log2);
 define_float_unary_op_with_same_arg!(MaxOp, max, max, other);
-define_float_unary_op_with_same_arg!(MaximumOp, maximum, maximum, other);
 define_float_unary_op_with_same_arg!(MidpointOp, midpoint, midpoint, other);
 define_float_unary_op_with_same_arg!(MinOp, min, min, other);
-define_float_unary_op_with_same_arg!(MinimumOp, minimum, minimum, other);
 define_float_unary_op_with_two_same_args!(MulAddOp, mul_add, mul_add, a, b);
 define_float_unary_op!(NextDownOp, next_down, next_down);
 define_float_unary_op!(NextUpOp, next_up, next_up);
 define_float_unary_op_with_same_arg!(PowfOp, powf, powf, exp);
 
 #[doc(hidden)]
-pub struct PowiOp
-{
+pub struct PowiOp {
     pub exp: i32,
 }
 
@@ -514,8 +492,7 @@ where
     fn apply(
         &self,
         value: T,
-    ) -> T
-    {
+    ) -> T {
         value.powi(self.exp)
     }
 }
@@ -545,10 +522,5 @@ define_float_unary_op!(TanhOp, tanh, tanh);
 define_float_unary_op!(ToDegreesOp, to_degrees, to_degrees);
 define_float_unary_op!(ToRadiansOp, to_radians, to_radians);
 define_float_unary_op!(TruncOp, trunc, trunc);
-define_float_unary_op_with_same_arg!(AlgebraicAddOp, algebraic_add, algebraic_add, rhs);
-define_float_unary_op_with_same_arg!(AlgebraicSubOp, algebraic_sub, algebraic_sub, rhs);
-define_float_unary_op_with_same_arg!(AlgebraicMulOp, algebraic_mul, algebraic_mul, rhs);
-define_float_unary_op_with_same_arg!(AlgebraicDivOp, algebraic_div, algebraic_div, rhs);
-define_float_unary_op_with_same_arg!(AlgebraicRemOp, algebraic_rem, algebraic_rem, rhs);
 
 //}}}

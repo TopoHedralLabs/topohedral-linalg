@@ -26,11 +26,9 @@ where
 {
     type Output = DMatrix<T>;
 
-    fn neg(self) -> Self
-    {
+    fn neg(self) -> Self {
         let mut result = self.clone();
-        for i in 0..self.nrows * self.ncols
-        {
+        for i in 0..self.nrows * self.ncols {
             result[i] = -self[i];
         }
         result
@@ -46,8 +44,7 @@ where
     type Output = UnaryExpr<&'a DMatrix<T>, T, NegOp>;
 
     #[inline]
-    fn neg(self) -> Self::Output
-    {
+    fn neg(self) -> Self::Output {
         UnaryExpr::new(self, NegOp)
     }
 }
@@ -61,8 +58,7 @@ where
     type Output = UnaryExpr<&'a mut DMatrix<T>, T, NegOp>;
 
     #[inline]
-    fn neg(self) -> Self::Output
-    {
+    fn neg(self) -> Self::Output {
         UnaryExpr::new(self, NegOp)
     }
 }

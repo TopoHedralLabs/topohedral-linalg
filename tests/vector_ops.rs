@@ -1,19 +1,16 @@
-mod scvector_tests
-{
+mod scvector_tests {
     use approx::assert_relative_eq;
     use topohedral_linalg::*;
 
     #[test]
-    fn test_norm()
-    {
+    fn test_norm() {
         let v = SCVector::<f64, 3>::from_col_slice(&[1.0, 2.0, 3.0]);
         let norm = v.norm();
         assert_relative_eq!(norm, 3.7416573867739413);
     }
 
     #[test]
-    fn test_dot()
-    {
+    fn test_dot() {
         let v1 = SCVector::<f64, 3>::from_col_slice(&[1.0, 2.0, 3.0]);
         let v2 = SCVector::<f64, 3>::from_col_slice(&[4.0, 5.0, 6.0]);
         let dot = v1.dot(&v2);
@@ -21,8 +18,7 @@ mod scvector_tests
     }
 
     #[test]
-    fn test_normalize()
-    {
+    fn test_normalize() {
         let v = SCVector::<f64, 3>::from_col_slice(&[1.0, 2.0, 3.0]);
         let norm = v.norm();
         let normalized = v.normalize();
@@ -32,8 +28,7 @@ mod scvector_tests
     }
 
     #[test]
-    fn test_cross()
-    {
+    fn test_cross() {
         let v1 = SCVector::<f64, 3>::from_col_slice(&[1.0, 2.0, 3.0]);
         let v2 = SCVector::<f64, 3>::from_col_slice(&[4.0, 5.0, 6.0]);
         let cross = v1.cross(&v2);
@@ -43,8 +38,7 @@ mod scvector_tests
     }
 
     #[test]
-    fn test_angle()
-    {
+    fn test_angle() {
         let v1 = SCVector::<f64, 3>::from_col_slice(&[1.0, 0.0, 0.0]);
         let v2 = SCVector::<f64, 3>::from_col_slice(&[0.0, 1.0, 0.0]);
         let angle1 = v1.angle(&v2);
@@ -54,23 +48,20 @@ mod scvector_tests
     }
 }
 
-mod srvector_tests
-{
+mod srvector_tests {
 
     use approx::assert_relative_eq;
     use topohedral_linalg::*;
 
     #[test]
-    fn test_norm()
-    {
+    fn test_norm() {
         let v = SRVector::<f64, 3>::from_row_slice(&[1.0, 2.0, 3.0]);
         let norm = v.norm();
         assert_relative_eq!(norm, 3.7416573867739413);
     }
 
     #[test]
-    fn test_dot()
-    {
+    fn test_dot() {
         let v1 = SRVector::<f64, 3>::from_row_slice(&[1.0, 2.0, 3.0]);
         let v2 = SRVector::<f64, 3>::from_row_slice(&[4.0, 5.0, 6.0]);
         let dot = v1.dot(&v2);
@@ -78,8 +69,7 @@ mod srvector_tests
     }
 
     #[test]
-    fn test_normalize()
-    {
+    fn test_normalize() {
         let v = SRVector::<f64, 3>::from_row_slice(&[1.0, 2.0, 3.0]);
         let norm = v.norm();
         let normalized = v.normalize();
@@ -89,8 +79,7 @@ mod srvector_tests
     }
 
     #[test]
-    fn test_cross()
-    {
+    fn test_cross() {
         let v1 = SRVector::<f64, 3>::from_row_slice(&[1.0, 2.0, 3.0]);
         let v2 = SRVector::<f64, 3>::from_row_slice(&[4.0, 5.0, 6.0]);
         let cross = v1.cross(&v2);
@@ -100,8 +89,7 @@ mod srvector_tests
     }
 
     #[test]
-    fn test_angle()
-    {
+    fn test_angle() {
         let v1 = SRVector::<f64, 3>::from_row_slice(&[1.0, 0.0, 0.0]);
         let v2 = SRVector::<f64, 3>::from_row_slice(&[0.0, 1.0, 0.0]);
         let angle1 = v1.angle(&v2);
@@ -110,14 +98,12 @@ mod srvector_tests
         assert_relative_eq!(angle2, std::f64::consts::FRAC_PI_2);
     }
 }
-mod dvector_tests
-{
+mod dvector_tests {
     use approx::assert_relative_eq;
     use topohedral_linalg::*;
 
     #[test]
-    fn test_norm()
-    {
+    fn test_norm() {
         {
             let v = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0], 3, VecType::Row);
             let norm = v.norm();
@@ -131,8 +117,7 @@ mod dvector_tests
     }
 
     #[test]
-    fn test_dot()
-    {
+    fn test_dot() {
         {
             let v1 = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0], 3, VecType::Row);
             let v2 = DVector::<f64>::from_slice_vec(&[4.0, 5.0, 6.0], 3, VecType::Row);
@@ -148,8 +133,7 @@ mod dvector_tests
     }
 
     #[test]
-    fn test_normalize()
-    {
+    fn test_normalize() {
         {
             let v = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0], 3, VecType::Row);
             let norm = v.norm();
@@ -169,8 +153,7 @@ mod dvector_tests
     }
 
     #[test]
-    fn test_cross()
-    {
+    fn test_cross() {
         {
             let v1 = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0], 3, VecType::Row);
             let v2 = DVector::<f64>::from_slice_vec(&[4.0, 5.0, 6.0], 3, VecType::Row);
@@ -190,8 +173,7 @@ mod dvector_tests
     }
 
     #[test]
-    fn test_angle()
-    {
+    fn test_angle() {
         {
             let v1 = DVector::<f64>::from_slice_vec(&[1.0, 0.0, 0.0], 3, VecType::Row);
             let v2 = DVector::<f64>::from_slice_vec(&[0.0, 1.0, 0.0], 3, VecType::Row);

@@ -4,8 +4,7 @@ use topohedral_linalg::Float;
 macro_rules! float_trait_smoke_test {
     ($name:ident, $type:ty, $epsilon:expr) => {
         #[test]
-        fn $name()
-        {
+        fn $name() {
             let x = 1.25 as $type;
             let y = -0.75 as $type;
             let z = 0.5 as $type;
@@ -58,10 +57,6 @@ macro_rules! float_trait_smoke_test {
                 <$type as Float>::clamp(3.0 as $type, -1.0 as $type, 2.0 as $type),
                 2.0 as $type
             );
-            assert_eq!(
-                <$type as Float>::clamp_magnitude(-5.0 as $type, 3.0 as $type),
-                -3.0 as $type
-            );
             assert_eq!(<$type as Float>::copysign(x, y), -x);
             let sqrt_3_over_2 = (3.0 as $type).sqrt() / 2.0 as $type;
             assert_relative_eq!(
@@ -81,16 +76,6 @@ macro_rules! float_trait_smoke_test {
                 1.0 as $type
             );
             assert_relative_eq!(
-                <$type as Float>::erf(0.0 as $type),
-                0.0 as $type,
-                epsilon = $epsilon
-            );
-            assert_relative_eq!(
-                <$type as Float>::erfc(0.0 as $type),
-                1.0 as $type,
-                epsilon = $epsilon
-            );
-            assert_relative_eq!(
                 <$type as Float>::exp(1.0 as $type),
                 e,
                 epsilon = 10.0 as $type * $epsilon
@@ -108,11 +93,6 @@ macro_rules! float_trait_smoke_test {
                 epsilon = $epsilon
             );
 
-            assert_relative_eq!(
-                <$type as Float>::gamma(5.0 as $type),
-                24.0 as $type,
-                epsilon = 100.0 as $type * $epsilon
-            );
             assert_relative_eq!(
                 <$type as Float>::hypot(3.0 as $type, 4.0 as $type),
                 5.0 as $type,
@@ -137,10 +117,8 @@ macro_rules! float_trait_smoke_test {
             assert_eq!(<$type as Float>::log10(100.0 as $type), 2.0 as $type);
             assert_eq!(<$type as Float>::log2(8.0 as $type), 3.0 as $type);
             assert_eq!(<$type as Float>::max(x, y), x);
-            assert_eq!(<$type as Float>::maximum(x, y), x);
             assert_eq!(<$type as Float>::midpoint(x, y), 0.25 as $type);
             assert_eq!(<$type as Float>::min(x, y), y);
-            assert_eq!(<$type as Float>::minimum(x, y), y);
             assert_eq!(
                 <$type as Float>::mul_add(2.0 as $type, 3.0 as $type, 4.0 as $type),
                 10.0 as $type
@@ -201,26 +179,6 @@ macro_rules! float_trait_smoke_test {
                 epsilon = 10.0 as $type * $epsilon
             );
             assert_eq!(<$type as Float>::trunc(1.75 as $type), 1.0 as $type);
-            assert_eq!(
-                <$type as Float>::algebraic_add(1.5 as $type, 2.0 as $type),
-                3.5 as $type
-            );
-            assert_eq!(
-                <$type as Float>::algebraic_sub(1.5 as $type, 2.0 as $type),
-                -0.5 as $type
-            );
-            assert_eq!(
-                <$type as Float>::algebraic_mul(1.5 as $type, 2.0 as $type),
-                3.0 as $type
-            );
-            assert_eq!(
-                <$type as Float>::algebraic_div(3.0 as $type, 2.0 as $type),
-                1.5 as $type
-            );
-            assert_eq!(
-                <$type as Float>::algebraic_rem(7.0 as $type, 4.0 as $type),
-                3.0 as $type
-            );
         }
     };
 }

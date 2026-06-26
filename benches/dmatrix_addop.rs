@@ -20,8 +20,7 @@ use topohedral_linalg::{DMatrix, SubViewable};
 //{{{ collection: DMatrix benches
 macro_rules! add_benches_dmatrix {
     ($dim: expr, $name1: ident, $name2: ident, $name3: ident) => {
-        pub fn $name1(crit: &mut Criterion)
-        {
+        pub fn $name1(crit: &mut Criterion) {
             let a = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
 
             let b = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim);
@@ -51,8 +50,7 @@ macro_rules! add_benches_dmatrix {
             );
         }
 
-        pub fn $name2(crit: &mut Criterion)
-        {
+        pub fn $name2(crit: &mut Criterion) {
             let range = rand::distr::Uniform::<f64>::new(0.0, 10.0).unwrap();
 
             let mut rng = rand::rng();
@@ -85,8 +83,7 @@ macro_rules! add_benches_dmatrix {
             });
         }
 
-        pub fn $name3(crit: &mut Criterion)
-        {
+        pub fn $name3(crit: &mut Criterion) {
             let range = rand::distr::Uniform::<f64>::new(0.0, 10.0).unwrap();
 
             let mut rng = rand::rng();
@@ -109,8 +106,7 @@ macro_rules! add_benches_dmatrix {
 
             let mut i = vec![0.0f64; $dim * $dim];
 
-            for ii in 0..$dim * $dim
-            {
+            for ii in 0..$dim * $dim {
                 a[ii] = range.sample(&mut rng);
 
                 b[ii] = range.sample(&mut rng);
@@ -134,8 +130,7 @@ macro_rules! add_benches_dmatrix {
                 be.iter(|| {
                     let mut j = vec![0.0f64; $dim * $dim];
 
-                    for ii in 0..($dim * $dim)
-                    {
+                    for ii in 0..($dim * $dim) {
                         j[ii] =
                             a[ii] + b[ii] + c[ii] + d[ii] + e[ii] + f[ii] + g[ii] + h[ii] + i[ii];
                     }
@@ -177,8 +172,7 @@ add_benches_dmatrix!(
 
 macro_rules! add_view_benches_dmatrix {
     ($dim: expr, $name_cols: ident, $name_block: ident) => {
-        pub fn $name_cols(crit: &mut Criterion)
-        {
+        pub fn $name_cols(crit: &mut Criterion) {
             let a = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
             let b = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
             let c = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim, $dim + 2);
@@ -211,8 +205,7 @@ macro_rules! add_view_benches_dmatrix {
             );
         }
 
-        pub fn $name_block(crit: &mut Criterion)
-        {
+        pub fn $name_block(crit: &mut Criterion) {
             let a = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);
             let b = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);
             let c = DMatrix::<f64>::from_uniform_random(0.0, 10.0, $dim + 2, $dim + 2);

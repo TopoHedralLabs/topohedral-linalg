@@ -18,8 +18,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur during Cholesky decomposition.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     /// Wraps a LAPACK `potrf` error from the Cholesky factorisation routine.
     #[error("Error in cholesky(), exited with error:\n{0}")]
     PotrfError(#[from] CholeskyRawError),
@@ -51,8 +50,7 @@ where
     ///
     /// Returns [`Error::PotrfError`] if LAPACK `potrf` fails, including when the matrix is not
     /// positive definite.
-    pub fn cholesky(&self) -> Result<Return<T, N>, Error>
-    {
+    pub fn cholesky(&self) -> Result<Return<T, N>, Error> {
         let raw = cholesky_raw(self.as_slice().to_vec(), N)?;
         Ok(Return {
             l: SMatrix::from_col_vec(raw.l_data),

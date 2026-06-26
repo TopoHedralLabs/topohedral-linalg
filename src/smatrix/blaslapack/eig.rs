@@ -20,8 +20,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur during general eigendecomposition.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     /// Wraps a LAPACK `geev` error from the eigenvalue computation routine.
     #[error("Error in eig(), exited with error:\n{0}")]
     GeevError(#[from] EigRawError),
@@ -57,8 +56,7 @@ where
     /// # Errors
     ///
     /// Returns an error if the LAPACK `geev` routine fails.
-    pub fn eig(&self) -> Result<Return<T, N>, Error>
-    {
+    pub fn eig(&self) -> Result<Return<T, N>, Error> {
         let raw = eig_raw(self.as_slice().to_vec(), N)?;
         let eigvals: [Complex<T>; N] = std::array::from_fn(|i| raw.eigvals[i]);
         Ok(Return {

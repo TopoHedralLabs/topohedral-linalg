@@ -21,8 +21,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur during LU decomposition.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     #[error("Error in lu(), exited with error:\n{0}")]
     /// LAPACK `getrf` reported a failure, e.g. a zero pivot was encountered.
     GetrfError(#[from] LuRawError),
@@ -59,8 +58,7 @@ where
     /// # Errors
     ///
     /// Returns [`Error::GetrfError`] if the LAPACK `getrf` routine fails.
-    pub fn lu(&self) -> Result<Return<T>, Error>
-    {
+    pub fn lu(&self) -> Result<Return<T>, Error> {
         let n = self.nrows;
         let m = self.ncols;
         let raw = lu_raw(self.data.clone(), n, m)?;

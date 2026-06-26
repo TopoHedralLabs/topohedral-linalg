@@ -19,8 +19,7 @@ use thiserror::Error;
 //{{{ enum: Error
 /// Errors that can occur when solving a linear system.
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     /// Wraps a LAPACK `gesv` error from the linear solve routine.
     #[error("Error in solve(), exited with error:\n{0}")]
     GesvError(#[from] SolveRawError),
@@ -40,8 +39,7 @@ where
     pub fn solve(
         &self,
         b: &SMatrix<T, N, M>,
-    ) -> Result<SMatrix<T, N, M>, Error>
-    {
+    ) -> Result<SMatrix<T, N, M>, Error> {
         let data = solve_raw(self.as_slice().to_vec(), b.as_slice().to_vec(), N, M)?;
         Ok(SMatrix::from_col_vec(data))
     }

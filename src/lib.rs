@@ -29,13 +29,6 @@
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
-#![feature(clamp_magnitude)]
-#![feature(float_algebraic)]
-#![feature(float_erf)]
-#![feature(float_gamma)]
-#![feature(float_minimum_maximum)]
-#![allow(stable_features)]
-
 //{{{ collection: private modules
 mod blaslapack;
 mod common;
@@ -54,12 +47,10 @@ pub use common::{
 pub use dmatrix::*;
 pub use expression::comparison_expr::ElementwiseCompare;
 pub use expression::unary_expr::{
-    abs, abs_sub, acos, acosh, algebraic_add, algebraic_div, algebraic_mul, algebraic_rem,
-    algebraic_sub, asin, asinh, atan, atan2, atanh, cbrt, ceil, clamp, clamp_magnitude, copysign,
-    cos, cosh, div_euclid, erf, erfc, exp, exp2, exp_m1, floor, fract, gamma, hypot, ln, ln_1p,
-    log, log10, log2, max, maximum, midpoint, min, minimum, mul_add, next_down, next_up, powf,
-    powi, recip, rem_euclid, round, round_ties_even, signum, sin, sinh, sqrt, tan, tanh,
-    to_degrees, to_radians, trunc,
+    abs, abs_sub, acos, acosh, asin, asinh, atan, atan2, atanh, cbrt, ceil, clamp, copysign, cos,
+    cosh, div_euclid, exp, exp2, exp_m1, floor, fract, hypot, ln, ln_1p, log, log10, log2, max,
+    midpoint, min, mul_add, next_down, next_up, powf, powi, recip, rem_euclid, round,
+    round_ties_even, signum, sin, sinh, sqrt, tan, tanh, to_degrees, to_radians, trunc,
 };
 pub use smatrix::*;
 pub use subviews::{

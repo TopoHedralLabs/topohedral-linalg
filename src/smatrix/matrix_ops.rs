@@ -23,13 +23,11 @@ impl<T, const N: usize, const M: usize> Shape for SMatrix<T, N, M>
 where
     T: Copy,
 {
-    fn ncols(&self) -> usize
-    {
+    fn ncols(&self) -> usize {
         M
     }
 
-    fn nrows(&self) -> usize
-    {
+    fn nrows(&self) -> usize {
         N
     }
 }
@@ -42,14 +40,11 @@ where
     type ScalarType = T;
     type TransposeType = SMatrix<T, M, N>;
 
-    fn transpose(&self) -> Self::TransposeType
-    {
+    fn transpose(&self) -> Self::TransposeType {
         let mut transposed = SMatrix::<T, M, N>::zeros();
 
-        for i in 0..N
-        {
-            for j in 0..M
-            {
+        for i in 0..N {
+            for j in 0..M {
                 transposed[(j, i)] = self[(i, j)];
             }
         }
@@ -60,8 +55,7 @@ where
     where
         Self::ScalarType: Getrf + Float,
     {
-        if N != M
-        {
+        if N != M {
             panic!("Determinant is only defined for square matrices");
         }
         let SLuReturn {
@@ -73,11 +67,9 @@ where
         (-Self::ScalarType::one()).powi(num_swaps as i32) * u.trace()
     }
 
-    fn trace(&self) -> Self::ScalarType
-    {
+    fn trace(&self) -> Self::ScalarType {
         let mut out = Self::ScalarType::one();
-        for i in 0..N
-        {
+        for i in 0..N {
             out *= self[(i, i)];
         }
         out

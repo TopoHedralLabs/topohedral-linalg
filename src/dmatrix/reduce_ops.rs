@@ -20,8 +20,7 @@ use crate::ReduceOps;
 //--------------------------------------------------------------------------------------------------
 
 //{{{ impl: ReduceOps for DMatrix
-impl<T: Copy> ReduceOps for DMatrix<T>
-{
+impl<T: Copy> ReduceOps for DMatrix<T> {
     type Item = T;
     type Index = (usize, usize);
 
@@ -34,8 +33,7 @@ impl<T: Copy> ReduceOps for DMatrix<T>
         F: FnMut(B, Self::Item) -> B,
     {
         let mut acc = init;
-        for &value in &self.data
-        {
+        for &value in &self.data {
             acc = f(acc, value);
         }
         acc
@@ -50,8 +48,7 @@ impl<T: Copy> ReduceOps for DMatrix<T>
         F: FnMut(B, Self::Index, Self::Item) -> B,
     {
         let mut acc = init;
-        for (linear_index, &value) in self.data.iter().enumerate()
-        {
+        for (linear_index, &value) in self.data.iter().enumerate() {
             acc = f(acc, tuple_index(linear_index, self.nrows), value);
         }
         acc
@@ -76,10 +73,8 @@ where
         F: FnMut(B, Self::Item) -> B,
     {
         let mut acc = init;
-        for col in 0..self.ncols
-        {
-            for row in 0..self.nrows
-            {
+        for col in 0..self.ncols {
+            for row in 0..self.nrows {
                 acc = f(acc, self[(row, col)]);
             }
         }
@@ -95,10 +90,8 @@ where
         F: FnMut(B, Self::Index, Self::Item) -> B,
     {
         let mut acc = init;
-        for col in 0..self.ncols
-        {
-            for row in 0..self.nrows
-            {
+        for col in 0..self.ncols {
+            for row in 0..self.nrows {
                 acc = f(acc, (row, col), self[(row, col)]);
             }
         }
@@ -124,10 +117,8 @@ where
         F: FnMut(B, Self::Item) -> B,
     {
         let mut acc = init;
-        for col in 0..self.ncols
-        {
-            for row in 0..self.nrows
-            {
+        for col in 0..self.ncols {
+            for row in 0..self.nrows {
                 acc = f(acc, self[(row, col)]);
             }
         }
@@ -143,10 +134,8 @@ where
         F: FnMut(B, Self::Index, Self::Item) -> B,
     {
         let mut acc = init;
-        for col in 0..self.ncols
-        {
-            for row in 0..self.nrows
-            {
+        for col in 0..self.ncols {
+            for row in 0..self.nrows {
                 acc = f(acc, (row, col), self[(row, col)]);
             }
         }

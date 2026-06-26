@@ -33,8 +33,7 @@ where
     fn sub(
         self,
         rhs: T,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         let mut out = self.clone();
         out.iter_mut().for_each(|x| *x -= rhs);
         out
@@ -52,8 +51,7 @@ where
     fn sub(
         self,
         rhs: DMatrix<T>,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -76,16 +74,14 @@ where
 macro_rules! impl_dmatrix_sub {
     ($type: ty) => {
         #[doc(hidden)]
-        impl Sub<DMatrix<$type>> for $type
-        {
+        impl Sub<DMatrix<$type>> for $type {
             type Output = DMatrix<$type>;
 
             #[inline]
             fn sub(
                 self,
                 rhs: DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let mut out = rhs.clone();
                 out.iter_mut().for_each(|x| *x = self - *x);
                 out
@@ -104,8 +100,7 @@ where
     fn sub_assign(
         &mut self,
         rhs: T,
-    )
-    {
+    ) {
         self.iter_mut().for_each(|x| *x -= rhs);
     }
 }
@@ -119,8 +114,7 @@ where
     fn sub_assign(
         &mut self,
         rhs: DMatrix<T>,
-    )
-    {
+    ) {
         //{{{ check: assert dimensions are equal
         #[cfg(feature = "enable_checks")]
         {
@@ -142,16 +136,14 @@ where
 macro_rules! impl_dmatrix_sub_scalar_rhs {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Sub<$type> for &'a DMatrix<$type>
-        {
+        impl<'a> Sub<$type> for &'a DMatrix<$type> {
             type Output = BinopExpr<&'a DMatrix<$type>, ScalarExpr<$type>, $type, SubOp>;
 
             #[inline]
             fn sub(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = self.nrows;
                 let nc = self.ncols;
                 BinopExpr {
@@ -165,16 +157,14 @@ macro_rules! impl_dmatrix_sub_scalar_rhs {
         }
 
         #[doc(hidden)]
-        impl<'a> Sub<$type> for &'a mut DMatrix<$type>
-        {
+        impl<'a> Sub<$type> for &'a mut DMatrix<$type> {
             type Output = BinopExpr<&'a DMatrix<$type>, ScalarExpr<$type>, $type, SubOp>;
 
             #[inline]
             fn sub(
                 self,
                 rhs: $type,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 (&*self).sub(rhs)
             }
         }
@@ -188,16 +178,14 @@ apply_for_all_types!(impl_dmatrix_sub_scalar_rhs);
 macro_rules! impl_dmatrix_sub {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Sub<&'a DMatrix<$type>> for $type
-        {
+        impl<'a> Sub<&'a DMatrix<$type>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a DMatrix<$type>, $type, SubOp>;
 
             #[inline]
             fn sub(
                 self,
                 rhs: &'a DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 let nr = rhs.nrows;
                 let nc = rhs.ncols;
                 BinopExpr {
@@ -217,16 +205,14 @@ apply_for_all_types!(impl_dmatrix_sub);
 macro_rules! impl_dmatrix_ref_mut_sub {
     ($type:ty) => {
         #[doc(hidden)]
-        impl<'a> Sub<&'a mut DMatrix<$type>> for $type
-        {
+        impl<'a> Sub<&'a mut DMatrix<$type>> for $type {
             type Output = BinopExpr<ScalarExpr<$type>, &'a DMatrix<$type>, $type, SubOp>;
 
             #[inline]
             fn sub(
                 self,
                 rhs: &'a mut DMatrix<$type>,
-            ) -> Self::Output
-            {
+            ) -> Self::Output {
                 self.sub(&*rhs)
             }
         }
@@ -246,8 +232,7 @@ where
     fn sub(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         #[cfg(feature = "enable_checks")]
         {
             assert_eq!(self.nrows(), rhs.nrows());
@@ -279,8 +264,7 @@ where
     fn sub(
         self,
         rhs: Rhs,
-    ) -> Self::Output
-    {
+    ) -> Self::Output {
         (&*self).sub(rhs)
     }
 }

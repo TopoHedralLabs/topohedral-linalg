@@ -18,13 +18,10 @@ where
     T: Copy,
 {
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
-    pub fn to_dmatrix(&self) -> DMatrix<T>
-    {
+    pub fn to_dmatrix(&self) -> DMatrix<T> {
         let mut data = Vec::with_capacity(self.nrows * self.ncols);
-        for j in 0..self.ncols
-        {
-            for i in 0..self.nrows
-            {
+        for j in 0..self.ncols {
+            for i in 0..self.nrows {
                 data.push(self[(i, j)]);
             }
         }
@@ -41,13 +38,10 @@ where
     T: Copy,
 {
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
-    pub fn to_dmatrix(&self) -> DMatrix<T>
-    {
+    pub fn to_dmatrix(&self) -> DMatrix<T> {
         let mut data = Vec::with_capacity(self.nrows * self.ncols);
-        for j in 0..self.ncols
-        {
-            for i in 0..self.nrows
-            {
+        for j in 0..self.ncols {
+            for i in 0..self.nrows {
                 data.push(self[(i, j)]);
             }
         }
@@ -71,8 +65,7 @@ where
         end_row: usize,
         start_col: usize,
         end_col: usize,
-    ) -> MatrixView<'a, DMatrix<T>>
-    {
+    ) -> MatrixView<'a, DMatrix<T>> {
         MatrixView {
             matrix: self,
             start_row,
@@ -94,8 +87,7 @@ where
         end_row: usize,
         start_col: usize,
         end_col: usize,
-    ) -> MatrixViewMut<'a, DMatrix<T>>
-    {
+    ) -> MatrixViewMut<'a, DMatrix<T>> {
         MatrixViewMut {
             matrix: self,
             start_row,
@@ -126,8 +118,7 @@ where
     {
         let rhs_nrows = rhs.nrows();
         let rhs_ncols = rhs.ncols();
-        if self.nrows != rhs_nrows || self.ncols != rhs_ncols
-        {
+        if self.nrows != rhs_nrows || self.ncols != rhs_ncols {
             panic!(
                 "DMatrix::copy_from dimension mismatch: lhs is {}x{}, rhs is {}x{}",
                 self.nrows, self.ncols, rhs_nrows, rhs_ncols

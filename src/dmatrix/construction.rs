@@ -24,8 +24,7 @@ impl<T> Clone for DMatrix<T>
 where
     T: Copy,
 {
-    fn clone(&self) -> Self
-    {
+    fn clone(&self) -> Self {
         Self {
             data: self.data.clone(),
             nrows: self.nrows,
@@ -36,8 +35,7 @@ where
     fn clone_from(
         &mut self,
         source: &Self,
-    )
-    {
+    ) {
         self.data.clone_from(&source.data);
         self.nrows = source.nrows;
         self.ncols = source.ncols;
@@ -87,8 +85,7 @@ where
         value: T,
         nrows: usize,
         ncols: usize,
-    ) -> Self
-    {
+    ) -> Self {
         Self {
             data: vec![value; nrows * ncols],
             nrows,
@@ -126,10 +123,8 @@ where
     {
         assert_eq!(slice.len(), nrows * ncols);
         let mut out = Self::zeros(nrows, ncols);
-        for i in 0..nrows
-        {
-            for j in 0..ncols
-            {
+        for i in 0..nrows {
+            for j in 0..ncols {
                 out[(i, j)] = slice[i * ncols + j];
             }
         }
@@ -153,8 +148,7 @@ where
         let mut out = Self::zeros(nrows, ncols);
         let range = Uniform::<T>::new(low, high).unwrap();
         let mut rng = rand::rng();
-        for i in 0..out.nrows * out.ncols
-        {
+        for i in 0..out.nrows * out.ncols {
             out[i] = range.sample(&mut rng);
         }
         out
@@ -173,8 +167,7 @@ where
     {
         let mut out = Self::zeros(nrows, ncols);
         let l = nrows.min(ncols);
-        for i in 0..l
-        {
+        for i in 0..l {
             out[(i, i)] = T::one()
         }
         out
@@ -192,10 +185,8 @@ where
         value: T,
         nelem: usize,
         vec_type: VecType,
-    ) -> Self
-    {
-        match vec_type
-        {
+    ) -> Self {
+        match vec_type {
             VecType::Row => Self::from_value(value, 1, nelem),
             VecType::Col => Self::from_value(value, nelem, 1),
         }
@@ -209,8 +200,7 @@ where
     where
         T: Zero,
     {
-        match vec_type
-        {
+        match vec_type {
             VecType::Row => Self::zeros(1, nelem),
             VecType::Col => Self::zeros(nelem, 1),
         }
@@ -224,8 +214,7 @@ where
     where
         T: One,
     {
-        match vec_type
-        {
+        match vec_type {
             VecType::Row => Self::ones(1, nelem),
             VecType::Col => Self::ones(nelem, 1),
         }
@@ -240,8 +229,7 @@ where
     where
         T: Zero,
     {
-        match vec_type
-        {
+        match vec_type {
             VecType::Row => Self::from_col_slice(slice, 1, nelem),
             VecType::Col => Self::from_col_slice(slice, nelem, 1),
         }
@@ -257,8 +245,7 @@ where
     where
         T: SampleUniform + Field + Copy + Zero,
     {
-        match vec_type
-        {
+        match vec_type {
             VecType::Row => Self::from_uniform_random(low, high, 1, nelem),
             VecType::Col => Self::from_uniform_random(low, high, nelem, 1),
         }

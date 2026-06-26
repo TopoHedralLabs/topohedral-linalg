@@ -20,8 +20,7 @@ use crate::apply_for_all_integer_types;
 /// Trait which signifies matrices of type can perform a general matrix-vector multiplication (GEMV)
 /// operation.
 #[allow(clippy::too_many_arguments)]
-pub trait Gemv: Copy
-{
+pub trait Gemv: Copy {
     /// Performs a general matrix-vector multiplication (GEMV) operation.
     ///
     /// This function computes the matrix-vector product:
@@ -58,8 +57,7 @@ pub trait Gemv: Copy
 
 //}}}
 //{{{ impl: Gemv for f64
-impl Gemv for f64
-{
+impl Gemv for f64 {
     #[inline]
     fn gemv(
         tr: cblas::Transpose,
@@ -73,8 +71,7 @@ impl Gemv for f64
         beta: Self,
         y: &mut [Self],
         incy: i32,
-    )
-    {
+    ) {
         unsafe {
             cblas::dgemv(
                 cblas::Layout::ColumnMajor,
@@ -96,8 +93,7 @@ impl Gemv for f64
 
 //}}}
 //{{{ impl: Gemv for f32
-impl Gemv for f32
-{
+impl Gemv for f32 {
     #[inline]
     fn gemv(
         tr: cblas::Transpose,
@@ -111,8 +107,7 @@ impl Gemv for f32
         beta: Self,
         y: &mut [Self],
         incy: i32,
-    )
-    {
+    ) {
         unsafe {
             cblas::sgemv(
                 cblas::Layout::ColumnMajor,
@@ -136,8 +131,7 @@ impl Gemv for f32
 //{{{ impl: Gemv for all integer types
 macro_rules! impl_naive_gemv {
     ($t:ty) => {
-        impl Gemv for $t
-        {
+        impl Gemv for $t {
             #[inline]
             fn gemv(
                 tr: cblas::Transpose,
@@ -151,42 +145,33 @@ macro_rules! impl_naive_gemv {
                 beta: Self,
                 y: &mut [Self],
                 incy: i32,
-            )
-            {
+            ) {
                 let get_a = |i, j| a[i as usize + (j as usize * lda as usize)];
 
-                match tr
-                {
-                    cblas::Transpose::None =>
-                    {
-                        for i in 0..m
-                        {
+                match tr {
+                    cblas::Transpose::None => {
+                        for i in 0..m {
                             let mut sum = Self::default();
 
-                            for j in 0..k
-                            {
+                            for j in 0..k {
                                 sum += get_a(i, j) * x[(j * incx) as usize];
                             }
 
                             y[(i * incy) as usize] = alpha * sum + beta * y[(i * incy) as usize];
                         }
                     }
-                    cblas::Transpose::Ordinary =>
-                    {
-                        for i in 0..m
-                        {
+                    cblas::Transpose::Ordinary => {
+                        for i in 0..m {
                             let mut sum = Self::default();
 
-                            for j in 0..k
-                            {
+                            for j in 0..k {
                                 sum += get_a(j, i) * x[(j * incx) as usize];
                             }
 
                             y[(i * incy) as usize] = alpha * sum + beta * y[(i * incy) as usize];
                         }
                     }
-                    _ =>
-                    {} // Handle other transpose cases if needed
+                    _ => {} // Handle other transpose cases if needed
                 }
             }
         }

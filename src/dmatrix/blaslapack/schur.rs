@@ -19,8 +19,7 @@ use thiserror::Error;
 
 //{{{ enum: Error
 #[derive(Error, Debug)]
-pub enum Error
-{
+pub enum Error {
     #[error("Error in schur(), exited with error:\n{0}")]
     /// LAPACK `gees` failed to compute the Schur decomposition.
     GeesError(#[from] ShurRawError),
@@ -57,8 +56,7 @@ where
     /// # Errors
     ///
     /// Returns [`Error::GeesError`] if the LAPACK `gees` routine fails.
-    pub fn schur(&self) -> Result<Return<T>, Error>
-    {
+    pub fn schur(&self) -> Result<Return<T>, Error> {
         let n = self.nrows;
         let m = self.ncols;
         let raw = schur_raw(self.data.clone(), n, m)?;
@@ -81,6 +79,5 @@ where
 //-------------------------------------------------------------------------------------------------
 //{{{ mod: tests
 #[cfg(test)]
-mod tests
-{}
+mod tests {}
 //}}}
