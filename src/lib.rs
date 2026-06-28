@@ -46,6 +46,7 @@ pub use common::{
 };
 pub use dmatrix::*;
 pub use expression::comparison_expr::ElementwiseCompare;
+pub use expression::outer_product_expr::OuterProduct;
 pub use expression::unary_expr::{
     abs, abs_sub, acos, acosh, asin, asinh, atan, atan2, atanh, cbrt, ceil, clamp, copysign, cos,
     cosh, div_euclid, exp, exp2, exp_m1, floor, fract, hypot, ln, ln_1p, log, log10, log2, max,
