@@ -2,6 +2,17 @@ mod scvector_tests {
     use approx::assert_relative_eq;
     use topohedral_linalg::*;
 
+    fn assert_smatrix_relative_eq<const N: usize, const M: usize>(
+        actual: &SMatrix<f64, N, M>,
+        expected: &SMatrix<f64, N, M>,
+    ) {
+        for i in 0..actual.nrows() {
+            for j in 0..actual.ncols() {
+                assert_relative_eq!(actual[(i, j)], expected[(i, j)]);
+            }
+        }
+    }
+
     #[test]
     fn test_norm() {
         let v = SCVector::<f64, 3>::from_col_slice(&[1.0, 2.0, 3.0]);
@@ -45,6 +56,35 @@ mod scvector_tests {
         assert_relative_eq!(angle1, std::f64::consts::FRAC_PI_2);
         let angle2 = v2.angle(&v1);
         assert_relative_eq!(angle2, std::f64::consts::FRAC_PI_2);
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_static_outer_expression_assign_arithmetic() {
+        let b = SMatrix::<f64, 2, 3>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]);
+        let v = SCVector::<f64, 2>::from_col_slice(&[1.0, 2.0]);
+        let w = SCVector::<f64, 3>::from_col_slice(&[10.0, 20.0, 30.0]);
+        let expr_expected =
+            SMatrix::<f64, 2, 3>::from_row_slice(&[11.0, 22.0, 33.0, 24.0, 45.0, 66.0]);
+
+        let mut add = SMatrix::<f64, 2, 3>::zeros();
+        add += &b + v.outer(&w);
+        assert_smatrix_relative_eq(&add, &expr_expected);
+
+        let mut sub = SMatrix::<f64, 2, 3>::from_value(100.0);
+        sub -= &b + v.outer(&w);
+        let sub_expected =
+            SMatrix::<f64, 2, 3>::from_row_slice(&[89.0, 78.0, 67.0, 76.0, 55.0, 34.0]);
+        assert_smatrix_relative_eq(&sub, &sub_expected);
+
+        let mut mul = SMatrix::<f64, 2, 3>::from_value(1.0);
+        mul *= &b + v.outer(&w);
+        assert_smatrix_relative_eq(&mul, &expr_expected);
+
+        let mut div = SMatrix::<f64, 2, 3>::from_row_slice(&[22.0, 44.0, 66.0, 48.0, 90.0, 132.0]);
+        div /= &b + v.outer(&w);
+        let div_expected = SMatrix::<f64, 2, 3>::from_value(2.0);
+        assert_smatrix_relative_eq(&div, &div_expected);
     }
 }
 
@@ -253,6 +293,55 @@ mod dvector_tests {
 
         let expected = DMatrix::<f64>::from_row_slice(&[11.0, 21.0, 31.0, 21.0, 41.0, 61.0], 2, 3);
         assert_matrix_relative_eq(&a, &expected);
+    }
+
+    #[test]
+    fn test_outer_assigns_directly_with_remaining_arithmetic() {
+        let v = DVector::<f64>::from_slice_vec(&[1.0, 2.0], 2, VecType::Col);
+        let w = DVector::<f64>::from_slice_vec(&[10.0, 20.0, 30.0], 3, VecType::Col);
+
+        let mut sub = DMatrix::<f64>::from_value(100.0, 2, 3);
+        sub -= v.outer(&w);
+        let sub_expected =
+            DMatrix::<f64>::from_row_slice(&[90.0, 80.0, 70.0, 80.0, 60.0, 40.0], 2, 3);
+        assert_matrix_relative_eq(&sub, &sub_expected);
+
+        let mut mul = DMatrix::<f64>::from_value(1.0, 2, 3);
+        mul *= v.outer(&w);
+        let mul_expected =
+            DMatrix::<f64>::from_row_slice(&[10.0, 20.0, 30.0, 20.0, 40.0, 60.0], 2, 3);
+        assert_matrix_relative_eq(&mul, &mul_expected);
+
+        let mut div =
+            DMatrix::<f64>::from_row_slice(&[100.0, 120.0, 150.0, 200.0, 240.0, 300.0], 2, 3);
+        div /= v.outer(&w);
+        let div_expected = DMatrix::<f64>::from_row_slice(&[10.0, 6.0, 5.0, 10.0, 6.0, 5.0], 2, 3);
+        assert_matrix_relative_eq(&div, &div_expected);
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn test_outer_expression_assigns_with_remaining_arithmetic() {
+        let b = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 2, 3);
+        let v = DVector::<f64>::from_slice_vec(&[1.0, 2.0], 2, VecType::Col);
+        let w = DVector::<f64>::from_slice_vec(&[10.0, 20.0, 30.0], 3, VecType::Col);
+        let expr_expected =
+            DMatrix::<f64>::from_row_slice(&[11.0, 22.0, 33.0, 24.0, 45.0, 66.0], 2, 3);
+
+        let mut sub = DMatrix::<f64>::from_value(100.0, 2, 3);
+        sub -= &b + v.outer(&w);
+        let sub_expected =
+            DMatrix::<f64>::from_row_slice(&[89.0, 78.0, 67.0, 76.0, 55.0, 34.0], 2, 3);
+        assert_matrix_relative_eq(&sub, &sub_expected);
+
+        let mut mul = DMatrix::<f64>::from_value(1.0, 2, 3);
+        mul *= &b + v.outer(&w);
+        assert_matrix_relative_eq(&mul, &expr_expected);
+
+        let mut div = DMatrix::<f64>::from_row_slice(&[22.0, 44.0, 66.0, 48.0, 90.0, 132.0], 2, 3);
+        div /= &b + v.outer(&w);
+        let div_expected = DMatrix::<f64>::from_value(2.0, 2, 3);
+        assert_matrix_relative_eq(&div, &div_expected);
     }
 
     #[test]

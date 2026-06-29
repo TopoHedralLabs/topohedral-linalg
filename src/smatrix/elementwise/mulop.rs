@@ -11,7 +11,9 @@ use crate::apply_for_all_types;
 #[cfg(feature = "enable_checks")]
 use crate::common::Shape;
 use crate::common::{Field, MatrixExpr, ScalarExpr};
-use crate::expression::binary_expr::{BinopExpr, MulOp};
+use crate::expression::binary_expr::{BinOp, BinopExpr, MulOp};
+use crate::expression::outer_product_expr::OuterProductExpr;
+use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
 use crate::smatrix::SMatrix;
 //}}}
 //{{{ std imports
@@ -20,6 +22,34 @@ use std::ops::{Mul, MulAssign};
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
+
+//{{{ fun: mul_assign_expr
+#[inline]
+fn mul_assign_expr<T, Rhs, const N: usize, const M: usize>(
+    lhs: &mut SMatrix<T, N, M>,
+    rhs: Rhs,
+) where
+    T: Field + Copy,
+    Rhs: MatrixExpr<ScalarType = T>,
+{
+    let rhs_nrows = rhs.nrows();
+    let rhs_ncols = rhs.ncols();
+    if lhs.nrows != rhs_nrows || lhs.ncols != rhs_ncols {
+        panic!(
+            "SMatrix::mul_assign dimension mismatch: lhs is {}x{}, rhs is {}x{}",
+            lhs.nrows, lhs.ncols, rhs_nrows, rhs_ncols
+        );
+    }
+
+    let out = lhs.as_mut_slice();
+    for i in 0..out.len() {
+        unsafe {
+            *out.get_unchecked_mut(i) *= rhs.linear_value(i);
+        }
+    }
+}
+//}}}
+
 //{{{ collection: eagerly evaluated expressions
 //{{{ impl: Mul<T> for SMatrix
 impl<T, const N: usize, const M: usize> Mul<T> for SMatrix<T, N, M>
@@ -126,6 +156,57 @@ where
             .for_each(|(out_elem, rhs_elem)| {
                 *out_elem *= *rhs_elem;
             });
+    }
+}
+//}}}
+//{{{ impl: MulAssign<BinopExpr> for SMatrix
+impl<A, B, T, Op, const N: usize, const M: usize> MulAssign<BinopExpr<A, B, T, Op>>
+    for SMatrix<T, N, M>
+where
+    A: MatrixExpr<ScalarType = T>,
+    B: MatrixExpr<ScalarType = T>,
+    T: Field + Copy,
+    Op: BinOp,
+{
+    #[inline]
+    fn mul_assign(
+        &mut self,
+        rhs: BinopExpr<A, B, T, Op>,
+    ) {
+        mul_assign_expr(self, rhs);
+    }
+}
+//}}}
+//{{{ impl: MulAssign<UnaryExpr> for SMatrix
+impl<A, T, Op, const N: usize, const M: usize> MulAssign<UnaryExpr<A, T, Op>> for SMatrix<T, N, M>
+where
+    A: MatrixExpr<ScalarType = T>,
+    T: Field + Copy,
+    Op: UnaryOp<T>,
+{
+    #[inline]
+    fn mul_assign(
+        &mut self,
+        rhs: UnaryExpr<A, T, Op>,
+    ) {
+        mul_assign_expr(self, rhs);
+    }
+}
+//}}}
+//{{{ impl: MulAssign<OuterProductExpr> for SMatrix
+impl<L, R, T, const N: usize, const M: usize> MulAssign<OuterProductExpr<L, R, T>>
+    for SMatrix<T, N, M>
+where
+    L: MatrixExpr<ScalarType = T>,
+    R: MatrixExpr<ScalarType = T>,
+    T: Field + Copy,
+{
+    #[inline]
+    fn mul_assign(
+        &mut self,
+        rhs: OuterProductExpr<L, R, T>,
+    ) {
+        mul_assign_expr(self, rhs);
     }
 }
 //}}}

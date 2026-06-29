@@ -11,13 +11,43 @@ use crate::apply_for_all_types;
 #[cfg(feature = "enable_checks")]
 use crate::common::Shape;
 use crate::common::{Field, MatrixExpr, ScalarExpr};
-use crate::expression::binary_expr::{BinopExpr, DivOp};
+use crate::expression::binary_expr::{BinOp, BinopExpr, DivOp};
+use crate::expression::outer_product_expr::OuterProductExpr;
+use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
 use crate::smatrix::SMatrix;
 //}}}
 //{{{ std imports
 use std::ops::{Div, DivAssign};
 //}}}
 //--------------------------------------------------------------------------------------------------
+
+//{{{ fun: div_assign_expr
+#[inline]
+fn div_assign_expr<T, Rhs, const N: usize, const M: usize>(
+    lhs: &mut SMatrix<T, N, M>,
+    rhs: Rhs,
+) where
+    T: Field + Copy,
+    Rhs: MatrixExpr<ScalarType = T>,
+{
+    let rhs_nrows = rhs.nrows();
+    let rhs_ncols = rhs.ncols();
+    if lhs.nrows != rhs_nrows || lhs.ncols != rhs_ncols {
+        panic!(
+            "SMatrix::div_assign dimension mismatch: lhs is {}x{}, rhs is {}x{}",
+            lhs.nrows, lhs.ncols, rhs_nrows, rhs_ncols
+        );
+    }
+
+    let out = lhs.as_mut_slice();
+    for i in 0..out.len() {
+        unsafe {
+            *out.get_unchecked_mut(i) /= rhs.linear_value(i);
+        }
+    }
+}
+//}}}
+
 //{{{ collection: eagerly evaluated expressions
 //{{{ impl: Div<T> for SMatrix
 impl<T, const N: usize, const M: usize> Div<T> for SMatrix<T, N, M>
@@ -124,6 +154,57 @@ where
             .for_each(|(out_elem, rhs_elem)| {
                 *out_elem /= *rhs_elem;
             });
+    }
+}
+//}}}
+//{{{ impl: DivAssign<BinopExpr> for SMatrix
+impl<A, B, T, Op, const N: usize, const M: usize> DivAssign<BinopExpr<A, B, T, Op>>
+    for SMatrix<T, N, M>
+where
+    A: MatrixExpr<ScalarType = T>,
+    B: MatrixExpr<ScalarType = T>,
+    T: Field + Copy,
+    Op: BinOp,
+{
+    #[inline]
+    fn div_assign(
+        &mut self,
+        rhs: BinopExpr<A, B, T, Op>,
+    ) {
+        div_assign_expr(self, rhs);
+    }
+}
+//}}}
+//{{{ impl: DivAssign<UnaryExpr> for SMatrix
+impl<A, T, Op, const N: usize, const M: usize> DivAssign<UnaryExpr<A, T, Op>> for SMatrix<T, N, M>
+where
+    A: MatrixExpr<ScalarType = T>,
+    T: Field + Copy,
+    Op: UnaryOp<T>,
+{
+    #[inline]
+    fn div_assign(
+        &mut self,
+        rhs: UnaryExpr<A, T, Op>,
+    ) {
+        div_assign_expr(self, rhs);
+    }
+}
+//}}}
+//{{{ impl: DivAssign<OuterProductExpr> for SMatrix
+impl<L, R, T, const N: usize, const M: usize> DivAssign<OuterProductExpr<L, R, T>>
+    for SMatrix<T, N, M>
+where
+    L: MatrixExpr<ScalarType = T>,
+    R: MatrixExpr<ScalarType = T>,
+    T: Field + Copy,
+{
+    #[inline]
+    fn div_assign(
+        &mut self,
+        rhs: OuterProductExpr<L, R, T>,
+    ) {
+        div_assign_expr(self, rhs);
     }
 }
 //}}}
