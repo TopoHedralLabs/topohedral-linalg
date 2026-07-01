@@ -7,7 +7,7 @@
 
 //{{{ crate imports
 use crate::apply_for_all_types;
-use crate::common::{Field, MatrixExpr, ScalarExpr, Shape};
+use crate::common::{tuple_index, Field, MatrixExpr, ScalarExpr, Shape};
 use crate::expression::binary_expr::{AddOp, BinopExpr, DivOp, MulOp, SubOp};
 use crate::expression::unary_expr::{NegOp, UnaryExpr};
 //}}}
@@ -103,8 +103,7 @@ where
         &self,
         index: usize,
     ) -> Self::ScalarType {
-        let row = index % self.nrows;
-        let col = index / self.nrows;
+        let (row, col) = tuple_index(index, self.nrows);
         self.left.linear_value(row) * self.right.linear_value(col)
     }
 

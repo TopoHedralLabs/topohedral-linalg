@@ -802,6 +802,24 @@ mod smatrix_tests {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
     }
+
+    #[test]
+    fn test_outer_product_mutability_combinations() {
+        let mut a = SCVector::<f64, 2>::from_col_slice(&[1.0, 2.0]);
+        let mut b = SCVector::<f64, 3>::from_col_slice(&[10.0, 20.0, 30.0]);
+        let expected = SMatrix::<f64, 2, 3>::from_row_slice(&[10.0, 20.0, 30.0, 20.0, 40.0, 60.0]);
+
+        let rr: SMatrix<f64, 2, 3> = a.outer(&b).into();
+        let mr: SMatrix<f64, 2, 3> = (&mut a).outer(&b).into();
+        let rm: SMatrix<f64, 2, 3> = a.outer(&mut b).into();
+        let mm: SMatrix<f64, 2, 3> = (&mut a).outer(&mut b).into();
+
+        for actual in [&rr, &mr, &rm, &mm] {
+            for (actual, expected) in actual.iter().zip(expected.iter()) {
+                assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+            }
+        }
+    }
     //}}}
 }
 //}}}
@@ -1496,6 +1514,24 @@ mod dmatrix_tests {
 
         for (actual, expected) in matrix.iter().zip(expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+    }
+
+    #[test]
+    fn test_outer_product_mutability_combinations() {
+        let mut a = DVector::<f64>::from_slice_vec(&[1.0, 2.0], 2, VecType::Col);
+        let mut b = DVector::<f64>::from_slice_vec(&[10.0, 20.0, 30.0], 3, VecType::Col);
+        let expected = DMatrix::<f64>::from_row_slice(&[10.0, 20.0, 30.0, 20.0, 40.0, 60.0], 2, 3);
+
+        let rr: DMatrix<f64> = a.outer(&b).into();
+        let mr: DMatrix<f64> = (&mut a).outer(&b).into();
+        let rm: DMatrix<f64> = a.outer(&mut b).into();
+        let mm: DMatrix<f64> = (&mut a).outer(&mut b).into();
+
+        for actual in [&rr, &mr, &rm, &mm] {
+            for (actual, expected) in actual.iter().zip(expected.iter()) {
+                assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+            }
         }
     }
     //}}}
