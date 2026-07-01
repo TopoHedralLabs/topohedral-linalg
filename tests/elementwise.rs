@@ -1,7 +1,10 @@
 //{{{ mod: smatrix_tests
 mod smatrix_tests {
+
     use approx::assert_relative_eq;
-    use topohedral_linalg::{abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps};
+    use topohedral_linalg::{
+        abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps, OuterProduct, SCVector,
+    };
     use topohedral_linalg::{SMatrix, SubViewable, SubViewableMut};
 
     //{{{ collection: mixed tests
@@ -761,6 +764,41 @@ mod smatrix_tests {
         let expected_shifted = 1.0 + c.sined();
 
         for (actual, expected) in shifted.iter().zip(expected_shifted.iter()) {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+    }
+    //}}}
+    //{{{ collection: outer product tests
+    #[test]
+    fn test_outer_products() {
+        let v1 = SCVector::<f64, 4>::from_col_slice(&[1.0, 2.0, 3.0, 4.0]);
+        let v2 = SCVector::<f64, 4>::from_col_slice(&[5.0, 6.0, 7.0, 8.0]);
+        let v3 = SCVector::<f64, 4>::from_col_slice(&[9.0, 10.0, 11.0, 12.0]);
+        let v4 = SCVector::<f64, 4>::from_col_slice(&[13.0, 14.0, 15.0, 16.0]);
+        let matrix: SMatrix<f64, 4, 4> = (v1.outer(&v2) - v1.outer(&v3)
+            + (v1.outer(&v4) / v2.outer(&v4))
+            + v3.outer(&v2) * v2.outer(&v1))
+        .into();
+        let expected = SMatrix::<f64, 4, 4>::from_row_slice(&[
+            221.2,
+            536.2,
+            941.2,
+            1436.2,
+            292.3333333333333,
+            712.3333333333334,
+            1252.3333333333333,
+            1912.3333333333333,
+            373.42857142857144,
+            912.4285714285714,
+            1605.4285714285713,
+            2452.4285714285716,
+            464.5,
+            1136.5,
+            2000.5,
+            3056.5,
+        ]);
+
+        for (actual, expected) in matrix.iter().zip(expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
         }
     }
