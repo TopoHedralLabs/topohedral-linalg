@@ -14,7 +14,9 @@ use crate::apply_for_all_types;
 use crate::common::Shape;
 use crate::common::{Field, MatrixExpr, ScalarExpr};
 use crate::dmatrix::DMatrix;
-use crate::expression::binary_expr::{AddOp, BinopExpr};
+use crate::expression::binary_expr::{AddOp, BinOp, BinopExpr};
+use crate::expression::outer_product_expr::OuterProductExpr;
+use crate::expression::unary_expr::{UnaryExpr, UnaryOp};
 //}}}
 //{{{ std imports
 use std::ops::{Add, AddAssign};
@@ -22,6 +24,32 @@ use std::ops::{Add, AddAssign};
 //{{{ dep imports
 //}}}
 //--------------------------------------------------------------------------------------------------
+
+//{{{ fun: add_assign_expr
+#[inline]
+fn add_assign_expr<T, Rhs>(
+    lhs: &mut DMatrix<T>,
+    rhs: Rhs,
+) where
+    T: Field + Copy,
+    Rhs: MatrixExpr<ScalarType = T>,
+{
+    let rhs_nrows = rhs.nrows();
+    let rhs_ncols = rhs.ncols();
+    if lhs.nrows != rhs_nrows || lhs.ncols != rhs_ncols {
+        panic!(
+            "DMatrix::add_assign dimension mismatch: lhs is {}x{}, rhs is {}x{}",
+            lhs.nrows, lhs.ncols, rhs_nrows, rhs_ncols
+        );
+    }
+
+    for i in 0..lhs.data.len() {
+        unsafe {
+            *lhs.data.get_unchecked_mut(i) += rhs.linear_value(i);
+        }
+    }
+}
+//}}}
 
 //{{{ collection: eagerly evaluated expressions
 //{{{ impl: Add<T> for DMatrix
@@ -129,6 +157,55 @@ where
             .for_each(|(out_elem, rhs_elem)| {
                 *out_elem += *rhs_elem;
             });
+    }
+}
+//}}}
+//{{{ impl: AddAssign<BinopExpr> for DMatrix
+impl<A, B, T, Op> AddAssign<BinopExpr<A, B, T, Op>> for DMatrix<T>
+where
+    A: MatrixExpr<ScalarType = T>,
+    B: MatrixExpr<ScalarType = T>,
+    T: Field + Copy,
+    Op: BinOp,
+{
+    #[inline]
+    fn add_assign(
+        &mut self,
+        rhs: BinopExpr<A, B, T, Op>,
+    ) {
+        add_assign_expr(self, rhs);
+    }
+}
+//}}}
+//{{{ impl: AddAssign<UnaryExpr> for DMatrix
+impl<A, T, Op> AddAssign<UnaryExpr<A, T, Op>> for DMatrix<T>
+where
+    A: MatrixExpr<ScalarType = T>,
+    T: Field + Copy,
+    Op: UnaryOp<T>,
+{
+    #[inline]
+    fn add_assign(
+        &mut self,
+        rhs: UnaryExpr<A, T, Op>,
+    ) {
+        add_assign_expr(self, rhs);
+    }
+}
+//}}}
+//{{{ impl: AddAssign<OuterProductExpr> for DMatrix
+impl<L, R, T> AddAssign<OuterProductExpr<L, R, T>> for DMatrix<T>
+where
+    L: MatrixExpr<ScalarType = T>,
+    R: MatrixExpr<ScalarType = T>,
+    T: Field + Copy,
+{
+    #[inline]
+    fn add_assign(
+        &mut self,
+        rhs: OuterProductExpr<L, R, T>,
+    ) {
+        add_assign_expr(self, rhs);
     }
 }
 //}}}

@@ -59,8 +59,9 @@ restricted to their appropriate numeric scalar types.
 
 ```rust
 use topohedral_linalg::{
-    DMatrix, SMatrix,
+    DMatrix, DVector, SMatrix, VecType,
     ElementwiseCompare, Maskable, MatMul, MatrixOps, ReduceOps,
+    OuterProduct,
 };
 
 // Static 3×3 identity matrix
@@ -72,6 +73,11 @@ let b = DMatrix::<f64>::from_row_slice(&[5.0, 6.0, 7.0, 8.0], 2, 2);
 
 // Elementwise addition (lazy expression, evaluated on .into())
 let c: DMatrix<f64> = (&a + &b).into();
+
+// Lazy vector outer products can be used directly in elementwise expressions
+let v = DVector::<f64>::from_slice_vec(&[1.0, 2.0], 2, VecType::Col);
+let w = DVector::<f64>::from_slice_vec(&[10.0, 20.0], 2, VecType::Col);
+let rank_one_update: DMatrix<f64> = (&a + v.outer(&w)).into();
 
 // BLAS matrix-matrix multiplication
 let d = (&a).matmul(&b);

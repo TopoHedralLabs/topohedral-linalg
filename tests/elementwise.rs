@@ -1,7 +1,10 @@
 //{{{ mod: smatrix_tests
 mod smatrix_tests {
+
     use approx::assert_relative_eq;
-    use topohedral_linalg::{abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps};
+    use topohedral_linalg::{
+        abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps, OuterProduct, SCVector,
+    };
     use topohedral_linalg::{SMatrix, SubViewable, SubViewableMut};
 
     //{{{ collection: mixed tests
@@ -765,13 +768,69 @@ mod smatrix_tests {
         }
     }
     //}}}
+    //{{{ collection: outer product tests
+    #[test]
+    fn test_outer_products() {
+        let v1 = SCVector::<f64, 4>::from_col_slice(&[1.0, 2.0, 3.0, 4.0]);
+        let v2 = SCVector::<f64, 4>::from_col_slice(&[5.0, 6.0, 7.0, 8.0]);
+        let v3 = SCVector::<f64, 4>::from_col_slice(&[9.0, 10.0, 11.0, 12.0]);
+        let v4 = SCVector::<f64, 4>::from_col_slice(&[13.0, 14.0, 15.0, 16.0]);
+        let matrix: SMatrix<f64, 4, 4> = (v1.outer(&v2) - v1.outer(&v3)
+            + (v1.outer(&v4) / v2.outer(&v4))
+            + v3.outer(&v2) * v2.outer(&v1))
+        .into();
+        let expected = SMatrix::<f64, 4, 4>::from_row_slice(&[
+            221.2,
+            536.2,
+            941.2,
+            1436.2,
+            292.3333333333333,
+            712.3333333333334,
+            1252.3333333333333,
+            1912.3333333333333,
+            373.42857142857144,
+            912.4285714285714,
+            1605.4285714285713,
+            2452.4285714285716,
+            464.5,
+            1136.5,
+            2000.5,
+            3056.5,
+        ]);
+
+        for (actual, expected) in matrix.iter().zip(expected.iter()) {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::unnecessary_mut_passed)]
+    fn test_outer_product_mutability_combinations() {
+        let mut a = SCVector::<f64, 2>::from_col_slice(&[1.0, 2.0]);
+        let mut b = SCVector::<f64, 3>::from_col_slice(&[10.0, 20.0, 30.0]);
+        let expected = SMatrix::<f64, 2, 3>::from_row_slice(&[10.0, 20.0, 30.0, 20.0, 40.0, 60.0]);
+
+        let rr: SMatrix<f64, 2, 3> = a.outer(&b).into();
+        let mr: SMatrix<f64, 2, 3> = (&mut a).outer(&b).into();
+        let rm: SMatrix<f64, 2, 3> = a.outer(&mut b).into();
+        let mm: SMatrix<f64, 2, 3> = (&mut a).outer(&mut b).into();
+
+        for actual in [&rr, &mr, &rm, &mm] {
+            for (actual, expected) in actual.iter().zip(expected.iter()) {
+                assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+            }
+        }
+    }
+    //}}}
 }
 //}}}
 //{{{ mod: dmatrix_tests
 mod dmatrix_tests {
     use approx::assert_relative_eq;
-    use topohedral_linalg::{abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps};
-    use topohedral_linalg::{DMatrix, SubViewable, SubViewableMut};
+    use topohedral_linalg::{
+        abs, clamp, exp, mul_add, powf, powi, sin, sqrt, DMatrix, DVector, FloatTransformOps,
+        OuterProduct, SubViewable, SubViewableMut, VecType,
+    };
 
     //{{{ collection: addition tests
     #[test]
@@ -1417,6 +1476,64 @@ mod dmatrix_tests {
 
         for (actual, expected) in shifted.iter().zip(expected_shifted.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+    }
+    //}}}
+    //{{{ collection: outer product tests
+    #[test]
+    fn test_outer_products() {
+        let v1 = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0, 4.0], 4, VecType::Col);
+        let v2 = DVector::<f64>::from_slice_vec(&[5.0, 6.0, 7.0, 8.0], 4, VecType::Col);
+        let v3 = DVector::<f64>::from_slice_vec(&[9.0, 10.0, 11.0, 12.0], 4, VecType::Col);
+        let v4 = DVector::<f64>::from_slice_vec(&[13.0, 14.0, 15.0, 16.0], 4, VecType::Col);
+        let matrix: DMatrix<f64> = (v1.outer(&v2) - v1.outer(&v3)
+            + (v1.outer(&v4) / v2.outer(&v4))
+            + v3.outer(&v2) * v2.outer(&v1))
+        .into();
+        let expected = DMatrix::<f64>::from_row_slice(
+            &[
+                221.2,
+                536.2,
+                941.2,
+                1436.2,
+                292.3333333333333,
+                712.3333333333334,
+                1252.3333333333333,
+                1912.3333333333333,
+                373.42857142857144,
+                912.4285714285714,
+                1605.4285714285713,
+                2452.4285714285716,
+                464.5,
+                1136.5,
+                2000.5,
+                3056.5,
+            ],
+            4,
+            4,
+        );
+
+        for (actual, expected) in matrix.iter().zip(expected.iter()) {
+            assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+        }
+    }
+
+    #[test]
+    #[allow(clippy::unnecessary_mut_passed)]
+    fn test_outer_product_mutability_combinations() {
+        let mut a = DVector::<f64>::from_slice_vec(&[1.0, 2.0], 2, VecType::Col);
+        let mut b = DVector::<f64>::from_slice_vec(&[10.0, 20.0, 30.0], 3, VecType::Col);
+        let expected = DMatrix::<f64>::from_row_slice(&[10.0, 20.0, 30.0, 20.0, 40.0, 60.0], 2, 3);
+
+        let rr: DMatrix<f64> = a.outer(&b).into();
+        let mr: DMatrix<f64> = (&mut a).outer(&b).into();
+        let rm: DMatrix<f64> = a.outer(&mut b).into();
+        let mm: DMatrix<f64> = (&mut a).outer(&mut b).into();
+
+        for actual in [&rr, &mr, &rm, &mm] {
+            for (actual, expected) in actual.iter().zip(expected.iter()) {
+                assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
+            }
         }
     }
     //}}}

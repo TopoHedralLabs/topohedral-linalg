@@ -15,6 +15,7 @@ There is no prelude — import what you need. Everything is re-exported from the
 | `DVector`, `VecType` (dynamic vector alias and orientation) | `topohedral_linalg::{DVector, VecType}` |
 | `Field` (numeric arithmetic bound) | `topohedral_linalg::Field` |
 | Traits (`MatMul`, `MatrixOps`, `ReduceOps`, `TransformOps`, `FloatTransformOps`, `Shape`, `VectorOps`, …) | `topohedral_linalg::{TraitName}` |
+| `OuterProduct` (lazy vector outer products) | `topohedral_linalg::OuterProduct` |
 | Subview traits and concrete view types | `topohedral_linalg::{SubViewable, SubViewableMut, MatrixView, MatrixViewMut, IndexedMatrixView, IndexedMatrixViewMut}` |
 | `ElementwiseCompare` (lazy comparisons) | `topohedral_linalg::ElementwiseCompare` |
 | `Maskable` (boolean masked selection) | `topohedral_linalg::Maskable` |
@@ -27,7 +28,7 @@ A typical set of imports for general use:
 use topohedral_linalg::{
     DMatrix, SMatrix,
     Dimension, MatMul, MatrixOps, ReduceOps, Shape,
-    TransformOps, FloatTransformOps,
+    TransformOps, FloatTransformOps, OuterProduct,
     ElementwiseCompare, Maskable, SubViewable, SubViewableMut,
 };
 ```
@@ -180,12 +181,53 @@ use topohedral_linalg::{DVector, VecType};
 let col = DVector::<f64>::zeros_vec(5, VecType::Col);
 let col = DVector::<f64>::ones_vec(5, VecType::Col);
 let col = DVector::<f64>::from_value_vec(3.14, 5, VecType::Col);
-let col = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0], VecType::Col);
+let col = DVector::<f64>::from_slice_vec(&[1.0, 2.0, 3.0], 3, VecType::Col);
 let col = DVector::<f64>::from_uniform_random_vec(0.0, 1.0, 5, VecType::Col);
 
 // Row vector (1×N)
 let row = DVector::<f64>::zeros_vec(5, VecType::Row);
 ```
+
+### Lazy outer products
+
+Import `OuterProduct` to build a lazy matrix expression from two vectors:
+
+```rust
+use topohedral_linalg::{DMatrix, DVector, OuterProduct, SCVector, SMatrix, VecType};
+
+let u = SCVector::<f64, 2>::from_col_slice(&[1.0, 2.0]);
+let v = SCVector::<f64, 3>::from_col_slice(&[10.0, 20.0, 30.0]);
+
+let outer: SMatrix<f64, 2, 3> = u.outer(&v).into();
+let expected = SMatrix::<f64, 2, 3>::from_row_slice(&[
+    10.0, 20.0, 30.0,
+    20.0, 40.0, 60.0,
+]);
+
+let u = DVector::<f64>::from_slice_vec(&[1.0, 2.0], 2, VecType::Col);
+let v = DVector::<f64>::from_slice_vec(&[10.0, 20.0, 30.0], 3, VecType::Col);
+
+let outer: DMatrix<f64> = u.outer(&v).into();
+```
+
+The result has one row per element of the left vector and one column per element of
+the right vector. The vector orientation is only used to identify the operands as
+vectors; a row vector and a column vector with the same length produce the same
+outer-product values.
+
+`outer` returns an expression node, so it composes with the rest of the lazy
+elementwise system and is evaluated only when materialised:
+
+```rust
+let base = DMatrix::<f64>::from_value(1.0, 2, 3);
+let u = DVector::<f64>::from_slice_vec(&[1.0, 2.0], 2, VecType::Col);
+let v = DVector::<f64>::from_slice_vec(&[10.0, 20.0, 30.0], 3, VecType::Col);
+
+let updated: DMatrix<f64> = (&base + u.outer(&v) * 0.5).into();
+```
+
+Outer-product operands can be shared or mutable borrowed vectors. They are read as
+expression operands; the outer product does not mutate either vector.
 
 ---
 

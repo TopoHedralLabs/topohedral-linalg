@@ -53,6 +53,7 @@ pub type DVector<T> = DMatrix<T>;
 //}}}
 //{{{ enum: VecType
 /// Selects whether a `DVector` is oriented as a row vector or a column vector.
+#[derive(Copy, Clone)]
 pub enum VecType {
     /// A 1×N row vector.
     Row,
