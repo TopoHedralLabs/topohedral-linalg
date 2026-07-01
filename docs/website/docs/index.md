@@ -11,6 +11,7 @@ the following features defined for them:
 - Accelerated matrix-matrix and matrix-vector multiplication via BLAS/LAPACK (floating point only)
 - Accelerated matrix decompositions, including Cholesky, and linear system solution via BLAS/LAPACK (floating point only)
 - Lazily evaluated elementwise arithmetic and comparison expressions
+- Lazy vector outer products that compose with elementwise expressions
 - Boolean matrices, composable masks, and masked element selection
 - Rectangular and index-set matrix subviews
 - Reductions and transformations
