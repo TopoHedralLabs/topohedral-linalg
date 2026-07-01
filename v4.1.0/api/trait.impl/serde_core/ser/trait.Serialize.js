@@ -1,0 +1,9 @@
+(function() {
+    const implementors = Object.fromEntries([["topohedral_linalg",[["impl&lt;T&gt; <a class=\"trait\" href=\"https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serialize.html\" title=\"trait serde_core::ser::Serialize\">Serialize</a> for <a class=\"struct\" href=\"topohedral_linalg/struct.DMatrix.html\" title=\"struct topohedral_linalg::DMatrix\">DMatrix</a>&lt;T&gt;<div class=\"where\">where\n    T: <a class=\"trait\" href=\"https://doc.rust-lang.org/1.96.0/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> + <a class=\"trait\" href=\"https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serialize.html\" title=\"trait serde_core::ser::Serialize\">Serialize</a>,</div>",0],["impl&lt;T, const N: <a class=\"primitive\" href=\"https://doc.rust-lang.org/1.96.0/std/primitive.usize.html\">usize</a>, const M: <a class=\"primitive\" href=\"https://doc.rust-lang.org/1.96.0/std/primitive.usize.html\">usize</a>&gt; <a class=\"trait\" href=\"https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serialize.html\" title=\"trait serde_core::ser::Serialize\">Serialize</a> for <a class=\"struct\" href=\"topohedral_linalg/struct.SMatrix.html\" title=\"struct topohedral_linalg::SMatrix\">SMatrix</a>&lt;T, N, M&gt;<div class=\"where\">where\n    T: <a class=\"trait\" href=\"https://doc.rust-lang.org/1.96.0/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> + <a class=\"trait\" href=\"https://docs.rs/serde_core/1.0.228/serde_core/ser/trait.Serialize.html\" title=\"trait serde_core::ser::Serialize\">Serialize</a>,</div>",0]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":59,"fragment_lengths":[1537]}
