@@ -804,6 +804,7 @@ mod smatrix_tests {
     }
 
     #[test]
+    #[allow(clippy::unnecessary_mut_passed)]
     fn test_outer_product_mutability_combinations() {
         let mut a = SCVector::<f64, 2>::from_col_slice(&[1.0, 2.0]);
         let mut b = SCVector::<f64, 3>::from_col_slice(&[10.0, 20.0, 30.0]);
@@ -1518,6 +1519,7 @@ mod dmatrix_tests {
     }
 
     #[test]
+    #[allow(clippy::unnecessary_mut_passed)]
     fn test_outer_product_mutability_combinations() {
         let mut a = DVector::<f64>::from_slice_vec(&[1.0, 2.0], 2, VecType::Col);
         let mut b = DVector::<f64>::from_slice_vec(&[10.0, 20.0, 30.0], 3, VecType::Col);
