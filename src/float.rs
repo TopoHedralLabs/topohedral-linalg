@@ -21,98 +21,147 @@ use crate::common::{Field, One, TransformOps, VectorOps, Zero};
 /// operations required by numeric algorithms in this crate (trigonometric, exponential,
 /// logarithmic, rounding, etc.).
 pub trait Float: Field {
+    /// Returns the absolute value.
     fn abs(self) -> Self;
+    /// Returns the positive difference from `other`.
     fn abs_sub(
         self,
         other: Self,
     ) -> Self;
+    /// Returns the inverse cosine.
     fn acos(self) -> Self;
+    /// Returns the inverse hyperbolic cosine.
     fn acosh(self) -> Self;
+    /// Returns the inverse sine.
     fn asin(self) -> Self;
+    /// Returns the inverse hyperbolic sine.
     fn asinh(self) -> Self;
+    /// Returns the inverse tangent.
     fn atan(self) -> Self;
+    /// Returns the four-quadrant inverse tangent with `other`.
     fn atan2(
         self,
         other: Self,
     ) -> Self;
+    /// Returns the inverse hyperbolic tangent.
     fn atanh(self) -> Self;
+    /// Returns the cube root.
     fn cbrt(self) -> Self;
+    /// Rounds toward positive infinity.
     fn ceil(self) -> Self;
+    /// Restricts the value to the inclusive range `min..=max`.
     fn clamp(
         self,
         min: Self,
         max: Self,
     ) -> Self;
+    /// Returns the magnitude of `self` with the sign of `sign`.
     fn copysign(
         self,
         sign: Self,
     ) -> Self;
+    /// Returns the cosine.
     fn cos(self) -> Self;
+    /// Returns the hyperbolic cosine.
     fn cosh(self) -> Self;
+    /// Returns the Euclidean quotient of `self` by `rhs`.
     fn div_euclid(
         self,
         rhs: Self,
     ) -> Self;
+    /// Returns the exponential function.
     fn exp(self) -> Self;
+    /// Returns two raised to this value.
     fn exp2(self) -> Self;
+    /// Returns `exp(self) - 1` accurately near zero.
     fn exp_m1(self) -> Self;
+    /// Rounds toward negative infinity.
     fn floor(self) -> Self;
+    /// Returns the fractional part.
     fn fract(self) -> Self;
+    /// Returns the length of the hypotenuse formed with `other`.
     fn hypot(
         self,
         other: Self,
     ) -> Self;
+    /// Returns the natural logarithm.
     fn ln(self) -> Self;
+    /// Returns `ln(1 + self)` accurately near zero.
     fn ln_1p(self) -> Self;
+    /// Returns the logarithm with the given base.
     fn log(
         self,
         base: Self,
     ) -> Self;
+    /// Returns the base-10 logarithm.
     fn log10(self) -> Self;
+    /// Returns the base-2 logarithm.
     fn log2(self) -> Self;
+    /// Returns the greater of `self` and `other`.
     fn max(
         self,
         other: Self,
     ) -> Self;
+    /// Returns the midpoint between `self` and `other`.
     fn midpoint(
         self,
         other: Self,
     ) -> Self;
+    /// Returns the lesser of `self` and `other`.
     fn min(
         self,
         other: Self,
     ) -> Self;
+    /// Returns `self * a + b` with a fused operation when available.
     fn mul_add(
         self,
         a: Self,
         b: Self,
     ) -> Self;
+    /// Returns the next representable value toward negative infinity.
     fn next_down(self) -> Self;
+    /// Returns the next representable value toward positive infinity.
     fn next_up(self) -> Self;
+    /// Raises `self` to a floating-point power.
     fn powf(
         self,
         exp: Self,
     ) -> Self;
+    /// Returns a small positive tolerance for this type.
     fn small() -> Self;
+    /// Raises `self` to an integer power.
     fn powi(
         self,
         exp: i32,
     ) -> Self;
+    /// Returns the reciprocal.
     fn recip(self) -> Self;
+    /// Returns the Euclidean remainder of division by `rhs`.
     fn rem_euclid(
         self,
         rhs: Self,
     ) -> Self;
+    /// Rounds to the nearest integer, away from zero on ties.
     fn round(self) -> Self;
+    /// Rounds to the nearest integer, toward even on ties.
     fn round_ties_even(self) -> Self;
+    /// Returns a value representing the sign of `self`.
     fn signum(self) -> Self;
+    /// Returns the sine.
     fn sin(self) -> Self;
+    /// Returns the hyperbolic sine.
     fn sinh(self) -> Self;
+    /// Returns the square root.
     fn sqrt(self) -> Self;
+    /// Returns the tangent.
     fn tan(self) -> Self;
+    /// Returns the hyperbolic tangent.
     fn tanh(self) -> Self;
+    /// Converts radians to degrees.
     fn to_degrees(self) -> Self;
+    /// Converts degrees to radians.
     fn to_radians(self) -> Self;
+    /// Returns the integer part by rounding toward zero.
     fn trunc(self) -> Self;
 }
 //}}}
@@ -427,6 +476,7 @@ where
     Self::ScalarType: Float + Zero + One + Copy + Default,
 {
     //{{{ fn: angle
+    /// Returns the angle between two 2-D or 3-D vectors in radians.
     fn angle(
         &self,
         other: &Self,
@@ -454,10 +504,12 @@ where
 //{{{ macro: float_transform_unary
 macro_rules! float_transform_unary {
     ($method:ident, $methoded:ident, $into_methoded:ident) => {
+        #[doc = concat!("Applies [`Float::", stringify!($method), "`] to every element in place.")]
         fn $method(&mut self) {
             self.transform(|value| value.$method());
         }
 
+        #[doc = concat!("Returns a copy with [`Float::", stringify!($method), "`] applied element-wise.")]
         fn $methoded(&self) -> Self
         where
             Self: Clone,
@@ -465,6 +517,7 @@ macro_rules! float_transform_unary {
             self.transformed(|value| value.$method())
         }
 
+        #[doc = concat!("Consumes the value and applies [`Float::", stringify!($method), "`] element-wise.")]
         fn $into_methoded(self) -> Self {
             self.into_transformed(|value| value.$method())
         }
@@ -474,6 +527,7 @@ macro_rules! float_transform_unary {
 //{{{ macro: float_transform_unary_with_arg
 macro_rules! float_transform_unary_with_arg {
     ($method:ident, $methoded:ident, $into_methoded:ident, $arg:ident: $arg_type:ty) => {
+        #[doc = concat!("Applies [`Float::", stringify!($method), "`] to every element in place.")]
         fn $method(
             &mut self,
             $arg: $arg_type,
@@ -481,6 +535,7 @@ macro_rules! float_transform_unary_with_arg {
             self.transform(|value| value.$method($arg));
         }
 
+        #[doc = concat!("Returns a copy with [`Float::", stringify!($method), "`] applied element-wise.")]
         fn $methoded(
             &self,
             $arg: $arg_type,
@@ -491,6 +546,7 @@ macro_rules! float_transform_unary_with_arg {
             self.transformed(|value| value.$method($arg))
         }
 
+        #[doc = concat!("Consumes the value and applies [`Float::", stringify!($method), "`] element-wise.")]
         fn $into_methoded(
             self,
             $arg: $arg_type,
@@ -509,6 +565,7 @@ macro_rules! float_transform_unary_with_two_args {
         $arg1:ident: $arg1_type:ty,
         $arg2:ident: $arg2_type:ty
     ) => {
+        #[doc = concat!("Applies [`Float::", stringify!($method), "`] to every element in place.")]
         fn $method(
             &mut self,
             $arg1: $arg1_type,
@@ -517,6 +574,7 @@ macro_rules! float_transform_unary_with_two_args {
             self.transform(|value| value.$method($arg1, $arg2));
         }
 
+        #[doc = concat!("Returns a copy with [`Float::", stringify!($method), "`] applied element-wise.")]
         fn $methoded(
             &self,
             $arg1: $arg1_type,
@@ -528,6 +586,7 @@ macro_rules! float_transform_unary_with_two_args {
             self.transformed(|value| value.$method($arg1, $arg2))
         }
 
+        #[doc = concat!("Consumes the value and applies [`Float::", stringify!($method), "`] element-wise.")]
         fn $into_methoded(
             self,
             $arg1: $arg1_type,

@@ -24,6 +24,7 @@ use std::ops::{Mul, MulAssign};
 //--------------------------------------------------------------------------------------------------
 
 //{{{ fun: mul_assign_expr
+/// Multiplies a static matrix by a same-shaped expression element-wise.
 #[inline]
 fn mul_assign_expr<T, Rhs, const N: usize, const M: usize>(
     lhs: &mut SMatrix<T, N, M>,

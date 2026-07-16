@@ -115,9 +115,13 @@ impl Geev for f32 {
 //}}}
 
 //{{{ struct: EigRaw
+/// Raw buffers produced by the shared eigendecomposition.
 pub(crate) struct EigRaw<T> {
+    /// Left eigenvectors in column-major order.
     pub vl: Vec<T>,
+    /// Right eigenvectors in column-major order.
     pub vr: Vec<T>,
+    /// Complex eigenvalues.
     pub eigvals: Vec<crate::common::Complex<T>>,
 }
 //}}}

@@ -85,6 +85,7 @@ where
     }
     //}}}
     //{{{ fun: from_col_vec
+    /// Builds a static matrix from an owned column-major buffer.
     pub(crate) fn from_col_vec(data: Vec<T>) -> Self {
         assert_eq!(data.len(), N * M);
         Self::from_col_slice(&data)

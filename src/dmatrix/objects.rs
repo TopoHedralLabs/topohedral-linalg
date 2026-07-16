@@ -1,6 +1,6 @@
-//! Short Description of module
+//! Dynamic matrix and vector types.
 //!
-//! Longer description of module
+//! Defines column-major [`DMatrix`] storage and the [`DVector`] alias.
 //--------------------------------------------------------------------------------------------------
 //{{{ crate imports
 use crate::common::{Field, One, VectorOps, Zero};

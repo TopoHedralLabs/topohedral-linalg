@@ -51,7 +51,7 @@ where
     ///
     /// # Errors
     ///
-    /// Returns [`Error::GetrfError`] if `geqrf` fails, or [`Error::OrgqrError`] if `orgqr` fails.
+    /// Returns [`Error::GetrfError`] if either LAPACK factorisation step fails.
     pub fn qr(&self) -> Result<Return<T>, Error> {
         let n = self.nrows;
         let m = self.ncols;

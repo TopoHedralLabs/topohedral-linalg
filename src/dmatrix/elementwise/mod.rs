@@ -1,6 +1,6 @@
-//! Short Description of module
+//! Element-wise arithmetic expressions for dynamic matrices.
 //!
-//! Longer description of module
+//! Implements addition, subtraction, multiplication, division, and negation.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

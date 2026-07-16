@@ -17,6 +17,7 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 //--------------------------------------------------------------------------------------------------
 
 //{{{ fun: vector_len
+/// Returns the length of a row or column vector expression.
 #[inline]
 fn vector_len<X>(expr: &X) -> usize
 where

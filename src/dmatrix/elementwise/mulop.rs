@@ -24,6 +24,7 @@ use std::ops::{Mul, MulAssign};
 //--------------------------------------------------------------------------------------------------
 
 //{{{ fun: mul_assign_expr
+/// Multiplies a dynamic matrix by a same-shaped expression element-wise.
 #[inline]
 fn mul_assign_expr<T, Rhs>(
     lhs: &mut DMatrix<T>,
