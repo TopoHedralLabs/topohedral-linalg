@@ -21,6 +21,7 @@ use std::ops::{Add, Div, Index, IndexMut, Mul, Neg, Sub};
 //--------------------------------------------------------------------------------------------------
 
 //{{{ fn: validate_indices
+/// Verifies that all indices fit within one matrix axis.
 fn validate_indices(
     indices: &[usize],
     limit: usize,
@@ -38,6 +39,7 @@ fn validate_indices(
 }
 //}}}
 //{{{ fn: validate_unique_indices
+/// Rejects duplicate indices that would alias mutable elements.
 fn validate_unique_indices(
     indices: &[usize],
     axis: &str,
@@ -1334,6 +1336,7 @@ apply_for_all_types!(impl_indexed_matrix_view_mut_scalar_ops);
 /// provided; `row`, `rows`, `col`, and `cols` have default implementations
 /// that delegate to it.
 pub trait SubViewable: Shape + Index<(usize, usize)> + Sized {
+    /// Borrows an inclusive rectangular range of rows and columns.
     fn subview_range<'a>(
         &'a self,
         start_row: usize,
@@ -1342,6 +1345,7 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized {
         end_col: usize,
     ) -> MatrixView<'a, Self>;
 
+    /// Borrows one row.
     fn row<'a>(
         &'a self,
         row: usize,
@@ -1349,6 +1353,7 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized {
         self.subview_range(row, row, 0, self.ncols() - 1)
     }
 
+    /// Borrows an inclusive range of rows.
     fn rows_range<'a>(
         &'a self,
         start_row: usize,
@@ -1357,6 +1362,7 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized {
         self.subview_range(start_row, end_row, 0, self.ncols() - 1)
     }
 
+    /// Borrows one column.
     fn col<'a>(
         &'a self,
         col: usize,
@@ -1364,6 +1370,7 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized {
         self.subview_range(0, self.nrows() - 1, col, col)
     }
 
+    /// Borrows an inclusive range of columns.
     fn cols_range<'a>(
         &'a self,
         start_col: usize,
@@ -1372,6 +1379,7 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized {
         self.subview_range(0, self.nrows() - 1, start_col, end_col)
     }
 
+    /// Borrows rows selected by index, preserving their supplied order.
     fn rows_indices<'a, I>(
         &'a self,
         row_indices: I,
@@ -1388,6 +1396,7 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized {
         }
     }
 
+    /// Borrows columns selected by index, preserving their supplied order.
     fn cols_indices<'a, I>(
         &'a self,
         col_indices: I,
@@ -1404,6 +1413,7 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized {
         }
     }
 
+    /// Borrows entries selected by row and column index lists.
     fn subview_indices<'a, R, C>(
         &'a self,
         row_indices: R,
@@ -1434,6 +1444,7 @@ pub trait SubViewable: Shape + Index<(usize, usize)> + Sized {
 /// Default methods bind dimension reads to locals before the `&mut self`
 /// call to avoid simultaneous shared + exclusive borrow of `self`.
 pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)> {
+    /// Mutably borrows an inclusive rectangular range of rows and columns.
     fn subview_range_mut<'a>(
         &'a mut self,
         start_row: usize,
@@ -1442,6 +1453,7 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)> {
         end_col: usize,
     ) -> MatrixViewMut<'a, Self>;
 
+    /// Mutably borrows one row.
     fn row_mut<'a>(
         &'a mut self,
         row: usize,
@@ -1450,6 +1462,7 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)> {
         self.subview_range_mut(row, row, 0, ncols - 1)
     }
 
+    /// Mutably borrows an inclusive range of rows.
     fn rows_range_mut<'a>(
         &'a mut self,
         start_row: usize,
@@ -1459,6 +1472,7 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)> {
         self.subview_range_mut(start_row, end_row, 0, ncols - 1)
     }
 
+    /// Mutably borrows one column.
     fn col_mut<'a>(
         &'a mut self,
         col: usize,
@@ -1467,6 +1481,7 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)> {
         self.subview_range_mut(0, nrows - 1, col, col)
     }
 
+    /// Mutably borrows an inclusive range of columns.
     fn cols_range_mut<'a>(
         &'a mut self,
         start_col: usize,
@@ -1476,6 +1491,7 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)> {
         self.subview_range_mut(0, nrows - 1, start_col, end_col)
     }
 
+    /// Mutably borrows distinct rows selected by index.
     fn rows_indices_mut<'a, I>(
         &'a mut self,
         row_indices: I,
@@ -1495,6 +1511,7 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)> {
         }
     }
 
+    /// Mutably borrows distinct columns selected by index.
     fn cols_indices_mut<'a, I>(
         &'a mut self,
         col_indices: I,
@@ -1514,6 +1531,7 @@ pub trait SubViewableMut: SubViewable + IndexMut<(usize, usize)> {
         }
     }
 
+    /// Mutably borrows entries selected by distinct row and column indices.
     fn subview_indices_mut<'a, R, C>(
         &'a mut self,
         row_indices: R,
@@ -1628,6 +1646,7 @@ pub trait Maskable: Shape + Index<(usize, usize)> + Sized
 where
     Self::Output: Copy,
 {
+    /// Selects entries for which `mask` evaluates to `true`.
     fn masked<Mask>(
         &self,
         mask: Mask,

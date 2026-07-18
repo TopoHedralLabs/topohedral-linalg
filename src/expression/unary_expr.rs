@@ -351,6 +351,7 @@ macro_rules! define_float_unary_op {
             }
         }
 
+        #[doc = concat!("Creates a lazy element-wise `", stringify!($func_name), "` expression.")]
         #[inline]
         pub fn $func_name<A, T>(expr: A) -> UnaryExpr<A, T, $op_name>
         where
@@ -387,6 +388,7 @@ macro_rules! define_float_unary_op_with_same_arg {
             }
         }
 
+        #[doc = concat!("Creates a lazy element-wise `", stringify!($func_name), "` expression.")]
         #[inline]
         pub fn $func_name<A, T>(
             expr: A,
@@ -427,6 +429,7 @@ macro_rules! define_float_unary_op_with_two_same_args {
             }
         }
 
+        #[doc = concat!("Creates a lazy element-wise `", stringify!($func_name), "` expression.")]
         #[inline]
         pub fn $func_name<A, T>(
             expr: A,
@@ -497,6 +500,7 @@ where
     }
 }
 
+/// Creates a lazy element-wise integer-power expression.
 #[inline]
 pub fn powi<A, T>(
     expr: A,

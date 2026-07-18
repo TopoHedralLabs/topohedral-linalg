@@ -114,8 +114,11 @@ impl Gees for f32 {
 //}}}
 
 //{{{ struct: SchurRaw
+/// Raw buffers produced by the shared Schur factorisation.
 pub(crate) struct SchurRaw<T> {
+    /// Schur vectors in column-major order.
     pub q_data: Vec<T>,
+    /// Schur form in column-major order.
     pub t_data: Vec<T>,
 }
 //}}}

@@ -22,6 +22,7 @@ use std::ops::{Div, DivAssign};
 //--------------------------------------------------------------------------------------------------
 
 //{{{ fun: div_assign_expr
+/// Divides a static matrix by a same-shaped expression element-wise.
 #[inline]
 fn div_assign_expr<T, Rhs, const N: usize, const M: usize>(
     lhs: &mut SMatrix<T, N, M>,

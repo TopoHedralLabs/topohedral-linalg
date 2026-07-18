@@ -1,6 +1,6 @@
-//! Short Description of module
+//! Sorting operations for static matrices.
 //!
-//! Longer description of module
+//! Sorts rows, columns, or all elements in place or into a new matrix.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

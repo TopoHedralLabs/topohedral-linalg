@@ -89,16 +89,22 @@ impl Geqrf for f32 {
 //}}}
 
 //{{{ struct: QrRaw
+/// Raw buffers produced by the shared QR factorisation.
 pub(crate) struct QrRaw<T> {
+    /// Orthogonal factor in column-major order.
     pub q_data: Vec<T>,
+    /// Upper-triangular factor in column-major order.
     pub r_data: Vec<T>,
 }
 //}}}
 //{{{ enum: QrRawError
+/// Error returned by either stage of QR factorisation.
 #[derive(Error, Debug)]
 pub enum QrRawError {
+    /// Householder factorisation failed.
     #[error(transparent)]
     Geqrf(#[from] Error),
+    /// Explicit Q construction failed.
     #[error(transparent)]
     Orgqr(#[from] super::orgqr::Error),
 }

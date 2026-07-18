@@ -18,6 +18,7 @@ use thiserror::Error;
 //--------------------------------------------------------------------------------------------------
 
 //{{{ enum: Error
+/// Error returned when a Schur decomposition fails.
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("Error in schur(), exited with error:\n{0}")]

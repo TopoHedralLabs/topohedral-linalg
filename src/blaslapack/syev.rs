@@ -95,8 +95,11 @@ impl Syev for f32 {
 //}}}
 
 //{{{ struct: SymEigRaw
+/// Raw buffers produced by the shared symmetric eigendecomposition.
 pub(crate) struct SymEigRaw<T> {
+    /// Eigenvectors in column-major order.
     pub eigvecs_data: Vec<T>,
+    /// Eigenvalues in ascending order.
     pub eigvals: Vec<T>,
 }
 //}}}

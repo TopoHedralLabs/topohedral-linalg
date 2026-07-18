@@ -22,6 +22,7 @@ use std::ops::{Sub, SubAssign};
 //--------------------------------------------------------------------------------------------------
 
 //{{{ fun: sub_assign_expr
+/// Subtracts a same-shaped expression from a static matrix.
 #[inline]
 fn sub_assign_expr<T, Rhs, const N: usize, const M: usize>(
     lhs: &mut SMatrix<T, N, M>,

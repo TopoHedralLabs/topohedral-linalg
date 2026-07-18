@@ -25,6 +25,7 @@ use std::ops::{Add, AddAssign};
 //--------------------------------------------------------------------------------------------------
 
 //{{{ fun: add_assign_expr
+/// Adds a same-shaped expression into a static matrix.
 #[inline]
 fn add_assign_expr<T, Rhs, const N: usize, const M: usize>(
     lhs: &mut SMatrix<T, N, M>,

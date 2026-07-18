@@ -89,10 +89,15 @@ impl Getrf for f32 {
 //}}}
 
 //{{{ struct: LuRaw
+/// Raw buffers produced by the shared LU factorisation.
 pub(crate) struct LuRaw<T> {
+    /// Lower-triangular factor in column-major order.
     pub l_data: Vec<T>,
+    /// Upper-triangular factor in column-major order.
     pub u_data: Vec<T>,
+    /// Permutation matrix in column-major order.
     pub p_data: Vec<T>,
+    /// Number of row exchanges performed.
     pub num_swaps: usize,
 }
 //}}}

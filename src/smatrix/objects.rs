@@ -1,6 +1,6 @@
-//! Short Description of module
+//! Static matrix and vector types.
 //!
-//! Longer description of module
+//! Defines column-major [`SMatrix`] storage and fixed-size vector aliases.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

@@ -24,6 +24,7 @@ use std::ops::{Div, DivAssign};
 //--------------------------------------------------------------------------------------------------
 
 //{{{ fun: div_assign_expr
+/// Divides a dynamic matrix by a same-shaped expression element-wise.
 #[inline]
 fn div_assign_expr<T, Rhs>(
     lhs: &mut DMatrix<T>,

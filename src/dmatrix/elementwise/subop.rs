@@ -24,6 +24,7 @@ use std::ops::{Sub, SubAssign};
 //--------------------------------------------------------------------------------------------------
 
 //{{{ fun: sub_assign_expr
+/// Subtracts a same-shaped expression from a dynamic matrix.
 #[inline]
 fn sub_assign_expr<T, Rhs>(
     lhs: &mut DMatrix<T>,

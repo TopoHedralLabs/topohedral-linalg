@@ -243,7 +243,9 @@ pub trait MatrixOps
 where
     Self: Sized,
 {
+    /// Scalar stored by the matrix.
     type ScalarType: Field + Zero + One + Copy;
+    /// Matrix type produced by transposition.
     type TransposeType;
 
     /// Returns the transpose of the matrix.
@@ -306,6 +308,7 @@ where
 /// [`MatrixExpr::eval_into`], while strided destinations such as views can pull individual values
 /// with [`MatrixExpr::linear_value`] without allocating.
 pub trait MatrixExpr: Shape {
+    /// Scalar yielded by the expression.
     type ScalarType: Copy;
 
     /// Returns the value at `index` in column-major order.
@@ -449,6 +452,7 @@ pub trait MatMul<Rhs = Self>
 where
     Self: Sized,
 {
+    /// Matrix produced by the multiplication.
     type Output;
 
     /// Multiplies `self` by `rhs` and returns the resulting matrix.
@@ -464,6 +468,7 @@ where
 pub trait VectorOps:
     Index<usize, Output = Self::ScalarType> + IndexMut<usize, Output = Self::ScalarType> + Sized + Clone
 {
+    /// Scalar stored by the vector.
     type ScalarType: Field + Zero + One + Copy + Default + Float;
 
     //{{{ fn: len
@@ -547,6 +552,7 @@ pub trait TransformOps
 where
     Self: Sized,
 {
+    /// Scalar transformed by the operation.
     type ScalarType: Copy;
 
     /// Applies `f` to each element in-place.
@@ -703,7 +709,9 @@ pub fn tuple_index(
 /// Implementors provide [`fold`](ReduceOps::fold) and [`fold_indexed`](ReduceOps::fold_indexed);
 /// all other methods (`sum`, `product`, `min`, `max`, etc.) are derived automatically.
 pub trait ReduceOps {
+    /// Value included in the reduction.
     type Item: Copy;
+    /// Index supplied to indexed reductions.
     type Index: Copy;
 
     /// Folds every element into an accumulator using `f`, starting from `init`.

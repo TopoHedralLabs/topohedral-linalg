@@ -1,6 +1,6 @@
-//! Short Description of module
+//! BLAS- and LAPACK-backed operations for dynamic matrices.
 //!
-//! Longer description of module
+//! Provides matrix multiplication, decompositions, eigensolvers, and linear solves.
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports

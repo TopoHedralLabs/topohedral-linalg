@@ -79,7 +79,9 @@ impl Potrf for f32 {
 //}}}
 
 //{{{ struct: CholeskyRaw
+/// Raw buffer produced by the shared Cholesky factorisation.
 pub(crate) struct CholeskyRaw<T> {
+    /// Lower-triangular factor in column-major order.
     pub l_data: Vec<T>,
 }
 //}}}
