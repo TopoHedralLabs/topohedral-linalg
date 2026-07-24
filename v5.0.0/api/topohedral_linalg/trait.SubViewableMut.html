@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Mutable subview constructor methods for any matrix type."><title>SubViewableMut in topohedral_linalg - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-17e0aaed.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="topohedral_linalg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.97.1 (8bab26f4f 2026-07-14)" data-channel="1.97.1" data-search-js="search-fd9372ac.js" data-stringdex-js="stringdex-2da4960a.js" data-settings-js="settings-170eb4bf.js" ><script src="../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-fcd733ba.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"><script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+</script>
+<script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+</script>
+</head><body class="rustdoc trait"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">SubViewableMut</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../topohedral_linalg/index.html">topohedral_<wbr>linalg</a><span class="version">5.0.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">SubViewable<wbr>Mut</a></h2><h3><a href="#required-methods">Required Methods</a></h3><ul class="block"><li><a href="#tymethod.subview_range_mut" title="subview_range_mut">subview_range_mut</a></li></ul><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.col_mut" title="col_mut">col_mut</a></li><li><a href="#method.cols_indices_mut" title="cols_indices_mut">cols_indices_mut</a></li><li><a href="#method.cols_indices_mut_from_slice" title="cols_indices_mut_from_slice">cols_indices_mut_from_slice</a></li><li><a href="#method.cols_range_mut" title="cols_range_mut">cols_range_mut</a></li><li><a href="#method.row_mut" title="row_mut">row_mut</a></li><li><a href="#method.rows_indices_mut" title="rows_indices_mut">rows_indices_mut</a></li><li><a href="#method.rows_indices_mut_from_slice" title="rows_indices_mut_from_slice">rows_indices_mut_from_slice</a></li><li><a href="#method.rows_range_mut" title="rows_range_mut">rows_range_mut</a></li><li><a href="#method.subview_indices_mut" title="subview_indices_mut">subview_indices_mut</a></li><li><a href="#method.subview_indices_mut_from_slices" title="subview_indices_mut_from_slices">subview_indices_mut_from_slices</a></li></ul><h3><a href="#dyn-compatibility">Dyn Compatibility</a></h3><h3><a href="#implementors">Implementors</a></h3></section><div id="rustdoc-modnav"><h2 class="in-crate"><a href="index.html">In crate topohedral_<wbr>linalg</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="index.html">topohedral_linalg</a></div><h1>Trait <span class="trait">SubViewable<wbr>Mut</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/topohedral_linalg/subviews.rs.html#1583-1762">Source</a> </span></div><pre class="rust item-decl"><code>pub trait SubViewableMut: <a class="trait" href="trait.SubViewable.html" title="trait topohedral_linalg::SubViewable">SubViewable</a> + <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/ops/index/trait.IndexMut.html" title="trait core::ops::index::IndexMut">IndexMut</a>&lt;(<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>, <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>)&gt; {
+    // Required method
+    fn <a href="#tymethod.subview_range_mut" class="fn">subview_range_mut</a>&lt;'a&gt;(
+        &amp;'a mut self,
+        start_row: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+        end_row: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+        start_col: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+        end_col: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+    ) -&gt; <a class="struct" href="struct.MatrixViewMut.html" title="struct topohedral_linalg::MatrixViewMut">MatrixViewMut</a>&lt;'a, Self&gt;;
+
+    // Provided methods
+    fn <a href="#method.row_mut" class="fn">row_mut</a>&lt;'a&gt;(&amp;'a mut self, row: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>) -&gt; <a class="struct" href="struct.MatrixViewMut.html" title="struct topohedral_linalg::MatrixViewMut">MatrixViewMut</a>&lt;'a, Self&gt; { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rows_range_mut" class="fn">rows_range_mut</a>&lt;'a&gt;(
+        &amp;'a mut self,
+        start_row: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+        end_row: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+    ) -&gt; <a class="struct" href="struct.MatrixViewMut.html" title="struct topohedral_linalg::MatrixViewMut">MatrixViewMut</a>&lt;'a, Self&gt; { ... }
+<span class="item-spacer"></span>    fn <a href="#method.col_mut" class="fn">col_mut</a>&lt;'a&gt;(&amp;'a mut self, col: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>) -&gt; <a class="struct" href="struct.MatrixViewMut.html" title="struct topohedral_linalg::MatrixViewMut">MatrixViewMut</a>&lt;'a, Self&gt; { ... }
+<span class="item-spacer"></span>    fn <a href="#method.cols_range_mut" class="fn">cols_range_mut</a>&lt;'a&gt;(
+        &amp;'a mut self,
+        start_col: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+        end_col: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+    ) -&gt; <a class="struct" href="struct.MatrixViewMut.html" title="struct topohedral_linalg::MatrixViewMut">MatrixViewMut</a>&lt;'a, Self&gt; { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rows_indices_mut" class="fn">rows_indices_mut</a>&lt;'a, I&gt;(
+        &amp;'a mut self,
+        row_indices: I,
+    ) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt;
+       <span class="where">where I: <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.97.1/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>&gt;&gt;</span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.rows_indices_mut_from_slice" class="fn">rows_indices_mut_from_slice</a>&lt;'a&gt;(
+        &amp;'a mut self,
+        row_indices: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>],
+    ) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt; { ... }
+<span class="item-spacer"></span>    fn <a href="#method.cols_indices_mut" class="fn">cols_indices_mut</a>&lt;'a, I&gt;(
+        &amp;'a mut self,
+        col_indices: I,
+    ) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt;
+       <span class="where">where I: <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.97.1/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>&gt;&gt;</span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.cols_indices_mut_from_slice" class="fn">cols_indices_mut_from_slice</a>&lt;'a&gt;(
+        &amp;'a mut self,
+        col_indices: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>],
+    ) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt; { ... }
+<span class="item-spacer"></span>    fn <a href="#method.subview_indices_mut" class="fn">subview_indices_mut</a>&lt;'a, R, C&gt;(
+        &amp;'a mut self,
+        row_indices: R,
+        col_indices: C,
+    ) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt;
+       <span class="where">where R: <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.97.1/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>&gt;&gt;,
+             C: <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.97.1/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>&gt;&gt;</span> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.subview_indices_mut_from_slices" class="fn">subview_indices_mut_from_slices</a>&lt;'a&gt;(
+        &amp;'a mut self,
+        row_indices: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>],
+        col_indices: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>],
+    ) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt; { ... }
+}</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Mutable subview constructor methods for any matrix type.</p>
+<p>Extends <a href="trait.SubViewable.html" title="trait topohedral_linalg::SubViewable"><code>SubViewable</code></a> with <code>IndexMut&lt;(usize, usize)&gt;</code>. Only
+<code>subview_mut</code> must be provided; the remaining methods have defaults.</p>
+<p>Default methods bind dimension reads to locals before the <code>&amp;mut self</code>
+call to avoid simultaneous shared + exclusive borrow of <code>self</code>.</p>
+</div></details><h2 id="required-methods" class="section-header">Required Methods<a href="#required-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="tymethod.subview_range_mut" class="method"><a class="src rightside" href="../src/topohedral_linalg/subviews.rs.html#1589-1595">Source</a><h4 class="code-header">fn <a href="#tymethod.subview_range_mut" class="fn">subview_range_mut</a>&lt;'a&gt;(
+    &amp;'a mut self,
+    start_row: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+    end_row: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+    start_col: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+    end_col: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+) -&gt; <a class="struct" href="struct.MatrixViewMut.html" title="struct topohedral_linalg::MatrixViewMut">MatrixViewMut</a>&lt;'a, Self&gt;</h4></section></summary><div class="docblock"><p>Mutably borrows an inclusive rectangular range of rows and columns.</p>
+<h5 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics</h5>
+<p>Panics if either range is reversed or outside the matrix.</p>
+</div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.row_mut" class="method"><a class="src rightside" href="../src/topohedral_linalg/subviews.rs.html#1602-1613">Source</a><h4 class="code-header">fn <a href="#method.row_mut" class="fn">row_mut</a>&lt;'a&gt;(&amp;'a mut self, row: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>) -&gt; <a class="struct" href="struct.MatrixViewMut.html" title="struct topohedral_linalg::MatrixViewMut">MatrixViewMut</a>&lt;'a, Self&gt;</h4></section></summary><div class="docblock"><p>Mutably borrows one complete row.</p>
+<h5 id="panics-1"><a class="doc-anchor" href="#panics-1">§</a>Panics</h5>
+<p>Panics if <code>row</code> is out of bounds or the matrix has no columns.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rows_range_mut" class="method"><a class="src rightside" href="../src/topohedral_linalg/subviews.rs.html#1620-1633">Source</a><h4 class="code-header">fn <a href="#method.rows_range_mut" class="fn">rows_range_mut</a>&lt;'a&gt;(
+    &amp;'a mut self,
+    start_row: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+    end_row: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+) -&gt; <a class="struct" href="struct.MatrixViewMut.html" title="struct topohedral_linalg::MatrixViewMut">MatrixViewMut</a>&lt;'a, Self&gt;</h4></section></summary><div class="docblock"><p>Mutably borrows an inclusive range of complete rows.</p>
+<h5 id="panics-2"><a class="doc-anchor" href="#panics-2">§</a>Panics</h5>
+<p>Panics if the range is reversed or outside the matrix, or the matrix has no columns.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.col_mut" class="method"><a class="src rightside" href="../src/topohedral_linalg/subviews.rs.html#1640-1651">Source</a><h4 class="code-header">fn <a href="#method.col_mut" class="fn">col_mut</a>&lt;'a&gt;(&amp;'a mut self, col: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>) -&gt; <a class="struct" href="struct.MatrixViewMut.html" title="struct topohedral_linalg::MatrixViewMut">MatrixViewMut</a>&lt;'a, Self&gt;</h4></section></summary><div class="docblock"><p>Mutably borrows one complete column.</p>
+<h5 id="panics-3"><a class="doc-anchor" href="#panics-3">§</a>Panics</h5>
+<p>Panics if <code>col</code> is out of bounds or the matrix has no rows.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.cols_range_mut" class="method"><a class="src rightside" href="../src/topohedral_linalg/subviews.rs.html#1658-1671">Source</a><h4 class="code-header">fn <a href="#method.cols_range_mut" class="fn">cols_range_mut</a>&lt;'a&gt;(
+    &amp;'a mut self,
+    start_col: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+    end_col: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>,
+) -&gt; <a class="struct" href="struct.MatrixViewMut.html" title="struct topohedral_linalg::MatrixViewMut">MatrixViewMut</a>&lt;'a, Self&gt;</h4></section></summary><div class="docblock"><p>Mutably borrows an inclusive range of complete columns.</p>
+<h5 id="panics-4"><a class="doc-anchor" href="#panics-4">§</a>Panics</h5>
+<p>Panics if the range is reversed or outside the matrix, or the matrix has no rows.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rows_indices_mut" class="method"><a class="src rightside" href="../src/topohedral_linalg/subviews.rs.html#1674-1691">Source</a><h4 class="code-header">fn <a href="#method.rows_indices_mut" class="fn">rows_indices_mut</a>&lt;'a, I&gt;(
+    &amp;'a mut self,
+    row_indices: I,
+) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt;<div class="where">where
+    I: <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.97.1/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>&gt;&gt;,</div></h4></section></summary><div class="docblock"><p>Creates a mutable row-indexed view, taking ownership of the index storage.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rows_indices_mut_from_slice" class="method"><a class="src rightside" href="../src/topohedral_linalg/subviews.rs.html#1694-1699">Source</a><h4 class="code-header">fn <a href="#method.rows_indices_mut_from_slice" class="fn">rows_indices_mut_from_slice</a>&lt;'a&gt;(
+    &amp;'a mut self,
+    row_indices: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>],
+) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt;</h4></section></summary><div class="docblock"><p>Creates a mutable row-indexed view by copying indices from a slice.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.cols_indices_mut" class="method"><a class="src rightside" href="../src/topohedral_linalg/subviews.rs.html#1702-1719">Source</a><h4 class="code-header">fn <a href="#method.cols_indices_mut" class="fn">cols_indices_mut</a>&lt;'a, I&gt;(
+    &amp;'a mut self,
+    col_indices: I,
+) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt;<div class="where">where
+    I: <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.97.1/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>&gt;&gt;,</div></h4></section></summary><div class="docblock"><p>Creates a mutable column-indexed view, taking ownership of the index storage.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.cols_indices_mut_from_slice" class="method"><a class="src rightside" href="../src/topohedral_linalg/subviews.rs.html#1722-1727">Source</a><h4 class="code-header">fn <a href="#method.cols_indices_mut_from_slice" class="fn">cols_indices_mut_from_slice</a>&lt;'a&gt;(
+    &amp;'a mut self,
+    col_indices: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>],
+) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt;</h4></section></summary><div class="docblock"><p>Creates a mutable column-indexed view by copying indices from a slice.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.subview_indices_mut" class="method"><a class="src rightside" href="../src/topohedral_linalg/subviews.rs.html#1730-1752">Source</a><h4 class="code-header">fn <a href="#method.subview_indices_mut" class="fn">subview_indices_mut</a>&lt;'a, R, C&gt;(
+    &amp;'a mut self,
+    row_indices: R,
+    col_indices: C,
+) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt;<div class="where">where
+    R: <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.97.1/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>&gt;&gt;,
+    C: <a class="trait" href="https://doc.rust-lang.org/1.97.1/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.97.1/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>&gt;&gt;,</div></h4></section></summary><div class="docblock"><p>Creates a mutable indexed view, taking ownership of both index vectors.</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.subview_indices_mut_from_slices" class="method"><a class="src rightside" href="../src/topohedral_linalg/subviews.rs.html#1755-1761">Source</a><h4 class="code-header">fn <a href="#method.subview_indices_mut_from_slices" class="fn">subview_indices_mut_from_slices</a>&lt;'a&gt;(
+    &amp;'a mut self,
+    row_indices: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>],
+    col_indices: &amp;[<a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>],
+) -&gt; <a class="struct" href="struct.IndexedMatrixViewMut.html" title="struct topohedral_linalg::IndexedMatrixViewMut">IndexedMatrixViewMut</a>&lt;'a, Self&gt;</h4></section></summary><div class="docblock"><p>Creates a mutable indexed view by copying row and column indices from slices.</p>
+</div></details></div><h2 id="dyn-compatibility" class="section-header">Dyn Compatibility<a href="#dyn-compatibility" class="anchor">§</a></h2><div class="dyn-compatibility-info"><p>This trait is <b>not</b> <a href="https://doc.rust-lang.org/1.97.1/reference/items/traits.html#dyn-compatibility">dyn compatible</a>.</p><p><i>In older versions of Rust, dyn compatibility was called "object safety", so this trait is not object safe.</i></p></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><div class="negative-marker"></div><section id="impl-SubViewableMut-for-DMatrix%3CT%3E" class="impl"><a class="src rightside" href="../src/topohedral_linalg/dmatrix/subviews.rs.html#84-107">Source</a><a href="#impl-SubViewableMut-for-DMatrix%3CT%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="trait.SubViewableMut.html" title="trait topohedral_linalg::SubViewableMut">SubViewableMut</a> for <a class="struct" href="struct.DMatrix.html" title="struct topohedral_linalg::DMatrix">DMatrix</a>&lt;T&gt;</h3></section><section id="impl-SubViewableMut-for-SMatrix%3CT,+N,+M%3E" class="impl"><a class="src rightside" href="../src/topohedral_linalg/smatrix/subviews.rs.html#82-102">Source</a><a href="#impl-SubViewableMut-for-SMatrix%3CT,+N,+M%3E" class="anchor">§</a><h3 class="code-header">impl&lt;T, const N: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>, const M: <a class="primitive" href="https://doc.rust-lang.org/1.97.1/std/primitive.usize.html">usize</a>&gt; <a class="trait" href="trait.SubViewableMut.html" title="trait topohedral_linalg::SubViewableMut">SubViewableMut</a> for <a class="struct" href="struct.SMatrix.html" title="struct topohedral_linalg::SMatrix">SMatrix</a>&lt;T, N, M&gt;</h3></section></div><script src="../trait.impl/topohedral_linalg/subviews/trait.SubViewableMut.js" async></script></section></div></main></body></html>
