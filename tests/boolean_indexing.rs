@@ -9,7 +9,7 @@ fn boolean_matrices_support_structural_operations() {
         SMatrix::<bool, 2, 3>::from_row_slice(&[true, false, true, false, true, false]);
     assert!(static_mask[(0, 0)]);
     static_mask[(1, 0)] = true;
-    static_mask.transform(|value| !value);
+    static_mask.transform_mut(|value| !value);
     assert_eq!(
         static_mask.fold(0, |count, value| count + usize::from(value)),
         2

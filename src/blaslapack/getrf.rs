@@ -17,10 +17,10 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors returned by the [`Getrf`] LAPACK wrapper.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
 pub enum Error {
     /// LAPACK returned a non-zero info code indicating a singular or invalid matrix.
-    #[error("Error in getrf, exited with code {0}")]
+    #[error("getrf failed with info code {0}")]
     LapackError(i32),
 }
 //}}}
@@ -111,11 +111,15 @@ pub(crate) fn lu_raw<T>(
 where
     T: Getrf + crate::common::One + crate::common::Zero + crate::common::Field + Copy,
 {
+    let n_i32 = super::common::blas_dim("matrix row count", n);
+    let m_i32 = super::common::blas_dim("matrix column count", m);
+    super::common::assert_matrix_len("matrix", a_data.len(), n, m);
     let mut ipiv = vec![0; n.min(m)];
-    T::getrf(n as i32, m as i32, &mut a_data, n as i32, &mut ipiv)?;
+    T::getrf(n_i32, m_i32, &mut a_data, n_i32, &mut ipiv)?;
 
-    let mut l_data = vec![T::zero(); n * m];
-    let mut u_data = vec![T::zero(); n * m];
+    let matrix_len = super::common::matrix_len("matrix", n, m);
+    let mut l_data = vec![T::zero(); matrix_len];
+    let mut u_data = vec![T::zero(); matrix_len];
     for i in 0..n {
         for j in 0..m {
             let idx = i + j * n;
@@ -130,18 +134,18 @@ where
         }
     }
 
-    let mut p_data = vec![T::zero(); n * m];
-    for i in 0..n.min(m) {
+    let mut p_data = vec![T::zero(); super::common::matrix_len("permutation matrix", n, n)];
+    for i in 0..n {
         p_data[i + i * n] = T::one();
     }
     let mut num_swaps = 0;
     for (k, &pivot) in ipiv.iter().enumerate() {
         let pivot = (pivot - 1) as usize;
         if k != pivot {
-            for j in 0..m {
+            for j in 0..n {
                 p_data.swap(k + j * n, pivot + j * n);
-                num_swaps += 1;
             }
+            num_swaps += 1;
         }
     }
     Ok(LuRaw {

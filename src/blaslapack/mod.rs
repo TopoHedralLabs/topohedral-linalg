@@ -29,6 +29,70 @@ mod orgqr;
 mod potrf;
 mod syev;
 
+mod sealed {
+    pub trait BlasScalar: super::gemm::Gemm + super::gemv::Gemv {}
+
+    impl BlasScalar for f32 {}
+    impl BlasScalar for f64 {}
+    impl BlasScalar for i8 {}
+    impl BlasScalar for i16 {}
+    impl BlasScalar for i32 {}
+    impl BlasScalar for i64 {}
+    impl BlasScalar for i128 {}
+
+    pub trait LapackScalar:
+        super::common::AsI32
+        + super::gees::Gees
+        + super::geev::Geev
+        + super::gemm::Gemm
+        + super::gemv::Gemv
+        + super::geqrf::Geqrf
+        + super::gesv::Gesv
+        + super::getrf::Getrf
+        + super::orgqr::Orgqr
+        + super::potrf::Potrf
+        + super::syev::Syev
+    {
+    }
+
+    impl LapackScalar for f32 {}
+    impl LapackScalar for f64 {}
+}
+
+/// Scalar types supported by matrix multiplication.
+///
+/// Floating-point implementations dispatch to BLAS. Signed integer implementations use the
+/// crate's column-major fallback kernel.
+pub trait BlasScalar:
+    sealed::BlasScalar + crate::common::Field + crate::common::Zero + crate::common::One + Copy
+{
+}
+
+impl BlasScalar for f32 {}
+impl BlasScalar for f64 {}
+impl BlasScalar for i8 {}
+impl BlasScalar for i16 {}
+impl BlasScalar for i32 {}
+impl BlasScalar for i64 {}
+impl BlasScalar for i128 {}
+
+/// Scalar types supported by the crate's BLAS/LAPACK backend.
+///
+/// This trait is sealed because adding an implementation requires matching native BLAS and
+/// LAPACK entry points. It is currently implemented for [`f32`] and [`f64`].
+pub trait LapackScalar:
+    sealed::LapackScalar
+    + crate::common::Field
+    + crate::common::Zero
+    + crate::common::One
+    + Default
+    + Copy
+{
+}
+
+impl LapackScalar for f32 {}
+impl LapackScalar for f64 {}
+
 /// Abstracts over matrix storage for generic LAPACK dispatch.
 #[allow(dead_code)]
 pub(crate) trait MatrixBuffer: crate::common::Shape {
@@ -37,14 +101,11 @@ pub(crate) trait MatrixBuffer: crate::common::Shape {
     fn as_mut_slice(&mut self) -> &mut [Self::Scalar];
 }
 
-pub(crate) use common::AsI32;
-pub(crate) use gees::{schur_raw, Error as ShurRawError, Gees};
-pub(crate) use geev::{eig_raw, Error as EigRawError, Geev};
-pub(crate) use gemm::{matmul_dispatch, Gemm};
-pub(crate) use gemv::Gemv;
-pub(crate) use geqrf::{qr_raw, Geqrf, QrRawError};
-pub(crate) use gesv::{solve_raw, Error as SolveRawError, Gesv};
-pub(crate) use getrf::{lu_raw, Error as LuRawError, Getrf};
-pub(crate) use orgqr::Orgqr;
-pub(crate) use potrf::{cholesky_raw, Error as CholeskyRawError, Potrf};
-pub(crate) use syev::{symeig_raw, Error as SymEigRawError, Syev};
+pub(crate) use gees::{schur_raw, Error as ShurRawError};
+pub(crate) use geev::{eig_raw, Error as EigRawError};
+pub(crate) use gemm::matmul_dispatch;
+pub(crate) use geqrf::{qr_raw, QrRawError};
+pub(crate) use gesv::{solve_raw, Error as SolveRawError};
+pub(crate) use getrf::{lu_raw, Error as LuRawError};
+pub(crate) use potrf::{cholesky_raw, Error as CholeskyRawError};
+pub(crate) use syev::{symeig_raw, Error as SymEigRawError};

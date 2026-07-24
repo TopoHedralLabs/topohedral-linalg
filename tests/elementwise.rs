@@ -696,8 +696,8 @@ mod smatrix_tests {
         let expr1: SMatrix<f64, 2, 2> = ((-&a) * &b + sin(&c)).into();
         let expr2: SMatrix<f64, 2, 2> = (powi(&c, 2) + exp(&dmat)).into();
 
-        let expected1 = (-a) * b + c.sined();
-        let expected2 = c.powied(2) + dmat.exped();
+        let expected1 = (-a) * b + c.to_sin();
+        let expected2 = c.to_powi(2) + dmat.to_exp();
 
         for (actual, expected) in expr1.iter().zip(expected1.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
@@ -720,12 +720,12 @@ mod smatrix_tests {
         let clamp_lazy: SMatrix<f64, 2, 2> = clamp(&signed, -1.0, 1.0).into();
         let mul_add_lazy: SMatrix<f64, 2, 2> = mul_add(&signed, 2.0, 3.0).into();
 
-        let sin_expected = signed.sined();
-        let sqrt_expected = positive.sqrted();
-        let powi_expected = positive.powied(2);
-        let powf_expected = positive.powfed(0.5);
-        let clamp_expected = signed.clamped(-1.0, 1.0);
-        let mul_add_expected = signed.mul_added(2.0, 3.0);
+        let sin_expected = signed.to_sin();
+        let sqrt_expected = positive.to_sqrt();
+        let powi_expected = positive.to_powi(2);
+        let powf_expected = positive.to_powf(0.5);
+        let clamp_expected = signed.to_clamp(-1.0, 1.0);
+        let mul_add_expected = signed.to_mul_add(2.0, 3.0);
 
         for (actual, expected) in sin_lazy.iter().zip(sin_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
@@ -753,7 +753,7 @@ mod smatrix_tests {
         let a = SMatrix::<f64, 2, 2>::from_row_slice(&[9.0, 4.0, 1.0, 0.0]);
         let b = SMatrix::<f64, 2, 2>::from_row_slice(&[1.0, 0.0, 1.0, 4.0]);
         let nested: SMatrix<f64, 2, 2> = sqrt(abs(-&a + &b)).into();
-        let expected_nested = (-a + b).absed().sqrted();
+        let expected_nested = (-a + b).to_abs().to_sqrt();
 
         for (actual, expected) in nested.iter().zip(expected_nested.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
@@ -761,7 +761,7 @@ mod smatrix_tests {
 
         let mut c = SMatrix::<f64, 2, 2>::from_row_slice(&[0.0, 0.5, 1.0, 1.5]);
         let shifted: SMatrix<f64, 2, 2> = (1.0 + sin(&mut c)).into();
-        let expected_shifted = 1.0 + c.sined();
+        let expected_shifted = 1.0 + c.to_sin();
 
         for (actual, expected) in shifted.iter().zip(expected_shifted.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
@@ -1407,8 +1407,8 @@ mod dmatrix_tests {
         let expr1: DMatrix<f64> = ((-&a) * &b + sin(&c)).into();
         let expr2: DMatrix<f64> = (powi(&c, 2) + exp(&dmat)).into();
 
-        let expected1 = (-a.clone()) * b.clone() + c.sined();
-        let expected2 = c.powied(2) + dmat.exped();
+        let expected1 = (-a.clone()) * b.clone() + c.to_sin();
+        let expected2 = c.to_powi(2) + dmat.to_exp();
 
         for (actual, expected) in expr1.iter().zip(expected1.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
@@ -1431,12 +1431,12 @@ mod dmatrix_tests {
         let clamp_lazy: DMatrix<f64> = clamp(&signed, -1.0, 1.0).into();
         let mul_add_lazy: DMatrix<f64> = mul_add(&signed, 2.0, 3.0).into();
 
-        let sin_expected = signed.sined();
-        let sqrt_expected = positive.sqrted();
-        let powi_expected = positive.powied(2);
-        let powf_expected = positive.powfed(0.5);
-        let clamp_expected = signed.clamped(-1.0, 1.0);
-        let mul_add_expected = signed.mul_added(2.0, 3.0);
+        let sin_expected = signed.to_sin();
+        let sqrt_expected = positive.to_sqrt();
+        let powi_expected = positive.to_powi(2);
+        let powf_expected = positive.to_powf(0.5);
+        let clamp_expected = signed.to_clamp(-1.0, 1.0);
+        let mul_add_expected = signed.to_mul_add(2.0, 3.0);
 
         for (actual, expected) in sin_lazy.iter().zip(sin_expected.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
@@ -1464,7 +1464,7 @@ mod dmatrix_tests {
         let a = DMatrix::<f64>::from_row_slice(&[9.0, 4.0, 1.0, 0.0], 2, 2);
         let b = DMatrix::<f64>::from_row_slice(&[1.0, 0.0, 1.0, 4.0], 2, 2);
         let nested: DMatrix<f64> = sqrt(abs(-&a + &b)).into();
-        let expected_nested = (-a.clone() + b.clone()).absed().sqrted();
+        let expected_nested = (-a.clone() + b.clone()).to_abs().to_sqrt();
 
         for (actual, expected) in nested.iter().zip(expected_nested.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);
@@ -1472,7 +1472,7 @@ mod dmatrix_tests {
 
         let mut c = DMatrix::<f64>::from_row_slice(&[0.0, 0.5, 1.0, 1.5], 2, 2);
         let shifted: DMatrix<f64> = (1.0 + sin(&mut c)).into();
-        let expected_shifted = 1.0 + c.sined();
+        let expected_shifted = 1.0 + c.to_sin();
 
         for (actual, expected) in shifted.iter().zip(expected_shifted.iter()) {
             assert_relative_eq!(*actual, *expected, epsilon = 1.0e-12);

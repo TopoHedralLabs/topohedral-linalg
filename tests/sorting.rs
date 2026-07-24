@@ -40,7 +40,7 @@ mod dmatrix_tests {
         let a = DMatrix::<i32>::from_row_slice(&[3, 1, 2, 6, 4, 5], 2, 3);
         let original = DMatrix::<i32>::from_row_slice(&[3, 1, 2, 6, 4, 5], 2, 3);
         let expected = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6], 2, 3);
-        let sorted = a.sorted(Dimension::Rows);
+        let sorted = a.to_sorted(Dimension::Rows);
         assert_matrix_eq(&sorted, &expected);
         assert_matrix_eq(&a, &original);
     }
@@ -95,7 +95,7 @@ mod smatrix_tests {
         let a = SMatrix::<i32, 2, 3>::from_row_slice(&[3, 1, 2, 6, 4, 5]);
         let original = SMatrix::<i32, 2, 3>::from_row_slice(&[3, 1, 2, 6, 4, 5]);
         let expected = SMatrix::<i32, 2, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6]);
-        let sorted = a.sorted(Dimension::Rows);
+        let sorted = a.to_sorted(Dimension::Rows);
         assert_matrix_eq(&sorted, &expected);
         assert_matrix_eq(&a, &original);
     }

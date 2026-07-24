@@ -210,14 +210,21 @@ pub(crate) fn matmul_dispatch<T>(
         + crate::common::One
         + Copy,
 {
+    let m_i32 = super::common::blas_dim("left matrix row count", m);
+    let k_i32 = super::common::blas_dim("inner matrix dimension", k);
+    let n_i32 = super::common::blas_dim("right matrix column count", n);
+    super::common::assert_matrix_len("left matrix", a.len(), m, k);
+    super::common::assert_matrix_len("right matrix", b.len(), k, n);
+    super::common::assert_matrix_len("output matrix", c.len(), m, n);
+
     if n == 1 {
         T::gemv(
             cblas::Transpose::None,
-            m as i32,
-            k as i32,
+            m_i32,
+            k_i32,
             T::one(),
             a,
-            m as i32,
+            m_i32,
             b,
             1,
             T::zero(),
@@ -227,11 +234,11 @@ pub(crate) fn matmul_dispatch<T>(
     } else if m == 1 {
         T::gemv(
             cblas::Transpose::Ordinary,
-            k as i32,
-            n as i32,
+            k_i32,
+            n_i32,
             T::one(),
             b,
-            k as i32,
+            k_i32,
             a,
             1,
             T::zero(),
@@ -242,17 +249,17 @@ pub(crate) fn matmul_dispatch<T>(
         T::gemm(
             cblas::Transpose::None,
             cblas::Transpose::None,
-            m as i32,
-            n as i32,
-            k as i32,
+            m_i32,
+            n_i32,
+            k_i32,
             T::one(),
             a,
-            m as i32,
+            m_i32,
             b,
-            k as i32,
+            k_i32,
             T::zero(),
             c,
-            m as i32,
+            m_i32,
         );
     }
 }

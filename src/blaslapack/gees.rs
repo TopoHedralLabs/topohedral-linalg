@@ -18,10 +18,10 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors returned by the [`Gees`] LAPACK wrapper.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
 pub enum Error {
     /// LAPACK returned a non-zero info code indicating the Schur decomposition failed.
-    #[error("Error in gees, exited with code {0}")]
+    #[error("gees failed with info code {0}")]
     LapackError(i32),
 }
 //}}}
@@ -127,29 +127,32 @@ pub(crate) struct SchurRaw<T> {
 pub(crate) fn schur_raw<T>(
     mut a_data: Vec<T>,
     n: usize,
-    m: usize,
 ) -> Result<SchurRaw<T>, Error>
 where
     T: Gees + crate::common::One + crate::common::Zero + crate::common::Field + Default + Copy,
 {
-    let mut vs = vec![T::zero(); n * m];
+    let n_i32 = super::common::blas_dim("matrix order", n);
+    super::common::assert_matrix_len("matrix", a_data.len(), n, n);
+    let matrix_len = super::common::matrix_len("matrix", n, n);
+    let mut vs = vec![T::zero(); matrix_len];
     let mut wr = vec![T::zero(); n];
     let mut wi = vec![T::zero(); n];
     let mut sdim = 0;
-    let mut work = vec![T::zero(); n * 5];
-    let lwork = (n * 5) as i32;
+    let workspace = super::common::matrix_len("Schur workspace", n, 5).max(1);
+    let mut work = vec![T::zero(); workspace];
+    let lwork = super::common::blas_dim("Schur workspace length", workspace);
     let mut bwork = vec![0; n];
     T::gees(
         b'V',
         b'N',
-        n as i32,
+        n_i32,
         &mut a_data,
-        n as i32,
+        n_i32,
         &mut sdim,
         &mut wr,
         &mut wi,
         &mut vs,
-        n as i32,
+        n_i32,
         &mut work,
         lwork,
         &mut bwork,

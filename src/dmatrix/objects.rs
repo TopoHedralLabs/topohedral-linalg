@@ -7,7 +7,7 @@ use crate::common::{Field, One, VectorOps, Zero};
 use crate::float::{Float, FloatVectorOps};
 //}}}
 //{{{ std imports
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 //}}}
 //{{{ dep imports
 //}}}
@@ -23,20 +23,13 @@ use serde::{Deserialize, Serialize};
 ///
 /// The matrix is stored in column-major order, which means a matrix is stored column by column
 /// in memory. So, for example, the matrix:
-/// ```ignore
-/// 1 2 3
-/// 4 5 6
-/// 7 8 9
 /// ```
-/// will be stored in memory as:
-/// ```ignore
-/// 1 4 7 2 5 9 3 6 9
+/// # use topohedral_linalg::DMatrix;
+/// let matrix = DMatrix::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9], 3, 3);
+/// assert_eq!(matrix.as_ref(), &[1, 4, 7, 2, 5, 8, 3, 6, 9]);
 /// ```
-#[derive(Debug, Serialize, Deserialize, Default)]
-pub struct DMatrix<T>
-where
-    T: Copy,
-{
+#[derive(Clone, Debug, Serialize, Default)]
+pub struct DMatrix<T> {
     /// The data of the matrix, stored in column-major order.
     pub(crate) data: Vec<T>,
     /// Number of rows in the matrix.
@@ -53,7 +46,7 @@ pub type DVector<T> = DMatrix<T>;
 //}}}
 //{{{ enum: VecType
 /// Selects whether a `DVector` is oriented as a row vector or a column vector.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum VecType {
     /// A 1×N row vector.
     Row,
@@ -70,7 +63,7 @@ where
 
     fn len(&self) -> usize {
         if self.nrows != 1 && self.ncols != 1 {
-            panic!("Vector must be either a row or column vector");
+            panic!("vector must be either a row or column vector");
         }
 
         if self.nrows == 1 {

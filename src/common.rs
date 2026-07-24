@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::Getrf;
+use crate::blaslapack::LapackScalar;
 use crate::float::Float;
 //}}}
 //{{{ std imports
@@ -23,8 +23,10 @@ use std::ops::{AddAssign, DivAssign, Index, IndexMut, MulAssign, SubAssign};
 //--------------------------------------------------------------------------------------------------
 
 //{{{ trait: Field
-/// Algebraic field over which matrix operations are defined, requiring the four arithmetic
-/// operations, their assignment variants, negation, and a total order.
+/// Algebraic scalar over which matrix arithmetic is defined.
+///
+/// Ordering is deliberately not part of this core capability; operations that compare elements
+/// add [`PartialOrd`] explicitly.
 pub trait Field:
     Sized
     + Add<Output = Self>
@@ -36,13 +38,11 @@ pub trait Field:
     + MulAssign
     + DivAssign
     + Neg<Output = Self>
-    + PartialOrd
     + PartialEq
 {
 }
 //}}}
 //{{{ macro: apply_for_all_types
-#[macro_export]
 #[doc(hidden)]
 macro_rules! apply_for_all_types {
     ($macro:ident) => {
@@ -61,10 +61,10 @@ macro_rules! apply_for_all_types {
         $macro!(i128);
     };
 }
+pub(crate) use apply_for_all_types;
 
 //}}}
 //{{{ macro: apply_for_all_integer_types
-#[macro_export]
 #[doc(hidden)]
 macro_rules! apply_for_all_integer_types {
     ($macro:ident) => {
@@ -79,6 +79,7 @@ macro_rules! apply_for_all_integer_types {
         $macro!(i128);
     };
 }
+pub(crate) use apply_for_all_integer_types;
 
 //}}}
 //{{{ macro: impl_field
@@ -201,9 +202,12 @@ macro_rules! impl_abs {
 apply_for_all_integer_types!(impl_abs);
 //}}}
 //{{{ trait: MatrixElementDisplay
-/// Internal formatting hook used by matrix `Display` implementations.
-#[doc(hidden)]
+/// Controls how a scalar is rendered by matrix [`fmt::Display`] implementations.
+///
+/// Implement this trait for custom scalar types that should use the crate's aligned matrix
+/// display format.
 pub trait MatrixElementDisplay {
+    /// Writes one matrix element to the supplied formatter.
     fn fmt_matrix_element(
         &self,
         f: &mut fmt::Formatter<'_>,
@@ -235,7 +239,62 @@ impl MatrixElementDisplay for bool {
 }
 //}}}
 //{{{ collection: re-exports
+/// Complex scalar used by eigendecomposition results.
+///
+/// This is the `Complex` type from the public `num-complex 0.4` compatibility dependency.
 pub use num_complex::Complex;
+//}}}
+//{{{ trait: UniformRandom
+mod uniform_random_sealed {
+    pub trait Sealed {}
+
+    macro_rules! impl_sealed {
+        ($($type:ty),+ $(,)?) => {
+            $(impl Sealed for $type {})+
+        };
+    }
+
+    impl_sealed!(f32, f64, i8, i16, i32, i64, i128);
+}
+
+/// Scalar values that can be sampled from a uniform half-open range.
+///
+/// This trait is sealed so the crate can keep its `rand` dependency out of public signatures.
+/// It is implemented for the signed integer and floating-point scalar types supported by the
+/// crate.
+pub trait UniformRandom: uniform_random_sealed::Sealed + Copy {
+    /// Fills `values` with samples from `low..high`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `low..high` is not a valid nonempty uniform range.
+    fn fill_uniform(
+        values: &mut [Self],
+        low: Self,
+        high: Self,
+    );
+}
+
+macro_rules! impl_uniform_random {
+    ($($type:ty),+ $(,)?) => {
+        $(
+            impl UniformRandom for $type {
+                fn fill_uniform(values: &mut [Self], low: Self, high: Self) {
+                    use rand::distr::{Distribution, Uniform};
+
+                    let range = Uniform::<Self>::new(low, high)
+                        .expect("uniform random range must be nonempty and ordered");
+                    let mut rng = rand::rng();
+                    for value in values {
+                        *value = range.sample(&mut rng);
+                    }
+                }
+            }
+        )+
+    };
+}
+
+impl_uniform_random!(f32, f64, i8, i16, i32, i64, i128);
 //}}}
 //{{{ trait: MatrixOps
 /// Core linear-algebra operations common to all matrix types.
@@ -243,17 +302,24 @@ pub trait MatrixOps
 where
     Self: Sized,
 {
-    /// Scalar stored by the matrix.
+    /// Element type stored by the matrix.
     type ScalarType: Field + Zero + One + Copy;
-    /// Matrix type produced by transposition.
+    /// Matrix type returned by [`MatrixOps::transpose`].
     type TransposeType;
 
     /// Returns the transpose of the matrix.
     fn transpose(&self) -> Self::TransposeType;
+}
+
+/// Operations that are mathematically defined only for square matrices.
+///
+/// Static matrices implement this trait only when their row and column dimensions are equal.
+/// Dynamic matrices validate that invariant at runtime.
+pub trait SquareMatrixOps: MatrixOps {
     /// Computes the determinant of the matrix using an LU factorisation.
     fn determinant(&self) -> Self::ScalarType
     where
-        Self::ScalarType: Getrf + Float;
+        Self::ScalarType: LapackScalar + Float;
     /// Computes the trace (sum of diagonal elements) of the matrix.
     fn trace(&self) -> Self::ScalarType;
 }
@@ -308,7 +374,7 @@ where
 /// [`MatrixExpr::eval_into`], while strided destinations such as views can pull individual values
 /// with [`MatrixExpr::linear_value`] without allocating.
 pub trait MatrixExpr: Shape {
-    /// Scalar yielded by the expression.
+    /// Scalar value produced by the expression.
     type ScalarType: Copy;
 
     /// Returns the value at `index` in column-major order.
@@ -452,7 +518,7 @@ pub trait MatMul<Rhs = Self>
 where
     Self: Sized,
 {
-    /// Matrix produced by the multiplication.
+    /// Matrix type produced by the multiplication.
     type Output;
 
     /// Multiplies `self` by `rhs` and returns the resulting matrix.
@@ -468,7 +534,7 @@ where
 pub trait VectorOps:
     Index<usize, Output = Self::ScalarType> + IndexMut<usize, Output = Self::ScalarType> + Sized + Clone
 {
-    /// Scalar stored by the vector.
+    /// Scalar element type of the vector.
     type ScalarType: Field + Zero + One + Copy + Default + Float;
 
     //{{{ fn: len
@@ -498,7 +564,7 @@ pub trait VectorOps:
         other: &Self,
     ) -> Self::ScalarType {
         if self.len() != other.len() {
-            panic!("Vectors must be of the same length");
+            panic!("vectors must be of the same length");
         }
 
         let mut out = Self::ScalarType::zero();
@@ -528,11 +594,11 @@ pub trait VectorOps:
         other: &Self,
     ) -> Self {
         if self.len() != 3 {
-            panic!("Cross product is only defined for 2D and 3D vectors");
+            panic!("cross product is only defined for 2D and 3D vectors");
         }
 
         if self.len() != other.len() {
-            panic!("Vectors must be of the same length");
+            panic!("vectors must be of the same length");
         }
 
         let mut out = other.clone();
@@ -552,18 +618,18 @@ pub trait TransformOps
 where
     Self: Sized,
 {
-    /// Scalar transformed by the operation.
+    /// Scalar element transformed by this collection.
     type ScalarType: Copy;
 
     /// Applies `f` to each element in-place.
-    fn transform<F>(
+    fn transform_mut<F>(
         &mut self,
         f: F,
     ) where
         F: FnMut(Self::ScalarType) -> Self::ScalarType;
 
     /// Returns a transformed copy of `self`.
-    fn transformed<F>(
+    fn to_transformed<F>(
         &self,
         f: F,
     ) -> Self
@@ -572,7 +638,7 @@ where
         F: FnMut(Self::ScalarType) -> Self::ScalarType,
     {
         let mut out = self.clone();
-        out.transform(f);
+        out.transform_mut(f);
         out
     }
 
@@ -584,7 +650,7 @@ where
     where
         F: FnMut(Self::ScalarType) -> Self::ScalarType,
     {
-        self.transform(f);
+        self.transform_mut(f);
         self
     }
 
@@ -595,11 +661,11 @@ where
     ) where
         Self::ScalarType: Add<Output = Self::ScalarType>,
     {
-        self.transform(|element| element + value);
+        self.transform_mut(|element| element + value);
     }
 
     /// Returns a cloned copy of `self` with every element shifted by `value`.
-    fn shifted(
+    fn to_shifted(
         &self,
         value: Self::ScalarType,
     ) -> Self
@@ -607,7 +673,7 @@ where
         Self: Clone,
         Self::ScalarType: Add<Output = Self::ScalarType>,
     {
-        self.transformed(|element| element + value)
+        self.to_transformed(|element| element + value)
     }
 
     /// Consumes `self`, shifts every element by `value`, and returns it.
@@ -628,11 +694,11 @@ where
     ) where
         Self::ScalarType: Mul<Output = Self::ScalarType>,
     {
-        self.transform(|element| element * value);
+        self.transform_mut(|element| element * value);
     }
 
     /// Returns a cloned copy of `self` with every element scaled by `value`.
-    fn scaled(
+    fn to_scaled(
         &self,
         value: Self::ScalarType,
     ) -> Self
@@ -640,7 +706,7 @@ where
         Self: Clone,
         Self::ScalarType: Mul<Output = Self::ScalarType>,
     {
-        self.transformed(|element| element * value)
+        self.to_transformed(|element| element * value)
     }
 
     /// Consumes `self`, scales every element by `value`, and returns it.
@@ -659,18 +725,18 @@ where
         &mut self,
         value: Self::ScalarType,
     ) {
-        self.transform(|_| value);
+        self.transform_mut(|_| value);
     }
 
     /// Returns a cloned copy of `self` with every element set to `value`.
-    fn filled(
+    fn to_filled(
         &self,
         value: Self::ScalarType,
     ) -> Self
     where
         Self: Clone,
     {
-        self.transformed(|_| value)
+        self.to_transformed(|_| value)
     }
 
     /// Consumes `self`, sets every element to `value`, and returns it.
@@ -709,9 +775,9 @@ pub fn tuple_index(
 /// Implementors provide [`fold`](ReduceOps::fold) and [`fold_indexed`](ReduceOps::fold_indexed);
 /// all other methods (`sum`, `product`, `min`, `max`, etc.) are derived automatically.
 pub trait ReduceOps {
-    /// Value included in the reduction.
+    /// Element value supplied to reduction closures.
     type Item: Copy;
-    /// Index supplied to indexed reductions.
+    /// Position type supplied to indexed reduction closures.
     type Index: Copy;
 
     /// Folds every element into an accumulator using `f`, starting from `init`.
@@ -904,6 +970,7 @@ pub trait ReduceOps {
 //}}}
 //{{{ enum: Dimension
 /// Selects which axis (or both axes) a reduction or transform operates over.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Dimension {
     /// Operate along the row axis (i.e., reduce or transform each column).
     Rows,

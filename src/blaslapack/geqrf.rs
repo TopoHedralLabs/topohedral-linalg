@@ -18,11 +18,19 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors returned by the [`Geqrf`] LAPACK wrapper.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
 pub enum Error {
     /// LAPACK returned a non-zero info code indicating an invalid argument.
-    #[error("Error in geqrf, exited with code {0}")]
+    #[error("geqrf failed with info code {0}")]
     LapackError(i32),
+}
+
+impl Error {
+    pub(crate) fn info(&self) -> i32 {
+        match self {
+            Self::LapackError(info) => *info,
+        }
+    }
 }
 //}}}
 
@@ -98,8 +106,7 @@ pub(crate) struct QrRaw<T> {
 }
 //}}}
 //{{{ enum: QrRawError
-/// Error returned by either stage of QR factorisation.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
 pub enum QrRawError {
     /// Householder factorisation failed.
     #[error(transparent)]
@@ -127,32 +134,20 @@ where
         + super::common::AsI32,
 {
     let k = n.min(m);
+    let n_i32 = super::common::blas_dim("matrix row count", n);
+    let m_i32 = super::common::blas_dim("matrix column count", m);
+    let k_i32 = super::common::blas_dim("QR reflector count", k);
+    super::common::assert_matrix_len("matrix", a_data.len(), n, m);
     let mut tau = vec![T::zero(); k];
 
     let mut work = vec![T::zero(); 1];
-    T::geqrf(
-        n as i32,
-        m as i32,
-        &mut a_data,
-        n as i32,
-        &mut tau,
-        &mut work,
-        -1,
-    )?;
+    T::geqrf(n_i32, m_i32, &mut a_data, n_i32, &mut tau, &mut work, -1)?;
 
-    let lwork = work[0].as_i32();
-    let mut work = vec![T::zero(); lwork as usize];
-    T::geqrf(
-        n as i32,
-        m as i32,
-        &mut a_data,
-        n as i32,
-        &mut tau,
-        &mut work,
-        lwork,
-    )?;
+    let (workspace_len, lwork) = super::common::workspace_len(&work[0]);
+    let mut work = vec![T::zero(); workspace_len];
+    T::geqrf(n_i32, m_i32, &mut a_data, n_i32, &mut tau, &mut work, lwork)?;
 
-    let mut r_data = vec![T::zero(); n * m];
+    let mut r_data = vec![T::zero(); super::common::matrix_len("matrix", n, m)];
     for i in 0..n {
         for j in i..m {
             r_data[i + j * n] = a_data[i + j * n];
@@ -160,11 +155,11 @@ where
     }
 
     T::orgqr(
-        n as i32,
-        n.min(m) as i32,
-        k as i32,
+        n_i32,
+        k_i32,
+        k_i32,
         &mut a_data,
-        n as i32,
+        n_i32,
         &tau,
         &mut work,
         lwork,

@@ -28,6 +28,7 @@ nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - User Guide: user-guide.md
+  - Migrating from v4: migration-v4-to-v5.md
   - API Docs: api/
   - Developers:
       - Overview: developers/index.md

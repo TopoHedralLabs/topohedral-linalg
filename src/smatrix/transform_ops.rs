@@ -25,7 +25,7 @@ where
 {
     type ScalarType = T;
 
-    fn transform<F>(
+    fn transform_mut<F>(
         &mut self,
         mut f: F,
     ) where
@@ -44,7 +44,7 @@ where
 {
     type ScalarType = T;
 
-    fn transform<F>(
+    fn transform_mut<F>(
         &mut self,
         mut f: F,
     ) where

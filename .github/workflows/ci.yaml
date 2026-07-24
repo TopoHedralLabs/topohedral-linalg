@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  build-and-test:
+  quality:
     runs-on: ubuntu-latest
     env:
       CARGO_REGISTRIES_CLOUDSMITH_TOKEN: ${{ secrets.CLOUDSMITH_API_KEY }}
@@ -35,17 +35,62 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-build-
 
-      - name: Install Dependencies
-        run: cargo fetch
+      - name: Check formatting
+        run: cargo fmt --all -- --check
 
-      - name: Check Formatting
-        run: cargo fmt --verbose -- --check
-
-      - name: Run Linter
+      - name: Run Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-      - name: Build Project
-        run: cargo build --all-targets --all-features
+      - name: Check rustdoc
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --no-deps --all-features
 
-      - name: Run Tests
+      - name: Run doctests
+        run: cargo test --doc --all-features
+
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_REGISTRIES_CLOUDSMITH_TOKEN: ${{ secrets.CLOUDSMITH_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OpenBLAS
+        run: |
+          sudo apt update
+          sudo apt install -y libopenblas-dev
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Test default features
+        run: cargo test --all-targets
+
+      - name: Test all features
         run: cargo test --all-targets --all-features
+
+      - name: Test release mode
+        run: cargo test --release --all-targets --all-features
+
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OpenBLAS
+        run: |
+          sudo apt update
+          sudo apt install -y libopenblas-dev
+
+      - uses: dtolnay/rust-toolchain@1.92
+
+      - name: Check minimum supported Rust version
+        run: cargo check --all-targets --all-features
+
+  licenses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v1
+        with:
+          command: check licenses sources

@@ -9,8 +9,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{qr_raw, AsI32, Geqrf, Orgqr, QrRawError};
-use crate::common::{Field, One, Zero};
+use crate::blaslapack::{qr_raw, LapackScalar, QrRawError};
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
@@ -20,19 +19,27 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors that can occur during QR decomposition.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
-    #[error("Error in qr(), exited with error:\n{0}")]
-    /// LAPACK `geqrf` failed while computing the Householder QR factorisation.
-    GetrfError(#[from] QrRawError),
+    /// The validated `geqrf` backend call unexpectedly rejected an argument.
+    #[error("geqrf backend failed with info code {info}")]
+    GeqrfFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
+    /// The validated `orgqr` backend call unexpectedly rejected an argument.
+    #[error("orgqr backend failed with info code {info}")]
+    OrgqrFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
 }
 //}}}
 //{{{ struct: Return
 /// Represents the QR decomposition of a matrix.
-pub struct Return<T>
-where
-    T: Field + Copy,
-{
+#[derive(Clone, Debug)]
+pub struct Return<T> {
     /// Orthogonal factor Q.
     pub q: DMatrix<T>,
     /// Upper-triangular factor R.
@@ -42,7 +49,7 @@ where
 //{{{ impl DMatrix<T>
 impl<T> DMatrix<T>
 where
-    T: One + Zero + Geqrf + Orgqr + Field + Copy + AsI32,
+    T: LapackScalar,
 {
     /// Computes the QR decomposition of the matrix.
     ///
@@ -51,11 +58,19 @@ where
     ///
     /// # Errors
     ///
-    /// Returns [`Error::GetrfError`] if either LAPACK factorisation step fails.
-    pub fn qr(&self) -> Result<Return<T>, Error> {
+    /// Returns [`Error::GeqrfFailure`] or [`Error::OrgqrFailure`] if a validated backend call
+    /// unexpectedly rejects an argument.
+    ///
+    /// # Panics
+    ///
+    /// Panics if either dimension exceeds the LAPACK integer range.
+    pub fn qr(self) -> Result<Return<T>, Error> {
         let n = self.nrows;
         let m = self.ncols;
-        let raw = qr_raw(self.data.clone(), n, m)?;
+        let raw = qr_raw(self.data, n, m).map_err(|error| match error {
+            QrRawError::Geqrf(error) => Error::GeqrfFailure { info: error.info() },
+            QrRawError::Orgqr(error) => Error::OrgqrFailure { info: error.info() },
+        })?;
         Ok(Return {
             q: DMatrix {
                 data: raw.q_data,

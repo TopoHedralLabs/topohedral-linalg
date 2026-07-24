@@ -18,10 +18,10 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors returned by the [`Syev`] LAPACK wrapper.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
 pub enum Error {
     /// LAPACK returned a non-zero info code indicating the algorithm failed to converge.
-    #[error("Error in orgqr, exited with code {0}")]
+    #[error("syev failed with info code {0}")]
     LapackError(i32),
 }
 //}}}
@@ -118,28 +118,30 @@ where
         + Copy
         + super::common::AsI32,
 {
+    let n_i32 = super::common::blas_dim("matrix order", n);
+    super::common::assert_matrix_len("matrix", a_data.len(), n, n);
     let mut eigvals = vec![T::zero(); n];
 
     let mut work = vec![T::zero(); 1];
     T::syev(
         b'V',
         b'L',
-        n as i32,
+        n_i32,
         &mut a_data,
-        n as i32,
+        n_i32,
         &mut eigvals,
         &mut work,
         -1,
     )?;
 
-    let lwork = work[0].as_i32();
-    let mut work = vec![T::zero(); lwork as usize];
+    let (workspace_len, lwork) = super::common::workspace_len(&work[0]);
+    let mut work = vec![T::zero(); workspace_len];
     T::syev(
         b'V',
         b'L',
-        n as i32,
+        n_i32,
         &mut a_data,
-        n as i32,
+        n_i32,
         &mut eigvals,
         &mut work,
         lwork,

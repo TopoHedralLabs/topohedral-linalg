@@ -15,40 +15,79 @@ use crate::common::{Field, One, Zero};
 //{{{ std imports
 //}}}
 //{{{ dep imports
-use rand::distr::{uniform::SampleUniform, Distribution, Uniform};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
-//{{{ impl: Clone for DMatrix
-impl<T> Clone for DMatrix<T>
-where
-    T: Copy,
-{
-    fn clone(&self) -> Self {
-        Self {
-            data: self.data.clone(),
-            nrows: self.nrows,
-            ncols: self.ncols,
-        }
-    }
-
-    fn clone_from(
-        &mut self,
-        source: &Self,
-    ) {
-        self.data.clone_from(&source.data);
-        self.nrows = source.nrows;
-        self.ncols = source.ncols;
-    }
-}
-//}}}
 //{{{ impl: DMatrix<T>
+impl<T> DMatrix<T> {
+    //{{{ fun: from_col_vec
+    /// Creates a matrix by taking ownership of column-major storage.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the dimensions overflow or `data.len() != nrows * ncols`.
+    pub fn from_col_vec(
+        data: Vec<T>,
+        nrows: usize,
+        ncols: usize,
+    ) -> Self {
+        let len = nrows
+            .checked_mul(ncols)
+            .expect("matrix dimensions overflow usize");
+        assert_eq!(
+            data.len(),
+            len,
+            "vector length must match matrix dimensions"
+        );
+        Self { data, nrows, ncols }
+    }
+    //}}}
+    //{{{ fun: from_row_vec
+    /// Creates a matrix by taking ownership of row-major values and converting them to
+    /// column-major storage.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the dimensions overflow or `data.len() != nrows * ncols`.
+    pub fn from_row_vec(
+        data: Vec<T>,
+        nrows: usize,
+        ncols: usize,
+    ) -> Self {
+        let len = nrows
+            .checked_mul(ncols)
+            .expect("matrix dimensions overflow usize");
+        assert_eq!(
+            data.len(),
+            len,
+            "vector length must match matrix dimensions"
+        );
+
+        let mut row_major: Vec<Option<T>> = data.into_iter().map(Some).collect();
+        let data = (0..ncols)
+            .flat_map(|col| (0..nrows).map(move |row| row * ncols + col))
+            .map(|index| {
+                row_major[index]
+                    .take()
+                    .expect("each matrix element is moved exactly once")
+            })
+            .collect();
+        Self { data, nrows, ncols }
+    }
+    //}}}
+}
+
+//{{{ impl: DMatrix<T> where T: Clone
 impl<T> DMatrix<T>
 where
-    T: Copy,
+    T: Clone,
 {
     //{{{ fun: zeros
     /// Creates a new `DMatrix` initialized with zeros.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `nrows * ncols` overflows [`usize`].
     pub fn zeros(
         nrows: usize,
         ncols: usize,
@@ -56,8 +95,11 @@ where
     where
         T: Zero,
     {
+        let len = nrows
+            .checked_mul(ncols)
+            .expect("matrix dimensions overflow usize");
         Self {
-            data: vec![T::zero(); nrows * ncols],
+            data: vec![T::zero(); len],
             nrows,
             ncols,
         }
@@ -65,6 +107,10 @@ where
     //}}}
     //{{{ fun: ones
     /// Creates a new `DMatrix` initialized with ones.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `nrows * ncols` overflows [`usize`].
     pub fn ones(
         nrows: usize,
         ncols: usize,
@@ -72,8 +118,11 @@ where
     where
         T: One,
     {
+        let len = nrows
+            .checked_mul(ncols)
+            .expect("matrix dimensions overflow usize");
         Self {
-            data: vec![T::one(); nrows * ncols],
+            data: vec![T::one(); len],
             nrows,
             ncols,
         }
@@ -81,13 +130,20 @@ where
     //}}}
     //{{{ fun: from_value
     /// Creates a new `DMatrix` initialized with the given value.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `nrows * ncols` overflows [`usize`].
     pub fn from_value(
         value: T,
         nrows: usize,
         ncols: usize,
     ) -> Self {
+        let len = nrows
+            .checked_mul(ncols)
+            .expect("matrix dimensions overflow usize");
         Self {
-            data: vec![value; nrows * ncols],
+            data: vec![value; len],
             nrows,
             ncols,
         }
@@ -95,15 +151,23 @@ where
     //}}}
     //{{{ fun: from_col_slice
     /// Creates a new `DMatrix` from a slice of values in column-major order.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the dimensions overflow or `slice.len() != nrows * ncols`.
     pub fn from_col_slice(
         slice: &[T],
         nrows: usize,
         ncols: usize,
-    ) -> Self
-    where
-        T: Zero,
-    {
-        assert_eq!(slice.len(), nrows * ncols);
+    ) -> Self {
+        let len = nrows
+            .checked_mul(ncols)
+            .expect("matrix dimensions overflow usize");
+        assert_eq!(
+            slice.len(),
+            len,
+            "slice length must match matrix dimensions"
+        );
         Self {
             data: slice.to_vec(),
             nrows,
@@ -113,29 +177,37 @@ where
     //}}}
     //{{{ fun: from_row_slice
     /// Creates a new `DMatrix` from a slice of values in row-major order.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the dimensions overflow or `slice.len() != nrows * ncols`.
     pub fn from_row_slice(
         slice: &[T],
         nrows: usize,
         ncols: usize,
-    ) -> Self
-    where
-        T: Zero,
-    {
-        assert_eq!(slice.len(), nrows * ncols);
-        let mut out = Self::zeros(nrows, ncols);
-        for i in 0..nrows {
-            for j in 0..ncols {
-                out[(i, j)] = slice[i * ncols + j];
-            }
-        }
-        out
+    ) -> Self {
+        let len = nrows
+            .checked_mul(ncols)
+            .expect("matrix dimensions overflow usize");
+        assert_eq!(
+            slice.len(),
+            len,
+            "slice length must match matrix dimensions"
+        );
+        let data = (0..ncols)
+            .flat_map(|col| (0..nrows).map(move |row| slice[row * ncols + col].clone()))
+            .collect();
+        Self { data, nrows, ncols }
     }
     //}}}
     //{{{ fun: from_uniform_random
     /// Creates a new `SMatrix` with elements initialized to random values within the given range.
     ///
-    /// The `low` and `high` parameters specify the inclusive range of the random values.
-    /// The matrix is initialized using a uniform random distribution.
+    /// Samples each element independently from the half-open range `low..high`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the dimensions overflow or `low..high` is not a valid nonempty uniform range.
     pub fn from_uniform_random(
         low: T,
         high: T,
@@ -143,14 +215,10 @@ where
         ncols: usize,
     ) -> Self
     where
-        T: SampleUniform + Zero,
+        T: crate::common::UniformRandom + Zero,
     {
         let mut out = Self::zeros(nrows, ncols);
-        let range = Uniform::<T>::new(low, high).unwrap();
-        let mut rng = rand::rng();
-        for i in 0..out.nrows * out.ncols {
-            out[i] = range.sample(&mut rng);
-        }
+        T::fill_uniform(&mut out.data, low, high);
         out
     }
     //}}}
@@ -158,6 +226,13 @@ where
     /// Creates a new `DMatrix` initialized as the identity matrix.
     ///
     /// The identity matrix is a square matrix with 1s on the main diagonal and 0s elsewhere.
+    ///
+    /// For a rectangular shape this creates the corresponding rectangular identity, with ones
+    /// on the first `min(nrows, ncols)` diagonal positions.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `nrows * ncols` overflows [`usize`].
     pub fn identity(
         nrows: usize,
         ncols: usize,
@@ -168,7 +243,7 @@ where
         let mut out = Self::zeros(nrows, ncols);
         let l = nrows.min(ncols);
         for i in 0..l {
-            out[(i, i)] = T::one()
+            out.data[i + i * nrows] = T::one()
         }
         out
     }
@@ -243,7 +318,7 @@ where
         vec_type: VecType,
     ) -> Self
     where
-        T: SampleUniform + Field + Copy + Zero,
+        T: crate::common::UniformRandom + Field + Copy + Zero,
     {
         match vec_type {
             VecType::Row => Self::from_uniform_random(low, high, 1, nelem),

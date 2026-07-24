@@ -20,10 +20,7 @@ use std::ops::{Index, IndexMut};
 
 //{{{ collection: Index Pair Indexing
 //{{{ impl: Index<(usize, usize)> for SMatrix
-impl<T, const N: usize, const M: usize> Index<(usize, usize)> for SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> Index<(usize, usize)> for SMatrix<T, N, M> {
     type Output = T;
 
     fn index(
@@ -36,10 +33,7 @@ where
 }
 //}}}
 //{{{ impl: Index<(usize, usize)> for &SMatrix
-impl<T, const N: usize, const M: usize> Index<(usize, usize)> for &SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> Index<(usize, usize)> for &SMatrix<T, N, M> {
     type Output = T;
 
     fn index(
@@ -51,10 +45,7 @@ where
 }
 //}}}
 //{{{ impl: Index<(usize, usize)> for &mut SMatrix
-impl<T, const N: usize, const M: usize> Index<(usize, usize)> for &mut SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> Index<(usize, usize)> for &mut SMatrix<T, N, M> {
     type Output = T;
 
     fn index(
@@ -66,10 +57,7 @@ where
 }
 //}}}
 //{{{ impl: IndexMut<(usize, usize)> for SMatrix
-impl<T, const N: usize, const M: usize> IndexMut<(usize, usize)> for SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> IndexMut<(usize, usize)> for SMatrix<T, N, M> {
     fn index_mut(
         &mut self,
         index: (usize, usize),
@@ -80,10 +68,7 @@ where
 }
 //}}}
 //{{{ impl: IndexMut<(usize, usize)> for &mut SMatrix
-impl<T, const N: usize, const M: usize> IndexMut<(usize, usize)> for &mut SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> IndexMut<(usize, usize)> for &mut SMatrix<T, N, M> {
     fn index_mut(
         &mut self,
         index: (usize, usize),
@@ -95,10 +80,7 @@ where
 //}}}
 //{{{ collection: Single integer indexing
 //{{{ impl: Index<usize> for SMatrix
-impl<T, const N: usize, const M: usize> Index<usize> for SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> Index<usize> for SMatrix<T, N, M> {
     type Output = T;
 
     fn index(
@@ -111,10 +93,7 @@ where
 
 //}}}
 //{{{ impl: Index<usize> for &SMatrix
-impl<T, const N: usize, const M: usize> Index<usize> for &SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> Index<usize> for &SMatrix<T, N, M> {
     type Output = T;
 
     fn index(
@@ -126,10 +105,7 @@ where
 }
 //}}}
 //{{{ impl: Index<usize> for &mut SMatrix
-impl<T, const N: usize, const M: usize> Index<usize> for &mut SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> Index<usize> for &mut SMatrix<T, N, M> {
     type Output = T;
 
     fn index(
@@ -141,10 +117,7 @@ where
 }
 //}}}
 //{{{ impl: IndexMut<usize> for SMatrix
-impl<T, const N: usize, const M: usize> IndexMut<usize> for SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> IndexMut<usize> for SMatrix<T, N, M> {
     fn index_mut(
         &mut self,
         index: usize,
@@ -155,10 +128,7 @@ where
 
 //}}}
 //{{{ impl: IndexMut<usize> for &mut SMatrix
-impl<T, const N: usize, const M: usize> IndexMut<usize> for &mut SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> IndexMut<usize> for &mut SMatrix<T, N, M> {
     fn index_mut(
         &mut self,
         index: usize,

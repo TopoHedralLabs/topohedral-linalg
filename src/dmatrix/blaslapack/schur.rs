@@ -8,8 +8,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{schur_raw, Gees, ShurRawError};
-use crate::common::{Field, One, Zero};
+use crate::blaslapack::{schur_raw, LapackScalar, ShurRawError};
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
@@ -18,12 +17,19 @@ use thiserror::Error;
 //--------------------------------------------------------------------------------------------------
 
 //{{{ enum: Error
-/// Error returned when a Schur decomposition fails.
-#[derive(Error, Debug)]
+/// Errors that can occur during Schur decomposition.
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
-    #[error("Error in schur(), exited with error:\n{0}")]
-    /// LAPACK `gees` failed to compute the Schur decomposition.
-    GeesError(#[from] ShurRawError),
+    /// The QR algorithm did not converge.
+    #[error("Schur decomposition did not converge")]
+    NoConvergence,
+    /// The validated backend call unexpectedly rejected an argument.
+    #[error("Schur backend failed with info code {info}")]
+    BackendFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
 }
 //}}}
 
@@ -32,10 +38,8 @@ pub enum Error {
 ///
 /// The decomposition satisfies `A = Q T Q^H`, where `Q` is orthogonal and `T` is
 /// quasi-upper-triangular (block upper-triangular with 1×1 and 2×2 diagonal blocks for real inputs).
-pub struct Return<T>
-where
-    T: Field + Copy,
-{
+#[derive(Clone, Debug)]
+pub struct Return<T> {
     /// Orthogonal Schur vector matrix Q.
     pub q: DMatrix<T>,
     /// Quasi-upper-triangular Schur form T.
@@ -44,10 +48,9 @@ where
 //}}}
 
 //{{{ impl DMatrix<T>
-#[allow(private_bounds)]
 impl<T> DMatrix<T>
 where
-    T: One + Zero + Gees + Field + Default + Copy,
+    T: LapackScalar,
 {
     /// Computes the Schur decomposition of the matrix.
     ///
@@ -56,21 +59,31 @@ where
     ///
     /// # Errors
     ///
-    /// Returns [`Error::GeesError`] if the LAPACK `gees` routine fails.
-    pub fn schur(&self) -> Result<Return<T>, Error> {
+    /// Returns [`Error::NoConvergence`] if the QR algorithm does not converge, or
+    /// [`Error::BackendFailure`] for an unexpected backend failure.
+    /// # Panics
+    ///
+    /// Panics if the matrix is not square or its dimensions exceed the LAPACK integer range.
+    pub fn schur(self) -> Result<Return<T>, Error> {
         let n = self.nrows;
-        let m = self.ncols;
-        let raw = schur_raw(self.data.clone(), n, m)?;
+        assert_eq!(
+            n, self.ncols,
+            "matrix must be square for Schur decomposition"
+        );
+        let raw = schur_raw(self.data, n).map_err(|error| match error {
+            ShurRawError::LapackError(info) if info > 0 => Error::NoConvergence,
+            ShurRawError::LapackError(info) => Error::BackendFailure { info },
+        })?;
         Ok(Return {
             q: DMatrix {
                 data: raw.q_data,
                 nrows: n,
-                ncols: m,
+                ncols: n,
             },
             t: DMatrix {
                 data: raw.t_data,
                 nrows: n,
-                ncols: m,
+                ncols: n,
             },
         })
     }

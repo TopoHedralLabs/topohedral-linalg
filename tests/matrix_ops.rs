@@ -492,7 +492,7 @@ mod smatrix_tests {
             7.0, -7.0, 2.0, 1.0, 2.0, 3.0, 22.0, -10.0, 3.0,
         ]);
 
-        let x = a.solve(&b).unwrap();
+        let x = a.solve(b).unwrap();
 
         // Verify A * X = B
         let computed_b = a.matmul(&x);
@@ -725,7 +725,7 @@ mod dmatrix_tests {
             3,
         );
 
-        let chol = a.cholesky().unwrap();
+        let chol = a.clone().cholesky().unwrap();
         let expected_l =
             DMatrix::<f64>::from_row_slice(&[2.0, 0.0, 0.0, 6.0, 1.0, 0.0, -8.0, 5.0, 3.0], 3, 3);
         let reconstructed = (&chol.l).matmul(chol.l.transpose());
@@ -1034,7 +1034,7 @@ mod dmatrix_tests {
             3,
         );
 
-        let DQrReturn { q, r } = a.qr().unwrap();
+        let DQrReturn { q, r } = a.clone().qr().unwrap();
 
         // Verify Q*R = A
         let reconstructed: DMatrix<f64> = q.matmul(&r);
@@ -1064,7 +1064,7 @@ mod dmatrix_tests {
         let a =
             DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0], 3, 3);
 
-        let DSchurReturn { q, t } = a.schur().unwrap();
+        let DSchurReturn { q, t } = a.clone().schur().unwrap();
 
         // Verify Q*T*Q^T = A
         let q_t = q.matmul(&t);
@@ -1111,7 +1111,7 @@ mod dmatrix_tests {
             3,
         );
 
-        let x = a.solve(&b).unwrap();
+        let x = a.clone().solve(b.clone()).unwrap();
 
         // Verify A * X = B
         let computed_b = a.matmul(&x);
