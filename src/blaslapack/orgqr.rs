@@ -17,11 +17,19 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors returned by the [`Orgqr`] LAPACK wrapper.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
 pub enum Error {
     /// LAPACK returned a non-zero info code indicating an invalid argument.
-    #[error("Error in orgqr, exited with code {0}")]
+    #[error("orgqr failed with info code {0}")]
     LapackError(i32),
+}
+
+impl Error {
+    pub(crate) fn info(&self) -> i32 {
+        match self {
+            Self::LapackError(info) => *info,
+        }
+    }
 }
 //}}}
 

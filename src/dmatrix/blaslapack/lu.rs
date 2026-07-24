@@ -9,8 +9,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{lu_raw, Getrf, LuRawError};
-use crate::common::{Field, One, Zero};
+use crate::blaslapack::{lu_raw, LapackScalar, LuRawError};
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
@@ -20,20 +19,27 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors that can occur during LU decomposition.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
-    #[error("Error in lu(), exited with error:\n{0}")]
-    /// LAPACK `getrf` reported a failure, e.g. a zero pivot was encountered.
-    GetrfError(#[from] LuRawError),
+    /// A zero pivot made the matrix singular.
+    #[error("matrix is singular at pivot {pivot}")]
+    Singular {
+        /// One-based index of the zero pivot.
+        pivot: usize,
+    },
+    /// The validated backend call unexpectedly rejected an argument.
+    #[error("LU backend failed with info code {info}")]
+    BackendFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
 }
 //}}}
 //{{{ struct: Return
 /// Represents the LU decomposition of a matrix.
-#[derive(Debug)]
-pub struct Return<T>
-where
-    T: Field + Copy,
-{
+#[derive(Clone, Debug)]
+pub struct Return<T> {
     /// Lower-triangular factor L with unit diagonal.
     pub l: DMatrix<T>,
     /// Upper-triangular factor U.
@@ -45,10 +51,9 @@ where
 }
 //}}}
 //{{{ impl DMatrix<T>
-#[allow(private_bounds)]
 impl<T> DMatrix<T>
 where
-    T: One + Zero + Getrf + Field + Copy,
+    T: LapackScalar,
 {
     /// Computes the LU decomposition of the matrix.
     ///
@@ -57,11 +62,20 @@ where
     ///
     /// # Errors
     ///
-    /// Returns [`Error::GetrfError`] if the LAPACK `getrf` routine fails.
-    pub fn lu(&self) -> Result<Return<T>, Error> {
+    /// Returns [`Error::Singular`] when a zero pivot is encountered, or
+    /// [`Error::BackendFailure`] for an unexpected backend failure.
+    /// # Panics
+    ///
+    /// Panics if either dimension exceeds the LAPACK integer range.
+    pub fn lu(self) -> Result<Return<T>, Error> {
         let n = self.nrows;
         let m = self.ncols;
-        let raw = lu_raw(self.data.clone(), n, m)?;
+        let raw = lu_raw(self.data, n, m).map_err(|error| match error {
+            LuRawError::LapackError(info) if info > 0 => Error::Singular {
+                pivot: info as usize,
+            },
+            LuRawError::LapackError(info) => Error::BackendFailure { info },
+        })?;
         Ok(Return {
             l: DMatrix {
                 data: raw.l_data,
@@ -76,7 +90,7 @@ where
             p: DMatrix {
                 data: raw.p_data,
                 nrows: n,
-                ncols: m,
+                ncols: n,
             },
             num_swaps: raw.num_swaps,
         })

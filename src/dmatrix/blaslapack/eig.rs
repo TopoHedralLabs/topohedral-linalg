@@ -8,9 +8,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::AsI32;
-use crate::blaslapack::{eig_raw, EigRawError, Geev};
-use crate::common::{Complex, Field, One, Zero};
+use crate::blaslapack::{eig_raw, EigRawError, LapackScalar};
+use crate::common::Complex;
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
@@ -20,11 +19,18 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors that can occur during general eigendecomposition.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
-    #[error("Error in eig(), exited with error:\n{0}")]
-    /// LAPACK `geev` failed to compute eigenvalues or eigenvectors.
-    GeevError(#[from] EigRawError),
+    /// The QR algorithm did not converge.
+    #[error("eigendecomposition did not converge")]
+    NoConvergence,
+    /// The validated backend call unexpectedly rejected an argument.
+    #[error("eigendecomposition backend failed with info code {info}")]
+    BackendFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
 }
 //}}}
 
@@ -37,11 +43,8 @@ pub enum Error {
 ///
 /// This struct contains the left and right eigenvectors, as well as the eigenvalues, of the
 /// decomposition.
-#[derive(Debug)]
-pub struct Return<T>
-where
-    T: Field + Default + Copy,
-{
+#[derive(Clone, Debug)]
+pub struct Return<T> {
     /// Matrix whose columns are the left eigenvectors of A.
     pub left_eigvecs: DMatrix<T>,
     /// Matrix whose columns are the right eigenvectors of A.
@@ -52,10 +55,9 @@ where
 //}}}
 
 //{{{ impl DMatrix<T>
-#[allow(private_bounds)]
 impl<T> DMatrix<T>
 where
-    T: One + Zero + Geev + Field + Default + Copy + AsI32,
+    T: LapackScalar,
 {
     /// Computes the eigendecomposition of a general square matrix.
     ///
@@ -64,10 +66,21 @@ where
     ///
     /// # Errors
     ///
-    /// Returns [`Error::GeevError`] if the LAPACK `geev` routine fails.
-    pub fn eig(&self) -> Result<Return<T>, Error> {
+    /// Returns [`Error::NoConvergence`] if the QR algorithm does not converge, or
+    /// [`Error::BackendFailure`] for an unexpected backend failure.
+    /// # Panics
+    ///
+    /// Panics if the matrix is not square or its dimensions exceed the LAPACK integer range.
+    pub fn eig(self) -> Result<Return<T>, Error> {
         let n = self.nrows;
-        let raw = eig_raw(self.data.clone(), n)?;
+        assert_eq!(
+            n, self.ncols,
+            "matrix must be square for eigendecomposition"
+        );
+        let raw = eig_raw(self.data, n).map_err(|error| match error {
+            EigRawError::LapackError(info) if info > 0 => Error::NoConvergence,
+            EigRawError::LapackError(info) => Error::BackendFailure { info },
+        })?;
         Ok(Return {
             left_eigvecs: DMatrix {
                 data: raw.vl,

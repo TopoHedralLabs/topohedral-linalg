@@ -17,10 +17,7 @@ use super::DMatrix;
 
 //{{{ collection: into iterator conversion
 //{{{ impl: IntoIterator for SMatrix
-impl<T> IntoIterator for DMatrix<T>
-where
-    T: Copy,
-{
+impl<T> IntoIterator for DMatrix<T> {
     type Item = T;
 
     type IntoIter = std::vec::IntoIter<T>;
@@ -32,10 +29,7 @@ where
 
 //}}}
 //{{{ impl: IntoIterator for &a' SMatrix
-impl<'a, T> IntoIterator for &'a DMatrix<T>
-where
-    T: Copy,
-{
+impl<'a, T> IntoIterator for &'a DMatrix<T> {
     type Item = &'a T;
 
     type IntoIter = std::slice::Iter<'a, T>;
@@ -45,12 +39,34 @@ where
     }
 }
 //}}}
+//{{{ impl: IntoIterator for &mut DMatrix
+impl<'a, T> IntoIterator for &'a mut DMatrix<T> {
+    type Item = &'a mut T;
+
+    type IntoIter = std::slice::IterMut<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.iter_mut()
+    }
+}
+//}}}
+
+//{{{ impl: slice conversions for DMatrix
+impl<T> AsRef<[T]> for DMatrix<T> {
+    fn as_ref(&self) -> &[T] {
+        &self.data
+    }
+}
+
+impl<T> AsMut<[T]> for DMatrix<T> {
+    fn as_mut(&mut self) -> &mut [T] {
+        &mut self.data
+    }
+}
+//}}}
 
 //{{{ impl: DMatrix
-impl<T> DMatrix<T>
-where
-    T: Copy,
-{
+impl<T> DMatrix<T> {
     //{{{ fun: iter
     /// Returns a column-major immutable iterator over all elements of the matrix.
     pub fn iter(&self) -> std::slice::Iter<'_, T> {

@@ -7,9 +7,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::AsI32;
-use crate::blaslapack::{qr_raw, Geqrf, Orgqr, QrRawError};
-use crate::common::{Field, One, Zero};
+use crate::blaslapack::{qr_raw, LapackScalar, QrRawError};
 use crate::smatrix::SMatrix;
 //}}}
 //{{{ dep imports
@@ -19,19 +17,27 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors that can occur during QR decomposition.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
-    /// Wraps a LAPACK `geqrf`/`orgqr` error from the QR factorisation steps.
-    #[error("Error in qr(), exited with error:\n{0}")]
-    GetrfError(#[from] QrRawError),
+    /// The validated `geqrf` backend call unexpectedly rejected an argument.
+    #[error("geqrf backend failed with info code {info}")]
+    GeqrfFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
+    /// The validated `orgqr` backend call unexpectedly rejected an argument.
+    #[error("orgqr backend failed with info code {info}")]
+    OrgqrFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
 }
 //}}}
 //{{{ struct: Return
 /// Result of a QR decomposition: orthogonal factor Q and upper-triangular factor R.
-pub struct Return<T, const N: usize, const M: usize>
-where
-    T: Field + Copy,
-{
+#[derive(Clone, Debug)]
+pub struct Return<T, const N: usize, const M: usize> {
     /// Orthogonal factor Q.
     pub q: SMatrix<T, N, M>,
     /// Upper-triangular factor R.
@@ -39,18 +45,24 @@ where
 }
 //}}}
 //{{{ impl: SMatrix<T, N, M>
-#[allow(private_bounds)]
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    T: One + Zero + Geqrf + Orgqr + Field + Copy + AsI32,
+    T: LapackScalar,
 {
     /// Computes the QR decomposition of the matrix, returning Q (orthogonal) and R (upper-triangular).
     ///
     /// # Errors
     ///
-    /// Returns an error if either the LAPACK `geqrf` or `orgqr` routine fails.
-    pub fn qr(&self) -> Result<Return<T, N, M>, Error> {
-        let raw = qr_raw(self.as_slice().to_vec(), N, M)?;
+    /// Returns [`Error::GeqrfFailure`] or [`Error::OrgqrFailure`] if a validated backend call
+    /// unexpectedly rejects an argument.
+    /// # Panics
+    ///
+    /// Panics if either dimension exceeds the LAPACK integer range.
+    pub fn qr(self) -> Result<Return<T, N, M>, Error> {
+        let raw = qr_raw(self.into_iter().collect(), N, M).map_err(|error| match error {
+            QrRawError::Geqrf(error) => Error::GeqrfFailure { info: error.info() },
+            QrRawError::Orgqr(error) => Error::OrgqrFailure { info: error.info() },
+        })?;
         Ok(Return {
             q: SMatrix::from_col_vec(raw.q_data),
             r: SMatrix::from_col_vec(raw.r_data),

@@ -8,8 +8,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{symeig_raw, AsI32, Syev, SymEigRawError};
-use crate::common::{Field, One, Zero};
+use crate::blaslapack::{symeig_raw, LapackScalar, SymEigRawError};
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
@@ -19,11 +18,18 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors that can occur during symmetric eigendecomposition.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
-    #[error("Error in symeig(), exited with error:\n{0}")]
-    /// LAPACK `syev` failed to compute eigenvalues or eigenvectors.
-    SyevError(#[from] SymEigRawError),
+    /// The eigensolver did not converge.
+    #[error("symmetric eigendecomposition did not converge")]
+    NoConvergence,
+    /// The validated backend call unexpectedly rejected an argument.
+    #[error("symmetric eigendecomposition backend failed with info code {info}")]
+    BackendFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
 }
 //}}}
 
@@ -33,11 +39,8 @@ pub enum Error {
 /// For symmetric matrices, the eigenvalues are always real, and the eigenvectors
 /// form an orthogonal basis. The decomposition is of the form `A = QDQ^T`,
 /// where `Q` is the matrix of eigenvectors, and `D` is the diagonal matrix of eigenvalues.
-#[derive(Debug)]
-pub struct Return<T>
-where
-    T: Field + Default + Copy,
-{
+#[derive(Clone, Debug)]
+pub struct Return<T> {
     /// Matrix of eigenvectors (columns are the eigenvectors)
     pub eigvecs: DMatrix<T>,
 
@@ -47,10 +50,9 @@ where
 //}}}
 
 //{{{ impl DMatrix<T>
-#[allow(private_bounds)]
 impl<T> DMatrix<T>
 where
-    T: One + Zero + Syev + Field + Default + Copy + AsI32,
+    T: LapackScalar,
 {
     /// Computes the eigendecomposition of a symmetric matrix.
     ///
@@ -59,13 +61,20 @@ where
     ///
     /// # Errors
     ///
-    /// Returns an error if the LAPACK routine fails.
-    pub fn symeig(&self) -> Result<Return<T>, Error> {
+    /// Returns [`Error::NoConvergence`] if the algorithm does not converge, or
+    /// [`Error::BackendFailure`] for an unexpected backend failure.
+    /// # Panics
+    ///
+    /// Panics if the matrix is not square or its dimensions exceed the LAPACK integer range.
+    pub fn symeig(self) -> Result<Return<T>, Error> {
         let n = self.nrows;
         if n != self.ncols {
-            panic!("Matrix must be square for eigenvalue decomposition");
+            panic!("matrix must be square for eigenvalue decomposition");
         }
-        let raw = symeig_raw(self.data.clone(), n)?;
+        let raw = symeig_raw(self.data, n).map_err(|error| match error {
+            SymEigRawError::LapackError(info) if info > 0 => Error::NoConvergence,
+            SymEigRawError::LapackError(info) => Error::BackendFailure { info },
+        })?;
         Ok(Return {
             eigvecs: DMatrix {
                 data: raw.eigvecs_data,

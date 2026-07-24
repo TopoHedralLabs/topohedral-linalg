@@ -16,14 +16,13 @@ use crate::common::{One, Zero};
 //{{{ std imports
 //}}}
 //{{{ dep imports
-use rand::distr::{uniform::SampleUniform, Distribution, Uniform};
 //}}}
 //--------------------------------------------------------------------------------------------------
 
 //{{{ impl: SMatrix
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    T: Copy,
+    T: Clone,
 {
     //{{{ fun: zeros
     /// Creates a new matrix with all elements set to zero.
@@ -32,7 +31,7 @@ where
         T: Zero,
     {
         Self {
-            data: [[T::zero(); N]; M],
+            data: std::array::from_fn(|_| std::array::from_fn(|_| T::zero())),
             nrows: N,
             ncols: M,
         }
@@ -45,7 +44,7 @@ where
         T: One,
     {
         Self {
-            data: [[T::one(); N]; M],
+            data: std::array::from_fn(|_| std::array::from_fn(|_| T::one())),
             nrows: N,
             ncols: M,
         }
@@ -55,7 +54,7 @@ where
     /// Creates a new matrix with every element set to `value`.
     pub fn from_value(value: T) -> Self {
         Self {
-            data: [[value; N]; M],
+            data: std::array::from_fn(|_| std::array::from_fn(|_| value.clone())),
             nrows: N,
             ncols: M,
         }
@@ -64,10 +63,17 @@ where
     //{{{ fun: from_row_slice
     /// Takes N*M element array in row-major order and creates a new SMatrix
     pub fn from_row_slice(slice: &[T]) -> Self {
-        assert_eq!(slice.len(), N * M);
+        let len = N.checked_mul(M).expect("matrix dimensions overflow usize");
+        assert_eq!(
+            slice.len(),
+            len,
+            "slice length must match matrix dimensions"
+        );
 
         Self {
-            data: std::array::from_fn(|col| std::array::from_fn(|row| slice[row * M + col])),
+            data: std::array::from_fn(|col| {
+                std::array::from_fn(|row| slice[row * M + col].clone())
+            }),
             nrows: N,
             ncols: M,
         }
@@ -76,9 +82,16 @@ where
     //{{{ fun: from_col_slice
     /// Takes N*M element array in column-major order and creates a new SMatrix
     pub fn from_col_slice(slice: &[T]) -> Self {
-        assert_eq!(slice.len(), N * M);
+        let len = N.checked_mul(M).expect("matrix dimensions overflow usize");
+        assert_eq!(
+            slice.len(),
+            len,
+            "slice length must match matrix dimensions"
+        );
         Self {
-            data: std::array::from_fn(|col| std::array::from_fn(|row| slice[col * N + row])),
+            data: std::array::from_fn(|col| {
+                std::array::from_fn(|row| slice[col * N + row].clone())
+            }),
             nrows: N,
             ncols: M,
         }
@@ -87,32 +100,33 @@ where
     //{{{ fun: from_col_vec
     /// Builds a static matrix from an owned column-major buffer.
     pub(crate) fn from_col_vec(data: Vec<T>) -> Self {
-        assert_eq!(data.len(), N * M);
+        let len = N.checked_mul(M).expect("matrix dimensions overflow usize");
+        assert_eq!(
+            data.len(),
+            len,
+            "vector length must match matrix dimensions"
+        );
         Self::from_col_slice(&data)
     }
     //}}}
     //{{{ fun: from_uniform_random
     /// Creates a new `SMatrix` with elements initialized to random values within the given range.
     ///
-    /// The `low` and `high` parameters specify the inclusive range of the random values.
-    /// The matrix is initialized using a uniform random distribution.
+    /// Samples each element independently from the half-open range `low..high`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `N * M` overflows [`usize`] or `low..high` is not a valid nonempty uniform
+    /// range.
     pub fn from_uniform_random(
         low: T,
         high: T,
     ) -> Self
     where
-        T: SampleUniform + Zero,
+        T: crate::common::UniformRandom + Zero,
     {
         let mut out = Self::zeros();
-
-        let range = Uniform::<T>::new(low, high).unwrap();
-
-        let mut rng = rand::rng();
-
-        for value in out.as_mut_slice() {
-            *value = range.sample(&mut rng);
-        }
-
+        T::fill_uniform(out.as_mut_slice(), low, high);
         out
     }
     //}}}
@@ -128,7 +142,7 @@ where
         let mut out = Self::zeros();
         let l = N.min(M);
         for i in 0..l {
-            out[(i, i)] = T::one()
+            out.data[i][i] = T::one()
         }
         out
     }

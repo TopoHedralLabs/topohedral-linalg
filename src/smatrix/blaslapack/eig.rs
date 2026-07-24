@@ -7,9 +7,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::AsI32;
-use crate::blaslapack::{eig_raw, EigRawError, Geev};
-use crate::common::{Complex, Field, One, Zero};
+use crate::blaslapack::{eig_raw, EigRawError, LapackScalar};
+use crate::common::Complex;
 use crate::smatrix::SMatrix;
 //}}}
 //{{{ dep imports
@@ -19,21 +18,25 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors that can occur during general eigendecomposition.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
-    /// Wraps a LAPACK `geev` error from the eigenvalue computation routine.
-    #[error("Error in eig(), exited with error:\n{0}")]
-    GeevError(#[from] EigRawError),
+    /// The QR algorithm did not converge.
+    #[error("eigendecomposition did not converge")]
+    NoConvergence,
+    /// The validated backend call unexpectedly rejected an argument.
+    #[error("eigendecomposition backend failed with info code {info}")]
+    BackendFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
 }
 //}}}
 
 //{{{ struct: Return
 /// Represents the eigenvalue decomposition of a square matrix of size `N`.
-#[derive(Debug)]
-pub struct Return<T, const N: usize>
-where
-    T: Field + Default + Copy,
-{
+#[derive(Clone, Debug)]
+pub struct Return<T, const N: usize> {
     /// Matrix whose columns are the left eigenvectors.
     pub left_eigvecs: SMatrix<T, N, N>,
     /// Matrix whose columns are the right eigenvectors.
@@ -44,10 +47,9 @@ where
 //}}}
 
 //{{{ impl: SMatrix<T, N, N>
-#[allow(private_bounds)]
 impl<T, const N: usize> SMatrix<T, N, N>
 where
-    T: One + Zero + Geev + Field + Default + Copy + AsI32,
+    T: LapackScalar,
 {
     /// Computes the general (non-symmetric) eigendecomposition of the square matrix.
     ///
@@ -55,9 +57,16 @@ where
     ///
     /// # Errors
     ///
-    /// Returns an error if the LAPACK `geev` routine fails.
-    pub fn eig(&self) -> Result<Return<T, N>, Error> {
-        let raw = eig_raw(self.as_slice().to_vec(), N)?;
+    /// Returns [`Error::NoConvergence`] if the QR algorithm does not converge, or
+    /// [`Error::BackendFailure`] for an unexpected backend failure.
+    /// # Panics
+    ///
+    /// Panics if `N` exceeds the LAPACK integer range.
+    pub fn eig(self) -> Result<Return<T, N>, Error> {
+        let raw = eig_raw(self.into_iter().collect(), N).map_err(|error| match error {
+            EigRawError::LapackError(info) if info > 0 => Error::NoConvergence,
+            EigRawError::LapackError(info) => Error::BackendFailure { info },
+        })?;
         let eigvals: [Complex<T>; N] = std::array::from_fn(|i| raw.eigvals[i]);
         Ok(Return {
             left_eigvecs: SMatrix::from_col_vec(raw.vl),

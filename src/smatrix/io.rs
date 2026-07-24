@@ -24,7 +24,7 @@ use serde::ser::{Serialize, SerializeStruct, Serializer};
 //{{{ impl Serialize for SMatrix
 impl<T, const N: usize, const M: usize> Serialize for SMatrix<T, N, M>
 where
-    T: Copy + Serialize,
+    T: Serialize,
 {
     fn serialize<S>(
         &self,
@@ -45,7 +45,7 @@ where
 
 impl<'de, T, const N: usize, const M: usize> Deserialize<'de> for SMatrix<T, N, M>
 where
-    T: Copy + Deserialize<'de>,
+    T: Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -61,7 +61,7 @@ where
 
         impl<'de, T, const N: usize, const M: usize> Visitor<'de> for SMatrixVisitor<T, N, M>
         where
-            T: Copy + Deserialize<'de>,
+            T: Deserialize<'de>,
         {
             type Value = SMatrix<T, N, M>;
 
@@ -109,7 +109,10 @@ where
                 let data = data.ok_or_else(|| de::Error::missing_field("data"))?;
                 let nrows = nrows.ok_or_else(|| de::Error::missing_field("nrows"))?;
                 let ncols = ncols.ok_or_else(|| de::Error::missing_field("ncols"))?;
-                if data.len() != N * M {
+                let expected = N
+                    .checked_mul(M)
+                    .ok_or_else(|| de::Error::custom("matrix dimensions overflow usize"))?;
+                if data.len() != expected {
                     return Err(de::Error::invalid_length(data.len(), &self));
                 }
                 if nrows != N || ncols != M {
@@ -119,7 +122,19 @@ where
                     )));
                 }
 
-                Ok(SMatrix::from_col_slice(&data))
+                let mut values = data.into_iter();
+                let data = std::array::from_fn(|_| {
+                    std::array::from_fn(|_| {
+                        values
+                            .next()
+                            .expect("validated matrix storage contains every element")
+                    })
+                });
+                Ok(SMatrix {
+                    data,
+                    nrows: N,
+                    ncols: M,
+                })
             }
         }
 
@@ -169,7 +184,7 @@ where
 //{{{ impl fmt::Display for SMatrix
 impl<T, const N: usize, const M: usize> fmt::Display for SMatrix<T, N, M>
 where
-    T: Copy + MatrixElementDisplay,
+    T: MatrixElementDisplay,
 {
     fn fmt(
         &self,

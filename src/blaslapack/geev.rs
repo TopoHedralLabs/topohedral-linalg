@@ -18,10 +18,10 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors returned by the [`Geev`] LAPACK wrapper.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
 pub enum Error {
     /// LAPACK returned a non-zero info code indicating a failure in the QR algorithm.
-    #[error("Error in geev, exited with code {0}")]
+    #[error("geev failed with info code {0}")]
     LapackError(i32),
 }
 //}}}
@@ -140,8 +140,11 @@ where
         + Copy
         + super::common::AsI32,
 {
-    let mut vl = vec![T::zero(); n * n];
-    let mut vr = vec![T::zero(); n * n];
+    let n_i32 = super::common::blas_dim("matrix order", n);
+    super::common::assert_matrix_len("matrix", a_data.len(), n, n);
+    let matrix_len = super::common::matrix_len("matrix", n, n);
+    let mut vl = vec![T::zero(); matrix_len];
+    let mut vr = vec![T::zero(); matrix_len];
     let mut wr = vec![T::zero(); n];
     let mut wi = vec![T::zero(); n];
 
@@ -149,33 +152,33 @@ where
     T::geev(
         b'V',
         b'V',
-        n as i32,
+        n_i32,
         &mut a_data,
-        n as i32,
+        n_i32,
         &mut wr,
         &mut wi,
         &mut vl,
-        n as i32,
+        n_i32,
         &mut vr,
-        n as i32,
+        n_i32,
         &mut work,
         -1,
     )?;
 
-    let lwork = work[0].as_i32();
-    let mut work = vec![T::zero(); lwork as usize];
+    let (workspace_len, lwork) = super::common::workspace_len(&work[0]);
+    let mut work = vec![T::zero(); workspace_len];
     T::geev(
         b'V',
         b'V',
-        n as i32,
+        n_i32,
         &mut a_data,
-        n as i32,
+        n_i32,
         &mut wr,
         &mut wi,
         &mut vl,
-        n as i32,
+        n_i32,
         &mut vr,
-        n as i32,
+        n_i32,
         &mut work,
         lwork,
     )?;

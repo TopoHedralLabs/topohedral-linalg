@@ -52,7 +52,7 @@ where
     //}}}
     //{{{ fn: sorted
     /// Returns a copy of the matrix with elements sorted along the given dimension.
-    pub fn sorted(
+    pub fn to_sorted(
         &self,
         dim: Dimension,
     ) -> Self {

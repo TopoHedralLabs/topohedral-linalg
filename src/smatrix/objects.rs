@@ -23,20 +23,13 @@ use crate::float::{Float, FloatVectorOps};
 ///
 /// The matrix is stored in column-major order, which means a matrix is stored column by column
 /// in memory. So, for example, the matrix:
-/// ```ignore
-/// 1 2 3
-/// 4 5 6
-/// 7 8 9
 /// ```
-/// will be stored in memory as:
-/// ```ignore
-/// 1 4 7 2 5 9 3 6 9
+/// # use topohedral_linalg::SMatrix;
+/// let matrix = SMatrix::<i32, 3, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6, 7, 8, 9]);
+/// assert_eq!(matrix.as_ref(), &[1, 4, 7, 2, 5, 8, 3, 6, 9]);
 /// ```
 #[derive(Copy, Clone, Debug)]
-pub struct SMatrix<T, const N: usize, const M: usize>
-where
-    T: Copy,
-{
+pub struct SMatrix<T, const N: usize, const M: usize> {
     /// The data of the matrix, stored as `M` contiguous columns of `N` elements each.
     pub(crate) data: [[T; N]; M],
     /// Number of rows (always equal to `N`).
@@ -44,12 +37,22 @@ where
     /// Number of columns (always equal to `M`).
     pub(crate) ncols: usize,
 }
+
+impl<T, const N: usize, const M: usize> Default for SMatrix<T, N, M>
+where
+    T: Default,
+{
+    fn default() -> Self {
+        Self {
+            data: std::array::from_fn(|_| std::array::from_fn(|_| T::default())),
+            nrows: N,
+            ncols: M,
+        }
+    }
+}
 //}}}
 //{{{ impl: SMatrix
-impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> SMatrix<T, N, M> {
     #[inline]
     pub(crate) fn as_slice(&self) -> &[T] {
         self.data.as_flattened()

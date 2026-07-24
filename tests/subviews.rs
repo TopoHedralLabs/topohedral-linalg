@@ -664,7 +664,7 @@ mod dmatrix_tests {
 
         {
             let mut row = m.rows_indices_mut(vec![4]);
-            row.transform(|value| -value);
+            row.transform_mut(|value| -value);
         }
 
         assert_eq!(m[(0, 1)], 101);
@@ -1310,7 +1310,7 @@ mod smatrix_tests {
 
         {
             let mut row = m.rows_indices_mut(vec![4]);
-            row.transform(|value| -value);
+            row.transform_mut(|value| -value);
         }
 
         assert_eq!(m[(0, 1)], 101);

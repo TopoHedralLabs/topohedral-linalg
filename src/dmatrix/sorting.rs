@@ -58,7 +58,7 @@ where
     /// Returns a new matrix with elements sorted along the specified dimension, leaving `self` unchanged.
     ///
     /// See [`sort`](DMatrix::sort) for the semantics of `dim`.
-    pub fn sorted(
+    pub fn to_sorted(
         &self,
         dim: Dimension,
     ) -> Self {
@@ -70,7 +70,7 @@ where
     //{{{ fn: into_sorted
     /// Consumes `self`, sorts its elements along the specified dimension, and returns the result.
     ///
-    /// Prefer this over [`sorted`](DMatrix::sorted) when the original matrix is no longer needed,
+    /// Prefer this over [`to_sorted`](DMatrix::to_sorted) when the original matrix is no longer needed,
     /// as it avoids an extra allocation.
     pub fn into_sorted(
         mut self,

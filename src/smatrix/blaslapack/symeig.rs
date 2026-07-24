@@ -7,9 +7,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::AsI32;
-use crate::blaslapack::{symeig_raw, Syev, SymEigRawError};
-use crate::common::{Field, One, Zero};
+use crate::blaslapack::{symeig_raw, LapackScalar, SymEigRawError};
 use crate::smatrix::SMatrix;
 //}}}
 //{{{ dep imports
@@ -19,21 +17,25 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors that can occur during symmetric eigendecomposition.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
-    /// Wraps a LAPACK `syev` error from the symmetric eigenvalue routine.
-    #[error("Error in symeig(), exited with error:\n{0}")]
-    SyevError(#[from] SymEigRawError),
+    /// The eigensolver did not converge.
+    #[error("symmetric eigendecomposition did not converge")]
+    NoConvergence,
+    /// The validated backend call unexpectedly rejected an argument.
+    #[error("symmetric eigendecomposition backend failed with info code {info}")]
+    BackendFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
 }
 //}}}
 
 //{{{ struct: Return
 /// Represents the eigenvalue decomposition of a symmetric matrix.
-#[derive(Debug)]
-pub struct Return<T, const N: usize>
-where
-    T: Field + Default + Copy,
-{
+#[derive(Clone, Debug)]
+pub struct Return<T, const N: usize> {
     /// Matrix of eigenvectors (columns are the eigenvectors)
     pub eigvecs: SMatrix<T, N, N>,
 
@@ -43,10 +45,9 @@ where
 //}}}
 
 //{{{ impl: SMatrix<T, N, N>
-#[allow(private_bounds)]
 impl<T, const N: usize> SMatrix<T, N, N>
 where
-    T: One + Zero + Syev + Field + Default + Copy + AsI32,
+    T: LapackScalar,
 {
     /// Computes the eigendecomposition of a symmetric matrix.
     ///
@@ -55,9 +56,16 @@ where
     ///
     /// # Errors
     ///
-    /// Returns an error if the LAPACK routine fails.
-    pub fn symeig(&self) -> Result<Return<T, N>, Error> {
-        let raw = symeig_raw(self.as_slice().to_vec(), N)?;
+    /// Returns [`Error::NoConvergence`] if the algorithm does not converge, or
+    /// [`Error::BackendFailure`] for an unexpected backend failure.
+    /// # Panics
+    ///
+    /// Panics if `N` exceeds the LAPACK integer range.
+    pub fn symeig(self) -> Result<Return<T, N>, Error> {
+        let raw = symeig_raw(self.into_iter().collect(), N).map_err(|error| match error {
+            SymEigRawError::LapackError(info) if info > 0 => Error::NoConvergence,
+            SymEigRawError::LapackError(info) => Error::BackendFailure { info },
+        })?;
         let eigvals: [T; N] = raw.eigvals.try_into().unwrap_or_else(|_| unreachable!());
         Ok(Return {
             eigvecs: SMatrix::from_col_vec(raw.eigvecs_data),

@@ -7,8 +7,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{lu_raw, Getrf, LuRawError};
-use crate::common::{Field, One, Zero};
+use crate::blaslapack::{lu_raw, LapackScalar, LuRawError};
 use crate::smatrix::SMatrix;
 //}}}
 //{{{ dep imports
@@ -18,34 +17,41 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors that can occur during LU decomposition.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
-    /// Wraps a LAPACK `getrf` error returned by the underlying factorisation routine.
-    #[error("Error in lu(), exited with error:\n{0}")]
-    GetrfError(#[from] LuRawError),
+    /// A zero pivot made the matrix singular.
+    #[error("matrix is singular at pivot {pivot}")]
+    Singular {
+        /// One-based index of the zero pivot.
+        pivot: usize,
+    },
+    /// The validated backend call unexpectedly rejected an argument.
+    #[error("LU backend failed with info code {info}")]
+    BackendFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
 }
 //}}}
 //{{{ struct: Return
 /// Represents the LU decomposition of a matrix.
-pub struct Return<T, const N: usize, const M: usize>
-where
-    T: Field + Copy,
-{
+#[derive(Clone, Debug)]
+pub struct Return<T, const N: usize, const M: usize> {
     /// Lower-triangular factor L with unit diagonal.
     pub l: SMatrix<T, N, M>,
     /// Upper-triangular factor U.
     pub u: SMatrix<T, N, M>,
     /// Row-permutation matrix P such that P A = L U.
-    pub p: SMatrix<T, N, M>,
+    pub p: SMatrix<T, N, N>,
     /// Number of row swaps applied during pivoting.
     pub num_swaps: usize,
 }
 //}}}
 //{{{ impl SMatrix<T, N, M>
-#[allow(private_bounds)]
 impl<T, const N: usize, const M: usize> SMatrix<T, N, M>
 where
-    T: One + Zero + Getrf + Field + Copy,
+    T: LapackScalar,
 {
     /// Computes the LU decomposition of the matrix with partial pivoting.
     ///
@@ -53,9 +59,18 @@ where
     ///
     /// # Errors
     ///
-    /// Returns an error if the LAPACK `getrf` routine fails.
-    pub fn lu(&self) -> Result<Return<T, N, M>, Error> {
-        let raw = lu_raw(self.as_slice().to_vec(), N, M)?;
+    /// Returns [`Error::Singular`] when a zero pivot is encountered, or
+    /// [`Error::BackendFailure`] for an unexpected backend failure.
+    /// # Panics
+    ///
+    /// Panics if either dimension exceeds the LAPACK integer range.
+    pub fn lu(self) -> Result<Return<T, N, M>, Error> {
+        let raw = lu_raw(self.into_iter().collect(), N, M).map_err(|error| match error {
+            LuRawError::LapackError(info) if info > 0 => Error::Singular {
+                pivot: info as usize,
+            },
+            LuRawError::LapackError(info) => Error::BackendFailure { info },
+        })?;
         Ok(Return {
             l: SMatrix::from_col_vec(raw.l_data),
             u: SMatrix::from_col_vec(raw.u_data),

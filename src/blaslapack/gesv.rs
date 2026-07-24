@@ -18,10 +18,10 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors returned by the [`Gesv`] LAPACK wrapper.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
 pub enum Error {
     /// LAPACK returned a non-zero info code indicating a singular coefficient matrix.
-    #[error("Error in gesv, exited with code {0}")]
+    #[error("gesv failed with info code {0}")]
     LapackError(i32),
 }
 //}}}
@@ -101,15 +101,19 @@ pub(crate) fn solve_raw<T>(
 where
     T: Gesv + crate::common::Field,
 {
+    let n_i32 = super::common::blas_dim("coefficient matrix row count", n);
+    let nrhs_i32 = super::common::blas_dim("right-hand-side column count", nrhs);
+    super::common::assert_matrix_len("coefficient matrix", a_data.len(), n, n);
+    super::common::assert_matrix_len("right-hand-side matrix", b_data.len(), n, nrhs);
     let mut ipiv = vec![0; n];
     T::gesv(
-        n as i32,
-        nrhs as i32,
+        n_i32,
+        nrhs_i32,
         &mut a_data,
-        n as i32,
+        n_i32,
         &mut ipiv,
         &mut b_data,
-        n as i32,
+        n_i32,
     )?;
     Ok(b_data)
 }

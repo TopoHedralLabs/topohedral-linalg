@@ -8,8 +8,8 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{matmul_dispatch, Gemm, Gemv};
-use crate::common::{Field, MatMul, One, Zero};
+use crate::blaslapack::{matmul_dispatch, BlasScalar};
+use crate::common::MatMul;
 use crate::dmatrix::DMatrix;
 use crate::smatrix::SMatrix;
 //}}}
@@ -20,7 +20,7 @@ use crate::smatrix::SMatrix;
 impl<'a, T, const N: usize, const M: usize, const K: usize> MatMul<&'a SMatrix<T, K, N>>
     for &'a SMatrix<T, M, K>
 where
-    T: Gemm + Gemv + Field + Zero + One + Copy,
+    T: BlasScalar,
 {
     type Output = SMatrix<T, M, N>;
 
@@ -46,7 +46,7 @@ where
 impl<'a, T, const N: usize, const M: usize, const K: usize> MatMul<&'a SMatrix<T, K, N>>
     for &'a mut SMatrix<T, M, K>
 where
-    T: Gemm + Gemv + Field + Zero + One + Copy,
+    T: BlasScalar,
 {
     type Output = SMatrix<T, M, N>;
 
@@ -63,7 +63,7 @@ where
 impl<'a, T, const N: usize, const M: usize, const K: usize> MatMul<&'a mut SMatrix<T, K, N>>
     for &'a SMatrix<T, M, K>
 where
-    T: Gemm + Gemv + Field + Zero + One + Copy,
+    T: BlasScalar,
 {
     type Output = SMatrix<T, M, N>;
 
@@ -80,7 +80,7 @@ where
 impl<'a, T, const N: usize, const M: usize, const K: usize> MatMul<&'a mut SMatrix<T, K, N>>
     for &'a mut SMatrix<T, M, K>
 where
-    T: Gemm + Gemv + Field + Zero + One + Copy,
+    T: BlasScalar,
 {
     type Output = SMatrix<T, M, N>;
 
@@ -99,7 +99,7 @@ where
 impl<T, const N: usize, const M: usize, const K: usize> MatMul<SMatrix<T, K, N>>
     for &SMatrix<T, M, K>
 where
-    T: Gemm + Gemv + Field + Zero + One + Copy,
+    T: BlasScalar,
 {
     type Output = SMatrix<T, M, N>;
 
@@ -116,7 +116,7 @@ where
 impl<T, const N: usize, const M: usize, const K: usize> MatMul<SMatrix<T, K, N>>
     for &mut SMatrix<T, M, K>
 where
-    T: Gemm + Gemv + Field + Zero + One + Copy,
+    T: BlasScalar,
 {
     type Output = SMatrix<T, M, N>;
 
@@ -134,7 +134,7 @@ where
 //{{{ trait: MatMul<&'a DMatrix<T>> for &'a SMatrix<T, M, K>
 impl<'a, T, const M: usize, const K: usize> MatMul<&'a DMatrix<T>> for &'a SMatrix<T, M, K>
 where
-    T: Gemm + Gemv + Field + Zero + One + Copy,
+    T: BlasScalar,
 {
     type Output = DMatrix<T>;
 
@@ -159,7 +159,7 @@ where
 //{{{ trait: MatMul<&'a DMatrix<T>> for &'a mut SMatrix<T, M, K>
 impl<'a, T, const M: usize, const K: usize> MatMul<&'a DMatrix<T>> for &'a mut SMatrix<T, M, K>
 where
-    T: Gemm + Gemv + Field + Zero + One + Copy,
+    T: BlasScalar,
 {
     type Output = DMatrix<T>;
 
@@ -175,7 +175,7 @@ where
 //{{{ trait: MatMul<&'a mut DMatrix<T>> for &'a SMatrix<T, M, K>
 impl<'a, T, const M: usize, const K: usize> MatMul<&'a mut DMatrix<T>> for &'a SMatrix<T, M, K>
 where
-    T: Gemm + Gemv + Field + Zero + One + Copy,
+    T: BlasScalar,
 {
     type Output = DMatrix<T>;
 
@@ -191,7 +191,7 @@ where
 //{{{ trait: MatMul<&'a mut DMatrix<T>> for &'a mut SMatrix<T, M, K>
 impl<'a, T, const M: usize, const K: usize> MatMul<&'a mut DMatrix<T>> for &'a mut SMatrix<T, M, K>
 where
-    T: Gemm + Gemv + Field + Zero + One + Copy,
+    T: BlasScalar,
 {
     type Output = DMatrix<T>;
 

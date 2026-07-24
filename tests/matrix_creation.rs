@@ -99,13 +99,13 @@ mod smatrix_tests {
     #[test]
     fn test_transpose() {
         let matrix = SMatrix::<i32, 2, 3>::from_row_slice(&[1, 2, 3, 4, 5, 6]);
-        let transposed = matrix.transpose();
-        assert_eq!(transposed[(0, 0)], 1);
-        assert_eq!(transposed[(0, 1)], 4);
-        assert_eq!(transposed[(1, 0)], 2);
-        assert_eq!(transposed[(1, 1)], 5);
-        assert_eq!(transposed[(2, 0)], 3);
-        assert_eq!(transposed[(2, 1)], 6);
+        let transto_pos = matrix.transpose();
+        assert_eq!(transto_pos[(0, 0)], 1);
+        assert_eq!(transto_pos[(0, 1)], 4);
+        assert_eq!(transto_pos[(1, 0)], 2);
+        assert_eq!(transto_pos[(1, 1)], 5);
+        assert_eq!(transto_pos[(2, 0)], 3);
+        assert_eq!(transto_pos[(2, 1)], 6);
     }
 
     #[test]
@@ -203,13 +203,13 @@ mod dmatrix_tests {
     #[test]
     fn test_matrix_transpose() {
         let matrix = DMatrix::<i32>::from_row_slice(&[1, 2, 3, 4, 5, 6], 2, 3);
-        let transposed = matrix.transpose();
-        assert_eq!(transposed[(0, 0)], 1);
-        assert_eq!(transposed[(0, 1)], 4);
-        assert_eq!(transposed[(1, 0)], 2);
-        assert_eq!(transposed[(1, 1)], 5);
-        assert_eq!(transposed[(2, 0)], 3);
-        assert_eq!(transposed[(2, 1)], 6);
+        let transto_pos = matrix.transpose();
+        assert_eq!(transto_pos[(0, 0)], 1);
+        assert_eq!(transto_pos[(0, 1)], 4);
+        assert_eq!(transto_pos[(1, 0)], 2);
+        assert_eq!(transto_pos[(1, 1)], 5);
+        assert_eq!(transto_pos[(2, 0)], 3);
+        assert_eq!(transto_pos[(2, 1)], 6);
     }
 
     #[test]

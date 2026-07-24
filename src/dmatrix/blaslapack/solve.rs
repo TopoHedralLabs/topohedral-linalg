@@ -7,8 +7,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{solve_raw, Gesv, SolveRawError};
-use crate::common::Field;
+use crate::blaslapack::{solve_raw, LapackScalar, SolveRawError};
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
@@ -18,19 +17,28 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors that can occur when solving a linear system.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
-    #[error("Error in solve(), exited with error:\n{0}")]
-    /// LAPACK `gesv` failed, e.g. because the coefficient matrix is singular.
-    GesvError(#[from] SolveRawError),
+    /// A zero pivot made the coefficient matrix singular.
+    #[error("coefficient matrix is singular at pivot {pivot}")]
+    Singular {
+        /// One-based index of the zero pivot.
+        pivot: usize,
+    },
+    /// The validated backend call unexpectedly rejected an argument.
+    #[error("linear solve backend failed with info code {info}")]
+    BackendFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
 }
 //}}}
 
 //{{{ impl DMatrix<T>
-#[allow(private_bounds)]
 impl<T> DMatrix<T>
 where
-    T: Gesv + Field,
+    T: LapackScalar,
 {
     /// Solves the linear system `A X = B` for `X`.
     ///
@@ -39,14 +47,29 @@ where
     ///
     /// # Errors
     ///
-    /// Returns [`Error::GesvError`] if the LAPACK `gesv` routine fails.
+    /// Returns [`Error::Singular`] when the coefficient matrix has a zero pivot, or
+    /// [`Error::BackendFailure`] for an unexpected backend failure.
+    /// # Panics
+    ///
+    /// Panics if `self` is not square, if `b` has a different row count, or if a dimension
+    /// exceeds the LAPACK integer range.
     pub fn solve(
-        &self,
-        b: &DMatrix<T>,
+        self,
+        b: DMatrix<T>,
     ) -> Result<DMatrix<T>, Error> {
         let n = self.nrows;
+        assert_eq!(n, self.ncols, "coefficient matrix must be square");
+        assert_eq!(
+            b.nrows, n,
+            "right-hand-side row count must match the coefficient matrix"
+        );
         let nrhs = b.ncols;
-        let data = solve_raw(self.data.clone(), b.data.clone(), n, nrhs)?;
+        let data = solve_raw(self.data, b.data, n, nrhs).map_err(|error| match error {
+            SolveRawError::LapackError(info) if info > 0 => Error::Singular {
+                pivot: info as usize,
+            },
+            SolveRawError::LapackError(info) => Error::BackendFailure { info },
+        })?;
         Ok(DMatrix {
             data,
             nrows: n,

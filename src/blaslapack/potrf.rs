@@ -17,10 +17,10 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors returned by the [`Potrf`] LAPACK wrapper.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
 pub enum Error {
     /// LAPACK returned a non-zero info code indicating an invalid argument or a non-positive pivot.
-    #[error("Error in potrf, exited with code {0}")]
+    #[error("potrf failed with info code {0}")]
     LapackError(i32),
 }
 //}}}
@@ -94,7 +94,9 @@ pub(crate) fn cholesky_raw<T>(
 where
     T: Potrf + crate::common::Zero + crate::common::Field + Copy,
 {
-    T::potrf(b'L', n as i32, &mut a_data, n as i32)?;
+    let n_i32 = super::common::blas_dim("matrix order", n);
+    super::common::assert_matrix_len("matrix", a_data.len(), n, n);
+    T::potrf(b'L', n_i32, &mut a_data, n_i32)?;
 
     for j in 0..n {
         for i in 0..j {

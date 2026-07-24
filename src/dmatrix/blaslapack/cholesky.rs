@@ -7,8 +7,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{cholesky_raw, CholeskyRawError, Potrf};
-use crate::common::{Field, Zero};
+use crate::blaslapack::{cholesky_raw, CholeskyRawError, LapackScalar};
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
@@ -18,29 +17,35 @@ use thiserror::Error;
 
 //{{{ enum: Error
 /// Errors that can occur during Cholesky decomposition.
-#[derive(Error, Debug)]
+#[derive(Clone, Error, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Error {
-    #[error("Error in cholesky(), exited with error:\n{0}")]
-    /// LAPACK `potrf` reported a failure, e.g. the matrix is not positive definite.
-    PotrfError(#[from] CholeskyRawError),
+    /// The leading principal minor of this order was not positive definite.
+    #[error("leading principal minor {minor} is not positive definite")]
+    NotPositiveDefinite {
+        /// One-based order of the failing leading principal minor.
+        minor: usize,
+    },
+    /// The validated backend call unexpectedly rejected an argument.
+    #[error("cholesky backend failed with info code {info}")]
+    BackendFailure {
+        /// Raw LAPACK diagnostic code.
+        info: i32,
+    },
 }
 //}}}
 //{{{ struct: Return
 /// Represents the Cholesky decomposition of a symmetric positive-definite matrix.
-#[derive(Debug)]
-pub struct Return<T>
-where
-    T: Field + Copy,
-{
+#[derive(Clone, Debug)]
+pub struct Return<T> {
     /// Lower-triangular factor L such that A = L L^T.
     pub l: DMatrix<T>,
 }
 //}}}
 //{{{ impl DMatrix<T>
-#[allow(private_bounds)]
 impl<T> DMatrix<T>
 where
-    T: Zero + Potrf + Field + Copy,
+    T: LapackScalar,
 {
     /// Computes the Cholesky decomposition of the matrix.
     ///
@@ -49,14 +54,22 @@ where
     ///
     /// # Errors
     ///
-    /// Returns [`Error::PotrfError`] if LAPACK `potrf` fails, including when the matrix is not
-    /// positive definite.
-    pub fn cholesky(&self) -> Result<Return<T>, Error> {
+    /// Returns [`Error::NotPositiveDefinite`] when a leading principal minor is not positive
+    /// definite, or [`Error::BackendFailure`] for an unexpected backend failure.
+    /// # Panics
+    ///
+    /// Panics if the matrix is not square or its dimensions exceed the LAPACK integer range.
+    pub fn cholesky(self) -> Result<Return<T>, Error> {
         let n = self.nrows;
         if n != self.ncols {
-            panic!("Matrix must be square for Cholesky decomposition");
+            panic!("matrix must be square for Cholesky decomposition");
         }
-        let raw = cholesky_raw(self.data.clone(), n)?;
+        let raw = cholesky_raw(self.data, n).map_err(|error| match error {
+            CholeskyRawError::LapackError(info) if info > 0 => Error::NotPositiveDefinite {
+                minor: info as usize,
+            },
+            CholeskyRawError::LapackError(info) => Error::BackendFailure { info },
+        })?;
         Ok(Return {
             l: DMatrix {
                 data: raw.l_data,

@@ -16,14 +16,14 @@ use crate::subviews::{MatrixView, MatrixViewMut, SubViewable, SubViewableMut};
 //{{{ impl: to_dmatrix for SMatrix views
 impl<'a, T, const N: usize, const M: usize> MatrixView<'a, SMatrix<T, N, M>>
 where
-    T: Copy,
+    T: Clone,
 {
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
     pub fn to_dmatrix(&self) -> DMatrix<T> {
         let mut data = Vec::with_capacity(self.nrows * self.ncols);
         for j in 0..self.ncols {
             for i in 0..self.nrows {
-                data.push(self[(i, j)]);
+                data.push(self[(i, j)].clone());
             }
         }
         DMatrix {
@@ -36,14 +36,14 @@ where
 
 impl<'a, T, const N: usize, const M: usize> MatrixViewMut<'a, SMatrix<T, N, M>>
 where
-    T: Copy,
+    T: Clone,
 {
     /// Copies the view contents into a new heap-allocated [`DMatrix`].
     pub fn to_dmatrix(&self) -> DMatrix<T> {
         let mut data = Vec::with_capacity(self.nrows * self.ncols);
         for j in 0..self.ncols {
             for i in 0..self.nrows {
-                data.push(self[(i, j)]);
+                data.push(self[(i, j)].clone());
             }
         }
         DMatrix {
@@ -56,10 +56,7 @@ where
 //}}}
 
 //{{{ impl: SubViewable for SMatrix
-impl<T, const N: usize, const M: usize> SubViewable for SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> SubViewable for SMatrix<T, N, M> {
     fn subview_range<'a>(
         &'a self,
         start_row: usize,
@@ -67,6 +64,10 @@ where
         start_col: usize,
         end_col: usize,
     ) -> MatrixView<'a, SMatrix<T, N, M>> {
+        assert!(start_row <= end_row, "subview row range must be ordered");
+        assert!(end_row < N, "subview row range exceeds the matrix");
+        assert!(start_col <= end_col, "subview column range must be ordered");
+        assert!(end_col < M, "subview column range exceeds the matrix");
         MatrixView {
             matrix: self,
             start_row,
@@ -78,10 +79,7 @@ where
 }
 //}}}
 //{{{ impl: SubViewableMut for SMatrix
-impl<T, const N: usize, const M: usize> SubViewableMut for SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> SubViewableMut for SMatrix<T, N, M> {
     fn subview_range_mut<'a>(
         &'a mut self,
         start_row: usize,
@@ -89,6 +87,10 @@ where
         start_col: usize,
         end_col: usize,
     ) -> MatrixViewMut<'a, SMatrix<T, N, M>> {
+        assert!(start_row <= end_row, "subview row range must be ordered");
+        assert!(end_row < N, "subview row range exceeds the matrix");
+        assert!(start_col <= end_col, "subview column range must be ordered");
+        assert!(end_col < M, "subview column range exceeds the matrix");
         MatrixViewMut {
             matrix: self,
             start_row,

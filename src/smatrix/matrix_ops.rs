@@ -7,10 +7,10 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use super::blaslapack::SLuReturn;
-use crate::blaslapack::Getrf;
+use super::blaslapack::{SLuError, SLuReturn};
+use crate::blaslapack::LapackScalar;
 use crate::common::Shape;
-use crate::common::{Field, MatrixOps, One, Zero};
+use crate::common::{Field, MatrixOps, One, SquareMatrixOps, Zero};
 use crate::float::Float;
 use crate::smatrix::SMatrix;
 //}}}
@@ -19,10 +19,7 @@ use crate::smatrix::SMatrix;
 //--------------------------------------------------------------------------------------------------
 
 //{{{ impl: Shape for SMatrix
-impl<T, const N: usize, const M: usize> Shape for SMatrix<T, N, M>
-where
-    T: Copy,
-{
+impl<T, const N: usize, const M: usize> Shape for SMatrix<T, N, M> {
     fn ncols(&self) -> usize {
         M
     }
@@ -50,27 +47,49 @@ where
         }
         transposed
     }
+}
+//}}}
 
+//{{{ impl: SquareMatrixOps for SMatrix
+impl<T, const N: usize> SquareMatrixOps for SMatrix<T, N, N>
+where
+    T: Field + Zero + One + Copy,
+{
     fn determinant(&self) -> Self::ScalarType
     where
-        Self::ScalarType: Getrf + Float,
+        Self::ScalarType: LapackScalar + Float,
     {
-        if N != M {
-            panic!("Determinant is only defined for square matrices");
+        if N == 0 {
+            return Self::ScalarType::one();
         }
         let SLuReturn {
             l: _,
             u,
             p: _,
             num_swaps,
-        } = self.lu().unwrap();
-        (-Self::ScalarType::one()).powi(num_swaps as i32) * u.trace()
+        } = match (*self).lu() {
+            Ok(decomposition) => decomposition,
+            Err(SLuError::Singular { .. }) => return Self::ScalarType::zero(),
+            Err(SLuError::BackendFailure { info }) => {
+                panic!("validated LU backend failed with info code {info}")
+            }
+        };
+        let mut diagonal_product = Self::ScalarType::one();
+        for i in 0..N {
+            diagonal_product *= u[(i, i)];
+        }
+        let sign = if num_swaps % 2 == 0 {
+            Self::ScalarType::one()
+        } else {
+            -Self::ScalarType::one()
+        };
+        sign * diagonal_product
     }
 
     fn trace(&self) -> Self::ScalarType {
-        let mut out = Self::ScalarType::one();
+        let mut out = Self::ScalarType::zero();
         for i in 0..N {
-            out *= self[(i, i)];
+            out += self[(i, i)];
         }
         out
     }
