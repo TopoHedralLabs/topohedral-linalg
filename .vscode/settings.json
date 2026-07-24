@@ -4,7 +4,6 @@
     "editor.foldingStrategy": "auto",
     "editor.defaultFoldingRangeProvider": "TopoHedralLabs.topohedral-vscode",
     "rust-analyzer.cargo.features": [
-        "enable_trace",
         "enable_checks"
     ],
     "rust-analyzer.cargo.buildScripts.useRustcWrapper": true,

@@ -1,35 +1,38 @@
 [package]
 name = "topohedral-linalg"
-version = "4.1.0"
+version = "5.0.0"
 authors = ["John Ferguson <JAFerguson952@gmail.com>"]
 edition = "2021"
+rust-version = "1.92"
 repository = "https://github.com/TopoHedralLabs/topohedral-linalg"
+homepage = "https://topohedrallabs.github.io/topohedral-linalg/"
+documentation = "https://topohedrallabs.github.io/topohedral-linalg/latest/api/topohedral_linalg/"
 readme = "README.md"
 license = "MIT"
 description = "A library for small, dense linear algebra in rust, blas/lapack backends and expression templates"
+keywords = ["linear-algebra", "matrix", "blas", "lapack", "math"]
+categories = ["mathematics", "science"]
 publish = ["cloudsmith"]
+exclude = ["assets/v5-plan.md"]
 
 
 [features]
-enable_trace = ["topohedral-tracing/enable_trace"]
 enable_checks = []
 
 [dependencies]
-log = "0.4.33"
 rand = "0.10.1"
 cblas = "0.5.0"
 lapack = "0.20.0"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
 thiserror = "2.0.17"
 num-complex = "0.4.6"
-topohedral-tracing = { version = "0.1.1", registry = "cloudsmith"}
 
 [dev-dependencies]
 criterion = "0.8.1"
 ctor = "1.0.7"
 nalgebra = {version = "0.35.0", features = ["rand"]}
 approx = "0.5.1"
+serde_json = "1.0"
 
 [[bench]]
 name = "dmatrix_addop"

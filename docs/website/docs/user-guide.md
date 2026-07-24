@@ -14,7 +14,7 @@ There is no prelude — import what you need. Everything is re-exported from the
 | `SRVector`, `SCVector` (static row/column vector aliases) | `topohedral_linalg::{SRVector, SCVector}` |
 | `DVector`, `VecType` (dynamic vector alias and orientation) | `topohedral_linalg::{DVector, VecType}` |
 | `Field` (numeric arithmetic bound) | `topohedral_linalg::Field` |
-| Traits (`MatMul`, `MatrixOps`, `ReduceOps`, `TransformOps`, `FloatTransformOps`, `Shape`, `VectorOps`, …) | `topohedral_linalg::{TraitName}` |
+| Traits (`MatMul`, `MatrixOps`, `SquareMatrixOps`, `ReduceOps`, `TransformOps`, `FloatTransformOps`, `Shape`, `VectorOps`, …) | `topohedral_linalg::{TraitName}` |
 | `OuterProduct` (lazy vector outer products) | `topohedral_linalg::OuterProduct` |
 | Subview traits and concrete view types | `topohedral_linalg::{SubViewable, SubViewableMut, MatrixView, MatrixViewMut, IndexedMatrixView, IndexedMatrixViewMut}` |
 | `ElementwiseCompare` (lazy comparisons) | `topohedral_linalg::ElementwiseCompare` |
@@ -27,7 +27,7 @@ A typical set of imports for general use:
 ```rust
 use topohedral_linalg::{
     DMatrix, SMatrix,
-    Dimension, MatMul, MatrixOps, ReduceOps, Shape,
+    Dimension, MatMul, MatrixOps, SquareMatrixOps, ReduceOps, Shape,
     TransformOps, FloatTransformOps, OuterProduct,
     ElementwiseCompare, Maskable, SubViewable, SubViewableMut,
 };
@@ -41,13 +41,13 @@ fails to resolve.
 
 ## Scalar types and the `Field` trait
 
-Matrix storage and structural operations are available for `Copy` element types. This
-includes the numeric types below and `bool`. Numeric operations use the stricter `Field`
+Matrix storage, owned construction, indexing, and iteration support non-`Copy` element types.
+Operations that duplicate elements require `Clone` or `Copy` as appropriate. Numeric operations use the stricter `Field`
 trait, which requires the four arithmetic operators and their assignment variants,
-negation, and a partial order:
+negation, and equality:
 
 ```
-Field = Add + Sub + Mul + Div + AddAssign + SubAssign + MulAssign + DivAssign + Neg + PartialOrd + PartialEq
+Field = Add + Sub + Mul + Div + AddAssign + SubAssign + MulAssign + DivAssign + Neg + PartialEq
 ```
 
 The following primitive types implement `Field`:
@@ -67,8 +67,9 @@ fn scale_matrix<T: Field + Copy>(m: &DMatrix<T>, factor: T) -> DMatrix<T> {
 }
 ```
 
-For floating-point-only operations (decompositions, transcendental functions, norms),
-use `Float` instead, which is a stricter bound that implies `Field`.
+Operations that compare elements add `PartialOrd` explicitly. For floating-point-only operations
+(decompositions, transcendental functions, norms), use `Float` instead, which is a stricter bound
+that implies both `Field` and `PartialOrd`.
 
 `bool` does not implement `Field`. Boolean matrices support construction, indexing,
 iteration, views, copying, transformations, reductions, sorting, serialization,
@@ -495,8 +496,8 @@ Every transformation is available in three flavours:
 
 | Flavour | Example | Effect |
 |---|---|---|
-| In-place | `m.transform()` | Modifies `m` |
-| Copying | `m.transformed()` | Returns new matrix, `m` unchanged |
+| In-place | `m.transform_mut()` | Modifies `m` |
+| Copying | `m.to_transformed()` | Returns new matrix, `m` unchanged |
 | Consuming | `m.into_transformed()` | Consumes `m`, returns new matrix |
 
 these are the three general purpose transformations which take a closure of type
@@ -508,7 +509,7 @@ general-purpose transformations we provide three standard transformations: `shif
 use topohedral_linalg::TransformOps;
 let mut m = DMatrix::<f64>::ones(3, 3);
 m.shift(2.0);    // add 2.0 to every element in-place
-let m2 = m.shifted(2.0);    // Copies m, adds 2.0 to every element, m unchanged
+let m2 = m.to_shifted(2.0);    // Copies m, adds 2.0 to every element, m unchanged
 let m3 = m.into_shifted(2.0); // Consumes m, adds 2.0 to every element and returns new matrix
 ```
 
@@ -519,26 +520,26 @@ example:
 
 | Flavour | Example | Effect |
 |---|---|---|
-| In-place | `m.sqrt()` | Modifies `m` |
-| Copying | `m.sqrted()` | Returns new matrix, `m` unchanged |
-| Consuming | `m.into_sqrted()` | Consumes `m`, returns new matrix |
+| In-place | `m.sqrt_mut()` | Modifies `m` |
+| Copying | `m.to_sqrt()` | Returns new matrix, `m` unchanged |
+| Consuming | `m.into_sqrt()` | Consumes `m`, returns new matrix |
 
 ```rust
 use topohedral_linalg::FloatTransformOps;
 
 let mut m = DMatrix::<f64>::from_uniform_random(0.0, 1.0, 4, 4);
 
-m.abs();
-m.exp();
-m.ln();
-m.sin();
-m.cos();
-m.sqrt();
-m.powf(2.0);   // raise every element to power 2.0
-m.clamp(0.0, 1.0);
+m.abs_mut();
+m.exp_mut();
+m.ln_mut();
+m.sin_mut();
+m.cos_mut();
+m.sqrt_mut();
+m.powf_mut(2.0);   // raise every element to power 2.0
+m.clamp_mut(0.0, 1.0);
 
-let m2 = m.sqrted();   // non-destructive
-let m3 = m.into_exped(); // consuming
+let m2 = m.to_sqrt();   // non-destructive
+let m3 = m.into_exp(); // consuming
 ```
 
 The full list mirrors Rust's `f64` intrinsics: `abs`, `acos`, `acosh`, `asin`,
@@ -589,7 +590,7 @@ m.fold_indexed(0.0f64, |acc, (r, c), x| {
 ## Core matrix operations
 
 ```rust
-use topohedral_linalg::MatrixOps;
+use topohedral_linalg::{MatrixOps, SquareMatrixOps};
 
 let m = DMatrix::<f64>::from_row_slice(&[1.0, 2.0, 3.0, 4.0], 2, 2);
 
@@ -623,7 +624,7 @@ m.sort(Dimension::Rows);           // sort within each row
 m.sort(Dimension::Cols);           // sort within each column
 m.sort(Dimension::All);            // sort all elements globally
 
-let m2 = m.sorted(Dimension::All);        // returns a sorted copy
+let m2 = m.to_sorted(Dimension::All);        // returns a sorted copy
 let m3 = m.into_sorted(Dimension::Cols);  // consumes m, returns sorted copy
 ```
 
@@ -643,9 +644,9 @@ and `SMatrix::lu()` returns `Result<SLuReturn<T, N, M>, SLuError>`. The full set
 | LU | `DLuReturn<T>`, `DLuError` | `SLuReturn<T, N, M>`, `SLuError` |
 | QR | `DQrReturn<T>`, `DQrError` | `SQrReturn<T, N, M>`, `SQrError` |
 | Cholesky | `DCholeskyReturn<T>`, `DCholeskyError` | `SCholeskyReturn<T, N>`, `SCholeskyError` |
-| Eigenvalue (general) | `DEigReturn<T>`, `DEigError` | `SEigReturn<T, N, M>`, `SEigError` |
-| Eigenvalue (symmetric) | `DSymEigReturn<T>`, `DSymEigError` | `SSymEigReturn<T, N, M>`, `SSymEigError` |
-| Schur | `DSchurReturn<T>`, `DSchurError` | `SSchurReturn<T, N, M>`, `SSchurError` |
+| Eigenvalue (general) | `DEigReturn<T>`, `DEigError` | `SEigReturn<T, N>`, `SEigError` |
+| Eigenvalue (symmetric) | `DSymEigReturn<T>`, `DSymEigError` | `SSymEigReturn<T, N>`, `SSymEigError` |
+| Schur | `DSchurReturn<T>`, `DSchurError` | `SSchurReturn<T, N>`, `SSchurError` |
 | Linear solve | `DSolveError` | `SSolveError` |
 
 All of these are re-exported from the crate root.
@@ -717,7 +718,7 @@ let a = DMatrix::<f64>::from_row_slice(
     3,
 );
 
-let chol = a.cholesky().unwrap();
+let chol = a.clone().cholesky().unwrap();
 
 let l = &chol.l;                 // lower-triangular factor
 let reconstructed = l.matmul(l.transpose()); // reconstructed ≈ a
@@ -766,7 +767,7 @@ defective matrices (repeated eigenvalues with a shortage of independent eigenvec
 the decomposition may be ill-conditioned.
 
 ```rust
-use num_complex::Complex;
+use topohedral_linalg::Complex;
 
 let m = SMatrix::<f64, 3, 3>::from_uniform_random(0.0, 1.0);
 let eig = m.eig().unwrap();
@@ -842,8 +843,8 @@ with partial pivoting.
 let a = DMatrix::<f64>::from_row_slice(&[2.0, 1.0, 5.0, 3.0], 2, 2);
 let b = DMatrix::<f64>::from_row_slice(&[1.0, 2.0], 2, 1);
 
-let x = a.solve(&b).unwrap();
-// a.matmul(&x) ≈ b
+let x = a.solve(b).unwrap();
+// Clone a and b before solve if they are also needed to verify the result.
 ```
 
 LAPACK routine: `dgesv` / `sgesv`

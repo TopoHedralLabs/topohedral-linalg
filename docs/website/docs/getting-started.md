@@ -7,7 +7,7 @@ add it to your project with:
 
 ```toml
 [dependencies]
-topohedral-linalg = "3.0"
+topohedral-linalg = "5.0"
 ```
 
 ---
@@ -16,12 +16,11 @@ topohedral-linalg = "3.0"
 
 | Flag | Effect |
 |---|---|
-| `enable_checks` | Enables runtime dimension checks on operations. Recommended during development, disable for release builds once you are confident in your matrix sizes. |
-| `enable_trace` | Enables structured tracing via `topohedral-tracing`. |
+| `enable_checks` | Enables the legacy additional checks in lazy elementwise operator construction. Other public shape, bounds, and FFI preconditions are always checked. |
 
 ```toml
 [dependencies]
-topohedral-linalg = { version = "3.0", features = ["enable_checks"] }
+topohedral-linalg = { version = "5.0", features = ["enable_checks"] }
 ```
 
 ---
@@ -45,8 +44,8 @@ routines.
 |---|---|---|
 | Size | Fixed at compile time | Set at runtime |
 | Allocation | Stack (array) | Heap (`Vec`) |
-| Copy | Yes (`Copy + Clone`) | Clone only |
-| Size checks | Compile-time | Runtime (with `enable_checks`) |
+| Copy | When the element type is `Copy` | Clone when the element type is `Clone` |
+| Size checks | Compile-time where encoded in the type | Runtime |
 | Best for | Small, known-size matrices | Matrices whose size varies at runtime |
 
 Both types store data in **column-major** (Fortran) order for BLAS compatibility.
