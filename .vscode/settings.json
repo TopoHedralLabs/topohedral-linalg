@@ -8,7 +8,7 @@
     ],
     "rust-analyzer.cargo.buildScripts.useRustcWrapper": true,
     "rust-analyzer.cargo.extraEnv": {
-        "RUSTUP_TOOLCHAIN": "nightly"
+        "RUSTUP_TOOLCHAIN": "stable"
     },
     "yaml.schemas": {
         "https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml"
