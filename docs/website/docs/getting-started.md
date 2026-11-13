@@ -7,7 +7,7 @@ add it to your project with:
 
 ```toml
 [dependencies]
-topohedral-linalg = "5.0"
+topohedral-linalg = "0.0.1"
 ```
 
 ---
@@ -16,11 +16,11 @@ topohedral-linalg = "5.0"
 
 | Flag | Effect |
 |---|---|
-| `enable_checks` | Enables the legacy additional checks in lazy elementwise operator construction. Other public shape, bounds, and FFI preconditions are always checked. |
+| `enable_checks` | Enables additional checks in lazy elementwise operator construction. Other public shape, bounds, and FFI preconditions are always checked. |
 
 ```toml
 [dependencies]
-topohedral-linalg = { version = "5.0", features = ["enable_checks"] }
+topohedral-linalg = { version = "0.0.1", features = ["enable_checks"] }
 ```
 
 ---
