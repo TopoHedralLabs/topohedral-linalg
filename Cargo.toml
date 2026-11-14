@@ -1,6 +1,6 @@
 [package]
 name = "topohedral-linalg"
-version = "5.0.0"
+version = "0.0.1"
 authors = ["John Ferguson <JAFerguson952@gmail.com>"]
 edition = "2021"
 rust-version = "1.92"
@@ -13,7 +13,6 @@ description = "A library for small, dense linear algebra in rust, blas/lapack ba
 keywords = ["linear-algebra", "matrix", "blas", "lapack", "math"]
 categories = ["mathematics", "science"]
 publish = ["cloudsmith"]
-exclude = ["assets/v5-plan.md"]
 
 
 [features]
