@@ -141,8 +141,8 @@ where
     {
         let mut out = Self::zeros();
         let l = N.min(M);
-        for i in 0..l {
-            out.data[i][i] = T::one()
+        for (i, column) in out.data.iter_mut().enumerate().take(l) {
+            column[i] = T::one();
         }
         out
     }

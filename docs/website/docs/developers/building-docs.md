@@ -6,7 +6,7 @@ The `build-docs.sh` script at the repo root lets you build and preview the full 
 
 ```bash
 ./build-docs.sh              # uses version label "local-test"
-./build-docs.sh v1.2.0       # test with a specific version label
+./build-docs.sh v0.0.1       # test with a specific version label
 ```
 
 Once running, the site is served at `http://localhost:8000`. Press Ctrl+C to stop; the script cleans up after itself automatically.
