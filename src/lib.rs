@@ -87,8 +87,8 @@ pub use expression::outer_product_expr::OuterProduct;
 pub use expression::unary_expr::{
     abs, abs_sub, acos, acosh, asin, asinh, atan, atan2, atanh, cbrt, ceil, clamp, copysign, cos,
     cosh, div_euclid, exp, exp_m1, exp2, floor, fract, hypot, ln, ln_1p, log, log2, log10, max,
-    midpoint, min, mul_add, next_down, next_up, powf, powi, recip, rem_euclid, round,
-    round_ties_even, signum, sin, sinh, sqrt, tan, tanh, to_degrees, to_radians, trunc,
+    midpoint, min, mul_add, powf, powi, recip, rem_euclid, round, round_ties_even, signum, sin,
+    sinh, sqrt, tan, tanh, to_degrees, to_radians, trunc,
 };
 pub use smatrix::*;
 pub use subviews::{

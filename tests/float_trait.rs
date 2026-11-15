@@ -123,8 +123,6 @@ macro_rules! float_trait_smoke_test {
                 <$type as Float>::mul_add(2.0 as $type, 3.0 as $type, 4.0 as $type),
                 10.0 as $type
             );
-            assert!(<$type as Float>::next_down(x) < x);
-            assert!(<$type as Float>::next_up(x) > x);
             assert_eq!(
                 <$type as Float>::powf(4.0 as $type, 0.5 as $type),
                 2.0 as $type

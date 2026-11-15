@@ -478,8 +478,6 @@ define_float_unary_op_with_same_arg!(MaxOp, max, max, other);
 define_float_unary_op_with_same_arg!(MidpointOp, midpoint, midpoint, other);
 define_float_unary_op_with_same_arg!(MinOp, min, min, other);
 define_float_unary_op_with_two_same_args!(MulAddOp, mul_add, mul_add, a, b);
-define_float_unary_op!(NextDownOp, next_down, next_down);
-define_float_unary_op!(NextUpOp, next_up, next_up);
 define_float_unary_op_with_same_arg!(PowfOp, powf, powf, exp);
 
 #[doc(hidden)]

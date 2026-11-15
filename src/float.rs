@@ -118,10 +118,6 @@ pub trait Float: Field + PartialOrd {
         a: Self,
         b: Self,
     ) -> Self;
-    /// Returns the next representable value toward negative infinity.
-    fn next_down(self) -> Self;
-    /// Returns the next representable value toward positive infinity.
-    fn next_up(self) -> Self;
     /// Raises `self` to a floating-point power.
     fn powf(
         self,
@@ -360,16 +356,6 @@ macro_rules! impl_float {
                 b: Self,
             ) -> Self {
                 self.mul_add(a, b)
-            }
-
-            #[inline]
-            fn next_down(self) -> Self {
-                self.next_down()
-            }
-
-            #[inline]
-            fn next_up(self) -> Self {
-                self.next_up()
             }
 
             #[inline]
@@ -679,8 +665,6 @@ where
         a: Self::ScalarType,
         b: Self::ScalarType
     );
-    float_transform_unary!(next_down, next_down_mut, to_next_down, into_next_down);
-    float_transform_unary!(next_up, next_up_mut, to_next_up, into_next_up);
     float_transform_unary_with_arg!(powf, powf_mut, to_powf, into_powf, exp: Self::ScalarType);
     float_transform_unary_with_arg!(powi, powi_mut, to_powi, into_powi, exp: i32);
     float_transform_unary!(recip, recip_mut, to_recip, into_recip);
