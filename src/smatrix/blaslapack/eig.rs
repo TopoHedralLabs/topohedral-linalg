@@ -7,7 +7,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{eig_raw, EigRawError, LapackScalar};
+use crate::blaslapack::{EigRawError, LapackScalar, eig_raw};
 use crate::common::Complex;
 use crate::smatrix::SMatrix;
 //}}}

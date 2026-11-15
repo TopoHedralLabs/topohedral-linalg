@@ -47,7 +47,8 @@ where
         DMatrix { data, nrows, ncols }
     }
 } //}}}
-  //{{{ impl: From<UnaryExpr> for DMatrix
+
+//{{{ impl: From<UnaryExpr> for DMatrix
 impl<A, T, Op> From<UnaryExpr<A, T, Op>> for DMatrix<T>
 where
     A: MatrixExpr<ScalarType = T>,

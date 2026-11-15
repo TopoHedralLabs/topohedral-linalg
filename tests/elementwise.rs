@@ -3,7 +3,7 @@ mod smatrix_tests {
 
     use approx::assert_relative_eq;
     use topohedral_linalg::{
-        abs, clamp, exp, mul_add, powf, powi, sin, sqrt, FloatTransformOps, OuterProduct, SCVector,
+        FloatTransformOps, OuterProduct, SCVector, abs, clamp, exp, mul_add, powf, powi, sin, sqrt,
     };
     use topohedral_linalg::{SMatrix, SubViewable, SubViewableMut};
 
@@ -828,8 +828,8 @@ mod smatrix_tests {
 mod dmatrix_tests {
     use approx::assert_relative_eq;
     use topohedral_linalg::{
-        abs, clamp, exp, mul_add, powf, powi, sin, sqrt, DMatrix, DVector, FloatTransformOps,
-        OuterProduct, SubViewable, SubViewableMut, VecType,
+        DMatrix, DVector, FloatTransformOps, OuterProduct, SubViewable, SubViewableMut, VecType,
+        abs, clamp, exp, mul_add, powf, powi, sin, sqrt,
     };
 
     //{{{ collection: addition tests

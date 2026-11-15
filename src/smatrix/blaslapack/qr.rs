@@ -7,7 +7,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{qr_raw, LapackScalar, QrRawError};
+use crate::blaslapack::{LapackScalar, QrRawError, qr_raw};
 use crate::smatrix::SMatrix;
 //}}}
 //{{{ dep imports

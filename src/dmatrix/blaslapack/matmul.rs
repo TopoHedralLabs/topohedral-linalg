@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{matmul_dispatch, BlasScalar};
+use crate::blaslapack::{BlasScalar, matmul_dispatch};
 use crate::common::MatMul;
 use crate::dmatrix::DMatrix;
 use crate::smatrix::SMatrix;

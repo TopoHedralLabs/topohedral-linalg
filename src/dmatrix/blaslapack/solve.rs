@@ -7,7 +7,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{solve_raw, LapackScalar, SolveRawError};
+use crate::blaslapack::{LapackScalar, SolveRawError, solve_raw};
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports

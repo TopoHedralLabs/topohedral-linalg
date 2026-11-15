@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use nalgebra::DMatrix as NADMatrix;
 use rand::prelude::*;
 use topohedral_linalg::{DMatrix, SubViewable};

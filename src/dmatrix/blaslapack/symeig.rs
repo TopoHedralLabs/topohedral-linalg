@@ -8,7 +8,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{symeig_raw, LapackScalar, SymEigRawError};
+use crate::blaslapack::{LapackScalar, SymEigRawError, symeig_raw};
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports
