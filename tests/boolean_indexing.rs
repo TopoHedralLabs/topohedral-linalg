@@ -19,10 +19,12 @@ fn boolean_matrices_support_structural_operations() {
         let mut view = static_mask.subview_range_mut(0, 1, 1, 2);
         view.fill(true);
     }
-    assert!(static_mask
-        .subview_range(0, 1, 1, 2)
-        .iter()
-        .all(|value| *value));
+    assert!(
+        static_mask
+            .subview_range(0, 1, 1, 2)
+            .iter()
+            .all(|value| *value)
+    );
 
     let encoded = serde_json::to_string(&static_mask).unwrap();
     let decoded: SMatrix<bool, 2, 3> = serde_json::from_str(&encoded).unwrap();

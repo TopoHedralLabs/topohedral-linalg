@@ -15,7 +15,7 @@ use crate::common::MatrixElementDisplay;
 use std::fmt;
 //}}}
 //{{{ dep imports
-use serde::{de, Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, de};
 //}}}
 //--------------------------------------------------------------------------------------------------
 

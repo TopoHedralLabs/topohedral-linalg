@@ -7,7 +7,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{cholesky_raw, CholeskyRawError, LapackScalar};
+use crate::blaslapack::{CholeskyRawError, LapackScalar, cholesky_raw};
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports

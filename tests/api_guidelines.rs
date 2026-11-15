@@ -81,9 +81,11 @@ fn mutable_views_support_standard_iteration() {
 fn dynamic_deserialization_rejects_inconsistent_storage() {
     let malformed = r#"{"data":[1,2,3],"nrows":2,"ncols":2}"#;
     let error = serde_json::from_str::<DMatrix<i32>>(malformed).unwrap_err();
-    assert!(error
-        .to_string()
-        .contains("matrix data length does not match its dimensions"));
+    assert!(
+        error
+            .to_string()
+            .contains("matrix data length does not match its dimensions")
+    );
 }
 
 #[test]
@@ -160,10 +162,10 @@ fn dynamic_lapack_shape_preconditions_are_unconditional() {
     assert!(std::panic::catch_unwind(|| DMatrix::<f64>::zeros(2, 3).eig()).is_err());
     assert!(std::panic::catch_unwind(|| DMatrix::<f64>::zeros(2, 3).schur()).is_err());
     assert!(std::panic::catch_unwind(|| DMatrix::<f64>::zeros(2, 3).symeig()).is_err());
-    assert!(std::panic::catch_unwind(|| {
-        DMatrix::<f64>::identity(2, 2).solve(DMatrix::zeros(3, 1))
-    })
-    .is_err());
+    assert!(
+        std::panic::catch_unwind(|| { DMatrix::<f64>::identity(2, 2).solve(DMatrix::zeros(3, 1)) })
+            .is_err()
+    );
 }
 
 #[test]

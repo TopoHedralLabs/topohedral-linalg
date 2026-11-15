@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use super::DMatrix;
-use crate::common::{lin_index, MatrixExpr};
+use crate::common::{MatrixExpr, lin_index};
 //}}}
 //{{{ std imports
 use std::ops::{Index, IndexMut};

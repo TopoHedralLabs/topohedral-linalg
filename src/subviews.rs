@@ -9,7 +9,7 @@
 
 //{{{ crate imports
 use crate::apply_for_all_types;
-use crate::common::{tuple_index, Field, MatrixExpr, ReduceOps, ScalarExpr, Shape, TransformOps};
+use crate::common::{Field, MatrixExpr, ReduceOps, ScalarExpr, Shape, TransformOps, tuple_index};
 use crate::dmatrix::DMatrix;
 use crate::expression::binary_expr::{AddOp, BinopExpr, DivOp, MulOp, SubOp};
 use crate::expression::unary_expr::{NegOp, UnaryExpr};

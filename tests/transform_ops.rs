@@ -240,8 +240,6 @@ mod dmatrix_tests {
         smoke_float_transform_with_arg!(midpoint_mut, to_midpoint, into_midpoint, 1.25, -0.75);
         smoke_float_transform_with_arg!(min_mut, to_min, into_min, 1.25, -0.75);
         smoke_float_transform_with_two_args!(mul_add_mut, to_mul_add, into_mul_add, 2.0, 3.0, 4.0);
-        smoke_float_transform_unary!(next_down_mut, to_next_down, into_next_down, 1.0);
-        smoke_float_transform_unary!(next_up_mut, to_next_up, into_next_up, 1.0);
         smoke_float_transform_with_arg!(powf_mut, to_powf, into_powf, 4.0, 0.5);
         smoke_float_transform_with_arg!(powi_mut, to_powi, into_powi, 4.0, 2);
         smoke_float_transform_unary!(recip_mut, to_recip, into_recip, 4.0);

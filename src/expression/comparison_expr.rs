@@ -1,7 +1,7 @@
 //! Lazy element-wise comparison expressions.
 
 use crate::common::{MatrixExpr, ScalarExpr, Shape};
-use crate::{apply_for_all_types, DMatrix, SMatrix};
+use crate::{DMatrix, SMatrix, apply_for_all_types};
 use std::marker::PhantomData;
 
 /// Converts a comparison right-hand side into a matrix expression.

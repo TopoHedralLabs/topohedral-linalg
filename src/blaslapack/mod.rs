@@ -101,11 +101,11 @@ pub(crate) trait MatrixBuffer: crate::common::Shape {
     fn as_mut_slice(&mut self) -> &mut [Self::Scalar];
 }
 
-pub(crate) use gees::{schur_raw, Error as ShurRawError};
-pub(crate) use geev::{eig_raw, Error as EigRawError};
+pub(crate) use gees::{Error as ShurRawError, schur_raw};
+pub(crate) use geev::{Error as EigRawError, eig_raw};
 pub(crate) use gemm::matmul_dispatch;
-pub(crate) use geqrf::{qr_raw, QrRawError};
-pub(crate) use gesv::{solve_raw, Error as SolveRawError};
-pub(crate) use getrf::{lu_raw, Error as LuRawError};
-pub(crate) use potrf::{cholesky_raw, Error as CholeskyRawError};
-pub(crate) use syev::{symeig_raw, Error as SymEigRawError};
+pub(crate) use geqrf::{QrRawError, qr_raw};
+pub(crate) use gesv::{Error as SolveRawError, solve_raw};
+pub(crate) use getrf::{Error as LuRawError, lu_raw};
+pub(crate) use potrf::{Error as CholeskyRawError, cholesky_raw};
+pub(crate) use syev::{Error as SymEigRawError, symeig_raw};

@@ -9,7 +9,7 @@
 //--------------------------------------------------------------------------------------------------
 
 //{{{ crate imports
-use crate::blaslapack::{lu_raw, LapackScalar, LuRawError};
+use crate::blaslapack::{LapackScalar, LuRawError, lu_raw};
 use crate::dmatrix::DMatrix;
 //}}}
 //{{{ dep imports

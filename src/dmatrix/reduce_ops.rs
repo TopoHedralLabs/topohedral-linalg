@@ -9,9 +9,9 @@
 
 //{{{ crate imports
 use super::DMatrix;
+use crate::ReduceOps;
 use crate::common::tuple_index;
 use crate::subviews::{MatrixView, MatrixViewMut};
-use crate::ReduceOps;
 //}}}
 //{{{ std imports
 //}}}
